@@ -65,7 +65,11 @@ const favoriteCommerces = [
   }
 ];
 
-export const ProfilePage = () => {
+interface ProfilePageProps {
+  onBack?: () => void;
+}
+
+export const ProfilePage = ({ onBack }: ProfilePageProps) => {
   const [activeTab, setActiveTab] = useState("overview");
 
   const getActivityIcon = (type: string) => {
@@ -78,7 +82,7 @@ export const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen animate-fade-in">
       {/* Header Profile */}
       <div className="bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 p-6">
         <div className="flex items-center gap-4">

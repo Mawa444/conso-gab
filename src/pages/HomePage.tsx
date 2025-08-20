@@ -65,7 +65,7 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen animate-fade-in">
       {/* Hero Section */}
       <div className="relative h-64 overflow-hidden">
         <img 

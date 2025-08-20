@@ -53,7 +53,11 @@ const categories = [
   { id: "services", name: "Services", count: 234 }
 ];
 
-export const MapPage = () => {
+interface MapPageProps {
+  onBack?: () => void;
+}
+
+export const MapPage = ({ onBack }: MapPageProps) => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
@@ -65,7 +69,7 @@ export const MapPage = () => {
   });
 
   return (
-    <div className="h-screen bg-background flex flex-col pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex flex-col animate-fade-in">
       {/* Header avec recherche */}
       <div className="bg-card border-b border-border/50 p-4 space-y-3">
         {/* Barre de recherche */}

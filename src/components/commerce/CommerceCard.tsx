@@ -36,13 +36,13 @@ export const CommerceCard = ({
   return (
     <div
       className={cn(
-        "bg-card rounded-xl border border-border/50 overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-soft)] hover:scale-[1.02]",
-        isFeatured && "bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20"
+        "bg-card rounded-xl border-2 border-border shadow-[var(--shadow-card)] overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-elevated)] hover:scale-[1.02] hover:border-primary/30 animate-scale-in",
+        isFeatured && "bg-gradient-to-br from-primary/5 to-accent/5 border-primary/40 shadow-[var(--shadow-gaboma)]"
       )}
     >
       {/* Header avec photo ou icône */}
       <div className={cn(
-        "relative bg-gradient-to-br from-muted/50 to-muted/30",
+        "relative bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 border-b-2 border-border/50",
         isCompact ? "h-16" : "h-32"
       )}>
         {commerce.image ? (

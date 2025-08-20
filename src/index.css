@@ -8,8 +8,8 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* 100% Gaboma Design System - Couleurs du Gabon */
-    --background: 0 0% 100%;
+    /* 100% Gaboma Design System - Couleurs riches du Gabon */
+    --background: 130 15% 97%; /* Vert très clair inspiré de la nature gabonaise */
     --foreground: 0 0% 9%;
 
     --card: 0 0% 100%;
@@ -18,10 +18,18 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
 
-    /* Couleurs officielles du Gabon */
+    /* Couleurs officielles du Gabon enrichies */
     --gaboma-green: 130 100% 32%; /* #009639 - Vert du drapeau */
+    --gaboma-green-light: 130 60% 45%; /* Version plus claire */
+    --gaboma-green-dark: 130 100% 25%; /* Version plus foncée */
+    
     --gaboma-yellow: 50 100% 50%; /* #FFD100 - Jaune du drapeau */
+    --gaboma-yellow-light: 50 80% 60%; /* Version plus claire */
+    --gaboma-yellow-dark: 45 100% 40%; /* Version plus foncée */
+    
     --gaboma-blue: 215 55% 50%; /* #3A75C4 - Bleu du drapeau */
+    --gaboma-blue-light: 215 40% 60%; /* Version plus claire */
+    --gaboma-blue-dark: 215 70% 40%; /* Version plus foncée */
     
     --primary: var(--gaboma-green);
     --primary-foreground: 0 0% 100%;
@@ -32,29 +40,34 @@ All colors MUST be HSL.
     --accent: var(--gaboma-blue);
     --accent-foreground: 0 0% 100%;
 
-    --muted: 215 15% 96%;
-    --muted-foreground: 215 15% 45%;
+    --muted: 130 20% 94%; /* Teinte verte très légère */
+    --muted-foreground: 130 10% 35%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 15% 92%;
-    --input: 215 15% 92%;
+    --border: 130 25% 85%; /* Bordures avec une teinte verte */
+    --input: 130 15% 92%;
     --ring: var(--gaboma-green);
 
-    /* Gradients */
+    /* Gradients enrichis */
     --gradient-gaboma: linear-gradient(135deg, hsl(var(--gaboma-green)), hsl(var(--gaboma-yellow)));
     --gradient-hero: linear-gradient(180deg, hsl(var(--gaboma-blue)), hsl(var(--gaboma-green)));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100% / 0.8), hsl(0 0% 95% / 0.4));
+    --gradient-card: linear-gradient(145deg, hsl(var(--gaboma-green) / 0.05), hsl(var(--gaboma-blue) / 0.03));
+    --gradient-header: linear-gradient(90deg, hsl(var(--gaboma-green)), hsl(var(--gaboma-blue)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
 
-    /* Shadows */
+    /* Shadows améliorées */
     --shadow-gaboma: 0 10px 30px -10px hsl(var(--gaboma-green) / 0.3);
-    --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.1);
+    --shadow-soft: 0 4px 20px -4px hsl(var(--gaboma-green) / 0.15);
     --shadow-glow: 0 0 40px hsl(var(--gaboma-yellow) / 0.4);
+    --shadow-card: 0 8px 25px -8px hsl(var(--gaboma-green) / 0.2), 0 0 0 1px hsl(var(--border));
+    --shadow-elevated: 0 20px 60px -20px hsl(var(--gaboma-blue) / 0.3);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     --radius: 0.5rem;
 
@@ -76,14 +89,14 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 95%;
+    --background: 130 15% 8%; /* Fond sombre avec teinte verte */
+    --foreground: 130 5% 95%;
 
-    --card: 0 0% 11%;
-    --card-foreground: 0 0% 95%;
+    --card: 130 10% 12%;
+    --card-foreground: 130 5% 95%;
 
-    --popover: 0 0% 11%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 130 10% 12%;
+    --popover-foreground: 130 5% 95%;
 
     --primary: var(--gaboma-green);
     --primary-foreground: 0 0% 100%;
@@ -94,14 +107,14 @@ All colors MUST be HSL.
     --accent: var(--gaboma-blue);
     --accent-foreground: 0 0% 100%;
 
-    --muted: 215 15% 15%;
-    --muted-foreground: 215 15% 65%;
+    --muted: 130 15% 18%;
+    --muted-foreground: 130 10% 65%;
 
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 15% 20%;
-    --input: 215 15% 20%;
+    --border: 130 20% 25%;
+    --input: 130 15% 20%;
     --ring: var(--gaboma-green);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -134,6 +147,18 @@ All colors MUST be HSL.
 
   .animate-bounce-soft {
     animation: bounce-soft 1s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.2s ease-out;
   }
 
   /* QR Scanner overlay */
@@ -172,4 +197,19 @@ All colors MUST be HSL.
 @keyframes bounce-soft {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

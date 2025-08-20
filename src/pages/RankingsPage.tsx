@@ -103,7 +103,11 @@ const badges = [
   { name: "Master reviewer", icon: "📝", description: "100 avis laissés", earned: false }
 ];
 
-export const RankingsPage = () => {
+interface RankingsPageProps {
+  onBack?: () => void;
+}
+
+export const RankingsPage = ({ onBack }: RankingsPageProps) => {
   const [activeTab, setActiveTab] = useState("commerces");
 
   const getRankIcon = (position: number) => {
@@ -116,7 +120,7 @@ export const RankingsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen animate-fade-in">
       {/* Header */}
       <div className="bg-gradient-to-br from-accent/10 to-primary/10 p-6">
         <div className="text-center">
