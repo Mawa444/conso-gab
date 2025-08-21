@@ -11,7 +11,7 @@ const userProfile = {
   joinDate: "Mars 2024",
   userType: "client", // client, commerçant, employé
   points: 2847,
-  level: "Ambassador Gaboma",
+  level: "Ambassador ConsoGab",
   scansCount: 45,
   reviewsCount: 23,
   favoritesCount: 12
@@ -67,9 +67,10 @@ const favoriteCommerces = [
 
 interface ProfilePageProps {
   onBack?: () => void;
+  onSettings?: () => void;
 }
 
-export const ProfilePage = ({ onBack }: ProfilePageProps) => {
+export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
   const [activeTab, setActiveTab] = useState("overview");
 
   const getActivityIcon = (type: string) => {
@@ -99,7 +100,7 @@ export const ProfilePage = ({ onBack }: ProfilePageProps) => {
             </div>
           </div>
           
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={onSettings}>
             <Settings className="w-5 h-5" />
           </Button>
         </div>
@@ -140,7 +141,7 @@ export const ProfilePage = ({ onBack }: ProfilePageProps) => {
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span>Ambassador Gaboma</span>
+                  <span>Ambassador ConsoGab</span>
                   <span>2847 / 5000 pts</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">

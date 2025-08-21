@@ -16,7 +16,7 @@ const navItems = [
 
 export const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t-2 border-border shadow-[var(--shadow-elevated)] safe-area-pb z-50 backdrop-blur-sm">
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t-2 border-border shadow-[var(--shadow-elevated)] safe-area-pb z-[90] backdrop-blur-sm">
       <div className="flex items-center justify-around px-2 py-2">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;

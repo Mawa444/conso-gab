@@ -48,9 +48,10 @@ const featuredCommerces = [
 
 interface HomePageProps {
   onNavigate: (tab: string) => void;
+  onMessage?: (commerce: any) => void;
 }
 
-export const HomePage = ({ onNavigate }: HomePageProps) => {
+export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
   const [showScanner, setShowScanner] = useState(false);
   const [scannedCommerce, setScannedCommerce] = useState<any>(null);
 
@@ -81,24 +82,14 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
             <div className="flex items-center gap-3">
               <img 
                 src={gabomaLogo} 
-                alt="100% Gaboma" 
+                alt="ConsoGab" 
                 className="w-12 h-12 rounded-lg shadow-lg"
               />
               <div>
-                <h1 className="text-white font-bold text-xl">100% Gaboma</h1>
+                <h1 className="text-white font-bold text-xl">ConsoGab</h1>
                 <p className="text-white/90 text-sm">Consommer local, c'est patriote!</p>
               </div>
             </div>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onNavigate("map")}
-              className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
-            >
-              <MapPin className="w-4 h-4 mr-1" />
-              Autour de moi
-            </Button>
           </div>
 
           {/* CTA Principal */}
@@ -148,6 +139,7 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
               commerce={scannedCommerce} 
               variant="featured"
               onSelect={() => {/* Ouvrir le détail */}}
+              onMessage={onMessage}
             />
           </div>
         </div>
@@ -175,6 +167,7 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
               commerce={commerce}
               variant="compact"
               onSelect={() => {/* Ouvrir le détail */}}
+              onMessage={onMessage}
               onFavorite={(id) => {
                 // Toggle favorite logic
                 console.log("Toggle favorite for:", id);

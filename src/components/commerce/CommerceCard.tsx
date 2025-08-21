@@ -21,6 +21,7 @@ interface CommerceCardProps {
   commerce: Commerce;
   onSelect?: (commerce: Commerce) => void;
   onFavorite?: (commerceId: string) => void;
+  onMessage?: (commerce: Commerce) => void;
   variant?: "default" | "compact" | "featured";
 }
 
@@ -28,6 +29,7 @@ export const CommerceCard = ({
   commerce, 
   onSelect, 
   onFavorite,
+  onMessage,
   variant = "default" 
 }: CommerceCardProps) => {
   const isCompact = variant === "compact";
@@ -156,15 +158,27 @@ export const CommerceCard = ({
           </div>
         )}
 
-        {/* Action */}
-        <Button
-          onClick={() => onSelect?.(commerce)}
-          variant={isFeatured ? "gaboma" : "outline"}
-          size="sm"
-          className="w-full"
-        >
-          Voir le commerce
-        </Button>
+        {/* Actions */}
+        <div className="flex gap-2">
+          <Button
+            onClick={() => onSelect?.(commerce)}
+            variant={isFeatured ? "gaboma" : "outline"}
+            size="sm"
+            className="flex-1"
+          >
+            Voir le commerce
+          </Button>
+          {onMessage && (
+            <Button
+              onClick={() => onMessage(commerce)}
+              variant="ghost"
+              size="sm"
+              className="px-3"
+            >
+              💬
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

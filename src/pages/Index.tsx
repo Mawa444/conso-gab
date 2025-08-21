@@ -6,10 +6,15 @@ import { MapPage } from "@/pages/MapPage";
 import { RankingsPage } from "@/pages/RankingsPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { QRScanner } from "@/components/scanner/QRScanner";
+import { MessageModal } from "@/components/messaging/MessageModal";
+import { ProfileSettings } from "@/components/profile/ProfileSettings";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [showScanner, setShowScanner] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
 
   const getPageTitle = () => {
     switch (activeTab) {
@@ -31,6 +36,18 @@ const Index = () => {
     }
   };
 
+  const handleLocationClick = () => {
+    setActiveTab("map");
+  };
+
+  const handleMessageClick = () => {
+    setShowMessageModal(true);
+  };
+
+  const handleProfileSettings = () => {
+    setShowProfileSettings(true);
+  };
+
   const handleScanResult = (result: string) => {
     console.log("QR Code scanné:", result);
     setShowScanner(false);
@@ -44,9 +61,12 @@ const Index = () => {
       case "rankings":
         return <RankingsPage onBack={() => setActiveTab("home")} />;
       case "profile":
-        return <ProfilePage onBack={() => setActiveTab("home")} />;
+        return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
       default:
-        return <HomePage onNavigate={setActiveTab} />;
+        return <HomePage onNavigate={setActiveTab} onMessage={(commerce) => {
+          setSelectedCommerce(commerce);
+          setShowMessageModal(true);
+        }} />;
     }
   };
 
@@ -56,8 +76,10 @@ const Index = () => {
         title={getPageTitle()}
         showBack={showBackButton}
         onBack={() => setActiveTab("home")}
+        onLocationClick={handleLocationClick}
+        onMessageClick={handleMessageClick}
       />
-      <main className="pt-16 pb-20 animate-fade-in">
+      <main className="pt-20 pb-20 animate-fade-in min-h-screen">
         {renderActiveTab()}
       </main>
       
@@ -70,6 +92,22 @@ const Index = () => {
         <QRScanner
           onClose={() => setShowScanner(false)}
           onScan={handleScanResult}
+        />
+      )}
+
+      {showMessageModal && (
+        <MessageModal
+          open={showMessageModal}
+          onClose={() => setShowMessageModal(false)}
+          commerce={selectedCommerce}
+        />
+      )}
+
+      {showProfileSettings && (
+        <ProfileSettings
+          open={showProfileSettings}
+          onClose={() => setShowProfileSettings(false)}
+          userType="client"
         />
       )}
     </div>
