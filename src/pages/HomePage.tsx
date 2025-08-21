@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CommerceCard } from "@/components/commerce/CommerceCard";
 import { QRScanner } from "@/components/scanner/QRScanner";
+import { AdCarousel } from "@/components/advertising/AdCarousel";
 import gabomaLogo from "@/assets/gaboma-logo.png";
-import heroImage from "@/assets/hero-marketplace.jpg";
 
 const featuredCommerces = [
   {
@@ -66,18 +66,11 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
   };
 
   return (
-    <div className="min-h-screen animate-fade-in">
-      {/* Hero Section */}
-      <div className="relative h-64 overflow-hidden">
-        <img 
-          src={heroImage} 
-          alt="Marché gabonais" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-        
-        {/* Header content */}
-        <div className="absolute inset-0 flex flex-col justify-between p-4">
+    <div className="min-h-screen animate-fade-in bg-gradient-to-br from-background via-muted/30 to-background">
+      {/* Section publicité et actions principales */}
+      <div className="relative bg-gradient-to-br from-primary via-accent to-primary/90 text-white rounded-b-3xl overflow-hidden shadow-lg">
+        <div className="p-4 space-y-6">
+          {/* En-tête avec nom et actions */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img 
@@ -92,23 +85,38 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
             </div>
           </div>
 
-          {/* CTA Principal */}
-          <div className="text-center">
-            <Button
-              onClick={() => setShowScanner(true)}
-              variant="hero"
-              size="xl"
-              className="w-full max-w-xs mx-auto animate-pulse-soft"
-            >
-              <QrCode className="w-6 h-6 mr-2" />
-              Scanner un commerce
-            </Button>
-          </div>
+          {/* Carousel publicitaire */}
+          <AdCarousel />
+        </div>
+      </div>
+
+      {/* Actions principales */}
+      <div className="p-4 space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            onClick={() => setShowScanner(true)}
+            variant="gaboma"
+            size="lg"
+            className="h-24 flex flex-col items-center justify-center gap-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          >
+            <QrCode className="w-8 h-8" />
+            Scanner un commerce
+          </Button>
+          
+          <Button
+            onClick={() => onNavigate("map")}
+            variant="outline"
+            size="lg"
+            className="h-24 flex flex-col items-center justify-center gap-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-2"
+          >
+            <MapPin className="w-8 h-8" />
+            Autour de moi
+          </Button>
         </div>
       </div>
 
       {/* Stats rapides */}
-      <div className="px-4 -mt-8 relative z-10">
+      <div className="px-4 -mt-2">
         <div className="bg-card rounded-xl shadow-lg border border-border/50 p-4">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
@@ -127,7 +135,7 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
         </div>
       </div>
 
-      {/* Commerce du mois */}
+      {/* Commerce scanné */}
       {scannedCommerce && (
         <div className="p-4">
           <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-4 border-l-4 border-primary">

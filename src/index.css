@@ -213,3 +213,19 @@ All colors MUST be HSL.
   from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
+/* Scroll behavior */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Progress animation for carousel */
+@keyframes progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
