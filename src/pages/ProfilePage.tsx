@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell } from "lucide-react";
+import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const userProfile = {
   name: "Marie Dubois",
@@ -72,6 +74,8 @@ interface ProfilePageProps {
 
 export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [activityFilter, setActivityFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -84,40 +88,58 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
 
   return (
     <div className="min-h-screen animate-fade-in">
-      {/* Header Profile */}
-      <div className="bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 p-6">
-        <div className="flex items-center gap-4">
-          <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-lg">
-            <User className="w-10 h-10 text-white" />
-          </div>
-          
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-foreground">{userProfile.name}</h1>
-            <p className="text-muted-foreground text-sm">{userProfile.email}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant="default">{userProfile.level}</Badge>
-              <Badge variant="outline">{userProfile.joinDate}</Badge>
+      {/* Header Profile moderne */}
+      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
+              <User className="w-12 h-12 text-white" />
             </div>
+            
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-white">{userProfile.name}</h1>
+              <p className="text-white/80 text-sm">{userProfile.email}</p>
+              <div className="flex items-center gap-2 mt-3">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                  {userProfile.level}
+                </Badge>
+                <Badge variant="outline" className="border-white/30 text-white/80">
+                  Membre depuis {userProfile.joinDate}
+                </Badge>
+              </div>
+            </div>
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onSettings}
+              className="text-white hover:bg-white/20 backdrop-blur-sm"
+            >
+              <Settings className="w-6 h-6" />
+            </Button>
           </div>
-          
-          <Button variant="ghost" size="icon" onClick={onSettings}>
-            <Settings className="w-5 h-5" />
-          </Button>
-        </div>
 
-        {/* Stats rapides */}
-        <div className="grid grid-cols-3 gap-4 mt-6">
-          <div className="text-center bg-card/50 rounded-lg p-3">
-            <div className="text-2xl font-bold text-primary">{userProfile.points}</div>
-            <div className="text-xs text-muted-foreground">Points</div>
-          </div>
-          <div className="text-center bg-card/50 rounded-lg p-3">
-            <div className="text-2xl font-bold text-accent">{userProfile.scansCount}</div>
-            <div className="text-xs text-muted-foreground">Scans</div>
-          </div>
-          <div className="text-center bg-card/50 rounded-lg p-3">
-            <div className="text-2xl font-bold text-secondary">{userProfile.reviewsCount}</div>
-            <div className="text-xs text-muted-foreground">Avis</div>
+          {/* Stats rapides modernisées */}
+          <div className="grid grid-cols-3 gap-4 mt-8">
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
+              <CardContent className="p-4">
+                <div className="text-3xl font-bold text-white">{userProfile.points}</div>
+                <div className="text-sm text-white/70">Points ConsoGab</div>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
+              <CardContent className="p-4">
+                <div className="text-3xl font-bold text-white">{userProfile.scansCount}</div>
+                <div className="text-sm text-white/70">Scans effectués</div>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
+              <CardContent className="p-4">
+                <div className="text-3xl font-bold text-white">{userProfile.reviewsCount}</div>
+                <div className="text-sm text-white/70">Avis publiés</div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
@@ -133,28 +155,35 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
 
           {/* Aperçu */}
           <TabsContent value="overview" className="space-y-6">
-            {/* Progression niveau */}
-            <div className="bg-card rounded-xl border border-border/50 p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold">Progression</h3>
-                <Badge variant="badge">Niveau 4</Badge>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
+            {/* Progression niveau modernisée */}
+            <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Progression ConsoGab</CardTitle>
+                  <Badge className="bg-primary/20 text-primary">Niveau 4</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between text-sm font-medium">
                   <span>Ambassador ConsoGab</span>
-                  <span>2847 / 5000 pts</span>
+                  <span className="text-primary">{userProfile.points} / 5000 pts</span>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-3 overflow-hidden shadow-inner">
                   <div 
-                    className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-primary via-accent to-secondary h-3 rounded-full transition-all duration-700 relative overflow-hidden"
                     style={{ width: `${(userProfile.points / 5000) * 100}%` }}
-                  />
+                  >
+                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Plus que 2153 points pour atteindre "Local Hero"
-                </p>
-              </div>
-            </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                  <p className="text-sm text-muted-foreground">
+                    Plus que <span className="font-semibold text-primary">2153 points</span> pour atteindre "Local Hero"
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Actions rapides */}
             <div className="space-y-3">
@@ -208,9 +237,23 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
 
           {/* Activité */}
           <TabsContent value="activity" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Activité récente</h3>
-              <Button variant="ghost" size="sm">Voir tout</Button>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Activité récente</h3>
+              <div className="flex gap-2">
+                <Select value={activityFilter} onValueChange={setActivityFilter}>
+                  <SelectTrigger className="w-32">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes</SelectItem>
+                    <SelectItem value="scan">Scans</SelectItem>
+                    <SelectItem value="review">Avis</SelectItem>
+                    <SelectItem value="badge">Badges</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size="sm">Exporter</Button>
+              </div>
             </div>
             
             {recentActivity.map((activity) => (

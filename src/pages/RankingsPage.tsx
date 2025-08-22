@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Trophy, Star, Users, TrendingUp, Award, Medal, Crown } from "lucide-react";
+import { Trophy, Star, Users, TrendingUp, Award, Medal, Crown, Filter, MapPin, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GeographicFilter } from "@/components/filters/GeographicFilter";
 
 const topCommerces = [
   {
@@ -109,6 +112,8 @@ interface RankingsPageProps {
 
 export const RankingsPage = ({ onBack }: RankingsPageProps) => {
   const [activeTab, setActiveTab] = useState("commerces");
+  const [selectedLocation, setSelectedLocation] = useState("all");
+  const [sortBy, setSortBy] = useState("rating");
 
   const getRankIcon = (position: number) => {
     switch (position) {
@@ -121,14 +126,40 @@ export const RankingsPage = ({ onBack }: RankingsPageProps) => {
 
   return (
     <div className="min-h-screen animate-fade-in">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-accent/10 to-primary/10 p-6">
+      {/* Header moderne avec design unifié */}
+      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white">
         <div className="text-center">
-          <Trophy className="w-12 h-12 text-accent mx-auto mb-3" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">Classements</h1>
-          <p className="text-muted-foreground">
-            Les meilleurs de la communauté 100% Gaboma
+          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Trophy className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold mb-2">Classements</h1>
+          <p className="text-white/80 text-sm">
+            Les meilleurs de la communauté ConsoGab
           </p>
+        </div>
+      </div>
+
+      {/* Filtres et contrôles */}
+      <div className="p-4 bg-background/95 backdrop-blur-sm border-b">
+        <div className="flex gap-3 mb-4">
+          <GeographicFilter 
+            value={selectedLocation} 
+            onValueChange={setSelectedLocation}
+            className="flex-1"
+          />
+          
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="flex-1">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Trier par" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="rating">Mieux notés</SelectItem>
+              <SelectItem value="reviews">Plus d'avis</SelectItem>
+              <SelectItem value="trending">Tendances</SelectItem>
+              <SelectItem value="recent">Récents</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -144,46 +175,78 @@ export const RankingsPage = ({ onBack }: RankingsPageProps) => {
 
           {/* Top Commerces */}
           <TabsContent value="commerces" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Top Commerces</h2>
-              <Badge variant="outline">Cette semaine</Badge>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">Top Commerces</h2>
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
+                {selectedLocation === "all" ? "🇬🇦 Tout le Gabon" : `📍 ${selectedLocation}`}
+              </Badge>
             </div>
             
-            {topCommerces.map((commerce, index) => (
-              <div
-                key={commerce.id}
-                className="bg-card rounded-xl border border-border/50 p-4 hover:shadow-[var(--shadow-soft)] transition-all"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0">
-                    {getRankIcon(index + 1)}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold truncate">{commerce.name}</h3>
-                      <Badge variant="badge" className="text-xs">
-                        {commerce.badge}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Par {commerce.owner} • {commerce.type}
-                    </p>
+            <div className="grid gap-4">
+              {topCommerces.map((commerce, index) => (
+                <Card
+                  key={commerce.id}
+                  className={`group transition-all duration-300 hover:shadow-[var(--shadow-gaboma)] border-2 ${
+                    index === 0 ? 'border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5' : 
+                    'border-border/50 hover:border-primary/30'
+                  }`}
+                >
+                  <CardContent className="p-4">
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{commerce.rating}</span>
-                        <span className="text-xs text-muted-foreground">({commerce.reviews})</span>
+                      <div className="relative">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
+                          index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
+                          index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500' :
+                          index === 2 ? 'bg-gradient-to-br from-amber-500 to-amber-700' :
+                          'bg-gradient-to-br from-primary/20 to-accent/20'
+                        }`}>
+                          {getRankIcon(index + 1)}
+                        </div>
+                        {index < 3 && (
+                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                            <span className="text-xs font-bold text-primary-foreground">{index + 1}</span>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center gap-1 text-green-600">
-                        <TrendingUp className="w-3 h-3" />
-                        <span className="text-xs">{commerce.trend}</span>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-bold text-lg truncate group-hover:text-primary transition-colors">
+                            {commerce.name}
+                          </h3>
+                          <Badge variant="secondary" className="text-xs bg-accent/20 text-accent-foreground">
+                            {commerce.badge}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
+                          <MapPin className="w-3 h-3" />
+                          Par {commerce.owner} • {commerce.type}
+                        </p>
+                        <div className="flex items-center gap-6">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                            <span className="text-lg font-bold">{commerce.rating}</span>
+                            <span className="text-sm text-muted-foreground">({commerce.reviews} avis)</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                            <TrendingUp className="w-4 h-4" />
+                            <span className="text-sm font-medium">{commerce.trend}</span>
+                          </div>
+                        </div>
                       </div>
+                      
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="shrink-0 hover:bg-primary hover:text-primary-foreground"
+                      >
+                        Voir
+                      </Button>
                     </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Top Employés */}
