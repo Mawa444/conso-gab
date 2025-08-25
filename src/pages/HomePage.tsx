@@ -159,48 +159,48 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
     }
   };
 
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section avec recherche intégrée - Pleine largeur */}
-      <HeroBlock 
-        onSearch={(item) => {
-          console.log("Recherche sélectionnée:", item);
-          // Traitement de la sélection
-        }}
-      />
-
-      {/* Contenu principal avec espacements */}
-      <div className="space-y-8 p-4">
-        {/* Statistiques rapides */}
-        <StatsBlock />
-
-        {/* Carrousel publicitaire entre catégories */}
-        <div className="relative">
-          <AdCarousel />
+  // Fonction pour insérer des pubs tous les 10 commerces
+  const renderCommercesWithAds = () => {
+    const elementsToRender = [];
+    
+    for (let i = 0; i < sponsoredCommerces.length; i += 10) {
+      const chunk = sponsoredCommerces.slice(i, i + 10);
+      
+      // Ajouter la bannière publicitaire avant chaque groupe
+      elementsToRender.push(
+        <div key={`ad-${i}`} className="relative mb-8">
+          <AdCarousel userLocation="Libreville" />
         </div>
-
-        {/* Actions principales */}
-        <ActionButtonsBlock
-          onScanClick={() => setShowScanner(true)}
-          onNearbyClick={() => onNavigate("map")}
-          onRankingsClick={() => onNavigate("rankings")}
-          onTopBusinessesClick={() => console.log("Top businesses")}
-        />
-
-        {/* Commerces sponsorisés */}
+      );
+      
+      // Ajouter le groupe de 10 commerces
+      elementsToRender.push(
         <CommerceListBlock
-          title="Commerces sponsorisés"
-          commerces={sponsoredCommerces}
+          key={`commerces-${i}`}
+          title={i === 0 ? "Commerces sponsorisés" : `Commerces sponsorisés (${i + 1}-${Math.min(i + 10, sponsoredCommerces.length)})`}
+          commerces={chunk}
           onSelect={(commerce) => console.log("Commerce sélectionné:", commerce)}
           onFavorite={(commerce) => console.log("Favoris:", commerce)}
           onMessage={onMessage}
           showFilters={false}
           viewMode="grid"
         />
+      );
+    }
+    
+    return elementsToRender;
+  };
 
-        {/* Carrousel publicitaire après les commerces */}
+  return (
+    <div className="min-h-screen">
+      {/* Contenu principal avec espacements */}
+      <div className="space-y-8 p-4 pt-24">
+        {/* Commerces avec bannières publicitaires intégrées */}
+        {renderCommercesWithAds()}
+
+        {/* Bannière publicitaire finale */}
         <div className="relative">
-          <AdCarousel />
+          <AdCarousel userLocation="Libreville" />
         </div>
 
         {/* Toutes les catégories */}

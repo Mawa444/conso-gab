@@ -9,7 +9,7 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* 100% Gaboma Design System - Couleurs riches du Gabon */
-    --background: 130 15% 97%; /* Vert très clair inspiré de la nature gabonaise */
+    --background: 130 15% 92%; /* Vert très clair inspiré de la nature gabonaise - assombri de 5% */
     --foreground: 0 0% 9%;
 
     --card: 0 0% 100%;
@@ -89,7 +89,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 130 15% 8%; /* Fond sombre avec teinte verte */
+    --background: 130 15% 3%; /* Fond sombre avec teinte verte - assombri de 5% */
     --foreground: 130 5% 95%;
 
     --card: 130 10% 12%;

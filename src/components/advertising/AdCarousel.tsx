@@ -10,7 +10,8 @@ const advertisementSlides = [
     subtitle: "Plus de 50 nouveaux commerces rejoignent ConsoGab",
     image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=400&fit=crop",
     backgroundColor: "from-emerald-500 to-teal-600",
-    cta: "Voir les nouveautés"
+    cta: "Voir les nouveautés",
+    targetZone: "Libreville"
   },
   {
     id: 2,
@@ -18,7 +19,8 @@ const advertisementSlides = [
     subtitle: "10% de réduction chez nos partenaires beauté",
     image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=400&fit=crop",
     backgroundColor: "from-rose-500 to-pink-600",
-    cta: "Profiter de l'offre"
+    cta: "Profiter de l'offre",
+    targetZone: "Libreville"
   },
   {
     id: 3,
@@ -26,7 +28,8 @@ const advertisementSlides = [
     subtitle: "ConsoGab s'étend maintenant à Port-Gentil",
     image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=400&fit=crop",
     backgroundColor: "from-blue-500 to-indigo-600",
-    cta: "En savoir plus"
+    cta: "En savoir plus",
+    targetZone: "Port-Gentil"
   },
   {
     id: 4,
@@ -34,11 +37,39 @@ const advertisementSlides = [
     subtitle: "Gagnez des points à chaque achat et débloquez des récompenses",
     image: "https://images.unsplash.com/photo-1607734834519-d8576ae60ea7?w=800&h=400&fit=crop",
     backgroundColor: "from-amber-500 to-orange-600",
-    cta: "Rejoindre maintenant"
+    cta: "Rejoindre maintenant",
+    targetZone: "National"
+  },
+  {
+    id: 5,
+    title: "Restaurant Chez Maman Rosine",
+    subtitle: "Spécialités gabonaises authentiques à Owendo",
+    image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop",
+    backgroundColor: "from-orange-500 to-red-600",
+    cta: "Commander maintenant",
+    targetZone: "Owendo"
+  },
+  {
+    id: 6,
+    title: "Pharmacie Lambaréné Centre",
+    subtitle: "Vos médicaments livrés en 30 minutes",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop",
+    backgroundColor: "from-green-500 to-teal-600",
+    cta: "Voir les produits",
+    targetZone: "Lambaréné"
   }
 ];
 
-export const AdCarousel = () => {
+interface AdCarouselProps {
+  userLocation?: string;
+}
+
+export const AdCarousel = ({ userLocation = "Libreville" }: AdCarouselProps) => {
+  // Filtrer les publicités selon la zone géographique
+  const filteredSlides = advertisementSlides.filter(slide => 
+    slide.targetZone === "National" || slide.targetZone === userLocation
+  );
+  
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -47,20 +78,20 @@ export const AdCarousel = () => {
     if (!isAutoPlaying) return;
     
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % advertisementSlides.length);
+      setCurrentSlide((prev) => (prev + 1) % filteredSlides.length);
     }, 5000);
 
     return () => clearInterval(interval);
   }, [isAutoPlaying]);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % advertisementSlides.length);
+    setCurrentSlide((prev) => (prev + 1) % filteredSlides.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + advertisementSlides.length) % advertisementSlides.length);
+    setCurrentSlide((prev) => (prev - 1 + filteredSlides.length) % filteredSlides.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
@@ -78,7 +109,7 @@ export const AdCarousel = () => {
         className="flex h-full transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
-        {advertisementSlides.map((slide) => (
+        {filteredSlides.map((slide) => (
           <div 
             key={slide.id}
             className="w-full h-full flex-shrink-0 relative"
@@ -139,7 +170,7 @@ export const AdCarousel = () => {
 
       {/* Dots indicator */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-        {advertisementSlides.map((_, index) => (
+        {filteredSlides.map((_, index) => (
           <button
             key={index}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${

@@ -35,6 +35,7 @@ export const Header = ({ title, showBack, onBack, showNotifications = true, onLo
               />
               <div>
                 <h1 className="text-lg font-bold">ConsoGab</h1>
+                <p className="text-xs text-white/70">Découvrez le commerce gabonais</p>
                 {title && (
                   <p className="text-sm text-white/80">{title}</p>
                 )}
