@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { GeolocalizedAdCarousel } from "@/components/advertising/GeolocalizedAdCarousel";
 
+// Catégories avec couleurs cohérentes dans toute l'application
 const categories = [
   {
     id: "commerce",

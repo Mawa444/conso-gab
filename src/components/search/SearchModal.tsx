@@ -1,11 +1,13 @@
 import { useState, useMemo } from "react";
-import { Search, MapPin, Star, TrendingUp, X, ChevronRight } from "lucide-react";
+import { Search, MapPin, Star, TrendingUp, X, ChevronRight, Filter, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CommerceListBlock } from "@/components/blocks/CommerceListBlock";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CategoryResultsPage } from "@/components/categories/CategoryResultsPage";
 import { cn } from "@/lib/utils";
 
 // Données de recherche simulées
@@ -134,6 +136,22 @@ const mainCategories = [
   { id: "finance", title: "Banques, Finance & Assurances", icon: "💳", color: "from-teal-500 to-green-600" }
 ];
 
+// Données de localisation pour le filtrage géographique
+const locations = {
+  "Libreville": {
+    provinces: ["Estuaire"],
+    departments: ["Libreville"],
+    arrondissements: ["1er Arrondissement", "2e Arrondissement", "3e Arrondissement", "4e Arrondissement", "5e Arrondissement", "6e Arrondissement"],
+    quartiers: ["Akanda", "Nombakélé", "Glass", "Montagne Sainte", "Lalala", "Nzeng-Ayong", "Batterie IV", "Centre-ville"]
+  },
+  "Port-Gentil": {
+    provinces: ["Ogooué-Maritime"],
+    departments: ["Bendje"],
+    arrondissements: ["1er Arrondissement", "2e Arrondissement"],
+    quartiers: ["Boucau", "Cité", "Zone Industrielle", "Bord de Mer"]
+  }
+};
+
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -143,6 +161,9 @@ interface SearchModalProps {
 
 export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Libreville" }: SearchModalProps) => {
   const [query, setQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [selectedLocation, setSelectedLocation] = useState(userLocation);
+  const [selectedZone, setSelectedZone] = useState<string>("all");
 
   // Algorithme de recherche intelligente avec tolérance aux fautes
   const results = useMemo(() => {
@@ -206,30 +227,70 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
     }
   };
 
+  // Gestion du retour depuis la page de catégorie
+  if (selectedCategory) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-full h-screen p-0 gap-0">
+          <CategoryResultsPage 
+            category={selectedCategory} 
+            onBack={() => setSelectedCategory(null)} 
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 gap-0">
-        {/* Header fixe avec barre de recherche */}
-        <div className="sticky top-0 z-10 p-6 border-b border-border/30 bg-background/95 backdrop-blur-sm">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Rechercher un commerce, service, produit..."
-                className="pl-14 pr-4 py-5 text-xl bg-background border-2 border-border/50 hover:border-primary/30 focus:border-primary/50 rounded-2xl shadow-lg"
-                autoFocus
-              />
+      <DialogContent className="max-w-5xl h-[95vh] p-0 gap-0 bg-background">
+        {/* Header fixe avec barre de recherche et navigation */}
+        <div className="sticky top-0 z-20 bg-background/98 backdrop-blur-md border-b border-border/30">
+          <div className="p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="w-10 h-10 text-muted-foreground hover:text-foreground flex-shrink-0"
+              >
+                <X className="w-6 h-6" />
+              </Button>
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Rechercher un commerce, service, produit..."
+                  className="pl-14 pr-4 py-4 text-lg bg-background border-2 border-border/50 hover:border-primary/30 focus:border-primary/50 rounded-2xl shadow-lg"
+                  autoFocus
+                />
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="w-12 h-12 text-muted-foreground hover:text-foreground"
-            >
-              <X className="w-6 h-6" />
-            </Button>
+            
+            {/* Filtres géographiques */}
+            <div className="flex items-center gap-3 overflow-x-auto pb-2">
+              <div className="flex items-center gap-1 text-sm text-muted-foreground whitespace-nowrap">
+                <Filter className="w-4 h-4" />
+                <span>Zone:</span>
+              </div>
+              <Select value={selectedZone} onValueChange={setSelectedZone}>
+                <SelectTrigger className="w-48 h-9 bg-background/50 border-border/50">
+                  <SelectValue placeholder="Toutes les zones" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les zones</SelectItem>
+                  {locations[selectedLocation as keyof typeof locations]?.quartiers.map((quartier) => (
+                    <SelectItem key={quartier} value={quartier}>{quartier}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Badge variant="outline" className="flex items-center gap-1 whitespace-nowrap">
+                <MapPin className="w-3 h-3" />
+                {selectedLocation}
+              </Badge>
+            </div>
           </div>
         </div>
 
@@ -275,8 +336,7 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
                       key={category.id} 
                       className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/30 cursor-pointer"
                       onClick={() => {
-                        onSelect?.(category);
-                        // Navigation vers la page de résultats de catégorie
+                        setSelectedCategory(category);
                       }}
                     >
                       <CardContent className="p-4">
