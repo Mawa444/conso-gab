@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { IntelligentSearchBar } from "@/components/search/IntelligentSearchBar";
-import gabomaLogo from "@/assets/gaboma-logo.png";
 
 interface HeroBlockProps {
   onSearch?: (item: any) => void;
@@ -9,36 +8,21 @@ interface HeroBlockProps {
 
 export const HeroBlock = ({ onSearch, className }: HeroBlockProps) => {
   return (
-    <div className={`bg-gradient-to-br from-primary via-accent to-secondary p-8 rounded-2xl text-white relative overflow-hidden shadow-[var(--shadow-gaboma)] ${className}`}>
-      {/* Motifs décoratifs */}
+    <div className={`w-full bg-gradient-to-br from-primary via-accent to-secondary py-8 px-4 text-white relative overflow-hidden ${className}`}>
+      {/* Motifs décoratifs subtils */}
       <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
-      <div className="absolute top-4 right-4 w-32 h-32 bg-white/5 rounded-full animate-pulse-soft"></div>
-      <div className="absolute bottom-4 left-4 w-24 h-24 bg-white/10 rounded-full animate-float"></div>
       
-      <div className="relative z-10 text-center space-y-6">
-        {/* Logo et titre */}
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <img 
-            src={gabomaLogo} 
-            alt="ConsoGab" 
-            className="w-12 h-12 rounded-xl shadow-lg border border-white/20"
-          />
-          <div>
-            <h1 className="text-3xl font-bold text-white">ConsoGab</h1>
-            <p className="text-sm text-white/80">Votre guide du commerce gabonais</p>
-          </div>
-        </div>
-
+      <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
         {/* Message d'accueil */}
         <div className="space-y-2">
-          <h2 className="text-xl font-semibold">Découvrez les meilleurs commerces du Gabon</h2>
-          <p className="text-white/80 text-sm max-w-md mx-auto">
+          <h2 className="text-2xl font-bold">Découvrez les meilleurs commerces du Gabon</h2>
+          <p className="text-white/80 text-base max-w-2xl mx-auto">
             Trouvez, évaluez et soutenez les entreprises locales avec notre plateforme intelligente
           </p>
         </div>
 
         {/* Barre de recherche intégrée */}
-        <div className="max-w-md mx-auto">
+        <div className="w-full max-w-2xl mx-auto">
           <IntelligentSearchBar
             onSelect={onSearch}
             placeholder="Rechercher commerces, services..."
@@ -47,7 +31,7 @@ export const HeroBlock = ({ onSearch, className }: HeroBlockProps) => {
         </div>
 
         {/* Actions rapides */}
-        <div className="flex justify-center gap-3">
+        <div className="flex justify-center gap-3 flex-wrap">
           <Button
             variant="secondary"
             size="sm"

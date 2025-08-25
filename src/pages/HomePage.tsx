@@ -65,8 +65,8 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
   };
 
   return (
-    <div className="min-h-screen space-y-8 p-4 animate-fade-in">
-      {/* Hero Section avec recherche intégrée */}
+    <div className="min-h-screen">
+      {/* Hero Section avec recherche intégrée - Pleine largeur */}
       <HeroBlock 
         onSearch={(item) => {
           console.log("Recherche sélectionnée:", item);
@@ -74,32 +74,35 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
         }}
       />
 
-      {/* Carrousel publicitaire - avec espacement harmonisé */}
-      <div className="relative">
-        <AdCarousel />
+      {/* Contenu principal avec espacements */}
+      <div className="space-y-8 p-4">
+        {/* Statistiques rapides */}
+        <StatsBlock />
+
+        {/* Carrousel publicitaire entre catégories */}
+        <div className="relative">
+          <AdCarousel />
+        </div>
+
+        {/* Actions principales */}
+        <ActionButtonsBlock
+          onScanClick={() => setShowScanner(true)}
+          onNearbyClick={() => onNavigate("map")}
+          onRankingsClick={() => onNavigate("rankings")}
+          onTopBusinessesClick={() => console.log("Top businesses")}
+        />
+
+        {/* Commerces recommandés */}
+        <CommerceListBlock
+          title="Commerces recommandés"
+          commerces={featuredCommerces}
+          onSelect={(commerce) => console.log("Commerce sélectionné:", commerce)}
+          onFavorite={(commerce) => console.log("Favoris:", commerce)}
+          onMessage={onMessage}
+          showFilters={true}
+          viewMode="grid"
+        />
       </div>
-
-      {/* Statistiques rapides - redesignées */}
-      <StatsBlock />
-
-      {/* Actions principales - harmonisées */}
-      <ActionButtonsBlock
-        onScanClick={() => setShowScanner(true)}
-        onNearbyClick={() => onNavigate("map")}
-        onRankingsClick={() => onNavigate("rankings")}
-        onTopBusinessesClick={() => console.log("Top businesses")}
-      />
-
-      {/* Commerces recommandés - redesignés */}
-      <CommerceListBlock
-        title="Commerces recommandés"
-        commerces={featuredCommerces}
-        onSelect={(commerce) => console.log("Commerce sélectionné:", commerce)}
-        onFavorite={(commerce) => console.log("Favoris:", commerce)}
-        onMessage={onMessage}
-        showFilters={true}
-        viewMode="grid"
-      />
 
       {/* Scanner Modal */}
       {showScanner && (
