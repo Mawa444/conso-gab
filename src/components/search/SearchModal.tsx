@@ -209,16 +209,16 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[90vh] p-0 gap-0">
-        {/* Header avec barre de recherche */}
-        <div className="p-6 border-b border-border/30 bg-muted/30">
+        {/* Header fixe avec barre de recherche */}
+        <div className="sticky top-0 z-10 p-6 border-b border-border/30 bg-background/95 backdrop-blur-sm">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-muted-foreground" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Rechercher un commerce, service, produit..."
-                className="pl-12 pr-4 py-4 text-lg bg-background border-2 border-border/50 hover:border-primary/30 focus:border-primary/50 rounded-2xl"
+                className="pl-14 pr-4 py-5 text-xl bg-background border-2 border-border/50 hover:border-primary/30 focus:border-primary/50 rounded-2xl shadow-lg"
                 autoFocus
               />
             </div>
@@ -226,9 +226,9 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="w-10 h-10 text-muted-foreground hover:text-foreground"
+              className="w-12 h-12 text-muted-foreground hover:text-foreground"
             >
-              <X className="w-5 h-5" />
+              <X className="w-6 h-6" />
             </Button>
           </div>
         </div>
@@ -240,8 +240,8 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
               {/* Suggestions d'entreprises en tendance */}
               <div>
                 <CommerceListBlock
-                  title="En tendance"
-                  commerces={suggestedCommerces}
+                  title="Populaire dans votre zone"
+                  commerces={suggestedCommerces.slice(0, 5)}
                   onSelect={(commerce) => {
                     onSelect?.(commerce);
                     onClose();
@@ -251,6 +251,15 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
                   showFilters={false}
                   viewMode="list"
                 />
+                <div className="mt-4 text-center">
+                  <Button 
+                    variant="outline" 
+                    className="px-6 py-2"
+                    onClick={() => console.log("Voir plus de commerces populaires")}
+                  >
+                    Voir plus
+                  </Button>
+                </div>
               </div>
 
               {/* Catégories principales */}
@@ -262,12 +271,12 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {mainCategories.map((category) => (
-                    <Card 
+                  <Card 
                       key={category.id} 
                       className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/30 cursor-pointer"
                       onClick={() => {
-                        console.log("Catégorie sélectionnée:", category.id);
-                        // Ici on pourrait naviguer vers la page de catégorie
+                        onSelect?.(category);
+                        // Navigation vers la page de résultats de catégorie
                       }}
                     >
                       <CardContent className="p-4">

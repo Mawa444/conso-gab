@@ -16,12 +16,12 @@ export const IntelligentSearchBar = ({ className, userLocation = "Libreville" }:
     <>
       <div className={`w-full max-w-2xl mx-auto ${className}`}>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-muted-foreground" />
+          <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+            <Search className="h-6 w-6 text-muted-foreground" />
           </div>
           <Input
             placeholder="Rechercher un commerce, service, produit..."
-            className="w-full pl-12 pr-16 py-4 text-base bg-background/95 border-2 border-border/50 hover:border-primary/30 focus:border-primary/50 rounded-2xl shadow-lg backdrop-blur-sm"
+            className="w-full pl-14 pr-20 py-6 text-lg bg-background/95 border-2 border-border/50 hover:border-primary/30 focus:border-primary/50 rounded-2xl shadow-xl backdrop-blur-sm"
             onClick={() => setIsModalOpen(true)}
             readOnly
           />
@@ -36,32 +36,32 @@ export const IntelligentSearchBar = ({ className, userLocation = "Libreville" }:
         <div className="mt-3 flex flex-wrap gap-2 justify-center">
           <Button 
             variant="outline" 
-            size="sm" 
-            className="h-8 px-3 text-xs bg-background/50 border-border/30 hover:bg-primary/5 hover:border-primary/30"
+            size="lg" 
+            className="h-12 px-6 text-sm bg-background/50 border-border/30 hover:bg-primary/5 hover:border-primary/30 shadow-md"
             onClick={() => setIsModalOpen(true)}
           >
             🍽️ Restaurants
           </Button>
           <Button 
             variant="outline" 
-            size="sm" 
-            className="h-8 px-3 text-xs bg-background/50 border-border/30 hover:bg-primary/5 hover:border-primary/30"
+            size="lg" 
+            className="h-12 px-6 text-sm bg-background/50 border-border/30 hover:bg-primary/5 hover:border-primary/30 shadow-md"
             onClick={() => setIsModalOpen(true)}
           >
             🛍️ Commerce
           </Button>
           <Button 
             variant="outline" 
-            size="sm" 
-            className="h-8 px-3 text-xs bg-background/50 border-border/30 hover:bg-primary/5 hover:border-primary/30"
+            size="lg" 
+            className="h-12 px-6 text-sm bg-background/50 border-border/30 hover:bg-primary/5 hover:border-primary/30 shadow-md"
             onClick={() => setIsModalOpen(true)}
           >
             ⚕️ Santé
           </Button>
           <Button 
             variant="outline" 
-            size="sm" 
-            className="h-8 px-3 text-xs bg-background/50 border-border/30 hover:bg-primary/5 hover:border-primary/30"
+            size="lg" 
+            className="h-12 px-6 text-sm bg-background/50 border-border/30 hover:bg-primary/5 hover:border-primary/30 shadow-md"
             onClick={() => setIsModalOpen(true)}
           >
             🚗 Auto
