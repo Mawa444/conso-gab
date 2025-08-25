@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { QRScanner } from "@/components/scanner/QRScanner";
 import { AdCarousel } from "@/components/advertising/AdCarousel";
-import { HeroBlock } from "@/components/blocks/HeroBlock";
-import { StatsBlock } from "@/components/blocks/StatsBlock";
-import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
+import { IntelligentSearchBar } from "@/components/search/IntelligentSearchBar";
 import { CommerceListBlock } from "@/components/blocks/CommerceListBlock";
 import { CategoriesSection } from "@/components/blocks/CategoriesSection";
 
@@ -143,9 +141,10 @@ const sponsoredCommerces = [
 interface HomePageProps {
   onNavigate: (tab: string) => void;
   onMessage?: (commerce: any) => void;
+  userLocation?: string;
 }
 
-export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
+export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }: HomePageProps) => {
   const [showScanner, setShowScanner] = useState(false);
   const [scannedCommerce, setScannedCommerce] = useState<any>(null);
 
@@ -169,7 +168,7 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
       // Ajouter la bannière publicitaire avant chaque groupe
       elementsToRender.push(
         <div key={`ad-${i}`} className="relative mb-8">
-          <AdCarousel userLocation="Libreville" />
+          <AdCarousel userLocation={userLocation} />
         </div>
       );
       
@@ -177,7 +176,7 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
       elementsToRender.push(
         <CommerceListBlock
           key={`commerces-${i}`}
-          title={i === 0 ? "Commerces sponsorisés" : `Commerces sponsorisés (${i + 1}-${Math.min(i + 10, sponsoredCommerces.length)})`}
+          title={i === 0 ? "En tendance" : `En tendance (${i + 1}-${Math.min(i + 10, sponsoredCommerces.length)})`}
           commerces={chunk}
           onSelect={(commerce) => console.log("Commerce sélectionné:", commerce)}
           onFavorite={(commerce) => console.log("Favoris:", commerce)}
@@ -195,16 +194,21 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
     <div className="min-h-screen">
       {/* Contenu principal avec espacements */}
       <div className="space-y-8 p-4 pt-24">
+        {/* Barre de recherche intelligente */}
+        <div className="mb-8">
+          <IntelligentSearchBar userLocation={userLocation} />
+        </div>
+
         {/* Commerces avec bannières publicitaires intégrées */}
         {renderCommercesWithAds()}
 
         {/* Bannière publicitaire finale */}
         <div className="relative">
-          <AdCarousel userLocation="Libreville" />
+          <AdCarousel userLocation={userLocation} />
         </div>
 
-        {/* Toutes les catégories */}
-        <CategoriesSection />
+        {/* Toutes les catégories avec pubs intégrées */}
+        <CategoriesSection userLocation={userLocation} />
       </div>
 
       {/* Scanner Modal */}
