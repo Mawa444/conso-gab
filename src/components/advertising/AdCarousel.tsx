@@ -72,7 +72,7 @@ export const AdCarousel = () => {
   };
 
   return (
-    <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-lg group">
+    <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-lg group z-10">
       {/* Slides */}
       <div 
         className="flex h-full transition-transform duration-500 ease-in-out"
