@@ -8,12 +8,16 @@ import { ProfilePage } from "@/pages/ProfilePage";
 import { QRScanner } from "@/components/scanner/QRScanner";
 import { MessageModal } from "@/components/messaging/MessageModal";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
+import { LoginModal } from "@/components/auth/LoginModal";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const Index = () => {
+  const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("home");
   const [showScanner, setShowScanner] = useState(false);
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
 
   const getPageTitle = () => {
@@ -41,10 +45,18 @@ const Index = () => {
   };
 
   const handleMessageClick = () => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
     setShowMessageModal(true);
   };
 
   const handleProfileSettings = () => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
     setShowProfileSettings(true);
   };
 
@@ -64,6 +76,10 @@ const Index = () => {
         return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
       default:
         return <HomePage onNavigate={setActiveTab} onMessage={(commerce) => {
+          if (!user) {
+            setShowLoginModal(true);
+            return;
+          }
           setSelectedCommerce(commerce);
           setShowMessageModal(true);
         }} />;
@@ -110,6 +126,11 @@ const Index = () => {
           userType="client"
         />
       )}
+
+      <LoginModal
+        open={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </div>
   );
 };
