@@ -1,7 +1,9 @@
-import { Star, MapPin, Users, Shield, Heart } from "lucide-react";
+import { Star, MapPin, ThumbsUp, ThumbsDown, MessageCircle, Flag, MoreVertical, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { MessageSheet } from "./MessageSheet";
 
 interface Commerce {
   id: string;
@@ -15,6 +17,7 @@ interface Commerce {
   image?: string;
   distance?: string;
   isFavorite?: boolean;
+  reviewCount?: number;
 }
 
 interface CommerceCardProps {
@@ -32,154 +35,137 @@ export const CommerceCard = ({
   onMessage,
   variant = "default" 
 }: CommerceCardProps) => {
-  const isCompact = variant === "compact";
-  const isFeatured = variant === "featured";
+  const [showMessageSheet, setShowMessageSheet] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isDisliked, setIsDisliked] = useState(false);
+
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    if (isDisliked) setIsDisliked(false);
+  };
+
+  const handleDislike = () => {
+    setIsDisliked(!isDisliked);
+    if (isLiked) setIsLiked(false);
+  };
 
   return (
-    <div
-      className={cn(
-        "bg-card rounded-xl border-2 border-border shadow-[var(--shadow-card)] overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-elevated)] hover:scale-[1.02] hover:border-primary/30 animate-scale-in",
-        isFeatured && "bg-gradient-to-br from-primary/5 to-accent/5 border-primary/40 shadow-[var(--shadow-gaboma)]"
-      )}
-    >
-      {/* Header avec photo ou icône */}
-      <div className={cn(
-        "relative bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 border-b-2 border-border/50",
-        isCompact ? "h-16" : "h-32"
-      )}>
-        {commerce.image ? (
-          <img 
-            src={commerce.image} 
-            alt={commerce.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        )}
-        
-        {/* Badges de statut */}
-        <div className="absolute top-2 left-2 flex gap-1">
-          {commerce.verified && (
-            <Badge variant="default" className="bg-primary/90 text-primary-foreground text-xs">
-              <Shield className="w-3 h-3 mr-1" />
-              Vérifié
-            </Badge>
-          )}
-        </div>
-
-        {/* Bouton favori */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onFavorite?.(commerce.id);
-          }}
-          className="absolute top-2 right-2 p-1.5 bg-black/20 rounded-full backdrop-blur-sm transition-colors hover:bg-black/40"
-        >
-          <Heart 
-            className={cn(
-              "w-4 h-4 transition-colors",
-              commerce.isFavorite ? "fill-red-500 text-red-500" : "text-white"
-            )} 
-          />
-        </button>
-
-        {commerce.distance && (
-          <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/50 rounded text-white text-xs">
-            {commerce.distance}
-          </div>
-        )}
-      </div>
-
-      {/* Contenu */}
-      <div className={cn("p-3", isCompact && "p-2")}>
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex-1 min-w-0">
-            <h3 className={cn(
-              "font-semibold text-foreground truncate",
-              isCompact ? "text-sm" : "text-base"
-            )}>
-              {commerce.name}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {commerce.type}
-            </p>
+    <>
+      <div className="bg-card rounded-2xl p-4 shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-border/20 transition-all duration-300 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)] hover:scale-[1.01]">
+        {/* Ligne 1 - Statut & Options */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            {commerce.verified && (
+              <Badge variant="outline" className="text-xs px-2 py-1 border-[hsl(var(--gaboma-green))] text-[hsl(var(--gaboma-green))] bg-white font-medium">
+                <Shield className="w-3 h-3 mr-1" />
+                Vérifié
+              </Badge>
+            )}
           </div>
           
-          {/* Rating */}
-          <div className="flex items-center gap-1 ml-2">
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-medium">{commerce.rating}</span>
-          </div>
-        </div>
-
-        {/* Propriétaire */}
-        <p className="text-sm text-muted-foreground mb-2">
-          Par <span className="font-medium text-foreground">{commerce.owner}</span>
-        </p>
-
-        {/* Adresse */}
-        <div className="flex items-center gap-1 mb-3">
-          <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-          <p className="text-xs text-muted-foreground truncate">
-            {commerce.address}
-          </p>
-        </div>
-
-        {/* Équipe */}
-        {!isCompact && (
-          <div className="mb-3">
-            <p className="text-xs text-muted-foreground mb-1">
-              Équipe ({commerce.employees.length})
-            </p>
-            <div className="flex -space-x-1">
-              {commerce.employees.slice(0, 3).map((employee, index) => (
-                <div
-                  key={employee}
-                  className="w-6 h-6 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full border-2 border-background flex items-center justify-center"
-                  title={employee}
-                >
-                  <span className="text-xs font-medium text-primary">
-                    {employee.charAt(0)}
-                  </span>
-                </div>
-              ))}
-              {commerce.employees.length > 3 && (
-                <div className="w-6 h-6 bg-muted rounded-full border-2 border-background flex items-center justify-center">
-                  <span className="text-xs text-muted-foreground">
-                    +{commerce.employees.length - 3}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex gap-2">
-          <Button
-            onClick={() => onSelect?.(commerce)}
-            variant={isFeatured ? "gaboma" : "outline"}
-            size="sm"
-            className="flex-1"
-          >
-            Voir le commerce
-          </Button>
-          {onMessage && (
+          <div className="flex items-center gap-2">
+            {commerce.distance && (
+              <Badge variant="secondary" className="text-xs px-2 py-1 bg-black/[0.12] text-black font-medium">
+                {commerce.distance}
+              </Badge>
+            )}
             <Button
-              onClick={() => onMessage(commerce)}
               variant="ghost"
               size="sm"
-              className="px-3"
+              className="p-1 h-auto w-auto hover:bg-accent/20"
             >
-              💬
+              <MoreVertical className="w-4 h-4" />
             </Button>
-          )}
+          </div>
+        </div>
+
+        {/* Ligne 2 - Nom & Note */}
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-base font-semibold text-foreground truncate pr-2 flex-1">
+            {commerce.name}
+          </h3>
+          <div className="flex items-center gap-1 shrink-0">
+            <Star className="w-4 h-4 fill-[hsl(var(--gaboma-yellow))] text-[hsl(var(--gaboma-yellow))]" />
+            <span className="text-sm font-medium">{commerce.rating}</span>
+            {commerce.reviewCount && (
+              <span className="text-xs text-muted-foreground">({commerce.reviewCount})</span>
+            )}
+          </div>
+        </div>
+
+        {/* Ligne 3 - Métadonnées */}
+        <div className="flex items-center gap-1 mb-4">
+          <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
+          <div className="text-sm text-muted-foreground truncate">
+            <span>{commerce.type}</span>
+            <span className="mx-1">•</span>
+            <span>Par {commerce.owner}</span>
+            <span className="mx-1">•</span>
+            <span>{commerce.address}</span>
+          </div>
+        </div>
+
+        {/* Ligne 4 - Actions */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("p-2 h-11 w-11", isLiked && "bg-[hsl(var(--gaboma-blue))] text-white hover:bg-[hsl(var(--gaboma-blue))]/90")}
+              onClick={handleLike}
+            >
+              <ThumbsUp className={cn("w-4 h-4", isLiked ? "fill-current" : "")} />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("p-2 h-11 w-11", isDisliked && "bg-[hsl(var(--gaboma-yellow))] text-black hover:bg-[hsl(var(--gaboma-yellow))]/90")}
+              onClick={handleDislike}
+            >
+              <ThumbsDown className={cn("w-4 h-4", isDisliked ? "fill-current" : "")} />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2 h-11 w-11"
+              onClick={() => setShowMessageSheet(true)}
+            >
+              <MessageCircle className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2 h-11 w-11"
+            >
+              <Star className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2 h-11 w-11"
+            >
+              <Flag className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <Button
+            onClick={() => onSelect?.(commerce)}
+            className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6 h-10 rounded-xl font-medium"
+          >
+            Voir
+          </Button>
         </div>
       </div>
-    </div>
+
+      <MessageSheet
+        open={showMessageSheet}
+        onClose={() => setShowMessageSheet(false)}
+        commerce={commerce}
+      />
+    </>
   );
 };

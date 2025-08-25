@@ -19,15 +19,15 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 9%;
 
     /* Couleurs officielles du Gabon enrichies */
-    --gaboma-green: 130 100% 32%; /* #009639 - Vert du drapeau */
-    --gaboma-green-light: 130 60% 45%; /* Version plus claire */
-    --gaboma-green-dark: 130 100% 25%; /* Version plus foncée */
+    --gaboma-green: 140 100% 29%; /* #009639 - Vert du drapeau exact */
+    --gaboma-green-light: 140 60% 45%; /* Version plus claire */
+    --gaboma-green-dark: 140 100% 25%; /* Version plus foncée */
     
-    --gaboma-yellow: 50 100% 50%; /* #FFD100 - Jaune du drapeau */
-    --gaboma-yellow-light: 50 80% 60%; /* Version plus claire */
-    --gaboma-yellow-dark: 45 100% 40%; /* Version plus foncée */
+    --gaboma-yellow: 48 100% 50%; /* #FFD100 - Jaune du drapeau exact */
+    --gaboma-yellow-light: 48 80% 60%; /* Version plus claire */
+    --gaboma-yellow-dark: 48 100% 40%; /* Version plus foncée */
     
-    --gaboma-blue: 215 55% 50%; /* #3A75C4 - Bleu du drapeau */
+    --gaboma-blue: 215 51% 50%; /* #3A75C4 - Bleu du drapeau exact */
     --gaboma-blue-light: 215 40% 60%; /* Version plus claire */
     --gaboma-blue-dark: 215 70% 40%; /* Version plus foncée */
     

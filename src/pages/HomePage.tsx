@@ -66,38 +66,36 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
   };
 
   return (
-    <div className="min-h-screen animate-fade-in bg-gradient-to-br from-background via-muted/30 to-background">
-      {/* Section publicité et actions principales */}
-      <div className="relative bg-gradient-to-br from-primary via-accent to-primary/90 text-white rounded-b-3xl overflow-hidden shadow-lg">
-        <div className="p-4 space-y-6">
-          {/* En-tête avec nom et actions */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img 
-                src={gabomaLogo} 
-                alt="ConsoGab" 
-                className="w-12 h-12 rounded-lg shadow-lg"
-              />
-              <div>
-                <h1 className="text-white font-bold text-xl">ConsoGab</h1>
-                <p className="text-white/90 text-sm">Consommer local, c'est patriote!</p>
-              </div>
+    <div className="min-h-screen animate-fade-in bg-background">
+      {/* Hero Section - Séparé visuellement */}
+      <div className="bg-white">
+        <div className="p-4 pb-6">
+          {/* En-tête simplifié */}
+          <div className="flex items-center gap-3 mb-6">
+            <img 
+              src={gabomaLogo} 
+              alt="ConsoGab" 
+              className="w-12 h-12 rounded-lg shadow-md"
+            />
+            <div>
+              <h1 className="text-foreground font-bold text-xl">ConsoGab</h1>
+              <p className="text-muted-foreground text-sm">Consommer local, c'est patriote!</p>
             </div>
           </div>
-
-          {/* Carousel publicitaire */}
-          <AdCarousel />
         </div>
       </div>
 
-      {/* Actions principales */}
-      <div className="p-4 space-y-6">
+      {/* Section publicité - Séparée par marge */}
+      <div className="px-4 py-6 bg-gradient-to-br from-background to-muted/20">
+        <AdCarousel />
+      </div>
+
+      {/* Actions principales - Styles harmonisés */}
+      <div className="px-4 py-6 bg-background">
         <div className="grid grid-cols-2 gap-4">
           <Button
             onClick={() => setShowScanner(true)}
-            variant="gaboma"
-            size="lg"
-            className="h-24 flex flex-col items-center justify-center gap-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            className="h-24 flex flex-col items-center justify-center gap-3 text-base font-semibold bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 rounded-2xl"
           >
             <QrCode className="w-8 h-8" />
             Scanner un commerce
@@ -106,8 +104,7 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
           <Button
             onClick={() => onNavigate("map")}
             variant="outline"
-            size="lg"
-            className="h-24 flex flex-col items-center justify-center gap-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-2"
+            className="h-24 flex flex-col items-center justify-center gap-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 border-black/[0.24] rounded-2xl"
           >
             <MapPin className="w-8 h-8" />
             Autour de moi
@@ -115,20 +112,20 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
         </div>
       </div>
 
-      {/* Stats rapides */}
-      <div className="px-4 -mt-2">
-        <div className="bg-card rounded-xl shadow-lg border border-border/50 p-4">
+      {/* Stats rapides - Espacement fixé */}
+      <div className="px-4 py-6">
+        <div className="bg-card rounded-2xl shadow-lg border border-border/20 p-6">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-primary">2,847</div>
+              <div className="text-2xl font-bold text-[hsl(var(--gaboma-green))]">2,847</div>
               <div className="text-xs text-muted-foreground">Commerces</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-accent">156k</div>
+              <div className="text-2xl font-bold text-[hsl(var(--gaboma-blue))]">156k</div>
               <div className="text-xs text-muted-foreground">Clients actifs</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-secondary">98%</div>
+              <div className="text-2xl font-bold text-[hsl(var(--gaboma-yellow))]">98%</div>
               <div className="text-xs text-muted-foreground">Satisfaction</div>
             </div>
           </div>
@@ -153,9 +150,9 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
         </div>
       )}
 
-      {/* Section Découvrir */}
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
+      {/* Section Découvrir - Espacement régulier */}
+      <div className="px-4 py-6">
+        <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-foreground">
             Découvrir près de vous
           </h2>
@@ -163,6 +160,7 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
             variant="ghost" 
             size="sm"
             onClick={() => onNavigate("map")}
+            className="text-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/10"
           >
             Voir tout
           </Button>
@@ -172,12 +170,10 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
           {featuredCommerces.map((commerce) => (
             <CommerceCard 
               key={commerce.id}
-              commerce={commerce}
-              variant="compact"
+              commerce={{...commerce, reviewCount: Math.floor(Math.random() * 200) + 50}}
               onSelect={() => {/* Ouvrir le détail */}}
               onMessage={onMessage}
               onFavorite={(id) => {
-                // Toggle favorite logic
                 console.log("Toggle favorite for:", id);
               }}
             />
@@ -185,24 +181,24 @@ export const HomePage = ({ onNavigate, onMessage }: HomePageProps) => {
         </div>
       </div>
 
-      {/* Actions rapides */}
-      <div className="px-4 pb-4">
-        <div className="grid grid-cols-2 gap-3">
+      {/* Actions rapides - Styles harmonisés */}
+      <div className="px-4 py-6">
+        <div className="grid grid-cols-2 gap-4">
           <Button
             variant="outline"
-            className="h-16 flex-col gap-2"
+            className="h-16 flex-col gap-2 border-2 border-black/[0.24] rounded-2xl hover:bg-[hsl(var(--gaboma-blue))]/10 hover:border-[hsl(var(--gaboma-blue))]/30"
             onClick={() => onNavigate("rankings")}
           >
-            <TrendingUp className="w-5 h-5 text-accent" />
+            <TrendingUp className="w-5 h-5 text-[hsl(var(--gaboma-blue))]" />
             <span className="text-sm">Top commerces</span>
           </Button>
           
           <Button
             variant="outline"
-            className="h-16 flex-col gap-2"
+            className="h-16 flex-col gap-2 border-2 border-black/[0.24] rounded-2xl hover:bg-[hsl(var(--gaboma-yellow))]/10 hover:border-[hsl(var(--gaboma-yellow))]/30"
             onClick={() => onNavigate("profile")}
           >
-            <Award className="w-5 h-5 text-secondary" />
+            <Award className="w-5 h-5 text-[hsl(var(--gaboma-yellow))]" />
             <span className="text-sm">Mes badges</span>
           </Button>
         </div>
