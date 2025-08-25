@@ -145,7 +145,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
       </div>
 
       {/* Tabs */}
-      <div className="p-4">
+      <div className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="overview" className="text-xs">Aperçu</TabsTrigger>

@@ -229,3 +229,74 @@ All colors MUST be HSL.
   from { width: 0%; }
   to { width: 100%; }
 }
+
+/* Espacements et alignements uniformes pour tous les composants */
+.page-container {
+  padding: var(--content-padding);
+  min-height: calc(100vh - var(--header-height) - var(--footer-height));
+}
+
+.section-spacing {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.card-spacing {
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Harmonisation des z-index */
+.z-header { z-index: 100; }
+.z-navigation { z-index: 90; }
+.z-modal { z-index: 50; }
+.z-dropdown { z-index: 40; }
+.z-tooltip { z-index: 30; }
+
+/* Amélioration des transitions et animations */
+.transition-gaboma {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Classes utilitaires pour les espacements */
+.space-section { margin-bottom: 2rem; }
+.space-block { margin-bottom: 1.5rem; }
+.space-item { margin-bottom: 1rem; }
+
+/* Optimisation des performances pour les animations */
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Amélioration de l'accessibilité */
+.focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Responsive design millimétré */
+@media (min-width: 768px) {
+  .page-container {
+    padding: calc(var(--content-padding) * 1.5);
+  }
+  
+  .section-spacing {
+    margin-bottom: calc(var(--spacing-2xl) * 1.5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container {
+    padding: calc(var(--content-padding) * 2);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}

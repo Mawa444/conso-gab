@@ -179,8 +179,8 @@ export const MapPage = ({ onBack }: MapPageProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex flex-col animate-fade-in">
       {/* Header moderne avec recherche et filtres */}
-      <div className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-16 z-40">
-        <div className="p-4 space-y-4">
+      <div className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-24 z-40">
+        <div className="p-6 space-y-4">
           {/* Barre de recherche principale */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />

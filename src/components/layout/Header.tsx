@@ -14,7 +14,7 @@ interface HeaderProps {
 export const Header = ({ title, showBack, onBack, showNotifications = true, onLocationClick, onMessageClick }: HeaderProps) => {
   return (
       <header className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary via-accent to-primary/90 text-white shadow-[var(--shadow-elevated)] backdrop-blur-sm">
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center justify-between px-6 py-4">
         {/* Côté gauche - Logo et titre */}
         <div className="flex items-center gap-3">
           {showBack ? (

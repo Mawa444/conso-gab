@@ -140,8 +140,8 @@ export const RankingsPage = ({ onBack }: RankingsPageProps) => {
       </div>
 
       {/* Filtres et contrôles */}
-      <div className="p-4 bg-background/95 backdrop-blur-sm border-b">
-        <div className="flex gap-3 mb-4">
+      <div className="p-6 bg-background/95 backdrop-blur-sm border-b">
+        <div className="flex gap-4 mb-4">
           <GeographicFilter 
             value={selectedLocation} 
             onValueChange={setSelectedLocation}
@@ -164,7 +164,7 @@ export const RankingsPage = ({ onBack }: RankingsPageProps) => {
       </div>
 
       {/* Tabs */}
-      <div className="p-4">
+      <div className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="commerces" className="text-xs">Commerces</TabsTrigger>

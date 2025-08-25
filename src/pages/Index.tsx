@@ -95,7 +95,7 @@ const Index = () => {
         onLocationClick={handleLocationClick}
         onMessageClick={handleMessageClick}
       />
-      <main className="pt-20 pb-20 animate-fade-in min-h-screen">
+      <main className="pt-24 pb-24 animate-fade-in min-h-screen">
         {renderActiveTab()}
       </main>
       
