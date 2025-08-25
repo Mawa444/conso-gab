@@ -41,6 +41,12 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
   const [points, setPoints] = useState(0);
   const { toast } = useToast();
 
+  // Appels de hooks de localisation au niveau supérieur (ordre des hooks stable)
+  const { data: provinces } = useProvinces();
+  const { data: departments } = useDepartments(data.province);
+  const { data: arrondissements } = useArrondissements(data.department);
+  const { data: quartiers } = useQuartiers(data.arrondissement);
+
   const steps = [
     "Accueil",
     "Rôle", 
@@ -192,12 +198,8 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
           </div>
         );
 
-      case 3:
-        const { data: provinces } = useProvinces();
-        const { data: departments } = useDepartments(data.province);
-        const { data: arrondissements } = useArrondissements(data.department);
-        const { data: quartiers } = useQuartiers(data.arrondissement);
         
+      case 3:
         return (
           <div className="space-y-6">
             <div className="text-center">
