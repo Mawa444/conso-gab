@@ -130,17 +130,27 @@ export const GeolocalizedAdCarousel = ({ userLocation = "Libreville", className 
   const slides = getAdsForLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [scrollDirection, setScrollDirection] = useState<1 | -1>(1);
 
-  // Auto-play functionality
+  // Auto-play functionality with random direction
   useEffect(() => {
     if (!isAutoPlaying || slides.length <= 1) return;
     
+    // Set random direction on mount
+    const randomDirection = Math.random() > 0.5 ? 1 : -1;
+    setScrollDirection(randomDirection);
+    
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
+      setCurrentSlide((prev) => {
+        const nextIndex = scrollDirection === 1 
+          ? (prev + 1) % slides.length
+          : (prev - 1 + slides.length) % slides.length;
+        return nextIndex;
+      });
+    }, 4500 + Math.random() * 3000); // Random interval between 4.5-7.5s
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, slides.length]);
+  }, [isAutoPlaying, scrollDirection, slides.length]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -166,7 +176,7 @@ export const GeolocalizedAdCarousel = ({ userLocation = "Libreville", className 
     <div className={`relative w-full h-64 rounded-xl overflow-hidden shadow-lg group z-10 ${className}`}>
       {/* Slides */}
       <div 
-        className="flex h-full transition-transform duration-500 ease-in-out"
+        className="flex h-full transition-transform duration-700 ease-out touch-pan-x"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
         {slides.map((slide) => (
@@ -209,26 +219,9 @@ export const GeolocalizedAdCarousel = ({ userLocation = "Libreville", className 
         ))}
       </div>
 
-      {/* Navigation Arrows - Only show if more than 1 slide */}
+      {/* Navigation Arrows - Hidden for touch-friendly experience */}
       {slides.length > 1 && (
         <>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            onClick={prevSlide}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            onClick={nextSlide}
-          >
-            <ChevronRight className="w-5 h-5" />
-          </Button>
 
           {/* Dots indicator */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">

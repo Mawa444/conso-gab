@@ -4,6 +4,7 @@ import { AdCarousel } from "@/components/advertising/AdCarousel";
 import { IntelligentSearchBar } from "@/components/search/IntelligentSearchBar";
 import { CommerceListBlock } from "@/components/blocks/CommerceListBlock";
 import { CategoriesSection } from "@/components/blocks/CategoriesSection";
+import { CommerceDetailsPopup } from "@/components/commerce/CommerceDetailsPopup";
 
 const sponsoredCommerces = [
   {
@@ -147,6 +148,7 @@ interface HomePageProps {
 export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }: HomePageProps) => {
   const [showScanner, setShowScanner] = useState(false);
   const [scannedCommerce, setScannedCommerce] = useState<any>(null);
+  const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
 
   const handleScanResult = (result: string) => {
     try {
@@ -178,7 +180,10 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
           key={`commerces-${i}`}
           title={i === 0 ? "En tendance" : `En tendance (${i + 1}-${Math.min(i + 10, sponsoredCommerces.length)})`}
           commerces={chunk}
-          onSelect={(commerce) => console.log("Commerce sélectionné:", commerce)}
+          onSelect={(commerce) => {
+            console.log("Commerce sélectionné:", commerce);
+            setSelectedCommerce(commerce);
+          }}
           onFavorite={(commerce) => console.log("Favoris:", commerce)}
           onMessage={onMessage}
           showFilters={false}
@@ -193,7 +198,7 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
   return (
     <div className="min-h-screen">
       {/* Contenu principal avec espacements réduits */}
-      <div className="space-y-6 p-4 pt-20">
+      <div className="space-y-6 p-4 pt-16">
         {/* Barre de recherche intelligente */}
         <div className="mb-4">
           <IntelligentSearchBar userLocation={userLocation} />
@@ -218,6 +223,13 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
           onScan={handleScanResult}
         />
       )}
+
+      {/* Commerce Details Popup */}
+      <CommerceDetailsPopup
+        open={!!selectedCommerce}
+        onClose={() => setSelectedCommerce(null)}
+        commerce={selectedCommerce}
+      />
     </div>
   );
 };
