@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { GeolocalizedAdCarousel } from "@/components/advertising/GeolocalizedAdCarousel";
+import { useNavigate } from "react-router-dom";
 
 // Catégories avec couleurs cohérentes dans toute l'application
 const categories = [
@@ -242,8 +243,10 @@ interface CategoriesSectionProps {
 }
 
 export const CategoriesSection = ({ userLocation = "Libreville" }: CategoriesSectionProps) => {
+  const navigate = useNavigate();
+  
   const handleCategoryClick = (categoryId: string) => {
-    console.log("Catégorie sélectionnée:", categoryId);
+    navigate(`/category/${categoryId}`);
   };
 
   // Fonction pour insérer des pubs après chaque 5 catégories

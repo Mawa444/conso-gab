@@ -9,6 +9,7 @@ import { BusinessDetailPage } from "./pages/BusinessDetailPage";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
 import { PromotionDetailPage } from "./pages/PromotionDetailPage";
 import { PersonalRankingsPage } from "./pages/PersonalRankingsPage";
+import { CategoryPage } from "./pages/CategoryPage";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { useAnonymousSession } from "@/hooks/use-anonymous-session";
@@ -44,6 +45,7 @@ const AppRoutes = () => {
       <Route path="/product/:id" element={<ProductDetailPage />} />
       <Route path="/promotion/:id" element={<PromotionDetailPage />} />
       <Route path="/rankings/personal" element={<PersonalRankingsPage />} />
+      <Route path="/category/:categoryId" element={<CategoryPage />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

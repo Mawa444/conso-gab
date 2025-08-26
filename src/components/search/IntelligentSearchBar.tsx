@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { SearchModal } from "./SearchModal";
-import { CategoryPage } from "@/pages/CategoryPage";
+import { useNavigate } from "react-router-dom";
 
 const quickCategories = [
   { name: "Restaurants", icon: "🍽️", color: "bg-gradient-to-r from-orange-500 to-red-600", id: "restauration" },
@@ -25,26 +25,11 @@ interface IntelligentSearchBarProps {
 
 export const IntelligentSearchBar = ({ userLocation = "Libreville" }: IntelligentSearchBarProps) => {
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const [showCategoryResults, setShowCategoryResults] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const navigate = useNavigate();
 
   const handleCategoryClick = (category: any) => {
-    setSelectedCategory({...category, title: category.name});
-    setShowCategoryResults(true);
+    navigate(`/category/${category.id}`);
   };
-
-  if (showCategoryResults && selectedCategory) {
-    return (
-      <CategoryPage 
-        category={{...selectedCategory, title: selectedCategory.name}}
-        userLocation={userLocation}
-        onBack={() => {
-          setShowCategoryResults(false);
-          setSelectedCategory(null);
-        }}
-      />
-    );
-  }
 
   return (
     <>
@@ -110,9 +95,7 @@ export const IntelligentSearchBar = ({ userLocation = "Libreville" }: Intelligen
         onClose={() => setShowSearchModal(false)}
         userLocation={userLocation}
         onCategorySelect={(category) => {
-          setSelectedCategory({...category, title: category.name});
-          setShowSearchModal(false);
-          setShowCategoryResults(true);
+          navigate(`/category/${category.id}`);
         }}
       />
     </>
