@@ -1,30 +1,32 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/components/auth/AuthProvider";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { Routes, Route } from 'react-router-dom';
+import { Toaster } from "@/components/ui/sonner";
+import Index from "@/pages/Index";
+import { HomePage } from "@/pages/HomePage";
+import { CategoryPage } from "@/pages/CategoryPage";
+import { MapPage } from "@/pages/MapPage";
+import { ProfilePage } from "@/pages/ProfilePage";
+import { RankingsPage } from "@/pages/RankingsPage";
+import NotFound from "@/pages/NotFound";
+import { AuthPage } from "@/pages/AuthPage";
+import { BusinessDashboard } from "@/pages/BusinessDashboard";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/category/:categoryName" element={<CategoryPage />} />
+        <Route path="/map" element={<MapPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/rankings" element={<RankingsPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/business" element={<BusinessDashboard />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Toaster />
+    </>
+  );
+}
 
 export default App;

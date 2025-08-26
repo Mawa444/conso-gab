@@ -1,137 +1,87 @@
-import { useState } from "react";
+import { Toaster } from "@/components/ui/toaster";
+import { Button } from "@/components/ui/button";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { Header } from "@/components/layout/Header";
-import { HomePage } from "@/pages/HomePage";
-import { MapPage } from "@/pages/MapPage";
-import { RankingsPage } from "@/pages/RankingsPage";
-import { ProfilePage } from "@/pages/ProfilePage";
-import { QRScanner } from "@/components/scanner/QRScanner";
-import { MessageModal } from "@/components/messaging/MessageModal";
-import { ProfileSettings } from "@/components/profile/ProfileSettings";
-import { LoginModal } from "@/components/auth/LoginModal";
+import { HeroBlock } from "@/components/blocks/HeroBlock";
+import { IntelligentSearchBar } from "@/components/search/IntelligentSearchBar";
+import { CategoriesSection } from "@/components/blocks/CategoriesSection";
+import { CommerceListBlock } from "@/components/blocks/CommerceListBlock";
+import { AdCarousel } from "@/components/advertising/AdCarousel";
+import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
+import { StatsBlock } from "@/components/blocks/StatsBlock";
+import { GeolocalizedAdCarousel } from "@/components/advertising/GeolocalizedAdCarousel";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { Link } from "react-router-dom";
 
 const Index = () => {
-  const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState("home");
-  const [showScanner, setShowScanner] = useState(false);
-  const [showMessageModal, setShowMessageModal] = useState(false);
-  const [showProfileSettings, setShowProfileSettings] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
-
-  const getPageTitle = () => {
-    switch (activeTab) {
-      case "home": return "Découvrir";
-      case "map": return "Carte";
-      case "rankings": return "Classements";
-      case "profile": return "Profil";
-      default: return "Découvrir";
-    }
-  };
-
-  const showBackButton = activeTab !== "home";
-
-  const handleTabChange = (tab: string) => {
-    if (tab === "scanner") {
-      setShowScanner(true);
-    } else {
-      setActiveTab(tab);
-    }
-  };
-
-  const handleLocationClick = () => {
-    setActiveTab("map");
-  };
-
-  const handleMessageClick = () => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-    setShowMessageModal(true);
-  };
-
-  const handleProfileSettings = () => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-    setShowProfileSettings(true);
-  };
-
-  const handleScanResult = (result: string) => {
-    console.log("QR Code scanné:", result);
-    setShowScanner(false);
-    // Traiter le résultat du scan
-  };
-
-  const renderActiveTab = () => {
-    switch (activeTab) {
-      case "map":
-        return <MapPage onBack={() => setActiveTab("home")} />;
-      case "rankings":
-        return <RankingsPage onBack={() => setActiveTab("home")} />;
-      case "profile":
-        return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
-      default:
-        return <HomePage onNavigate={setActiveTab} onMessage={(commerce) => {
-          if (!user) {
-            setShowLoginModal(true);
-            return;
-          }
-          setSelectedCommerce(commerce);
-          setShowMessageModal(true);
-        }} />;
-    }
-  };
+  const { user, signOut } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <Header 
-        title={getPageTitle()}
-        showBack={showBackButton}
-        onBack={() => setActiveTab("home")}
-        onLocationClick={handleLocationClick}
-        onMessageClick={handleMessageClick}
-      />
-      <main className="pt-24 pb-24 animate-fade-in min-h-screen">
-        {renderActiveTab()}
-      </main>
+    <div className="min-h-screen bg-background">
+      {/* Header uniquement sur la page d'accueil */}
+      <Header />
       
-      {/* Navigation toujours visible sauf en mode recherche */}
-      <BottomNavigation 
-        activeTab={activeTab} 
-        onTabChange={handleTabChange}
-      />
+      {/* Auth Actions */}
+      <div className="container mx-auto px-4 py-2">
+        <div className="flex justify-end space-x-2">
+          {user ? (
+            <>
+              <span className="text-sm text-muted-foreground">
+                Bonjour {user.email}
+              </span>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/business">Business</Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => signOut()}>
+                Déconnexion
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/auth">Connexion</Link>
+            </Button>
+          )}
+        </div>
+      </div>
 
-      {showScanner && (
-        <QRScanner
-          onClose={() => setShowScanner(false)}
-          onScan={handleScanResult}
+      <div className="container mx-auto px-4">
+        {/* Hero Section */}
+        <HeroBlock />
+        
+        {/* Search Bar */}
+        <div className="my-6">
+          <IntelligentSearchBar />
+        </div>
+
+        {/* Action Buttons */}
+        <ActionButtonsBlock />
+
+        {/* Stats */}
+        <StatsBlock />
+
+        {/* Geolocalized Ads */}
+        <GeolocalizedAdCarousel />
+
+        {/* Categories */}
+        <CategoriesSection />
+
+        {/* Commerce List */}
+        <CommerceListBlock
+          title="Commerces populaires"
+          commerces={[]}
+          onSelect={() => {}}
+          onFavorite={() => {}}
+          onMessage={() => {}}
         />
-      )}
 
-      {showMessageModal && (
-        <MessageModal
-          open={showMessageModal}
-          onClose={() => setShowMessageModal(false)}
-          commerce={selectedCommerce}
-        />
-      )}
+        {/* Ads Carousel */}
+        <AdCarousel />
+      </div>
 
-      {showProfileSettings && (
-        <ProfileSettings
-          open={showProfileSettings}
-          onClose={() => setShowProfileSettings(false)}
-          userType="client"
-        />
-      )}
-
-      <LoginModal
-        open={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
+      {/* Bottom Navigation */}
+      <BottomNavigation activeTab="home" onTabChange={() => {}} />
+      
+      <Toaster />
     </div>
   );
 };
