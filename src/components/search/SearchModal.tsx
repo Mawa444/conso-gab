@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CommerceListBlock } from "@/components/blocks/CommerceListBlock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CategoryResultsPage } from "@/components/categories/CategoryResultsPage";
+import { CategoryPage } from "@/pages/CategoryPage";
 import { cn } from "@/lib/utils";
 
 // Données de recherche simulées
@@ -238,7 +238,7 @@ export const SearchModal = ({ open, onClose, onSelect, userLocation = "Librevill
   return (
     <div className="fixed inset-0 bg-background z-50 overflow-hidden">
       {/* Header avec barre de recherche - positionné juste sous l'entête */}
-      <div className="sticky top-24 bg-background/95 backdrop-blur-sm z-10 p-4 border-b border-border shadow-sm">
+      <div className="sticky top-16 bg-background/95 backdrop-blur-sm z-10 p-4 border-b border-border shadow-sm">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -273,33 +273,46 @@ export const SearchModal = ({ open, onClose, onSelect, userLocation = "Librevill
         </div>
             
         
-        {/* Filtres géographiques */}
-        <div className="flex items-center gap-3 overflow-x-auto pb-2 pt-3">
-          <div className="flex items-center gap-1 text-sm text-muted-foreground whitespace-nowrap">
+        {/* Filtres géographiques améliorés */}
+        <div className="space-y-3 pt-3">
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Filter className="w-4 h-4" />
-            <span>Zone:</span>
+            <span>Filtrer par localisation:</span>
           </div>
-          <Select value={selectedZone} onValueChange={setSelectedZone}>
-            <SelectTrigger className="w-48 h-9 bg-background/50 border-border/50">
-              <SelectValue placeholder="Toutes les zones" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Toutes les zones</SelectItem>
-              {locations[selectedLocation as keyof typeof locations]?.quartiers.map((quartier) => (
-                <SelectItem key={quartier} value={quartier}>{quartier}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           
-          <Badge variant="outline" className="flex items-center gap-1 whitespace-nowrap">
-            <MapPin className="w-3 h-3" />
-            {selectedLocation}
-          </Badge>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+              <SelectTrigger className="h-9 bg-background/50 border-border/50">
+                <SelectValue placeholder="Ville" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Libreville">Libreville</SelectItem>
+                <SelectItem value="Port-Gentil">Port-Gentil</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={selectedZone} onValueChange={setSelectedZone}>
+              <SelectTrigger className="h-9 bg-background/50 border-border/50">
+                <SelectValue placeholder="Quartier" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les quartiers</SelectItem>
+                {locations[selectedLocation as keyof typeof locations]?.quartiers.map((quartier) => (
+                  <SelectItem key={quartier} value={quartier}>{quartier}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Badge variant="outline" className="flex items-center justify-center gap-1 h-9 px-3">
+              <MapPin className="w-3 h-3" />
+              <span className="truncate">{selectedZone === "all" ? "Toutes zones" : selectedZone}</span>
+            </Badge>
+          </div>
         </div>
       </div>
 
       {/* Contenu principal */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide pt-24">
+      <div className="flex-1 overflow-y-auto scrollbar-hide pt-20">
         <div className="p-4 space-y-6">
           {searchQuery.length < 2 && (
             <div className="space-y-6">

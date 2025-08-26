@@ -192,10 +192,10 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
 
   return (
     <div className="min-h-screen">
-      {/* Contenu principal avec espacements */}
-      <div className="space-y-8 p-4 pt-24">
+      {/* Contenu principal avec espacements réduits */}
+      <div className="space-y-6 p-4 pt-20">
         {/* Barre de recherche intelligente */}
-        <div className="mb-8">
+        <div className="mb-4">
           <IntelligentSearchBar userLocation={userLocation} />
         </div>
 

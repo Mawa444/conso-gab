@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { SearchModal } from "./SearchModal";
-import { CategoryResultsPage } from "@/components/categories/CategoryResultsPage";
+import { CategoryPage } from "@/pages/CategoryPage";
 
 const quickCategories = [
   { name: "Restaurants", icon: "🍽️", color: "bg-gradient-to-r from-orange-500 to-red-600", id: "restauration" },
@@ -29,15 +29,19 @@ export const IntelligentSearchBar = ({ userLocation = "Libreville" }: Intelligen
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
 
   const handleCategoryClick = (category: any) => {
-    setSelectedCategory(category);
+    setSelectedCategory({...category, title: category.name});
     setShowCategoryResults(true);
   };
 
   if (showCategoryResults && selectedCategory) {
     return (
-      <CategoryResultsPage
-        category={selectedCategory}
-        onBack={() => setShowCategoryResults(false)}
+      <CategoryPage 
+        category={{...selectedCategory, title: selectedCategory.name}}
+        userLocation={userLocation}
+        onBack={() => {
+          setShowCategoryResults(false);
+          setSelectedCategory(null);
+        }}
       />
     );
   }
@@ -106,7 +110,7 @@ export const IntelligentSearchBar = ({ userLocation = "Libreville" }: Intelligen
         onClose={() => setShowSearchModal(false)}
         userLocation={userLocation}
         onCategorySelect={(category) => {
-          setSelectedCategory(category);
+          setSelectedCategory({...category, title: category.name});
           setShowSearchModal(false);
           setShowCategoryResults(true);
         }}
