@@ -13,7 +13,7 @@ export const HeroBlock = ({ onSearch, className }: HeroBlockProps) => {
   return (
     <>
       <SearchModal 
-        isOpen={showSearchModal}
+        open={showSearchModal}
         onClose={() => setShowSearchModal(false)}
         onSelect={onSearch}
       />
