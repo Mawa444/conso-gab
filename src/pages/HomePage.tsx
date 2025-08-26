@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { QRScanner } from "@/components/scanner/QRScanner";
 import { AdCarousel } from "@/components/advertising/AdCarousel";
 import { IntelligentSearchBar } from "@/components/search/IntelligentSearchBar";
@@ -197,10 +196,9 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
   };
 
   return (
-    <div className="min-h-screen bg-background">      
-      <div className="container mx-auto px-4 pt-2">
-        {/* Contenu principal avec espacements réduits */}
-        <div className="space-y-6 p-4 pt-16">
+    <div className="min-h-screen">
+      {/* Contenu principal avec espacements réduits */}
+      <div className="space-y-6 p-4 pt-16">
         {/* Barre de recherche intelligente */}
         <div className="mb-4">
           <IntelligentSearchBar userLocation={userLocation} />
@@ -216,10 +214,6 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
 
         {/* Toutes les catégories avec pubs intégrées */}
         <CategoriesSection userLocation={userLocation} />
-        </div>
-        
-        {/* Bottom Navigation */}
-        <BottomNavigation activeTab="home" onTabChange={() => {}} />
       </div>
 
       {/* Scanner Modal */}
