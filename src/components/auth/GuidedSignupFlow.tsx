@@ -275,6 +275,9 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
                     placeholder="Votre nom d'utilisateur"
                     required
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Votre nom à l'état civil ne sera jamais affiché publiquement. Seul votre pseudo est visible.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
