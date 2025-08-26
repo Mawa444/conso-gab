@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useAnonymousSession } from '@/hooks/use-anonymous-session';
+import { AnonymousLockPopup } from './AnonymousLockPopup';
 
 interface AuthContextType {
   user: User | null;
@@ -25,6 +27,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const anonymousSession = useAnonymousSession();
 
   useEffect(() => {
     // Get initial session
@@ -102,5 +105,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signOut,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      <AnonymousLockPopup
+        open={anonymousSession.showLockPopup}
+        onClose={anonymousSession.dismissLockPopup}
+        onCreateAccount={() => {
+          anonymousSession.endAnonymousSession();
+          window.location.href = '/auth';
+        }}
+        onContinueAnonymous={() => {
+          anonymousSession.dismissLockPopup();
+          anonymousSession.startAnonymousSession();
+        }}
+      />
+    </AuthContext.Provider>
+  );
 };
