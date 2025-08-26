@@ -57,7 +57,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
       if (error) throw error;
       
       toast.success('Connexion réussie !');
-      navigate('/');
+      onComplete();
     } catch (error: any) {
       toast.error(error.message || 'Erreur de connexion');
     } finally {
@@ -162,7 +162,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   if (step === 'signup') {
     return (
       <GuidedSignupFlow 
-        onComplete={() => navigate('/')}
+        onComplete={onComplete}
         onBack={() => setStep('welcome')}
       />
     );

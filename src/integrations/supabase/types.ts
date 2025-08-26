@@ -17,19 +17,25 @@ export type Database = {
       business_profiles: {
         Row: {
           address: string | null
+          arrondissement: string | null
           business_category: Database["public"]["Enums"]["business_category"]
           business_name: string
           city: string | null
           country: string | null
           cover_image_url: string | null
           created_at: string
+          department: string | null
           description: string | null
           email: string | null
           id: string
           is_active: boolean | null
           is_verified: boolean | null
+          latitude: number | null
           logo_url: string | null
+          longitude: number | null
           phone: string | null
+          province: string | null
+          quartier: string | null
           telegram: string | null
           updated_at: string
           user_id: string
@@ -38,19 +44,25 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          arrondissement?: string | null
           business_category: Database["public"]["Enums"]["business_category"]
           business_name: string
           city?: string | null
           country?: string | null
           cover_image_url?: string | null
           created_at?: string
+          department?: string | null
           description?: string | null
           email?: string | null
           id?: string
           is_active?: boolean | null
           is_verified?: boolean | null
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           phone?: string | null
+          province?: string | null
+          quartier?: string | null
           telegram?: string | null
           updated_at?: string
           user_id: string
@@ -59,19 +71,25 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          arrondissement?: string | null
           business_category?: Database["public"]["Enums"]["business_category"]
           business_name?: string
           city?: string | null
           country?: string | null
           cover_image_url?: string | null
           created_at?: string
+          department?: string | null
           description?: string | null
           email?: string | null
           id?: string
           is_active?: boolean | null
           is_verified?: boolean | null
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           phone?: string | null
+          province?: string | null
+          quartier?: string | null
           telegram?: string | null
           updated_at?: string
           user_id?: string
@@ -489,33 +507,57 @@ export type Database = {
       }
       user_profiles: {
         Row: {
+          address: string | null
+          arrondissement: string | null
+          country: string | null
           created_at: string
+          department: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           phone: string | null
           profile_picture_url: string | null
+          province: string | null
           pseudo: string
+          quartier: string | null
           role: string
           updated_at: string
           user_id: string
           visibility: string
         }
         Insert: {
+          address?: string | null
+          arrondissement?: string | null
+          country?: string | null
           created_at?: string
+          department?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           phone?: string | null
           profile_picture_url?: string | null
+          province?: string | null
           pseudo: string
+          quartier?: string | null
           role: string
           updated_at?: string
           user_id: string
           visibility?: string
         }
         Update: {
+          address?: string | null
+          arrondissement?: string | null
+          country?: string | null
           created_at?: string
+          department?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           phone?: string | null
           profile_picture_url?: string | null
+          province?: string | null
           pseudo?: string
+          quartier?: string | null
           role?: string
           updated_at?: string
           user_id?: string

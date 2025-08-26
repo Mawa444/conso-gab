@@ -11,8 +11,9 @@ import gabomaLogo from "@/assets/gaboma-logo.png";
 import { toast } from "sonner";
 import { useAuth } from "./AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { LocationStep } from "./LocationStep";
 
-type SignupStep = 'profile-choice' | 'basic-info' | 'contact-info' | 'business-info' | 'final';
+type SignupStep = 'profile-choice' | 'basic-info' | 'contact-info' | 'location-info' | 'business-info' | 'final';
 
 interface SignupData {
   accountType: 'consumer' | 'merchant';
@@ -26,6 +27,15 @@ interface SignupData {
   businessCategory?: string;
   businessPhone?: string;
   businessEmail?: string;
+  // Location data
+  country?: string;
+  province?: string;
+  department?: string;
+  arrondissement?: string;
+  quartier?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface GuidedSignupFlowProps {
@@ -43,7 +53,8 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
     { id: 'profile-choice', title: 'Type de compte', step: 1 },
     { id: 'basic-info', title: 'Informations de base', step: 2 },
     { id: 'contact-info', title: 'Contact', step: 3 },
-    ...(signupData.accountType === 'merchant' ? [{ id: 'business-info', title: 'Informations business', step: 4 }] : []),
+    { id: 'location-info', title: 'Localisation', step: 4 },
+    ...(signupData.accountType === 'merchant' ? [{ id: 'business-info', title: 'Informations business', step: 5 }] : []),
   ];
 
   const currentStepIndex = steps.findIndex(step => step.id === currentStep);
@@ -83,7 +94,15 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
           role: signupData.accountType || 'consumer',
           first_name: signupData.firstName,
           last_name: signupData.lastName,
-          phone: signupData.phone
+          phone: signupData.phone,
+          country: signupData.country,
+          province: signupData.province,
+          department: signupData.department,
+          arrondissement: signupData.arrondissement,
+          quartier: signupData.quartier,
+          address: signupData.address,
+          latitude: signupData.latitude,
+          longitude: signupData.longitude
         }
       );
 
@@ -110,6 +129,14 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
             business_category: mappedCategory as any,
             phone: signupData.businessPhone,
             email: signupData.businessEmail,
+            country: signupData.country,
+            province: signupData.province,
+            department: signupData.department,
+            arrondissement: signupData.arrondissement,
+            quartier: signupData.quartier,
+            address: signupData.address,
+            latitude: signupData.latitude,
+            longitude: signupData.longitude,
             is_active: true
           });
 
@@ -150,6 +177,8 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
         return signupData.pseudo && signupData.firstName && signupData.lastName;
       case 'contact-info':
         return signupData.email && signupData.password;
+      case 'location-info':
+        return signupData.province || (signupData.latitude && signupData.longitude);
       case 'business-info':
         return signupData.businessName && signupData.businessCategory;
       default:
@@ -321,6 +350,31 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
                     />
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Location Step */}
+            {currentStep === 'location-info' && (
+              <div className="space-y-4">
+                <Badge variant="secondary" className="w-fit">
+                  Votre localisation
+                </Badge>
+                
+                <LocationStep
+                  onLocationChange={(locationData) => 
+                    setSignupData({ ...signupData, ...locationData })
+                  }
+                  initialLocation={{
+                    country: signupData.country,
+                    province: signupData.province,
+                    department: signupData.department,
+                    arrondissement: signupData.arrondissement,
+                    quartier: signupData.quartier,
+                    address: signupData.address,
+                    latitude: signupData.latitude,
+                    longitude: signupData.longitude,
+                  }}
+                />
               </div>
             )}
 

@@ -28,7 +28,14 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/auth" element={<AuthFlowPage onComplete={() => {}} />} />
+      <Route path="/auth" element={
+        <AuthFlowPage 
+          onComplete={() => {
+            // La redirection sera gérée par l'AuthProvider après la connexion
+            window.location.href = '/';
+          }} 
+        />
+      } />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

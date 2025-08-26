@@ -69,6 +69,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             pseudo: userData.pseudo,
             role: userData.role,
             phone: userData.phone,
+            country: userData.country || 'Gabon',
+            province: userData.province,
+            department: userData.department,
+            arrondissement: userData.arrondissement,
+            quartier: userData.quartier,
+            address: userData.address,
+            latitude: userData.latitude,
+            longitude: userData.longitude,
             visibility: 'public'
           });
 
