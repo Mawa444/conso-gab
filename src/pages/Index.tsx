@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { Header } from "@/components/layout/Header";
 import { HomePage } from "@/pages/HomePage";
@@ -13,12 +14,37 @@ import { useAuth } from "@/components/auth/AuthProvider";
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("home");
   const [showScanner, setShowScanner] = useState(false);
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
+
+  // Rediriger vers la page d'auth si non connecté
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [loading, user, navigate]);
+
+  // Afficher un loader pendant la vérification
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary via-secondary to-accent">
+        <div className="text-center text-white">
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p>Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Ne rien afficher si pas d'utilisateur (redirection en cours)
+  if (!user) {
+    return null;
+  }
 
   const getPageTitle = () => {
     switch (activeTab) {
