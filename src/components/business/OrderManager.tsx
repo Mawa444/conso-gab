@@ -11,7 +11,7 @@ interface Order {
   id: string;
   order_number: string;
   total_amount: number;
-  status: string;
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   delivery_address: string;
   notes: string;
   created_at: string;
@@ -240,7 +240,7 @@ export const OrderManager = ({ businessId }: OrderManagerProps) => {
                     <div className="flex justify-between items-center pt-4 border-t">
                       <Select 
                         value={order.status} 
-                        onValueChange={(value) => updateOrderStatus(order.id, value as any)}}
+                        onValueChange={(value) => updateOrderStatus(order.id, value as Order['status'])}
                       >
                         <SelectTrigger className="w-48">
                           <SelectValue />

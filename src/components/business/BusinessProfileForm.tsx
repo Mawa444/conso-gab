@@ -13,16 +13,16 @@ import { Loader2, X } from 'lucide-react';
 
 interface BusinessProfile {
   id?: string;
-  business_name: string;
-  business_category: string;
-  description: string;
-  address: string;
-  city: string;
-  phone: string;
-  whatsapp: string;
-  email: string;
-  telegram: string;
-  website: string;
+  business_name?: string;
+  business_category?: string;
+  description?: string;
+  address?: string;
+  city?: string;
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  telegram?: string;
+  website?: string;
 }
 
 interface BusinessProfileFormProps {
