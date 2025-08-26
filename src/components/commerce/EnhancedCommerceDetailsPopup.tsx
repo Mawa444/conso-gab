@@ -160,7 +160,7 @@ export const EnhancedCommerceDetailsPopup = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
+      <div className="fixed inset-0 bg-background z-[1200] overflow-y-auto">
         {/* Header avec image de couverture */}
         <div className="relative h-64 bg-muted/30">
           <img 

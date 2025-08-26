@@ -42,7 +42,7 @@ export const QRScanner = ({ onClose, onScan }: QRScannerProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/80 z-[1200] flex items-center justify-center">
       <div className="relative w-full h-full max-w-md mx-auto">
         
         {/* Header */}

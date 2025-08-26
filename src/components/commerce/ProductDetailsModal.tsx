@@ -109,7 +109,7 @@ export const ProductDetailsModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-background z-[1200] overflow-y-auto">
       {/* Header */}
       <div className="sticky top-0 bg-background/95 backdrop-blur-sm z-10 p-4 border-b border-border">
         <div className="flex items-center justify-between">

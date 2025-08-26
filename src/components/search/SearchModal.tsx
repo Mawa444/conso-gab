@@ -236,7 +236,7 @@ export const SearchModal = ({ open, onClose, onSelect, userLocation = "Librevill
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-background z-50 overflow-hidden">
+    <div className="fixed inset-0 bg-background z-[1200] overflow-hidden">
       {/* Header avec barre de recherche - positionné juste sous l'entête */}
       <div className="sticky top-16 bg-background/95 backdrop-blur-sm z-10 p-4 border-b border-border shadow-sm">
         <div className="flex items-center gap-3">
