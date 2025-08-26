@@ -22,12 +22,12 @@ const Index = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
 
-  // Rediriger vers la page d'auth si non connecté
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-    }
-  }, [loading, user, navigate]);
+  // Redirection temporairement désactivée
+  // useEffect(() => {
+  //   if (!loading && !user) {
+  //     navigate('/auth');
+  //   }
+  // }, [loading, user, navigate]);
 
   // Afficher un loader pendant la vérification
   if (loading) {
@@ -41,10 +41,10 @@ const Index = () => {
     );
   }
 
-  // Ne rien afficher si pas d'utilisateur (redirection en cours)
-  if (!user) {
-    return null;
-  }
+  // Accès autorisé même sans utilisateur connecté (temporaire)
+  // if (!user) {
+  //   return null;
+  // }
 
   const getPageTitle = () => {
     switch (activeTab) {
