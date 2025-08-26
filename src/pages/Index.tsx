@@ -114,13 +114,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <Header 
-        title={getPageTitle()}
-        showBack={showBackButton}
-        onBack={() => setActiveTab("home")}
-        onLocationClick={handleLocationClick}
-        onMessageClick={handleMessageClick}
-      />
+      {activeTab === "home" && (
+        <Header 
+          title={getPageTitle()}
+          showBack={false}
+          onLocationClick={handleLocationClick}
+          onMessageClick={handleMessageClick}
+        />
+      )}
       <main className="pt-24 pb-24 animate-fade-in min-h-screen">
         {renderActiveTab()}
       </main>
