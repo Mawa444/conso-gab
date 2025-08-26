@@ -16,10 +16,6 @@ interface Order {
   notes: string;
   created_at: string;
   customer_id: string;
-  profiles: {
-    first_name: string;
-    last_name: string;
-  };
   order_items: {
     id: string;
     quantity: number;
@@ -63,7 +59,6 @@ export const OrderManager = ({ businessId }: OrderManagerProps) => {
         .from('orders')
         .select(`
           *,
-          profiles!inner(first_name, last_name),
           order_items(
             *,
             products(name, images)
@@ -86,7 +81,7 @@ export const OrderManager = ({ businessId }: OrderManagerProps) => {
     }
   };
 
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+  const updateOrderStatus = async (orderId: string, newStatus: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled') => {
     try {
       const { error } = await supabase
         .from('orders')
@@ -176,7 +171,7 @@ export const OrderManager = ({ businessId }: OrderManagerProps) => {
                         Commande #{order.order_number}
                       </CardTitle>
                       <p className="text-muted-foreground">
-                        Client: {order.profiles?.first_name} {order.profiles?.last_name}
+                        Client
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {new Date(order.created_at).toLocaleDateString('fr-FR', {
@@ -245,7 +240,7 @@ export const OrderManager = ({ businessId }: OrderManagerProps) => {
                     <div className="flex justify-between items-center pt-4 border-t">
                       <Select 
                         value={order.status} 
-                        onValueChange={(value) => updateOrderStatus(order.id, value)}
+                        onValueChange={(value) => updateOrderStatus(order.id, value as any)}}
                       >
                         <SelectTrigger className="w-48">
                           <SelectValue />

@@ -166,7 +166,7 @@ export const BusinessDashboard = () => {
             </h1>
             <BusinessProfileForm
               onSuccess={(profile) => {
-                setBusinessProfile(profile);
+                setBusinessProfile(profile as any);
                 setShowProfileForm(false);
                 fetchBusinessStats();
                 toast({
@@ -311,7 +311,7 @@ export const BusinessDashboard = () => {
         <BusinessProfileForm
           businessProfile={businessProfile}
           onSuccess={(profile) => {
-            setBusinessProfile(profile);
+            setBusinessProfile(profile as any);
             setShowProfileForm(false);
             toast({
               title: "Profil mis à jour",

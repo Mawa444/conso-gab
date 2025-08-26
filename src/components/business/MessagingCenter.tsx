@@ -23,11 +23,6 @@ interface Conversation {
   subject: string;
   is_active: boolean;
   created_at: string;
-  profiles: {
-    first_name: string;
-    last_name: string;
-    avatar_url?: string;
-  };
   messages: Message[];
 }
 
@@ -55,7 +50,6 @@ export const MessagingCenter = ({ businessId }: MessagingCenterProps) => {
         .from('conversations')
         .select(`
           *,
-          profiles!inner(first_name, last_name, avatar_url),
           messages(*)
         `)
         .eq('business_id', businessId)
@@ -172,7 +166,7 @@ export const MessagingCenter = ({ businessId }: MessagingCenterProps) => {
                             </div>
                             <div>
                               <p className="font-medium text-sm">
-                                {conversation.profiles.first_name} {conversation.profiles.last_name}
+                                Client
                               </p>
                               <p className="text-xs text-muted-foreground">
                                 {conversation.subject || 'Nouvelle conversation'}
@@ -203,7 +197,7 @@ export const MessagingCenter = ({ businessId }: MessagingCenterProps) => {
                       <User className="h-4 w-4 text-primary-foreground" />
                     </div>
                     <div>
-                      <p>{selectedConversation.profiles.first_name} {selectedConversation.profiles.last_name}</p>
+                      <p>Client</p>
                       <p className="text-sm text-muted-foreground font-normal">
                         {selectedConversation.subject || 'Conversation'}
                       </p>
