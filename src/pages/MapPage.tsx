@@ -1,129 +1,15 @@
 import { useState, useMemo } from "react";
-import { Search, Filter, MapPin, Navigation, Star, Grid, List, SlidersHorizontal, TrendingUp, Clock, Users, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { MapPin, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CommerceCard } from "@/components/commerce/CommerceCard";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Slider } from "@/components/ui/slider";
+import { MapControls } from "@/components/map/MapControls";
+import { InteractiveMap } from "@/components/map/InteractiveMap";
+import { RecommendationEngine } from "@/components/map/RecommendationEngine";
+import { allCommerces, categories } from "@/data/mockCommerces";
 
-const mapCommerces = [
-  {
-    id: "map_001",
-    name: "Boulangerie Chez Mama Nzé",
-    type: "Boulangerie",
-    category: "Restauration",
-    owner: "Marie Nzé",
-    address: "Quartier Nombakélé, Libreville",
-    rating: 4.8,
-    verified: true,
-    employees: ["Marie", "Jean-Claude", "Esperance"],
-    distance: "300m",
-    priceRange: "€",
-    openNow: true,
-    reviews: 156,
-    coordinates: { lat: 0.4162, lng: 9.4673 }
-  },
-  {
-    id: "map_002",
-    name: "Garage Auto Gaboma",
-    type: "Garage automobile",
-    category: "Automobile", 
-    owner: "Pierre Ekomi",
-    address: "Route Nationale, Libreville",
-    rating: 4.5,
-    verified: true,
-    employees: ["Pierre", "André", "Michel", "Joseph"],
-    distance: "650m",
-    priceRange: "€€",
-    openNow: true,
-    reviews: 89,
-    coordinates: { lat: 0.4152, lng: 9.4683 }
-  },
-  {
-    id: "map_003",
-    name: "Coiffure Afrique Beauté",
-    type: "Salon de coiffure",
-    category: "Beauté",
-    owner: "Sylvie Mbourou",
-    address: "Quartier Akanda, Libreville", 
-    rating: 4.9,
-    verified: true,
-    employees: ["Sylvie", "Grace", "Fatou", "Aline"],
-    distance: "1.1km",
-    priceRange: "€€",
-    openNow: false,
-    reviews: 234,
-    coordinates: { lat: 0.4172, lng: 9.4663 }
-  },
-  {
-    id: "map_004",
-    name: "Restaurant Le Palmier",
-    type: "Restaurant traditionnel",
-    category: "Restauration",
-    owner: "Paul Mba",
-    address: "Centre-ville, Libreville",
-    rating: 4.6,
-    verified: true,
-    employees: ["Paul", "Marie", "Jean", "Sylvie", "Grace"],
-    distance: "800m",
-    priceRange: "€€€",
-    openNow: true,
-    reviews: 312,
-    coordinates: { lat: 0.4142, lng: 9.4653 }
-  },
-  {
-    id: "map_005",
-    name: "Quincaillerie Moderne",
-    type: "Quincaillerie",
-    category: "Bricolage",
-    owner: "André Obame",
-    address: "Quartier Oloumi, Libreville",
-    rating: 4.3,
-    verified: true,
-    employees: ["André", "Michel", "Joseph"],
-    distance: "1.2km",
-    priceRange: "€€",
-    openNow: true,
-    reviews: 67,
-    coordinates: { lat: 0.4132, lng: 9.4693 }
-  },
-  {
-    id: "map_006",
-    name: "Pharmacie du Soleil",
-    type: "Pharmacie",
-    category: "Santé",
-    owner: "Dr. Marie Ndong",
-    address: "Quartier Glass, Libreville",
-    rating: 4.7,
-    verified: true,
-    employees: ["Dr. Marie", "Infirmier Paul", "Assistant Claire"],
-    distance: "500m",
-    priceRange: "€€",
-    openNow: true,
-    reviews: 198,
-    coordinates: { lat: 0.4172, lng: 9.4643 }
-  }
-];
-
-const categories = [
-  { id: "all", name: "Tous", count: 847, icon: "🏪" },
-  { id: "Restauration", name: "Restauration", count: 156, icon: "🍽️" },
-  { id: "Beauté", name: "Beauté", count: 89, icon: "💄" },
-  { id: "Automobile", name: "Automobile", count: 67, icon: "🚗" },
-  { id: "Bricolage", name: "Bricolage", count: 123, icon: "🔨" },
-  { id: "Santé", name: "Santé", count: 234, icon: "⚕️" },
-  { id: "Services", name: "Services", count: 178, icon: "🛠️" },
-  { id: "Shopping", name: "Shopping", count: 95, icon: "🛍️" }
-];
-
-const sortOptions = [
-  { id: "rating", name: "Mieux notés", icon: Star },
-  { id: "distance", name: "Plus proches", icon: MapPin },
-  { id: "popular", name: "Plus populaires", icon: TrendingUp },
-  { id: "recent", name: "Récents", icon: Clock }
-];
+// Les données sont maintenant importées depuis mockCommerces.ts
 
 interface MapPageProps {
   onBack?: () => void;
@@ -138,12 +24,15 @@ export const MapPage = ({ onBack }: MapPageProps) => {
   const [distanceRange, setDistanceRange] = useState([5]);
   const [priceRange, setPriceRange] = useState(["€", "€€", "€€€"]);
   const [openNow, setOpenNow] = useState(false);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [showRecommendations, setShowRecommendations] = useState(true);
 
   const filteredCommerces = useMemo(() => {
-    let filtered = mapCommerces.filter(commerce => {
+    let filtered = allCommerces.filter(commerce => {
       const matchesSearch = commerce.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            commerce.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           commerce.category.toLowerCase().includes(searchQuery.toLowerCase());
+                           commerce.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           commerce.district.toLowerCase().includes(searchQuery.toLowerCase());
       
       const matchesCategory = selectedCategory === "all" || commerce.category === selectedCategory;
       
@@ -152,335 +41,182 @@ export const MapPage = ({ onBack }: MapPageProps) => {
       const matchesPrice = priceRange.includes(commerce.priceRange);
       
       const matchesOpen = !openNow || commerce.openNow;
+      
+      const matchesVerified = !verifiedOnly || commerce.verified;
 
-      return matchesSearch && matchesCategory && matchesDistance && matchesPrice && matchesOpen;
+      return matchesSearch && matchesCategory && matchesDistance && matchesPrice && matchesOpen && matchesVerified;
     });
 
-    // Tri
+    // Tri intelligent
     switch (sortBy) {
       case "rating":
-        filtered.sort((a, b) => b.rating - a.rating);
+        filtered.sort((a, b) => {
+          // Priorise d'abord les commerces vérifiés, puis par note
+          if (a.verified !== b.verified) return b.verified ? 1 : -1;
+          return b.rating - a.rating;
+        });
         break;
       case "distance":
         filtered.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
         break;
       case "popular":
-        filtered.sort((a, b) => b.reviews - a.reviews);
+        filtered.sort((a, b) => {
+          // Combine avis et note pour un score de popularité
+          const scoreA = b.reviews * 0.7 + b.rating * 30;
+          const scoreB = a.reviews * 0.7 + a.rating * 30;
+          return scoreA - scoreB;
+        });
         break;
       case "recent":
-        // Tri aléatoire pour simuler les récents
-        filtered.sort(() => Math.random() - 0.5);
+        // Tri par établissements récents puis par note
+        filtered.sort((a, b) => {
+          const yearA = a.established || 2010;
+          const yearB = b.established || 2010;
+          if (yearA !== yearB) return yearB - yearA;
+          return b.rating - a.rating;
+        });
         break;
     }
 
     return filtered;
-  }, [searchQuery, selectedCategory, sortBy, distanceRange, priceRange, openNow]);
+  }, [searchQuery, selectedCategory, sortBy, distanceRange, priceRange, openNow, verifiedOnly]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex flex-col animate-fade-in">
-      {/* Header moderne avec recherche et filtres */}
-      <div className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-24 z-40">
-        <div className="p-6 space-y-4">
-          {/* Barre de recherche principale */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher par nom, type, quartier..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-24 py-3 text-base bg-background/80 border-border/50 focus:border-primary/50"
-            />
-            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className={`h-8 px-3 ${showFilters ? 'bg-primary/10 text-primary' : ''}`}
-              >
-                <SlidersHorizontal className="w-4 h-4 mr-1" />
-                Filtres
-              </Button>
-            </div>
-          </div>
+      {/* Contrôles de carte moderne */}
+      <MapControls
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        distanceRange={distanceRange}
+        setDistanceRange={setDistanceRange}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        openNow={openNow}
+        setOpenNow={setOpenNow}
+        verifiedOnly={verifiedOnly}
+        setVerifiedOnly={setVerifiedOnly}
+        resultsCount={filteredCommerces.length}
+      />
 
-          {/* Filtres avancés (collapsible) */}
-          {showFilters && (
-            <div className="bg-muted/30 rounded-lg p-4 space-y-4 animate-fade-in">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Distance */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    Distance: {distanceRange[0]} km
-                  </label>
-                  <Slider
-                    value={distanceRange}
-                    onValueChange={setDistanceRange}
-                    max={10}
-                    min={1}
-                    step={0.5}
-                    className="w-full"
-                  />
-                </div>
-
-                {/* Prix */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Gamme de prix</label>
-                  <div className="flex gap-2">
-                    {["€", "€€", "€€€"].map(price => (
-                      <Badge
-                        key={price}
-                        variant={priceRange.includes(price) ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => {
-                          setPriceRange(prev => 
-                            prev.includes(price) 
-                              ? prev.filter(p => p !== price)
-                              : [...prev, price]
-                          )
-                        }}
-                      >
-                        {price}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Ouvert maintenant */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Disponibilité
-                  </label>
-                  <Badge
-                    variant={openNow ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setOpenNow(!openNow)}
-                  >
-                    Ouvert maintenant
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Catégories horizontal scroll */}
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((category) => (
-              <Badge
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                className="whitespace-nowrap cursor-pointer transition-all hover:scale-105 px-4 py-2 text-sm font-medium flex items-center gap-2"
-                onClick={() => setSelectedCategory(category.id)}
-              >
-                <span className="text-base">{category.icon}</span>
-                {category.name}
-                <span className="text-xs opacity-70">({category.count})</span>
-              </Badge>
-            ))}
-          </div>
-
-          {/* Contrôles de vue et tri */}
-          <div className="flex items-center justify-between gap-4">
-            {/* Vue toggle */}
-            <div className="flex bg-muted rounded-lg p-1">
-              <Button
-                variant={viewMode === "map" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode("map")}
-                className="text-sm font-medium"
-              >
-                <Grid className="w-4 h-4 mr-2" />
-                Carte
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-                className="text-sm font-medium"
-              >
-                <List className="w-4 h-4 mr-2" />
-                Liste
-              </Button>
-            </div>
-
-            {/* Tri */}
-            <div className="flex items-center gap-2">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map(option => {
-                    const Icon = option.icon;
-                    return (
-                      <SelectItem key={option.id} value={option.id}>
-                        <div className="flex items-center gap-2">
-                          <Icon className="w-4 h-4" />
-                          {option.name}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-
-              <Button variant="outline" size="sm">
-                <Navigation className="w-4 h-4 mr-2" />
-                Ma position
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Contenu principal */}
+      {/* Contenu principal avec layout avancé */}
       <div className="flex-1 relative">
         <Tabs value={viewMode} className="h-full">
-          {/* Vue Carte */}
+          {/* Vue Carte Interactive */}
           <TabsContent value="map" className="h-full m-0">
-            <div className="h-full relative bg-gradient-to-br from-muted/20 to-muted/10">
-              {/* Carte interactive simulée */}
-              <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950/20 dark:to-blue-950/20">
-                {/* Grid pour simuler une carte */}
-                <div className="absolute inset-0 opacity-20">
-                  <div className="grid grid-cols-10 grid-rows-10 h-full w-full">
-                    {Array.from({ length: 100 }).map((_, i) => (
-                      <div key={i} className="border border-muted/20" />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Points des commerces sur la carte */}
-                {filteredCommerces.map((commerce, index) => {
-                  const positions = [
-                    { top: '20%', left: '15%' },
-                    { top: '35%', left: '65%' },
-                    { top: '60%', left: '25%' },
-                    { top: '45%', left: '80%' },
-                    { top: '75%', left: '40%' },
-                    { top: '25%', left: '85%' }
-                  ];
-                  const position = positions[index % positions.length];
-                  
-                  return (
-                    <div
-                      key={commerce.id}
-                      className="absolute group cursor-pointer animate-bounce-soft"
-                      style={{ ...position, animationDelay: `${index * 0.2}s` }}
-                    >
-                      {/* Pin marker */}
-                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white text-sm font-bold relative hover:scale-110 transition-transform">
-                        {categories.find(cat => cat.id === commerce.category)?.icon || '🏪'}
-                        
-                        {/* Tooltip au hover */}
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="bg-card border border-border rounded-lg shadow-lg p-3 min-w-48">
-                            <div className="font-semibold text-sm">{commerce.name}</div>
-                            <div className="text-xs text-muted-foreground mb-1">{commerce.type}</div>
-                            <div className="flex items-center gap-2 text-xs">
-                              <div className="flex items-center gap-1">
-                                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                <span>{commerce.rating}</span>
-                              </div>
-                              <span>•</span>
-                              <span>{commerce.distance}</span>
-                              {commerce.openNow && (
-                                <>
-                                  <span>•</span>
-                                  <span className="text-green-600">Ouvert</span>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Panneau latéral avec résultats */}
-                <div className="absolute top-4 right-4 w-80 max-h-96 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg overflow-hidden">
-                  <div className="p-4 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5">
-                    <h3 className="font-semibold text-lg">Commerces trouvés</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {filteredCommerces.length} résultat{filteredCommerces.length > 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <div className="overflow-y-auto max-h-80">
-                    {filteredCommerces.map((commerce) => (
-                      <div
-                        key={commerce.id}
-                        className="p-3 border-b border-border/50 hover:bg-muted/30 cursor-pointer transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center text-lg">
-                            {categories.find(cat => cat.id === commerce.category)?.icon}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm truncate">{commerce.name}</div>
-                            <div className="text-xs text-muted-foreground truncate">{commerce.address}</div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <div className="flex items-center gap-1">
-                                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                <span className="text-xs">{commerce.rating}</span>
-                              </div>
-                              <span className="text-xs text-muted-foreground">•</span>
-                              <span className="text-xs text-muted-foreground">{commerce.distance}</span>
-                              {commerce.openNow && (
-                                <>
-                                  <span className="text-xs text-muted-foreground">•</span>
-                                  <Badge variant="outline" className="text-xs h-5 px-2 text-green-600">
-                                    Ouvert
-                                  </Badge>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <div className="h-full flex gap-4 p-4">
+              {/* Carte principale */}
+              <div className="flex-1 relative rounded-xl overflow-hidden shadow-2xl border border-border/50">
+                <InteractiveMap 
+                  commerces={filteredCommerces} 
+                  selectedCategory={selectedCategory}
+                />
               </div>
+
+              {/* Panneau latéral avec recommandations */}
+              {showRecommendations && (
+                <div className="w-96 space-y-4 animate-fade-in">
+                  <RecommendationEngine 
+                    commerces={filteredCommerces}
+                    selectedCategory={selectedCategory}
+                  />
+                </div>
+              )}
             </div>
           </TabsContent>
 
-          {/* Vue Liste */}
+          {/* Vue Liste Avancée */}
           <TabsContent value="list" className="h-full m-0">
             <div className="h-full overflow-y-auto">
-              <div className="p-4 space-y-4">
-                {/* Stats et résumé */}
-                <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
+              <div className="p-4 space-y-6">
+                {/* En-tête avec statistiques avancées */}
+                <div className="bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 rounded-xl p-6 border border-primary/10">
+                  <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="font-semibold text-lg">
+                      <h3 className="font-bold text-xl mb-1">
                         {filteredCommerces.length} commerce{filteredCommerces.length > 1 ? 's' : ''} trouvé{filteredCommerces.length > 1 ? 's' : ''}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {selectedCategory === "all" ? "Toutes catégories" : categories.find(c => c.id === selectedCategory)?.name} 
-                        {' '} • Tri par {sortOptions.find(s => s.id === sortBy)?.name.toLowerCase()}
+                        {selectedCategory === "all" ? "Toutes catégories" : categories.find(c => c.id === selectedCategory)?.name}
+                        {' '} dans un rayon de {distanceRange[0]}km
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-5 h-5 text-primary" />
-                      <span className="text-2xl font-bold text-primary">
+                    
+                    <div className="flex items-center gap-6">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">
+                          {filteredCommerces.filter(c => c.openNow).length}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Ouverts</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">
+                          {filteredCommerces.filter(c => c.verified).length}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Vérifiés</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-orange-500">
+                          {filteredCommerces.length > 0 ? (filteredCommerces.reduce((acc, c) => acc + c.rating, 0) / filteredCommerces.length).toFixed(1) : '0'}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Note moy.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Métriques détaillées */}
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 text-center">
+                      <Users className="w-5 h-5 text-primary mx-auto mb-1" />
+                      <div className="font-bold text-primary">
                         {filteredCommerces.reduce((acc, c) => acc + c.employees.length, 0)}
-                      </span>
-                      <span className="text-sm text-muted-foreground">employés</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">Employés</div>
+                    </div>
+                    <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 text-center">
+                      <MapPin className="w-5 h-5 text-blue-500 mx-auto mb-1" />
+                      <div className="font-bold text-blue-600">
+                        {new Set(filteredCommerces.map(c => c.district)).size}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Quartiers</div>
+                    </div>
+                    <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 text-center">
+                      <div className="w-5 h-5 text-purple-500 mx-auto mb-1 flex items-center justify-center text-sm font-bold">€</div>
+                      <div className="font-bold text-purple-600">
+                        {filteredCommerces.filter(c => c.priceRange === "€").length}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Économiques</div>
+                    </div>
+                    <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 text-center">
+                      <div className="w-5 h-5 text-yellow-500 mx-auto mb-1">⭐</div>
+                      <div className="font-bold text-yellow-600">
+                        {filteredCommerces.filter(c => c.rating >= 4.5).length}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Excellence</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Liste des commerces */}
-                <div className="space-y-4">
+                {/* Grille de commerces avec animation */}
+                <div className="grid gap-4">
                   {filteredCommerces.map((commerce, index) => (
-                    <div key={commerce.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <div 
+                      key={commerce.id} 
+                      className="animate-fade-in hover:scale-[1.02] transition-transform duration-300" 
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
                       <CommerceCard
                         commerce={commerce}
                         variant="default"
                         onSelect={(commerce) => {
-                          console.log("Sélectionné:", commerce);
+                          console.log("Commerce sélectionné:", commerce);
                         }}
                         onFavorite={(id) => {
                           console.log("Toggle favorite:", id);
@@ -490,24 +226,35 @@ export const MapPage = ({ onBack }: MapPageProps) => {
                   ))}
                 </div>
                 
+                {/* État vide avec actions */}
                 {filteredCommerces.length === 0 && (
-                  <div className="text-center py-16">
-                    <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center">
-                      <Search className="w-12 h-12 text-muted-foreground" />
+                  <div className="text-center py-20">
+                    <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full flex items-center justify-center">
+                      <MapPin className="w-16 h-16 text-muted-foreground" />
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">Aucun commerce trouvé</h3>
-                    <p className="text-muted-foreground text-base mb-6 max-w-md mx-auto">
-                      Essayez de modifier vos critères de recherche ou d'élargir votre zone de recherche
+                    <h3 className="text-2xl font-bold mb-4">Aucun commerce trouvé</h3>
+                    <p className="text-muted-foreground text-lg mb-8 max-w-lg mx-auto">
+                      Aucun établissement ne correspond à vos critères dans cette zone. 
+                      Essayez d'élargir votre recherche ou de modifier vos filtres.
                     </p>
-                    <Button onClick={() => {
-                      setSearchQuery("");
-                      setSelectedCategory("all");
-                      setDistanceRange([5]);
-                      setPriceRange(["€", "€€", "€€€"]);
-                      setOpenNow(false);
-                    }}>
-                      Réinitialiser les filtres
-                    </Button>
+                    <div className="flex gap-3 justify-center">
+                      <Button 
+                        size="lg"
+                        onClick={() => {
+                          setSearchQuery("");
+                          setSelectedCategory("all");
+                          setDistanceRange([5]);
+                          setPriceRange(["€", "€€", "€€€"]);
+                          setOpenNow(false);
+                          setVerifiedOnly(false);
+                        }}
+                      >
+                        Réinitialiser tous les filtres
+                      </Button>
+                      <Button variant="outline" size="lg" onClick={() => setDistanceRange([10])}>
+                        Élargir la zone de recherche
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -516,20 +263,33 @@ export const MapPage = ({ onBack }: MapPageProps) => {
         </Tabs>
       </div>
 
-      {/* Footer fixe avec stats */}
-      <div className="bg-card/95 backdrop-blur-sm border-t border-border/50 p-3">
+      {/* Footer avec statistiques en temps réel */}
+      <div className="bg-gradient-to-r from-card/95 via-card/98 to-card/95 backdrop-blur-sm border-t border-border/50 p-4">
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-muted-foreground">
-              {filteredCommerces.length} / {mapCommerces.length} commerces
-            </span>
-            <Badge variant="outline" className="text-primary">
-              100% ConsoGab
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="font-medium">
+                {filteredCommerces.length} / {allCommerces.length} commerces
+              </span>
+            </div>
+            <Badge variant="outline" className="text-primary border-primary/30">
+              🇬🇦 100% ConsoGab
+            </Badge>
+            <Badge variant="outline" className="text-green-600 border-green-300">
+              ✓ {filteredCommerces.filter(c => c.verified).length} Vérifiés
             </Badge>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="w-4 h-4" />
-            <span>Libreville, Gabon</span>
+          
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <MapPin className="w-4 h-4" />
+              <span>Libreville, Gabon</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span>Mise à jour en temps réel</span>
+            </div>
           </div>
         </div>
       </div>
