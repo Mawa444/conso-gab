@@ -51,9 +51,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/`,
         data: userData,
       },
     });
+
+    // Créer le profil utilisateur après inscription
+    if (data.user && !error) {
+      try {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .insert({
+            user_id: data.user.id,
+            pseudo: userData.pseudo,
+            role: userData.role,
+            phone: userData.phone,
+            visibility: 'public'
+          });
+
+        if (profileError) {
+          console.error('Erreur création profil utilisateur:', profileError);
+        }
+      } catch (err) {
+        console.error('Erreur lors de la création du profil:', err);
+      }
+    }
+
     return { data, error };
   };
 
