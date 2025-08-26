@@ -153,7 +153,7 @@ export const CommerceCard = ({
           </div>
           
           <Button
-            onClick={() => onSelect?.(commerce)}
+            onClick={() => window.location.href = `/business/${commerce.id}`}
             className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6 h-10 rounded-xl font-medium"
           >
             Voir

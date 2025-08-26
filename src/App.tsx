@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AuthFlowPage } from "./pages/AuthFlowPage";
+import { BusinessDetailPage } from "./pages/BusinessDetailPage";
+import { ProductDetailPage } from "./pages/ProductDetailPage";
+import { PromotionDetailPage } from "./pages/PromotionDetailPage";
+import { PersonalRankingsPage } from "./pages/PersonalRankingsPage";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { useAnonymousSession } from "@/hooks/use-anonymous-session";
@@ -36,6 +40,10 @@ const AppRoutes = () => {
           }} 
         />
       } />
+      <Route path="/business/:id" element={<BusinessDetailPage />} />
+      <Route path="/product/:id" element={<ProductDetailPage />} />
+      <Route path="/promotion/:id" element={<PromotionDetailPage />} />
+      <Route path="/rankings/personal" element={<PersonalRankingsPage />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -239,6 +239,7 @@ export const RankingsPage = ({ onBack }: RankingsPageProps) => {
                         variant="outline" 
                         size="sm" 
                         className="shrink-0 hover:bg-primary hover:text-primary-foreground"
+                        onClick={() => window.location.href = `/rankings/personal`}
                       >
                         Voir
                       </Button>
