@@ -99,6 +99,7 @@ const Index = () => {
         {renderActiveTab()}
       </main>
       
+      {/* Navigation toujours visible sauf en mode recherche */}
       <BottomNavigation 
         activeTab={activeTab} 
         onTabChange={handleTabChange}

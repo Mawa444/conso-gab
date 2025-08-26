@@ -1,9 +1,8 @@
-import { useState, useMemo } from "react";
-import { Search, MapPin, Star, TrendingUp, X, ChevronRight, Filter, ChevronDown } from "lucide-react";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { Search, MapPin, Star, TrendingUp, X, ChevronRight, Filter, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CommerceListBlock } from "@/components/blocks/CommerceListBlock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -153,23 +152,30 @@ const locations = {
 };
 
 interface SearchModalProps {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
   onSelect?: (item: any) => void;
   userLocation?: string;
+  onCategorySelect?: (category: any) => void;
 }
 
-export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Libreville" }: SearchModalProps) => {
-  const [query, setQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+export const SearchModal = ({ open, onClose, onSelect, userLocation = "Libreville", onCategorySelect }: SearchModalProps) => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(userLocation);
   const [selectedZone, setSelectedZone] = useState<string>("all");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [open]);
 
   // Algorithme de recherche intelligente avec tolérance aux fautes
   const results = useMemo(() => {
-    if (query.length < 2) return [];
+    if (searchQuery.length < 2) return [];
 
-    const searchTerm = query.toLowerCase().trim();
+    const searchTerm = searchQuery.toLowerCase().trim();
     
     return searchData
       .map(item => {
@@ -209,10 +215,10 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
       .filter(item => item.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 8);
-  }, [query]);
+  }, [searchQuery]);
 
   const handleSelect = (item: any) => {
-    setQuery("");
+    setSearchQuery("");
     onClose();
     onSelect?.(item);
   };
@@ -227,77 +233,76 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
     }
   };
 
-  // Gestion du retour depuis la page de catégorie
-  if (selectedCategory) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-full h-screen p-0 gap-0">
-          <CategoryResultsPage 
-            category={selectedCategory} 
-            onBack={() => setSelectedCategory(null)} 
-          />
-        </DialogContent>
-      </Dialog>
-    );
-  }
+  if (!open) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[95vh] p-0 gap-0 bg-background">
-        {/* Header fixe avec barre de recherche et navigation */}
-        <div className="sticky top-0 z-20 bg-background/98 backdrop-blur-md border-b border-border/30">
-          <div className="p-4">
-            <div className="flex items-center gap-3 mb-4">
+    <div className="fixed inset-0 bg-background z-50 overflow-hidden">
+      {/* Header avec barre de recherche - positionné juste sous l'entête */}
+      <div className="sticky top-24 bg-background/95 backdrop-blur-sm z-10 p-4 border-b border-border shadow-sm">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="shrink-0"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder="Rechercher un commerce, service, produit..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10 h-12 bg-card border-border/50"
+            />
+            {searchQuery && (
               <Button
                 variant="ghost"
-                size="icon"
-                onClick={onClose}
-                className="w-10 h-10 text-muted-foreground hover:text-foreground flex-shrink-0"
+                size="sm"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 h-auto w-auto"
               >
-                <X className="w-6 h-6" />
+                <X className="w-4 h-4" />
               </Button>
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-muted-foreground" />
-                <Input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Rechercher un commerce, service, produit..."
-                  className="pl-14 pr-4 py-4 text-lg bg-background border-2 border-border/50 hover:border-primary/30 focus:border-primary/50 rounded-2xl shadow-lg"
-                  autoFocus
-                />
-              </div>
-            </div>
-            
-            {/* Filtres géographiques */}
-            <div className="flex items-center gap-3 overflow-x-auto pb-2">
-              <div className="flex items-center gap-1 text-sm text-muted-foreground whitespace-nowrap">
-                <Filter className="w-4 h-4" />
-                <span>Zone:</span>
-              </div>
-              <Select value={selectedZone} onValueChange={setSelectedZone}>
-                <SelectTrigger className="w-48 h-9 bg-background/50 border-border/50">
-                  <SelectValue placeholder="Toutes les zones" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les zones</SelectItem>
-                  {locations[selectedLocation as keyof typeof locations]?.quartiers.map((quartier) => (
-                    <SelectItem key={quartier} value={quartier}>{quartier}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Badge variant="outline" className="flex items-center gap-1 whitespace-nowrap">
-                <MapPin className="w-3 h-3" />
-                {selectedLocation}
-              </Badge>
-            </div>
+            )}
           </div>
         </div>
+            
+        
+        {/* Filtres géographiques */}
+        <div className="flex items-center gap-3 overflow-x-auto pb-2 pt-3">
+          <div className="flex items-center gap-1 text-sm text-muted-foreground whitespace-nowrap">
+            <Filter className="w-4 h-4" />
+            <span>Zone:</span>
+          </div>
+          <Select value={selectedZone} onValueChange={setSelectedZone}>
+            <SelectTrigger className="w-48 h-9 bg-background/50 border-border/50">
+              <SelectValue placeholder="Toutes les zones" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les zones</SelectItem>
+              {locations[selectedLocation as keyof typeof locations]?.quartiers.map((quartier) => (
+                <SelectItem key={quartier} value={quartier}>{quartier}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Badge variant="outline" className="flex items-center gap-1 whitespace-nowrap">
+            <MapPin className="w-3 h-3" />
+            {selectedLocation}
+          </Badge>
+        </div>
+      </div>
 
-        {/* Contenu */}
-        <div className="flex-1 overflow-y-auto">
-          {query.length < 2 && (
-            <div className="space-y-8 p-6">
+      {/* Contenu principal */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide pt-24">
+        <div className="p-4 space-y-6">
+          {searchQuery.length < 2 && (
+            <div className="space-y-6">
               {/* Suggestions d'entreprises en tendance */}
               <div>
                 <CommerceListBlock
@@ -335,9 +340,7 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
                   <Card 
                       key={category.id} 
                       className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/30 cursor-pointer"
-                      onClick={() => {
-                        setSelectedCategory(category);
-                      }}
+                      onClick={() => onCategorySelect?.(category)}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3">
@@ -369,18 +372,18 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
             </div>
           )}
 
-          {query.length >= 2 && results.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground">
+          {searchQuery.length >= 2 && results.length === 0 && (
+            <div className="text-center text-muted-foreground">
               <Search className="w-16 h-16 mx-auto mb-4 opacity-30" />
               <h3 className="text-xl font-semibold mb-2">Aucun résultat</h3>
               <p className="max-w-md mx-auto">
-                Aucun résultat pour "{query}". Essayez avec d'autres mots-clés ou vérifiez l'orthographe.
+                Aucun résultat pour "{searchQuery}". Essayez avec d'autres mots-clés ou vérifiez l'orthographe.
               </p>
             </div>
           )}
 
           {results.length > 0 && (
-            <div className="p-6">
+            <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold">Résultats de recherche</h3>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -436,14 +439,7 @@ export const SearchModal = ({ isOpen, onClose, onSelect, userLocation = "Librevi
             </div>
           )}
         </div>
-
-        {/* Footer */}
-        <div className="p-4 bg-muted/30 border-t border-border/30">
-          <p className="text-center text-sm text-muted-foreground">
-            Recherche intelligente avec tolérance aux fautes de frappe
-          </p>
-        </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };

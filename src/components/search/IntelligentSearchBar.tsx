@@ -1,92 +1,115 @@
 import { useState } from "react";
-import { Search, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Search, MapPin, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { SearchModal } from "./SearchModal";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { CategoryResultsPage } from "@/components/categories/CategoryResultsPage";
 
-// Catégories principales avec couleurs cohérentes
-const categories = [
-  { id: "commerce", title: "Commerce", icon: "🛍️", color: "from-blue-500 to-indigo-600" },
-  { id: "restauration", title: "Restaurants", icon: "🍴", color: "from-orange-500 to-red-600" },
-  { id: "hotellerie", title: "Hôtellerie", icon: "🏨", color: "from-purple-500 to-pink-600" },
-  { id: "automobile", title: "Auto", icon: "🚗", color: "from-green-500 to-teal-600" },
-  { id: "immobilier", title: "Immobilier", icon: "🏠", color: "from-emerald-500 to-cyan-600" },
-  { id: "artisanat", title: "Artisanat", icon: "🛠️", color: "from-amber-500 to-yellow-600" },
-  { id: "services", title: "Services", icon: "💼", color: "from-slate-500 to-gray-600" },
-  { id: "education", title: "Éducation", icon: "🎓", color: "from-indigo-500 to-blue-600" },
-  { id: "sante", title: "Santé", icon: "👩‍⚕️", color: "from-red-500 to-pink-600" },
-  { id: "culture", title: "Culture", icon: "🎤", color: "from-violet-500 to-purple-600" },
-  { id: "technologie", title: "Tech", icon: "💻", color: "from-cyan-500 to-blue-600" },
-  { id: "finance", title: "Finance", icon: "💳", color: "from-teal-500 to-green-600" }
+const quickCategories = [
+  { name: "Restaurants", icon: "🍽️", color: "bg-gradient-to-r from-orange-500 to-red-600", id: "restauration" },
+  { name: "Commerce", icon: "🛍️", color: "bg-gradient-to-r from-blue-500 to-indigo-600", id: "commerce" },
+  { name: "Hôtels", icon: "🏨", color: "bg-gradient-to-r from-purple-500 to-pink-600", id: "hotellerie" },
+  { name: "Transport", icon: "🚗", color: "bg-gradient-to-r from-green-500 to-teal-600", id: "automobile" },
+  { name: "Immobilier", icon: "🏠", color: "bg-gradient-to-r from-emerald-500 to-cyan-600", id: "immobilier" },
+  { name: "Services", icon: "💼", color: "bg-gradient-to-r from-slate-500 to-gray-600", id: "services" },
+  { name: "Santé", icon: "👩‍⚕️", color: "bg-gradient-to-r from-red-500 to-pink-600", id: "sante" },
+  { name: "Éducation", icon: "🎓", color: "bg-gradient-to-r from-indigo-500 to-blue-600", id: "education" },
+  { name: "Finance", icon: "💳", color: "bg-gradient-to-r from-teal-500 to-green-600", id: "finance" },
+  { name: "Tech", icon: "💻", color: "bg-gradient-to-r from-cyan-500 to-blue-600", id: "technologie" }
 ];
 
 interface IntelligentSearchBarProps {
-  className?: string;
   userLocation?: string;
 }
 
-export const IntelligentSearchBar = ({ className, userLocation = "Libreville" }: IntelligentSearchBarProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export const IntelligentSearchBar = ({ userLocation = "Libreville" }: IntelligentSearchBarProps) => {
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showCategoryResults, setShowCategoryResults] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+
+  const handleCategoryClick = (category: any) => {
+    setSelectedCategory(category);
+    setShowCategoryResults(true);
+  };
+
+  if (showCategoryResults && selectedCategory) {
+    return (
+      <CategoryResultsPage
+        category={selectedCategory}
+        onBack={() => setShowCategoryResults(false)}
+      />
+    );
+  }
 
   return (
     <>
-      <div className={`w-full max-w-4xl mx-auto ${className}`}>
-        {/* Barre de recherche principale - agrandie et blanche */}
-        <div className="relative mb-6">
-          <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-            <Search className="h-7 w-7 text-muted-foreground" />
-          </div>
-          <Input
-            placeholder="Rechercher un commerce, service, produit..."
-            className="w-full pl-16 pr-24 py-8 text-xl bg-white/95 border-2 border-white/70 hover:border-white focus:border-white rounded-3xl shadow-2xl backdrop-blur-md text-foreground placeholder:text-muted-foreground"
-            onClick={() => setIsModalOpen(true)}
-            readOnly
-          />
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/90 rounded-xl text-sm text-muted-foreground border border-white/50">
-              <MapPin className="w-4 h-4" />
-              <span className="font-medium">{userLocation}</span>
+      <div className="w-full max-w-3xl mx-auto space-y-6">
+        {/* Barre de recherche principale - Plus grande et plus visible */}
+        <div 
+          className="relative bg-white rounded-3xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-border/20 cursor-pointer transition-all hover:shadow-[0_12px_40px_rgba(0,0,0,0.16)] hover:scale-[1.01]"
+          onClick={() => setShowSearchModal(true)}
+        >
+          <div className="flex items-center gap-4">
+            <Search className="w-7 h-7 text-primary shrink-0" />
+            <div className="flex-1">
+              <Input
+                placeholder="Que recherchez-vous ?"
+                className="border-0 bg-transparent text-xl placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-0 font-medium"
+                readOnly
+              />
+              <p className="text-base text-muted-foreground mt-2">
+                Commerce • Service • Produit dans {userLocation}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="rounded-2xl p-3 hover:bg-accent/20 h-12 w-12"
+              >
+                <Mic className="w-6 h-6 text-primary" />
+              </Button>
+              <Button
+                variant="ghost" 
+                size="sm"
+                className="rounded-2xl p-3 hover:bg-accent/20 h-12 w-12"
+              >
+                <MapPin className="w-6 h-6 text-primary" />
+              </Button>
             </div>
           </div>
         </div>
-        
-        {/* Carousel de catégories - agrandi */}
-        <div className="relative">
-          <Carousel 
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-2">
-              {categories.map((category) => (
-                <CarouselItem key={category.id} className="pl-2 basis-auto">
-                  <Button 
-                    variant="outline" 
-                    size="lg" 
-                    className="h-16 px-8 text-base bg-white/90 border-white/50 hover:bg-white hover:border-white shadow-lg backdrop-blur-sm flex items-center gap-3 whitespace-nowrap"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center text-white text-lg font-bold shadow-md flex-shrink-0`}>
-                      {category.icon}
-                    </div>
-                    <span className="font-semibold">{category.title}</span>
-                  </Button>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-2 bg-white/90 border-white/50 hover:bg-white shadow-lg" />
-            <CarouselNext className="right-2 bg-white/90 border-white/50 hover:bg-white shadow-lg" />
-          </Carousel>
-        </div>
+
+        {/* Carousel de catégories avec couleurs cohérentes */}
+        <Carousel className="w-full">
+          <CarouselContent className="-ml-2 md:-ml-4">
+            {quickCategories.map((category, index) => (
+              <CarouselItem key={index} className="pl-2 md:pl-4 basis-auto">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className={`shrink-0 px-6 py-3 h-14 border-2 hover:scale-105 transition-all duration-300 ${category.color} text-white border-white/20 font-medium shadow-lg`}
+                  onClick={() => handleCategoryClick(category)}
+                >
+                  <span className="mr-3 text-lg">{category.icon}</span>
+                  <span className="text-base font-semibold">{category.name}</span>
+                </Button>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       </div>
 
-      <SearchModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <SearchModal
+        open={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
         userLocation={userLocation}
+        onCategorySelect={(category) => {
+          setSelectedCategory(category);
+          setShowSearchModal(false);
+          setShowCategoryResults(true);
+        }}
       />
     </>
   );
