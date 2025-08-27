@@ -1,32 +1,62 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ZoomIn, ZoomOut, Locate, Navigation, Eye, Filter } from "lucide-react";
+import { ZoomIn, ZoomOut, Locate, Navigation, Eye, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { allCommerces, categories } from "@/data/mockCommerces";
+import { ProductSearchBar, type ProductFilters } from "@/components/search/ProductSearchBar";
+import { ProductSearchResults } from "@/components/products/ProductSearchResults";
 
 export const MapTab = () => {
   const navigate = useNavigate();
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
   const [hoveredCommerce, setHoveredCommerce] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchFilters, setSearchFilters] = useState<ProductFilters>({
+    colors: [], sizes: [], ageGroups: [], priceRange: [0, 1000000],
+    brands: [], availability: [], distance: 5000, minRating: 0,
+    verified: false, categories: []
+  });
+  const [showResults, setShowResults] = useState(false);
+  const [searchResults, setSearchResults] = useState({ products: [], merchants: [] });
 
-  // Filtrage simple pour la carte
+  // Simulation de données de produits
+  const mockProducts = useMemo(() => {
+    return Array.from({ length: 20 }, (_, i) => ({
+      id: `product-${i}`,
+      title: `Produit ${i + 1}`,
+      description: `Description du produit ${i + 1}`,
+      brand: ["Nike", "Adidas", "H&M", "Zara"][i % 4],
+      price: Math.floor(Math.random() * 50000) + 5000,
+      currency: "XAF",
+      images: [`https://picsum.photos/200/200?random=${i}`],
+      merchant: allCommerces[i % allCommerces.length],
+      attributes: {
+        color: ["Bleu", "Rouge", "Vert", "Noir"][i % 4],
+        size: ["S", "M", "L", "XL"][i % 4],
+        material: "Coton"
+      },
+      availability: ["in_stock", "low_stock", "pre_order"][i % 3] as "in_stock" | "low_stock" | "pre_order",
+      matchScore: Math.random()
+    }));
+  }, []);
+
+  // Filtrage des commerces pour la carte
   const filteredCommerces = useMemo(() => {
+    if (!searchQuery && searchFilters.colors.length === 0) {
+      return allCommerces;
+    }
+    
+    // Simulation de filtrage basé sur les produits
     return allCommerces.filter(commerce => {
       const searchMatch = searchQuery === "" || 
         commerce.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         commerce.type.toLowerCase().includes(searchQuery.toLowerCase());
       
-      const categoryMatch = selectedCategory === "all" || commerce.category === selectedCategory;
-      
-      return searchMatch && categoryMatch;
+      return searchMatch;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, searchFilters]);
 
   // Positions des commerces sur la carte
   const commercePositions = useMemo(() => {
@@ -47,8 +77,53 @@ export const MapTab = () => {
     }));
   }, [filteredCommerces]);
 
+  const handleProductSearch = (query: string, filters: ProductFilters) => {
+    setSearchQuery(query);
+    setSearchFilters(filters);
+    
+    if (query || Object.values(filters).some(f => Array.isArray(f) ? f.length > 0 : f !== filters.distance && f !== 5000)) {
+      // Simulation de recherche de produits
+      const filteredProducts = mockProducts.filter(product => {
+        const titleMatch = !query || product.title.toLowerCase().includes(query.toLowerCase());
+        const colorMatch = filters.colors.length === 0 || filters.colors.includes(product.attributes.color?.toLowerCase() || "");
+        return titleMatch && colorMatch;
+      });
+
+      const merchantsWithProducts = filteredProducts.reduce((acc, product) => {
+        const merchantId = product.merchant.id;
+        if (!acc[merchantId]) {
+          acc[merchantId] = {
+            ...product.merchant,
+            productCount: 0,
+            coordinates: { lat: 0, lng: 0 } // Simulation
+          };
+        }
+        acc[merchantId].productCount++;
+        return acc;
+      }, {} as Record<string, any>);
+
+      setSearchResults({
+        products: filteredProducts,
+        merchants: Object.values(merchantsWithProducts)
+      });
+      setShowResults(true);
+    } else {
+      setShowResults(false);
+    }
+  };
+
   const handleCommerceClick = (commerceId: string) => {
     navigate(`/business/${commerceId}`);
+  };
+
+  const handleProductClick = (productId: string) => {
+    navigate(`/product/${productId}`);
+  };
+
+  const handleShareLocation = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('q', searchQuery);
+    navigator.clipboard.writeText(url.toString());
   };
 
   const zoomIn = () => setZoomLevel(prev => Math.min(prev + 0.2, 2));
@@ -56,49 +131,30 @@ export const MapTab = () => {
 
   return (
     <div className="h-full relative overflow-hidden">
-      {/* Contrôles de carte */}
-      <div className="absolute top-4 left-4 z-20 space-y-3">
-        {/* Recherche rapide */}
-        <Card className="w-80 bg-card/95 backdrop-blur-sm">
-          <CardContent className="p-3 space-y-2">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Rechercher sur la carte..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 h-9"
-              />
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-32 h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tout</SelectItem>
-                  {categories.map(cat => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.icon} {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {(searchQuery || selectedCategory !== "all") && (
-              <div className="flex items-center gap-2 text-sm">
-                <Badge variant="outline" className="text-xs">
-                  {filteredCommerces.length} résultat{filteredCommerces.length > 1 ? 's' : ''}
-                </Badge>
-                {selectedCategory !== "all" && (
-                  <Badge variant="secondary" className="text-xs">
-                    {categories.find(c => c.id === selectedCategory)?.name}
-                  </Badge>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Barre de recherche de produits */}
+      <div className="absolute top-4 left-4 z-20 w-96">
+        <ProductSearchBar
+          onSearch={handleProductSearch}
+          currentLocation={{ lat: 0, lng: 0 }}
+        />
+      </div>
 
-        {/* Contrôles de zoom */}
+      {/* Résultats de recherche */}
+      {showResults && (
+        <div className="absolute top-4 left-[25rem] z-20 w-80">
+          <ProductSearchResults
+            products={searchResults.products}
+            merchants={searchResults.merchants}
+            onProductClick={handleProductClick}
+            onMerchantClick={handleCommerceClick}
+            onNavigate={(coords) => console.log("Navigate to", coords)}
+          />
+        </div>
+      )}
+
+      {/* Contrôles de carte */}
+      <div className="absolute top-4 right-4 z-20 space-y-3">
+        {/* Contrôles de zoom et navigation */}
         <div className="flex flex-col gap-1 bg-card/95 backdrop-blur-sm rounded-lg p-1 border">
           <Button
             size="sm"
@@ -122,11 +178,14 @@ export const MapTab = () => {
           <Button size="sm" variant="ghost" className="p-2 h-8 w-8">
             <Locate className="w-4 h-4" />
           </Button>
+          <Button size="sm" variant="ghost" onClick={handleShareLocation} className="p-2 h-8 w-8">
+            <Share2 className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
       {/* Statistiques en temps réel */}
-      <div className="absolute top-4 right-4 z-20">
+      <div className="absolute bottom-4 right-4 z-20">
         <Card className="w-64 bg-card/95 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
@@ -147,6 +206,18 @@ export const MapTab = () => {
                 </div>
                 <div className="text-xs text-muted-foreground">Ouverts</div>
               </div>
+              {showResults && (
+                <>
+                  <div className="p-2 bg-blue-500/5 rounded-lg">
+                    <div className="text-lg font-bold text-blue-600">{searchResults.products.length}</div>
+                    <div className="text-xs text-muted-foreground">Produits</div>
+                  </div>
+                  <div className="p-2 bg-purple-500/5 rounded-lg">
+                    <div className="text-lg font-bold text-purple-600">{searchResults.merchants.length}</div>
+                    <div className="text-xs text-muted-foreground">Avec stock</div>
+                  </div>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
