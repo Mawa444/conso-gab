@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CatalogCreationWizard } from "./CatalogCreationWizard";
 import { CatalogManager } from "./CatalogManager";
+import { EnhancedProductCreationWizard } from "../products/EnhancedProductCreationWizard";
 
 interface CatalogDashboardProps {
   businessId: string;
@@ -12,7 +13,7 @@ interface CatalogDashboardProps {
 }
 
 export const CatalogDashboard = ({ businessId, businessName, businessCategory }: CatalogDashboardProps) => {
-  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics' | 'createProduct'>('dashboard');
 
   const handleCreateCatalog = () => {
     setActiveView('create');
@@ -27,8 +28,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
   };
 
   const handleAddProduct = () => {
-    // Cette fonctionnalité sera développée plus tard
-    console.log("Ajouter un produit");
+    setActiveView('createProduct');
   };
 
   const handleWizardComplete = (catalogData: any) => {
@@ -40,11 +40,30 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
     setActiveView('dashboard');
   };
 
+  const handleProductComplete = (productData: any) => {
+    console.log("Produit créé:", productData);
+    setActiveView('dashboard');
+  };
+
+  const handleProductCancel = () => {
+    setActiveView('dashboard');
+  };
+
   if (activeView === 'create') {
     return (
       <CatalogCreationWizard
         onComplete={handleWizardComplete}
         onCancel={handleWizardCancel}
+        businessCategory={businessCategory}
+      />
+    );
+  }
+
+  if (activeView === 'createProduct') {
+    return (
+      <EnhancedProductCreationWizard
+        onComplete={handleProductComplete}
+        onCancel={handleProductCancel}
         businessCategory={businessCategory}
       />
     );

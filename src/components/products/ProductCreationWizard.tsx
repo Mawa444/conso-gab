@@ -28,50 +28,118 @@ interface ProductFormData {
   description: string;
   brand: string;
   categoryId: string;
+  subcategoryId: string;
   tags: string[];
   variants: ProductVariant[];
   attributes: Record<string, string>;
   images: string[];
+  // Nouvelles informations détaillées
+  condition: string; // Neuf, Occasion, Reconditionné
+  mainColor: string;
+  secondaryColors: string[];
+  dimensions: {
+    length: string;
+    width: string;
+    height: string;
+    weight: string;
+  };
+  manufacturer: string;
+  manufacturingDate: string;
+  expirationDate: string;
+  distinguishingFeatures: string;
+  // Logistique
+  pickupLocation: {
+    address: string;
+    city: string;
+    district: string;
+  };
+  deliveryZone: string; // quartier, ville, département, province, national
+  availability: string; // immédiat, 48h, 1 semaine
+  minOrderQuantity: number;
+  maxOrderQuantity: number;
 }
 
+const subcategories = {
+  "vetements": [
+    { id: "tshirts", name: "T-shirts", keywords: ["t-shirt", "tee-shirt", "manches courtes"] },
+    { id: "chemises", name: "Chemises", keywords: ["chemise", "chemisier", "manches longues"] },
+    { id: "pantalons", name: "Pantalons", keywords: ["pantalon", "jean", "jogging"] },
+    { id: "robes", name: "Robes", keywords: ["robe", "robe d'été"] },
+    { id: "vestes", name: "Vestes", keywords: ["veste", "blouson", "manteau"] }
+  ],
+  "chaussures": [
+    { id: "sneakers", name: "Sneakers", keywords: ["sneakers", "baskets", "sport"] },
+    { id: "sandales", name: "Sandales", keywords: ["sandales", "nu-pieds", "été"] },
+    { id: "bottes", name: "Bottes", keywords: ["bottes", "bottines"] },
+    { id: "chaussures-ville", name: "Chaussures de ville", keywords: ["ville", "costume", "élégant"] }
+  ],
+  "electronique": [
+    { id: "smartphones", name: "Smartphones", keywords: ["téléphone", "mobile", "smartphone"] },
+    { id: "ordinateurs", name: "Ordinateurs", keywords: ["ordinateur", "pc", "laptop"] },
+    { id: "accessoires", name: "Accessoires", keywords: ["coque", "chargeur", "écouteurs"] }
+  ]
+};
+
 const attributeTemplates = {
-  "mode-enfant": {
-    required: ["material", "gender", "ageGroup", "sleeves", "collar", "fit"],
-    optional: ["pattern", "care", "origin", "season"],
+  "tshirts": {
+    required: ["material", "gender", "sleeves", "collar", "fit", "neckline"],
+    optional: ["pattern", "care", "origin", "season", "thickness"],
     fields: {
-      material: { type: "select", options: ["Coton", "Polyester", "Lin", "Coton bio", "Mélange"] },
-      gender: { type: "select", options: ["Garçon", "Fille", "Mixte"] },
-      ageGroup: { type: "select", options: ["0-2 ans", "3-5 ans", "6-8 ans", "9-12 ans"] },
-      sleeves: { type: "select", options: ["Manches courtes", "Manches longues", "Sans manches"] },
-      collar: { type: "select", options: ["Col rond", "Col V", "Col polo", "Sans col"] },
-      fit: { type: "select", options: ["Ajusté", "Regular", "Large"] },
-      pattern: { type: "select", options: ["Uni", "Rayé", "Imprimé", "Brodé"] },
-      care: { type: "text", placeholder: "Instructions d'entretien" },
-      origin: { type: "text", placeholder: "Pays d'origine" },
-      season: { type: "select", options: ["Été", "Hiver", "Mi-saison", "Toute saison"] }
+      material: { type: "select", options: ["Coton 100%", "Coton bio", "Polyester", "Coton-Polyester", "Lin", "Modal", "Bambou"] },
+      gender: { type: "select", options: ["Homme", "Femme", "Enfant", "Bébé", "Mixte"] },
+      sleeves: { type: "select", options: ["Manches courtes", "Manches longues", "Sans manches", "3/4"] },
+      collar: { type: "select", options: ["Col rond", "Col V", "Col polo", "Col henley", "Col bateau"] },
+      fit: { type: "select", options: ["Slim", "Regular", "Oversize", "Ajusté", "Ample"] },
+      neckline: { type: "select", options: ["Standard", "Échancrure profonde", "Ras du cou", "Col montant"] },
+      pattern: { type: "select", options: ["Uni", "Rayé", "À pois", "Imprimé", "Brodé", "Logo", "Texte"] },
+      care: { type: "text", placeholder: "Ex: Lavage 30°C, Séchage à l'air libre" },
+      origin: { type: "text", placeholder: "Pays de fabrication" },
+      season: { type: "select", options: ["Printemps-Été", "Automne-Hiver", "Toute saison"] },
+      thickness: { type: "select", options: ["Très fin", "Fin", "Standard", "Épais"] }
     }
   },
-  "chaussures": {
-    required: ["material", "closureType", "soleType", "gender"],
-    optional: ["waterproof", "breathable", "sport"],
+  "sneakers": {
+    required: ["material", "closureType", "soleType", "gender", "sport", "cushioning"],
+    optional: ["waterproof", "breathable", "heel", "weight"],
     fields: {
-      material: { type: "select", options: ["Cuir", "Synthétique", "Toile", "Daim"] },
-      closureType: { type: "select", options: ["Lacets", "Scratch", "Élastique", "Slip-on"] },
-      soleType: { type: "select", options: ["Caoutchouc", "Cuir", "EVA", "PU"] },
+      material: { type: "select", options: ["Cuir", "Cuir synthétique", "Toile", "Mesh", "Daim", "Nubuck", "Textile"] },
+      closureType: { type: "select", options: ["Lacets", "Scratch", "Slip-on", "Élastique", "Zip"] },
+      soleType: { type: "select", options: ["Caoutchouc", "EVA", "PU", "Gel", "Air", "Foam"] },
       gender: { type: "select", options: ["Homme", "Femme", "Enfant", "Mixte"] },
+      sport: { type: "select", options: ["Running", "Basketball", "Tennis", "Football", "Skateboard", "Lifestyle", "Training"] },
+      cushioning: { type: "select", options: ["Minimaliste", "Standard", "Maximum", "Réactive"] },
       waterproof: { type: "checkbox", label: "Imperméable" },
       breathable: { type: "checkbox", label: "Respirant" },
-      sport: { type: "select", options: ["Course", "Marche", "Football", "Basketball", "Casual"] }
+      heel: { type: "text", placeholder: "Hauteur du talon en cm" },
+      weight: { type: "text", placeholder: "Poids d'une chaussure en grammes" }
+    }
+  },
+  "smartphones": {
+    required: ["brand", "model", "storage", "color", "condition", "os"],
+    optional: ["screenSize", "battery", "camera", "warranty"],
+    fields: {
+      brand: { type: "select", options: ["Apple", "Samsung", "Huawei", "Xiaomi", "OnePlus", "Google", "Sony"] },
+      model: { type: "text", placeholder: "Ex: iPhone 15 Pro, Galaxy S24" },
+      storage: { type: "select", options: ["32 GB", "64 GB", "128 GB", "256 GB", "512 GB", "1 TB"] },
+      color: { type: "text", placeholder: "Couleur exacte du téléphone" },
+      condition: { type: "select", options: ["Neuf sous blister", "Neuf déballé", "Comme neuf", "Très bon état", "Bon état", "État moyen"] },
+      os: { type: "text", placeholder: "Version du système d'exploitation" },
+      screenSize: { type: "text", placeholder: "Taille de l'écran en pouces" },
+      battery: { type: "text", placeholder: "Capacité batterie en mAh" },
+      camera: { type: "text", placeholder: "Résolution caméra principale" },
+      warranty: { type: "text", placeholder: "Durée de garantie restante" }
     }
   },
   "default": {
-    required: ["material", "dimensions"],
-    optional: ["color", "weight"],
+    required: ["material", "condition", "mainFeatures"],
+    optional: ["brand", "model", "warranty"],
     fields: {
       material: { type: "text", placeholder: "Matériau principal" },
-      dimensions: { type: "text", placeholder: "Dimensions (L x l x h)" },
-      color: { type: "text", placeholder: "Couleur principale" },
-      weight: { type: "text", placeholder: "Poids" }
+      condition: { type: "select", options: ["Neuf", "Comme neuf", "Très bon état", "Bon état", "État moyen", "Pour pièces"] },
+      mainFeatures: { type: "textarea", placeholder: "Caractéristiques principales du produit" },
+      brand: { type: "text", placeholder: "Marque du produit" },
+      model: { type: "text", placeholder: "Modèle/Référence" },
+      warranty: { type: "text", placeholder: "Garantie disponible" }
     }
   }
 };
@@ -107,10 +175,33 @@ export const ProductCreationWizard = () => {
     description: "",
     brand: "",
     categoryId: "",
+    subcategoryId: "",
     tags: [],
     variants: [],
     attributes: {},
-    images: []
+    images: [],
+    condition: "",
+    mainColor: "",
+    secondaryColors: [],
+    dimensions: {
+      length: "",
+      width: "",
+      height: "",
+      weight: ""
+    },
+    manufacturer: "",
+    manufacturingDate: "",
+    expirationDate: "",
+    distinguishingFeatures: "",
+    pickupLocation: {
+      address: "",
+      city: "",
+      district: ""
+    },
+    deliveryZone: "",
+    availability: "",
+    minOrderQuantity: 1,
+    maxOrderQuantity: 999
   });
   const [qualityScore, setQualityScore] = useState(0);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
@@ -194,8 +285,8 @@ export const ProductCreationWizard = () => {
     return attributeTemplates[formData.categoryId as keyof typeof attributeTemplates] || attributeTemplates.default;
   };
 
-  const canPublish = qualityScore >= 70;
-  const maxSteps = 7;
+  const canPublish = qualityScore >= 80;
+  const maxSteps = 9;
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -757,8 +848,28 @@ export const ProductCreationWizard = () => {
               <Button onClick={() => {
                 setStep(1);
                 setFormData({
-                  title: "", description: "", brand: "", categoryId: "",
-                  tags: [], variants: [], attributes: {}, images: []
+                  title: "",
+                  description: "",
+                  brand: "",
+                  categoryId: "",
+                  subcategoryId: "",
+                  tags: [],
+                  variants: [],
+                  attributes: {},
+                  images: [],
+                  condition: "",
+                  mainColor: "",
+                  secondaryColors: [],
+                  dimensions: { length: "", width: "", height: "", weight: "" },
+                  manufacturer: "",
+                  manufacturingDate: "",
+                  expirationDate: "",
+                  distinguishingFeatures: "",
+                  pickupLocation: { address: "", city: "", district: "" },
+                  deliveryZone: "",
+                  availability: "",
+                  minOrderQuantity: 1,
+                  maxOrderQuantity: 999
                 });
                 setQualityScore(0);
               }}>
