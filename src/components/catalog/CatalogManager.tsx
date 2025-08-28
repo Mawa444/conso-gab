@@ -13,110 +13,83 @@ import {
 } from "lucide-react";
 import { CatalogCreationWizard } from "./CatalogCreationWizard";
 import { useToast } from "@/hooks/use-toast";
-
-interface Catalog {
-  id: string;
-  name: string;
-  description: string;
-  coverImage: string;
-  category: string;
-  subcategory: string;
-  keywords: string[];
-  visibility: "draft" | "public";
-  availabilityZone: string;
-  productCount: number;
-  views: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useCatalogManagement } from "@/hooks/use-catalog-management";
+import { useProductManagement } from "@/hooks/use-product-management";
 
 interface CatalogManagerProps {
   businessId: string;
   businessCategory: string;
 }
 
-// Données d'exemple
-const SAMPLE_CATALOGS: Catalog[] = [
-  {
-    id: "1",
-    name: "Collection Mode Enfants",
-    description: "Vêtements colorés et confortables pour enfants de 2 à 10 ans",
-    coverImage: "/api/placeholder/300/200",
-    category: "Mode",
-    subcategory: "Vêtements enfants",
-    keywords: ["enfant", "coloré", "confortable", "mode"],
-    visibility: "public",
-    availabilityZone: "city",
-    productCount: 24,
-    views: 156,
-    createdAt: "2024-01-15",
-    updatedAt: "2024-01-20"
-  },
-  {
-    id: "2",
-    name: "Chaussures Sport",
-    description: "Chaussures de sport pour toute la famille",
-    coverImage: "/api/placeholder/300/200",
-    category: "Mode",
-    subcategory: "Chaussures",
-    keywords: ["sport", "chaussures", "famille", "confort"],
-    visibility: "draft",
-    availabilityZone: "neighborhood",
-    productCount: 12,
-    views: 67,
-    createdAt: "2024-01-18",
-    updatedAt: "2024-01-18"
-  }
-];
-
 export const CatalogManager = ({ businessId, businessCategory }: CatalogManagerProps) => {
-  const [catalogs, setCatalogs] = useState<Catalog[]>(SAMPLE_CATALOGS);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | "public" | "draft">("all");
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const { toast } = useToast();
 
+  // Real data hooks
+  const {
+    catalogs,
+    isLoading,
+    createCatalog,
+    deleteCatalog,
+    toggleVisibility,
+    isCreating,
+    isDeleting,
+    isToggling
+  } = useCatalogManagement(businessId);
+  
+  const { products: allProducts, isLoading: isLoadingProducts } = useProductManagement(businessId);
+
   const filteredCatalogs = catalogs.filter(catalog => {
     const matchesSearch = catalog.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         catalog.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = activeFilter === "all" || catalog.visibility === activeFilter;
+                         (catalog.description || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = activeFilter === "all" || 
+                         (activeFilter === "public" && catalog.is_public) ||
+                         (activeFilter === "draft" && !catalog.is_public);
     
     return matchesSearch && matchesFilter;
   });
 
   const handleCreateCatalog = (catalogData: any) => {
-    const newCatalog: Catalog = {
-      id: Date.now().toString(),
-      ...catalogData,
-      productCount: 0,
-      views: 0,
-      createdAt: new Date().toISOString().split('T')[0],
-      updatedAt: new Date().toISOString().split('T')[0]
-    };
-    
-    setCatalogs(prev => [newCatalog, ...prev]);
+    createCatalog({
+      name: catalogData.name,
+      description: catalogData.description,
+      is_public: false, // Start as draft
+      is_active: true
+    });
     setShowCreateWizard(false);
   };
 
   const handleDeleteCatalog = (catalogId: string) => {
-    setCatalogs(prev => prev.filter(c => c.id !== catalogId));
-    toast({
-      title: "Catalogue supprimé",
-      description: "Le catalogue a été supprimé avec succès.",
-    });
+    deleteCatalog(catalogId);
   };
 
-  const toggleVisibility = (catalogId: string) => {
-    setCatalogs(prev => prev.map(catalog => 
-      catalog.id === catalogId 
-        ? { ...catalog, visibility: catalog.visibility === "public" ? "draft" : "public" as const }
-        : catalog
-    ));
+  const handleToggleVisibility = (catalogId: string, currentIsPublic: boolean) => {
+    toggleVisibility({ catalogId, isPublic: !currentIsPublic });
   };
 
-  const totalProducts = catalogs.reduce((sum, catalog) => sum + catalog.productCount, 0);
-  const totalViews = catalogs.reduce((sum, catalog) => sum + catalog.views, 0);
-  const publicCatalogs = catalogs.filter(c => c.visibility === "public").length;
+  // Calculate stats from real data
+  const totalProducts = allProducts.length;
+  const totalViews = 0; // TODO: Implement view tracking
+  const publicCatalogs = catalogs.filter(c => c.is_public).length;
+
+  if (isLoading || isLoadingProducts) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-4">
+                <div className="h-4 bg-muted rounded mb-2"></div>
+                <div className="h-8 bg-muted rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -241,112 +214,106 @@ export const CatalogManager = ({ businessId, businessCategory }: CatalogManagerP
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCatalogs.map((catalog) => (
-                <Card key={catalog.id} className="hover:shadow-md transition-shadow">
-                  <div className="relative">
-                    <img
-                      src={catalog.coverImage}
-                      alt={catalog.name}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                    <div className="absolute top-2 right-2 flex gap-1">
-                      <Badge variant={catalog.visibility === "public" ? "default" : "secondary"}>
-                        {catalog.visibility === "public" ? "Public" : "Brouillon"}
-                      </Badge>
+              {filteredCatalogs.map((catalog) => {
+                const catalogProducts = allProducts.filter(p => p.catalog_id === catalog.id);
+                const productCount = catalogProducts.length;
+                
+                return (
+                  <Card key={catalog.id} className="hover:shadow-md transition-shadow">
+                    <div className="relative">
+                      <div className="w-full h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-t-lg flex items-center justify-center">
+                        <Package className="w-16 h-16 text-muted-foreground" />
+                      </div>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Badge variant={catalog.is_public ? "default" : "secondary"}>
+                          {catalog.is_public ? "Public" : "Brouillon"}
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
 
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold truncate">{catalog.name}</h3>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Edit3 className="w-4 h-4 mr-2" />
-                            Modifier
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toggleVisibility(catalog.id)}>
-                            {catalog.visibility === "public" ? (
-                              <>
-                                <EyeOff className="w-4 h-4 mr-2" />
-                                Passer en brouillon
-                              </>
-                            ) : (
-                              <>
-                                <Eye className="w-4 h-4 mr-2" />
-                                Publier
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Supprimer
-                              </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Supprimer le catalogue</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Êtes-vous sûr de vouloir supprimer le catalogue "{catalog.name}" ? 
-                                  Cette action supprimera également tous les produits associés et ne peut pas être annulée.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                <AlertDialogAction 
-                                  onClick={() => handleDeleteCatalog(catalog.id)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-semibold truncate">{catalog.name}</h3>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Edit3 className="w-4 h-4 mr-2" />
+                              Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleToggleVisibility(catalog.id, catalog.is_public)}
+                              disabled={isToggling}
+                            >
+                              {catalog.is_public ? (
+                                <>
+                                  <EyeOff className="w-4 h-4 mr-2" />
+                                  Passer en brouillon
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  Publier
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                  <Trash2 className="w-4 h-4 mr-2" />
                                   Supprimer
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Supprimer le catalogue</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Êtes-vous sûr de vouloir supprimer le catalogue "{catalog.name}" ? 
+                                    Cette action supprimera également tous les produits associés et ne peut pas être annulée.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDeleteCatalog(catalog.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    disabled={isDeleting}
+                                  >
+                                    Supprimer
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
 
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {catalog.description}
-                    </p>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        {catalog.description || "Aucune description"}
+                      </p>
 
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {catalog.keywords.slice(0, 3).map(keyword => (
-                        <Badge key={keyword} variant="outline" className="text-xs">
-                          {keyword}
-                        </Badge>
-                      ))}
-                      {catalog.keywords.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{catalog.keywords.length - 3}
-                        </Badge>
-                      )}
-                    </div>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <span>{productCount} produits</span>
+                        <span>Créé le {new Date(catalog.created_at).toLocaleDateString()}</span>
+                      </div>
 
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>{catalog.productCount} produits</span>
-                      <span>{catalog.views} vues</span>
-                    </div>
-
-                    <div className="flex gap-2 mt-4">
-                      <Button size="sm" className="flex-1">
-                        <Plus className="w-4 h-4 mr-1" />
-                        Ajouter produit
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      <div className="flex gap-2 mt-4">
+                        <Button size="sm" className="flex-1">
+                          <Plus className="w-4 h-4 mr-1" />
+                          Ajouter produit
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </CardContent>

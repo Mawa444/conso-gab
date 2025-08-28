@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { Plus, Package, Settings, BarChart3, ShoppingBag } from "lucide-react";
+import { Plus, Package, Settings, BarChart3, ShoppingBag, Eye, EyeOff, Edit, Trash2, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { CatalogCreationWizard } from "./CatalogCreationWizard";
 import { CatalogManager } from "./CatalogManager";
 import { EnhancedProductCreationWizard } from "../products/EnhancedProductCreationWizard";
+import { useCatalogManagement } from "@/hooks/use-catalog-management";
+import { useProductManagement } from "@/hooks/use-product-management";
 
 interface CatalogDashboardProps {
   businessId: string;
@@ -14,6 +18,24 @@ interface CatalogDashboardProps {
 
 export const CatalogDashboard = ({ businessId, businessName, businessCategory }: CatalogDashboardProps) => {
   const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics' | 'createProduct'>('dashboard');
+  
+  // Real data hooks
+  const {
+    catalogs,
+    isLoading,
+    deleteCatalog,
+    toggleVisibility,
+    isDeleting,
+    isToggling
+  } = useCatalogManagement(businessId);
+  
+  const { products: allProducts, isLoading: isLoadingProducts } = useProductManagement(businessId);
+
+  // Stats calculation
+  const totalProducts = allProducts.length;
+  const publishedProducts = allProducts.filter(p => p.is_active).length;
+  const totalViews = 0; // TODO: Implement view tracking
+  const totalFavorites = 0; // TODO: Implement favorite counting
 
   const handleCreateCatalog = () => {
     setActiveView('create');
@@ -65,6 +87,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
         onComplete={handleProductComplete}
         onCancel={handleProductCancel}
         businessCategory={businessCategory}
+        businessId={businessId}
       />
     );
   }

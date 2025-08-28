@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { categories } from "@/data/mockCommerces";
+import { useProductManagement } from "@/hooks/use-product-management";
+import { useCatalogManagement } from "@/hooks/use-catalog-management";
 
 interface ProductVariant {
   id: string;
@@ -186,9 +188,10 @@ interface EnhancedProductCreationWizardProps {
   onComplete: (productData: ProductFormData) => void;
   onCancel: () => void;
   businessCategory?: string;
+  businessId: string;
 }
 
-export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCategory }: EnhancedProductCreationWizardProps) => {
+export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCategory, businessId }: EnhancedProductCreationWizardProps) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<ProductFormData>({
     title: "",
@@ -227,6 +230,11 @@ export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCa
   const [qualityScore, setQualityScore] = useState(0);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [mandatoryFieldsErrors, setMandatoryFieldsErrors] = useState<string[]>([]);
+  const [selectedCatalogId, setSelectedCatalogId] = useState<string>("");
+
+  // Real data hooks
+  const { catalogs, isLoading: isLoadingCatalogs } = useCatalogManagement(businessId);
+  const { createProduct, isCreating } = useProductManagement(businessId);
 
   // Calcul du score qualité ultra-détaillé
   const calculateQualityScore = useCallback((data: ProductFormData) => {
@@ -306,11 +314,11 @@ export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCa
           errors.push("Vous devez renseigner au moins la longueur et la largeur");
         }
         break;
-      case 7:
-        if (!formData.pickupLocation.city) errors.push("Vous devez indiquer la ville de retrait");
-        if (!formData.pickupLocation.district) errors.push("Vous devez indiquer le quartier de retrait");
-        if (!formData.availability) errors.push("Vous devez indiquer le délai de disponibilité");
-        break;
+        case 8:
+          if (!formData.pickupLocation.city) errors.push("Vous devez indiquer la ville de retrait");
+          if (!formData.pickupLocation.district) errors.push("Vous devez indiquer le quartier de retrait");
+          if (!formData.availability) errors.push("Vous devez indiquer le délai de disponibilité");
+          break;
     }
     
     setMandatoryFieldsErrors(errors);
@@ -348,7 +356,7 @@ export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCa
   };
 
   const canPublish = qualityScore >= 80;
-  const maxSteps = 9;
+  const maxSteps = 10;
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -442,8 +450,8 @@ export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCa
         </Card>
       )}
 
-      {/* Étape 2: Sous-catégorie */}
-      {step === 2 && (
+      {/* Étape 3: Sous-catégorie */}
+      {step === 3 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1148,7 +1156,7 @@ export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCa
       )}
 
       {/* Étape 9: Récapitulatif et publication */}
-      {step === 9 && (
+      {step === 10 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1228,13 +1236,33 @@ export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCa
                 <Button variant="outline" onClick={onCancel}>
                   Sauvegarder en brouillon
                 </Button>
-                <Button 
-                  onClick={() => onComplete(formData)}
-                  disabled={!canPublish}
-                  className={canPublish ? "bg-green-600 hover:bg-green-700" : ""}
-                >
-                  {canPublish ? "🚀 Publier le produit" : `Publier (score: ${qualityScore}/80 requis)`}
-                </Button>
+              <Button 
+                onClick={() => {
+                  if (canPublish && selectedCatalogId) {
+                    // Convert form data to database format
+                    createProduct({
+                      name: formData.title,
+                      description: formData.description,
+                      catalog_id: selectedCatalogId,
+                      price: formData.variants.length > 0 ? formData.variants[0].price : 0,
+                      tags: [...formData.tags, formData.mainColor, formData.condition, ...formData.secondaryColors].filter(Boolean),
+                      images: formData.images,
+                      is_active: true, // Published immediately
+                      stock_quantity: formData.variants.reduce((sum, v) => sum + v.stock, 0) || null,
+                      sku: formData.variants[0]?.sku || null
+                    });
+                    onComplete(formData);
+                  }
+                }}
+                disabled={!canPublish || !selectedCatalogId || isCreating}
+                className={canPublish ? "bg-green-600 hover:bg-green-700" : ""}
+              >
+                {isCreating ? (
+                  "Publication en cours..."
+                ) : (
+                  canPublish ? "🚀 Publier le produit" : `Publier (score: ${qualityScore}/80 requis)`
+                )}
+              </Button>
               </div>
             </div>
           </CardContent>
