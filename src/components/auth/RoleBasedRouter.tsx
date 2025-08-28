@@ -47,17 +47,33 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [user, loading]);
 
-  // Redirection automatique vers la page d'accueil commune pour nouveaux utilisateurs
+  // Redirection vers auth si pas connecté
   useEffect(() => {
-    if (!loading && !profileLoading) {
+    if (!loading && !user) {
       const currentPath = window.location.pathname;
       
-      // Redirection uniquement depuis la racine ou auth vers la page d'accueil commune
-      if (currentPath === '/' || currentPath.includes('/auth')) {
-        navigate('/consumer/home', { replace: true });
+      // Rediriger vers /auth si l'utilisateur n'est pas connecté et pas déjà sur cette page
+      if (!currentPath.startsWith('/auth')) {
+        navigate('/auth', { replace: true });
       }
     }
-  }, [loading, profileLoading, navigate]);
+  }, [loading, user, navigate]);
+
+  // Redirection automatique selon le rôle après connexion
+  useEffect(() => {
+    if (!loading && !profileLoading && user && userProfile.role) {
+      const currentPath = window.location.pathname;
+      
+      // Rediriger depuis la racine ou auth vers l'espace approprié
+      if (currentPath === '/' || currentPath.startsWith('/auth')) {
+        if (userProfile.role === 'merchant') {
+          navigate('/merchant', { replace: true });
+        } else {
+          navigate('/consumer/home', { replace: true });
+        }
+      }
+    }
+  }, [loading, profileLoading, user, userProfile.role, navigate]);
 
   // Protection unique du dashboard marchand - tout le reste est libre d'accès
   useEffect(() => {

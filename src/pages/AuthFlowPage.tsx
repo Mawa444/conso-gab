@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { GuidedSignupFlow } from "@/components/auth/GuidedSignupFlow";
-import { useAnonymousSession } from "@/hooks/use-anonymous-session";
 type AuthStep = 'welcome' | 'login' | 'signup';
 
 interface AuthFlowPageProps {
@@ -25,7 +24,6 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   const [step, setStep] = useState<AuthStep>('welcome');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const anonymousSession = useAnonymousSession();
   
   // Form states
   const [email, setEmail] = useState('');
@@ -128,15 +126,6 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
               >
                 J'ai déjà un compte
               </Button>
-
-              <div className="text-center">
-                <button
-                  onClick={() => { anonymousSession.startAnonymousSession(); navigate('/'); }}
-                  className="text-sm text-muted-foreground hover:text-primary underline"
-                >
-                  Continuer sans compte (limité à 13 min)
-                </button>
-              </div>
 
               <Separator />
 
@@ -281,14 +270,6 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
                   className="text-primary hover:underline text-sm"
                 >
                   Créer un compte
-                </button>
-                <br />
-                <button
-                  type="button"
-                  onClick={() => { anonymousSession.startAnonymousSession(); navigate('/'); }}
-                  className="text-muted-foreground hover:text-primary text-xs underline mt-2"
-                >
-                  Continuer sans compte (13 min)
                 </button>
               </div>
             </CardContent>
