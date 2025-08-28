@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action_description: string
+          action_type: string
+          business_id: string | null
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          business_id?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          business_id?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_profiles: {
         Row: {
           address: string | null
@@ -24,11 +68,14 @@ export type Database = {
           country: string | null
           cover_image_url: string | null
           created_at: string
+          deactivation_scheduled_at: string | null
           department: string | null
           description: string | null
           email: string | null
           id: string
           is_active: boolean | null
+          is_deactivated: boolean | null
+          is_sleeping: boolean | null
           is_verified: boolean | null
           latitude: number | null
           logo_url: string | null
@@ -51,11 +98,14 @@ export type Database = {
           country?: string | null
           cover_image_url?: string | null
           created_at?: string
+          deactivation_scheduled_at?: string | null
           department?: string | null
           description?: string | null
           email?: string | null
           id?: string
           is_active?: boolean | null
+          is_deactivated?: boolean | null
+          is_sleeping?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
           logo_url?: string | null
@@ -78,11 +128,14 @@ export type Database = {
           country?: string | null
           cover_image_url?: string | null
           created_at?: string
+          deactivation_scheduled_at?: string | null
           department?: string | null
           description?: string | null
           email?: string | null
           id?: string
           is_active?: boolean | null
+          is_deactivated?: boolean | null
+          is_sleeping?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
           logo_url?: string | null
@@ -457,6 +510,48 @@ export type Database = {
         }
         Relationships: []
       }
+      review_replies: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          id: string
+          reply_text: string
+          review_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          id?: string
+          reply_text: string
+          review_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          id?: string
+          reply_text?: string
+          review_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_replies_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_replies_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           business_id: string
@@ -570,9 +665,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancel_business_deletion: {
+        Args: { business_profile_id: string }
+        Returns: undefined
+      }
       generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      log_user_activity: {
+        Args: {
+          action_description_param: string
+          action_type_param: string
+          business_id_param?: string
+          metadata_param?: Json
+        }
+        Returns: undefined
+      }
+      schedule_business_deletion: {
+        Args: { business_profile_id: string }
+        Returns: undefined
+      }
+      toggle_business_sleep_mode: {
+        Args: { business_profile_id: string; sleep_mode: boolean }
+        Returns: undefined
       }
     }
     Enums: {

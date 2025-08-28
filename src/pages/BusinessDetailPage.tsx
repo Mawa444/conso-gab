@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ArrowLeft, Star, MapPin, Phone, Clock, Share, Heart, ThumbsUp, ThumbsDown, MessageCircle, Navigation, ExternalLink, Users, Award, Camera, Settings, Store, Bell, Shield, Headphones, FileText, HelpCircle, LogOut, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Star, MapPin, Phone, Clock, Share, Heart, ThumbsUp, ThumbsDown, MessageCircle, Navigation, ExternalLink, Users, Award, Camera, Settings, Store, Bell, Shield, Headphones, FileText, HelpCircle, LogOut, Trash2, History, Moon, BarChart, Target, MessageSquare, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,14 @@ import { ProfessionalDashboard } from "@/components/professional/ProfessionalDas
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { FavoritesSection } from "@/components/profile/FavoritesSection";
 import { BusinessToolsSection } from "@/components/business/BusinessToolsSection";
+import { DeleteBusinessModal } from "@/components/business/DeleteBusinessModal";
+import { ActivityLog } from "@/components/business/ActivityLog";
+import { SleepModeToggle } from "@/components/business/SleepModeToggle";
+import { ReviewReplySection } from "@/components/reviews/ReviewReplySection";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -75,10 +82,10 @@ const mockBusiness: BusinessDetail = {
 };
 
 const reviews = [
-  { id: 1, user: "Marie K.", rating: 5, comment: "Excellent service, très professionnel ! Les plats sont délicieux et l'accueil est parfait.", date: "Il y a 2 jours", verified: true },
-  { id: 2, user: "Jean P.", rating: 4, comment: "Bonne qualité, je recommande. L'ambiance est agréable et les prix corrects.", date: "Il y a 1 semaine", verified: false },
-  { id: 3, user: "Sarah M.", rating: 5, comment: "Toujours satisfaite de mes visites ici. Le poulet au nyembwe est exceptionnel !", date: "Il y a 2 semaines", verified: true },
-  { id: 4, user: "Alain T.", rating: 4, comment: "Service rapide et personnel accueillant. Parfait pour un déjeuner d'affaires.", date: "Il y a 3 semaines", verified: false }
+  { id: "1", user: "Marie K.", rating: 5, comment: "Excellent service, très professionnel ! Les plats sont délicieux et l'accueil est parfait.", date: "Il y a 2 jours", verified: true },
+  { id: "2", user: "Jean P.", rating: 4, comment: "Bonne qualité, je recommande. L'ambiance est agréable et les prix corrects.", date: "Il y a 1 semaine", verified: false },
+  { id: "3", user: "Sarah M.", rating: 5, comment: "Toujours satisfaite de mes visites ici. Le poulet au nyembwe est exceptionnel !", date: "Il y a 2 semaines", verified: true },
+  { id: "4", user: "Alain T.", rating: 4, comment: "Service rapide et personnel accueillant. Parfait pour un déjeuner d'affaires.", date: "Il y a 3 semaines", verified: false }
 ];
 
 const images = [
@@ -91,13 +98,49 @@ const images = [
 export const BusinessDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useAuth();
+  const { secureSignOut } = useAuthCleanup();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState("info");
+  const [proSubTab, setProSubTab] = useState("dashboard");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [businessData, setBusinessData] = useState({
+    isSleeping: false,
+    isScheduledForDeletion: false,
+    deletionDate: null as string | null
+  });
 
   const business = mockBusiness; // En réalité, on fetcherait par ID
+
+  useEffect(() => {
+    fetchBusinessData();
+  }, [id, user]);
+
+  const fetchBusinessData = async () => {
+    if (!user || !id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('business_profiles')
+        .select('is_sleeping, deactivation_scheduled_at, is_deactivated')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single();
+
+      if (error || !data) return;
+
+      setBusinessData({
+        isSleeping: data.is_sleeping || false,
+        isScheduledForDeletion: !!data.deactivation_scheduled_at,
+        deletionDate: data.deactivation_scheduled_at
+      });
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+    }
+  };
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -378,42 +421,12 @@ export const BusinessDetailPage = () => {
 
             <TabsContent value="reviews" className="space-y-4 mt-6">
               {reviews.map((review) => (
-                <Card key={review.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-white font-semibold">
-                          {review.user[0]}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-sm">{review.user}</p>
-                            {review.verified && (
-                              <Badge variant="outline" className="text-xs border-[hsl(var(--gaboma-green))] text-[hsl(var(--gaboma-green))]">
-                                Vérifié
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1 mt-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={cn(
-                                  "w-3 h-3",
-                                  i < review.rating 
-                                    ? "fill-[hsl(var(--gaboma-yellow))] text-[hsl(var(--gaboma-yellow))]" 
-                                    : "text-muted-foreground"
-                                )}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <span className="text-xs text-muted-foreground">{review.date}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{review.comment}</p>
-                  </CardContent>
-                </Card>
+                <ReviewReplySection 
+                  key={review.id}
+                  review={review}
+                  businessId={business.id}
+                  businessName={business.name}
+                />
               ))}
             </TabsContent>
 
@@ -448,17 +461,117 @@ export const BusinessDetailPage = () => {
 
             <TabsContent value="pro" className="mt-6">
               <div className="space-y-6">
-                <BusinessToolsSection businessName={business.name} />
-                
-                <Card className="border-2 border-primary/20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Settings className="w-6 h-6 text-primary" />
-                      Paramètres Business
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Section Compte */}
+                {/* Alerte suppression programmée */}
+                {businessData.isScheduledForDeletion && businessData.deletionDate && (
+                  <Card className="border-red-200 bg-red-50">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-red-600 mt-1 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-red-800 mb-1">
+                            Suppression programmée
+                          </h3>
+                          <p className="text-sm text-red-700 mb-3">
+                            Votre entreprise sera supprimée définitivement le {new Date(businessData.deletionDate).toLocaleDateString('fr-FR', {
+                              day: 'numeric', 
+                              month: 'long', 
+                              hour: '2-digit', 
+                              minute: '2-digit'
+                            })}
+                          </p>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="border-red-600 text-red-600 hover:bg-red-100"
+                            onClick={async () => {
+                              try {
+                                await supabase.rpc('cancel_business_deletion', {
+                                  business_profile_id: business.id
+                                });
+                                toast.success("Suppression annulée");
+                                fetchBusinessData();
+                              } catch (error) {
+                                toast.error("Erreur lors de l'annulation");
+                              }
+                            }}
+                          >
+                            Annuler la suppression
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Sous-onglets Pro */}
+                <Tabs value={proSubTab} onValueChange={setProSubTab}>
+                  <TabsList className="grid w-full grid-cols-5">
+                    <TabsTrigger value="dashboard" className="text-xs">Tableau</TabsTrigger>
+                    <TabsTrigger value="tools" className="text-xs">Outils</TabsTrigger>
+                    <TabsTrigger value="analytics" className="text-xs">Analytics</TabsTrigger>
+                    <TabsTrigger value="activity" className="text-xs">Journal</TabsTrigger>
+                    <TabsTrigger value="settings" className="text-xs">Paramètres</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="dashboard" className="space-y-6 mt-6">
+                    <ProfessionalDashboard 
+                      businessId={business.id}
+                      businessName={business.name}
+                      businessCategory={business.type}
+                      userType="owner"
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="tools" className="space-y-6 mt-6">
+                    <BusinessToolsSection businessName={business.name} />
+                  </TabsContent>
+
+                  <TabsContent value="analytics" className="space-y-6 mt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <BarChart className="w-5 h-5" />
+                            Vues du profil
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-3xl font-bold text-primary mb-2">1,247</div>
+                          <p className="text-sm text-muted-foreground">+12% ce mois</p>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Target className="w-5 h-5" />
+                            Taux de conversion
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-3xl font-bold text-green-600 mb-2">23.4%</div>
+                          <p className="text-sm text-muted-foreground">+5.2% ce mois</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="activity" className="space-y-6 mt-6">
+                    <ActivityLog />
+                  </TabsContent>
+
+                  <TabsContent value="settings" className="space-y-6 mt-6">
+                    {/* Mode Sommeil */}
+                    <SleepModeToggle 
+                      businessId={business.id}
+                      businessName={business.name}
+                      currentSleepState={businessData.isSleeping}
+                      onStateChange={(newState) => {
+                        setBusinessData(prev => ({ ...prev, isSleeping: newState }));
+                      }}
+                    />
+
+                    {/* Paramètres Compte */}
                     <Card>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -486,7 +599,7 @@ export const BusinessDetailPage = () => {
                       </CardContent>
                     </Card>
 
-                    {/* Section Support Business */}
+                    {/* Support Business */}
                     <Card>
                       <CardHeader>
                         <CardTitle>Support Professionnel</CardTitle>
@@ -507,7 +620,7 @@ export const BusinessDetailPage = () => {
                       </CardContent>
                     </Card>
 
-                    {/* Section Danger */}
+                    {/* Zone Danger */}
                     <Card className="border-red-200">
                       <CardHeader>
                         <CardTitle className="text-red-600">Zone dangereuse</CardTitle>
@@ -516,7 +629,7 @@ export const BusinessDetailPage = () => {
                         <Button 
                           variant="outline" 
                           className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
-                          onClick={() => toast.error("Fonctionnalité à venir - Suppression de compte")}
+                          onClick={() => setShowDeleteModal(true)}
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
                           Supprimer l'entreprise
@@ -524,24 +637,30 @@ export const BusinessDetailPage = () => {
                         <Button 
                           variant="destructive" 
                           className="w-full justify-start"
-                          onClick={() => {
-                            toast.success("Déconnexion réussie");
-                            navigate('/auth');
-                          }}
+                          onClick={secureSignOut}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
                           Se déconnecter
                         </Button>
                       </CardContent>
                     </Card>
-                  </CardContent>
-                </Card>
+                  </TabsContent>
+                </Tabs>
               </div>
             </TabsContent>
 
           </Tabs>
         </div>
       </div>
+
+      {/* Modal de suppression */}
+      <DeleteBusinessModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        businessId={business.id}
+        businessName={business.name}
+        onDeleteScheduled={fetchBusinessData}
+      />
 
       {/* Navigation en bas */}
       <BottomNavigation 

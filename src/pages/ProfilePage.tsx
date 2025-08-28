@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FavoritesSection } from "@/components/profile/FavoritesSection";
 import { useNavigate } from "react-router-dom";
+import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { toast } from "sonner";
 
 interface UserProfileData {
@@ -85,6 +86,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
   const [locationFilter, setLocationFilter] = useState("all");
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { secureSignOut } = useAuthCleanup();
   const [userProfile, setUserProfile] = useState<UserProfileData>({
     name: "Chargement...",
     email: "",
@@ -156,9 +158,8 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
 
   const handleLogout = async () => {
     try {
-      await signOut();
-      toast.success("Déconnexion réussie");
-      navigate('/auth');
+      await secureSignOut();
+      toast.success("Déconnexion sécurisée réussie");
     } catch (error) {
       toast.error("Erreur lors de la déconnexion");
     }
