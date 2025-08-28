@@ -279,3 +279,19 @@ All colors MUST be HSL.
     margin: 0 auto;
   }
 }
+
+/* Dynamic Island animations */
+@keyframes island-in {
+  0% { transform: translate(-50%, -20px) scale(0.85); opacity: 0; }
+  60% { transform: translate(-50%, 4px) scale(1.02); opacity: 1; }
+  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+
+@keyframes island-out {
+  0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  40% { transform: translate(-50%, -6px) scale(0.98); opacity: 0.9; }
+  100% { transform: translate(-50%, -20px) scale(0.85); opacity: 0; }
+}
+
+.dynamic-island-enter { animation: island-in 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.dynamic-island-exit { animation: island-out 0.3s ease-in forwards; }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { Header } from "@/components/layout/Header";
 import { HomePage } from "@/pages/HomePage";
@@ -9,9 +9,12 @@ import { QRScanner } from "@/components/scanner/QRScanner";
 import { MessageModal } from "@/components/messaging/MessageModal";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ConsumerApp = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("home");
   const [showScanner, setShowScanner] = useState(false);
   const [showMessageModal, setShowMessageModal] = useState(false);
@@ -28,16 +31,27 @@ const ConsumerApp = () => {
     }
   };
 
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.startsWith("/consumer/map")) setActiveTab("map");
+    else if (path.startsWith("/consumer/rankings")) setActiveTab("rankings");
+    else if (path.startsWith("/consumer/profile")) setActiveTab("profile");
+    else setActiveTab("home");
+  }, [location.pathname]);
   const handleTabChange = (tab: string) => {
     if (tab === "scanner") {
       setShowScanner(true);
-    } else {
-      setActiveTab(tab);
+      return;
+    }
+    setActiveTab(tab);
+    const path = tab === "home" ? "/consumer/home" : `/consumer/${tab}`;
+    if (location.pathname !== path) {
+      navigate(path, { replace: false });
     }
   };
 
   const handleLocationClick = () => {
-    setActiveTab("map");
+    handleTabChange("map");
   };
 
   const handleMessageClick = () => {
