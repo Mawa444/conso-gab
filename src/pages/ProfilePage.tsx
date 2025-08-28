@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,18 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const userProfile = {
-  name: "Marie Dubois",
-  email: "marie.dubois@email.com",
-  phone: "+241 06 xx xx xx",
-  joinDate: "Mars 2024",
-  userType: "client", // client, commerçant, employé
-  points: 2847,
-  level: "Ambassador ConsoGab",
-  scansCount: 45,
-  reviewsCount: 23,
-  favoritesCount: 12
-};
+interface UserProfileData {
+  name: string;
+  email: string;
+  phone: string;
+  joinDate: string;
+  userType: string;
+  points: number;
+  level: string;
+  scansCount: number;
+  reviewsCount: number;
+  favoritesCount: number;
+  pseudo: string;
+  role: string;
+}
 
 const recentActivity = [
   {
@@ -76,6 +80,65 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [activityFilter, setActivityFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [userProfile, setUserProfile] = useState<UserProfileData>({
+    name: "Chargement...",
+    email: "",
+    phone: "",
+    joinDate: "",
+    userType: "consumer",
+    points: 0,
+    level: "Débutant",
+    scansCount: 0,
+    reviewsCount: 0,
+    favoritesCount: 0,
+    pseudo: "",
+    role: ""
+  });
+  
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Erreur récupération profil:', error);
+          return;
+        }
+
+        if (data) {
+          setUserProfile({
+            name: data.pseudo || user.email?.split('@')[0] || "Utilisateur",
+            email: user.email || "",
+            phone: data.phone || "",
+            joinDate: new Date(data.created_at || user.created_at).toLocaleDateString('fr-FR', { 
+              month: 'long', 
+              year: 'numeric' 
+            }),
+            userType: data.role === 'merchant' ? 'commerçant' : 'client',
+            points: Math.floor(Math.random() * 3000) + 1000, // TODO: Implémenter système de points
+            level: data.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
+            scansCount: Math.floor(Math.random() * 50) + 10,
+            reviewsCount: Math.floor(Math.random() * 30) + 5,
+            favoritesCount: Math.floor(Math.random() * 20) + 3,
+            pseudo: data.pseudo || "",
+            role: data.role || ""
+          });
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   const getActivityIcon = (type: string) => {
     switch (type) {

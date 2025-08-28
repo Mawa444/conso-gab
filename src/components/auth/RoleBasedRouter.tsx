@@ -59,10 +59,15 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
         navigate('/merchant', { replace: true });
       }
     } else if (!loading && !user) {
-      // Redirection vers auth si pas connecté
-      const publicPaths = ['/auth', '/'];
-      if (!publicPaths.includes(window.location.pathname)) {
-        navigate('/auth', { replace: true });
+      const currentPath = window.location.pathname;
+      
+      // Les utilisateurs anonymes vont vers l'interface consommateur
+      if (currentPath === '/' || currentPath.includes('/auth')) {
+        // Laisser passer les pages d'accueil et d'auth
+        return;
+      } else if (!currentPath.includes('/consumer')) {
+        // Rediriger les utilisateurs anonymes vers l'interface consommateur
+        navigate('/consumer', { replace: true });
       }
     }
   }, [user, userProfile.role, loading, profileLoading, navigate]);

@@ -1,1 +1,9 @@
 project_id = "vflyjeqwvkqnmihncjoy"
+
+[auth]
+# Désactiver la confirmation d'email pour inscription immédiate
+enable_confirmations = false
+# Connexion automatique après inscription
+enable_signup = true
+# Sessions persistantes
+site_url = "http://localhost:5173"

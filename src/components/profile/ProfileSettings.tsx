@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,22 +18,97 @@ interface ProfileSettingsProps {
 }
 
 export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileSettingsProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState({
-    name: "Marie Nzé",
-    phone: "+241 01 23 45 67",
-    email: "marie.nze@email.com",
-    address: "Quartier Nombakélé, Libreville",
-    bio: "",
-    notifications: true,
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    bio: "", // Champ UI seulement pour l'instant
+    notifications: true, // Champ UI seulement pour l'instant
     visibility: true,
-    commerceName: "Boulangerie Chez Mama Nzé",
-    commerceType: "Boulangerie",
-    employeeRole: "Vendeuse"
+    commerceName: "", // Champ UI seulement pour l'instant
+    commerceType: "", // Champ UI seulement pour l'instant
+    employeeRole: "" // Champ UI seulement pour l'instant
   });
 
-  const handleSave = () => {
-    console.log("Profil sauvegardé:", profile);
-    onClose();
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user || !open) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Erreur récupération profil:', error);
+          return;
+        }
+
+        if (data) {
+          setProfile({
+            name: data.pseudo || "",
+            phone: data.phone || "",
+            email: user.email || "",
+            address: `${data.quartier || ""}, ${data.arrondissement || ""}, ${data.department || ""}, ${data.province || ""}, ${data.country || ""}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ','),
+            bio: "", // À implémenter dans le schéma DB plus tard
+            notifications: true, // À implémenter dans le schéma DB plus tard
+            visibility: data.visibility === 'public',
+            commerceName: "", // À implémenter dans le schéma DB plus tard
+            commerceType: "", // À implémenter dans le schéma DB plus tard
+            employeeRole: "" // À implémenter dans le schéma DB plus tard
+          });
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+      }
+    };
+
+    fetchProfile();
+  }, [user, open]);
+
+  const handleSave = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          pseudo: profile.name,
+          phone: profile.phone,
+          visibility: profile.visibility ? 'public' : 'private',
+          updated_at: new Date().toISOString()
+          // Note: bio, notifications, commerce_name, commerce_type, employee_role 
+          // seront ajoutés au schéma DB dans une prochaine version
+        })
+        .eq('user_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Profil mis à jour",
+        description: "Vos informations ont été sauvegardées avec succès."
+      });
+      
+      onClose();
+    } catch (error) {
+      console.error('Erreur sauvegarde profil:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder le profil. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const ProfileTypeSelector = () => (
@@ -115,6 +193,8 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
                   type="email"
                   value={profile.email}
                   onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                  disabled
+                  className="bg-muted"
                 />
               </div>
               
@@ -123,16 +203,23 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
                 <Input
                   value={profile.address}
                   onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+                  disabled
+                  className="bg-muted"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Adresse basée sur votre localisation d'inscription
+                </p>
               </div>
               
               <div>
                 <label className="text-sm font-medium">Bio (optionnel)</label>
                 <Textarea
-                  placeholder="Parlez-nous de vous..."
+                  placeholder="Parlez-nous de vous... (fonctionnalité à venir)"
                   value={profile.bio}
                   onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                   rows={2}
+                  disabled
+                  className="bg-muted"
                 />
               </div>
             </div>
@@ -152,6 +239,9 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
                   <Input
                     value={profile.commerceName}
                     onChange={(e) => setProfile({ ...profile, commerceName: e.target.value })}
+                    placeholder="Fonctionnalité à venir"
+                    disabled
+                    className="bg-muted"
                   />
                 </div>
                 
@@ -160,6 +250,9 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
                   <Input
                     value={profile.commerceType}
                     onChange={(e) => setProfile({ ...profile, commerceType: e.target.value })}
+                    placeholder="Fonctionnalité à venir"
+                    disabled
+                    className="bg-muted"
                   />
                 </div>
               </div>
@@ -179,6 +272,9 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
                 <Input
                   value={profile.employeeRole}
                   onChange={(e) => setProfile({ ...profile, employeeRole: e.target.value })}
+                  placeholder="Fonctionnalité à venir"
+                  disabled
+                  className="bg-muted"
                 />
               </div>
             </div>
@@ -192,11 +288,12 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
               <div className="flex items-center justify-between">
                 <div>
                   <div className="font-medium">Notifications</div>
-                  <div className="text-sm text-muted-foreground">Recevoir les notifications push</div>
+                  <div className="text-sm text-muted-foreground">Recevoir les notifications push (à venir)</div>
                 </div>
                 <Switch
                   checked={profile.notifications}
                   onCheckedChange={(checked) => setProfile({ ...profile, notifications: checked })}
+                  disabled
                 />
               </div>
               
@@ -218,9 +315,9 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
             <Button variant="outline" onClick={onClose} className="flex-1">
               Annuler
             </Button>
-            <Button onClick={handleSave} className="flex-1">
+            <Button onClick={handleSave} disabled={loading} className="flex-1">
               <Save className="w-4 h-4 mr-2" />
-              Sauvegarder
+              {loading ? "Sauvegarde..." : "Sauvegarder"}
             </Button>
           </div>
         </div>
