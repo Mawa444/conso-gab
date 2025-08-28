@@ -47,42 +47,32 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [user, loading]);
 
-  // Redirection automatique basée sur le rôle (selon le schéma conceptuel)
+  // Redirection automatique vers la page d'accueil commune
   useEffect(() => {
-    if (!loading && !profileLoading && user && userProfile.role) {
+    if (!loading && !profileLoading) {
       const currentPath = window.location.pathname;
       
-      // Redirection stricte selon le rôle vers les tableaux de bord principaux
-      if (userProfile.role === 'consumer' && !currentPath.startsWith('/consumer')) {
-        navigate('/consumer/home', { replace: true });
-      } else if (userProfile.role === 'merchant' && !currentPath.startsWith('/merchant')) {
-        navigate('/merchant/dashboard', { replace: true });
-      }
-    } else if (!loading && !user) {
-      const currentPath = window.location.pathname;
-      
-      // Les utilisateurs anonymes vont vers l'interface consommateur
+      // Tous les utilisateurs (connectés ou anonymes) vont sur la page d'accueil commune
       if (currentPath === '/' || currentPath.includes('/auth')) {
         // Laisser passer les pages d'accueil et d'auth
         return;
-      } else if (!currentPath.startsWith('/consumer')) {
-        // Rediriger les utilisateurs anonymes vers l'interface consommateur
+      } else if (!currentPath.startsWith('/consumer') && !currentPath.startsWith('/merchant')) {
+        // Rediriger vers la page d'accueil commune
         navigate('/consumer/home', { replace: true });
       }
     }
   }, [user, userProfile.role, loading, profileLoading, navigate]);
 
-  // Middleware de sécurité des routes (selon le schéma conceptuel)
+  // Middleware de sécurité des routes - protection des routes marchands uniquement
   useEffect(() => {
     if (!loading && !profileLoading && user && userProfile.role) {
       const currentPath = window.location.pathname;
       
-      // Vérification stricte des accès selon le rôle
+      // Seules les routes marchands sont protégées - les utilisateurs non-marchands sont redirigés
       if (currentPath.startsWith('/merchant') && userProfile.role !== 'merchant') {
         navigate('/consumer/home', { replace: true });
-      } else if (currentPath.startsWith('/consumer') && userProfile.role === 'merchant') {
-        navigate('/merchant/dashboard', { replace: true });
       }
+      // Les marchands peuvent accéder à toutes les pages (commune + leur dashboard)
     }
   }, [user, userProfile.role, loading, profileLoading, navigate, window.location.pathname]);
 

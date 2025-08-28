@@ -251,6 +251,21 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
             {/* Actions rapides */}
             <div className="space-y-3">
               <h3 className="font-semibold">Actions rapides</h3>
+              
+              {/* Bouton Dashboard Opérateur pour les marchands */}
+              {userProfile.role === 'merchant' && (
+                <Button 
+                  onClick={() => window.location.href = '/merchant/dashboard'}
+                  className="w-full h-16 bg-gradient-to-r from-primary to-accent text-white mb-4 flex items-center gap-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300"
+                >
+                  <Shield className="w-8 h-8" />
+                  <div className="text-left">
+                    <div className="text-lg font-bold">Dashboard Opérateur</div>
+                    <div className="text-sm opacity-90">Gérer vos catalogues et commandes</div>
+                  </div>
+                </Button>
+              )}
+              
               <div className="grid grid-cols-2 gap-3">
                 <Button variant="outline" className="h-20 flex-col gap-2">
                   <QrCode className="w-6 h-6 text-primary" />
