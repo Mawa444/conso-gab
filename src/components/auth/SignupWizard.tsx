@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { MapPin, User, Star, Trophy, Flag } from "lucide-react";
+import { MapPin, User, Star, Trophy, Flag, Navigation, Loader2, CheckCircle, Globe, MapIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProvinces, useDepartments, useArrondissements, useQuartiers } from "@/hooks/use-location-data";
+import { LocationStep } from "./LocationStep";
 
 type UserType = "explorateur" | "createur";
 
@@ -19,10 +20,14 @@ interface SignupData {
   phone: string;
   email: string;
   avatarUrl?: string;
+  country?: string;
   province: string;
   department: string;
   arrondissement: string;
   quartier: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
   businessName?: string;
   businessCategory?: string;
   businessDescription?: string;
@@ -207,86 +212,31 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               <p className="text-muted-foreground">Où te trouves-tu au Gabon ?</p>
             </div>
             
-            <div className="space-y-4">
-              <div>
-                <Label>Province</Label>
-                <select 
-                  className="w-full p-2 border rounded-md"
-                  value={data.province || ""}
-                  onChange={(e) => setData(prev => ({ 
-                    ...prev, 
-                    province: e.target.value,
-                    department: "",
-                    arrondissement: "",
-                    quartier: ""
-                  }))}
-                >
-                  <option value="">Sélectionner une province</option>
-                  {provinces?.map(province => (
-                    <option key={province.id} value={province.id}>{province.name}</option>
-                  ))}
-                </select>
-              </div>
-              
-              {data.province && departments && departments.length > 0 && (
-                <div>
-                  <Label>Département</Label>
-                  <select 
-                    className="w-full p-2 border rounded-md"
-                    value={data.department || ""}
-                    onChange={(e) => setData(prev => ({ 
-                      ...prev, 
-                      department: e.target.value,
-                      arrondissement: "",
-                      quartier: ""
-                    }))}
-                  >
-                    <option value="">Sélectionner un département</option>
-                    {departments.map(dept => (
-                      <option key={dept.id} value={dept.id}>{dept.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              
-              {data.department && arrondissements && arrondissements.length > 0 && (
-                <div>
-                  <Label>Arrondissement</Label>
-                  <select 
-                    className="w-full p-2 border rounded-md"
-                    value={data.arrondissement || ""}
-                    onChange={(e) => setData(prev => ({ 
-                      ...prev, 
-                      arrondissement: e.target.value,
-                      quartier: ""
-                    }))}
-                  >
-                    <option value="">Sélectionner un arrondissement</option>
-                    {arrondissements.map(arr => (
-                      <option key={arr.id} value={arr.id}>{arr.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              
-              {data.arrondissement && quartiers && quartiers.length > 0 && (
-                <div>
-                  <Label>Quartier</Label>
-                  <select 
-                    className="w-full p-2 border rounded-md"
-                    value={data.quartier || ""}
-                    onChange={(e) => setData(prev => ({ ...prev, quartier: e.target.value }))}
-                  >
-                    <option value="">Sélectionner un quartier</option>
-                    {quartiers.map(quartier => (
-                      <option key={quartier.id} value={quartier.id}>{quartier.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
+            <LocationStep
+              onLocationChange={(locationData) => {
+                setData(prev => ({ 
+                  ...prev,
+                  country: locationData.country,
+                  province: locationData.province || locationData.region,
+                  department: locationData.department,
+                  arrondissement: locationData.arrondissement,
+                  quartier: locationData.quartier || locationData.neighborhood,
+                  address: locationData.address || locationData.formattedAddress,
+                  latitude: locationData.latitude,
+                  longitude: locationData.longitude
+                }));
+              }}
+              initialLocation={{
+                country: data.country,
+                province: data.province,
+                department: data.department,
+                arrondissement: data.arrondissement,
+                quartier: data.quartier,
+                address: data.address
+              }}
+            />
             
-            {data.province && (
+            {(data.province || data.latitude) && (
               <Button 
                 onClick={() => {
                   addPoints(20, "Localisation validée ! Les Gabonais proches de toi pourront te trouver facilement 🚀");

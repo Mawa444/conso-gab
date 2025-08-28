@@ -2,22 +2,33 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Navigation, Loader2 } from "lucide-react";
+import { MapPin, Navigation, Loader2, CheckCircle, Globe, MapIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useProvinces, useDepartments, useArrondissements, useQuartiers } from "@/hooks/use-location-data";
+import { useGeocoding } from "@/hooks/use-geocoding";
 
 interface LocationData {
   country?: string;
+  countryCode?: string;
+  region?: string;
   province?: string;
   department?: string;
   arrondissement?: string;
   quartier?: string;
+  city?: string;
+  district?: string;
+  neighborhood?: string;
+  road?: string;
+  houseNumber?: string;
+  postcode?: string;
   address?: string;
   latitude?: number;
   longitude?: number;
+  formattedAddress?: string;
+  displayName?: string;
 }
 
 interface LocationStepProps {
@@ -27,13 +38,15 @@ interface LocationStepProps {
 
 export const LocationStep = ({ onLocationChange, initialLocation = {} }: LocationStepProps) => {
   const [location, setLocation] = useState<LocationData>(initialLocation);
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [locationMethod, setLocationMethod] = useState<'manual' | 'gps'>('manual');
+  const [showDetails, setShowDetails] = useState(false);
 
   const { data: provinces } = useProvinces();
-  const { data: departments } = useDepartments(location.province);
+  const { data: departments } = useDepartments(location.province);  
   const { data: arrondissements } = useArrondissements(location.department);
   const { data: quartiers } = useQuartiers(location.arrondissement);
+  
+  const { location: detailedLocation, isLoading: isGettingLocation, getDetailedLocation } = useGeocoding();
 
   const updateLocation = (updates: Partial<LocationData>) => {
     const newLocation = { ...location, ...updates };
@@ -73,45 +86,36 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
     updateLocation({ quartier: quartierName });
   };
 
-  const getGPSLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("La géolocalisation n'est pas supportée par votre navigateur");
-      return;
+  const getGPSLocation = async () => {
+    const result = await getDetailedLocation();
+    
+    if (result) {
+      // Remplir automatiquement tous les champs avec les données détaillées
+      const newLocation: LocationData = {
+        country: result.country,
+        countryCode: result.countryCode,
+        region: result.region,
+        province: result.province,
+        city: result.city,
+        district: result.district,
+        neighborhood: result.neighborhood,
+        road: result.road,
+        houseNumber: result.houseNumber,
+        postcode: result.postcode,
+        address: result.road,
+        latitude: result.latitude,
+        longitude: result.longitude,
+        formattedAddress: result.formattedAddress,
+        displayName: result.displayName
+      };
+      
+      setLocation(newLocation);
+      onLocationChange(newLocation);
+      setLocationMethod('gps');
+      setShowDetails(true);
+      
+      toast.success("Position GPS détaillée récupérée avec succès ! 🌍");
     }
-
-    setIsGettingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        updateLocation({ latitude, longitude });
-        setLocationMethod('gps');
-        setIsGettingLocation(false);
-        toast.success("Position GPS enregistrée avec succès");
-      },
-      (error) => {
-        setIsGettingLocation(false);
-        let message = "Erreur lors de la récupération de votre position";
-        
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            message = "Permission de géolocalisation refusée";
-            break;
-          case error.POSITION_UNAVAILABLE:
-            message = "Position indisponible";
-            break;
-          case error.TIMEOUT:
-            message = "Délai d'attente dépassé";
-            break;
-        }
-        
-        toast.error(message);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000
-      }
-    );
   };
 
   return (
@@ -123,47 +127,126 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
       </div>
 
       {/* GPS Option */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center space-x-2 text-base">
             <Navigation className="h-5 w-5 text-primary" />
-            <div>
-              <h3 className="font-medium">Position GPS automatique</h3>
-              <p className="text-xs text-muted-foreground">Utiliser votre position actuelle</p>
-            </div>
-          </div>
+            <span>Position GPS automatique</span>
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Obtenez automatiquement tous les détails de votre localisation précise
+          </p>
+        </CardHeader>
+        <CardContent>
           <Button
             onClick={getGPSLocation}
             disabled={isGettingLocation}
             variant={locationMethod === 'gps' ? 'default' : 'outline'}
-            size="sm"
+            className="w-full"
           >
             {isGettingLocation ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Localisation en cours...
+              </>
             ) : (
-              <MapPin className="h-4 w-4" />
+              <>
+                <MapPin className="h-4 w-4 mr-2" />
+                Utiliser ma position GPS
+              </>
             )}
-            {isGettingLocation ? 'Localisation...' : 'Localiser'}
           </Button>
-        </div>
-        
-        {location.latitude && location.longitude && (
-          <div className="mt-3 pt-3 border-t">
-            <Badge variant="secondary" className="text-xs">
-              Position GPS: {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
-            </Badge>
-          </div>
-        )}
+          
+          {detailedLocation && showDetails && (
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center space-x-2 text-green-600">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">Position détaillée trouvée !</span>
+              </div>
+              
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  {detailedLocation.country && (
+                    <div className="flex items-center space-x-2">
+                      <Globe className="h-3 w-3 text-blue-500" />
+                      <span className="font-medium">Pays:</span>
+                      <span>{detailedLocation.country}</span>
+                    </div>
+                  )}
+                  
+                  {detailedLocation.region && (
+                    <div className="flex items-center space-x-2">
+                      <MapIcon className="h-3 w-3 text-green-500" />
+                      <span className="font-medium">Région:</span>
+                      <span>{detailedLocation.region}</span>
+                    </div>
+                  )}
+                  
+                  {detailedLocation.city && (
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-3 w-3 text-orange-500" />
+                      <span className="font-medium">Ville:</span>
+                      <span>{detailedLocation.city}</span>
+                    </div>
+                  )}
+                  
+                  {detailedLocation.neighborhood && (
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-3 w-3 text-purple-500" />
+                      <span className="font-medium">Quartier:</span>
+                      <span>{detailedLocation.neighborhood}</span>
+                    </div>
+                  )}
+                  
+                  {detailedLocation.road && (
+                    <div className="flex items-center space-x-2 col-span-2">
+                      <MapPin className="h-3 w-3 text-red-500" />
+                      <span className="font-medium">Rue:</span>
+                      <span>{detailedLocation.road}</span>
+                    </div>
+                  )}
+                  
+                  {detailedLocation.postcode && (
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-3 w-3 text-gray-500" />
+                      <span className="font-medium">Code postal:</span>
+                      <span>{detailedLocation.postcode}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="pt-2 border-t">
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium">Adresse complète:</span> {detailedLocation.formattedAddress}
+                  </p>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <Badge variant="secondary" className="text-xs">
+                    GPS: {detailedLocation.latitude.toFixed(6)}, {detailedLocation.longitude.toFixed(6)}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs text-green-600">
+                    Position vérifiée ✓
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
       </Card>
 
       {/* Manual Selection */}
-      <Card className="p-4">
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <MapPin className="h-4 w-4 text-primary" />
-            <h3 className="font-medium">Sélection manuelle</h3>
-          </div>
-
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center space-x-2 text-base">
+            <MapPin className="h-5 w-5 text-primary" />
+            <span>Sélection manuelle</span>
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Choisissez votre localisation étape par étape
+          </p>
+        </CardHeader>
+        <CardContent>
           <div className="grid gap-3">
             <div className="space-y-2">
               <Label htmlFor="province">Province</Label>
@@ -257,7 +340,7 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
               />
             </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
     </div>
   );
