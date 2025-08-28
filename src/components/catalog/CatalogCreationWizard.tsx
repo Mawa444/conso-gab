@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Upload, ArrowLeft, ArrowRight, Check, Camera, Tags, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useStorageUpload } from "@/hooks/use-storage-upload";
 
 interface CatalogData {
   coverImage: string | null;
@@ -56,9 +57,10 @@ export const CatalogCreationWizard = ({ onComplete, onCancel, businessCategory }
     availabilityZone: "city"
   });
   const [keywordInput, setKeywordInput] = useState("");
-  const { toast } = useToast();
+const { toast } = useToast();
+const { uploadImage, isUploading } = useStorageUpload();
 
-  const progress = (currentStep / 3) * 100;
+const progress = (currentStep / 3) * 100;
 
   const handleNext = () => {
     if (validateStep()) {
@@ -132,14 +134,15 @@ export const CatalogCreationWizard = ({ onComplete, onCancel, businessCategory }
     }));
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Simulation d'upload - en réalité, vous uploaderiez vers votre service
-      const imageUrl = URL.createObjectURL(file);
-      setCatalogData(prev => ({ ...prev, coverImage: imageUrl }));
-    }
-  };
+const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const uploaded = await uploadImage('catalog-images', file, { folder: 'covers' });
+  if (uploaded?.url) {
+    setCatalogData(prev => ({ ...prev, coverImage: uploaded.url }));
+    toast({ title: 'Image téléversée', description: 'Image de couverture ajoutée avec succès.' });
+  }
+};
 
   const handleComplete = () => {
     if (validateStep()) {

@@ -19,6 +19,11 @@ import {
   getDefaultToolsForCategory,
   type ProfessionalTool 
 } from "@/data/professionalTools";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EnhancedProductCreationWizard } from "@/components/products/EnhancedProductCreationWizard";
+import { CatalogCreationWizard } from "@/components/catalog/CatalogCreationWizard";
+import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { CatalogManager } from "@/components/catalog/CatalogManager";
 
 interface ProfessionalDashboardProps {

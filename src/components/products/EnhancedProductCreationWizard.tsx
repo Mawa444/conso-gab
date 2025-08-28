@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { categories } from "@/data/mockCommerces";
 import { useProductManagement } from "@/hooks/use-product-management";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
+import { useStorageUpload } from "@/hooks/use-storage-upload";
 
 interface ProductVariant {
   id: string;
@@ -227,10 +228,13 @@ export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCa
     maxOrderQuantity: 999
   });
 
-  const [qualityScore, setQualityScore] = useState(0);
-  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
-  const [mandatoryFieldsErrors, setMandatoryFieldsErrors] = useState<string[]>([]);
-  const [selectedCatalogId, setSelectedCatalogId] = useState<string>("");
+const [qualityScore, setQualityScore] = useState(0);
+const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+const [mandatoryFieldsErrors, setMandatoryFieldsErrors] = useState<string[]>([]);
+const [selectedCatalogId, setSelectedCatalogId] = useState<string>("");
+
+const { uploadImages, isUploading } = useStorageUpload();
+
 
   // Real data hooks
   const { catalogs, isLoading: isLoadingCatalogs } = useCatalogManagement(businessId);
@@ -331,21 +335,22 @@ export const EnhancedProductCreationWizard = ({ onComplete, onCancel, businessCa
     }
   };
 
-  const handleImageUpload = (files: FileList) => {
-    const newImages = Array.from(files).map(file => URL.createObjectURL(file));
-    updateFormData({ images: [...formData.images, ...newImages] });
-    
-    // Simulation de suggestions IA plus poussées
-    setTimeout(() => {
-      setAiSuggestions([
-        "✅ Couleur détectée: Bleu clair",
-        "✅ Type: T-shirt col rond",
-        "✅ Matière suggérée: Coton",
-        "⚠️ Ajoutez plus d'angles pour améliorer la visibilité",
-        "💡 Photo sur fond blanc recommandée"
-      ]);
-    }, 1000);
-  };
+const handleImageUpload = async (files: FileList) => {
+  const uploaded = await uploadImages('product-images', files, { folder: businessId ? `business-${businessId}` : 'products' });
+  const urls = uploaded.map(u => u.url);
+  updateFormData({ images: [...formData.images, ...urls] });
+
+  // Suggestions IA (simulées)
+  setTimeout(() => {
+    setAiSuggestions([
+      "✅ Couleur détectée: Bleu clair",
+      "✅ Type: T-shirt col rond",
+      "✅ Matière suggérée: Coton",
+      "⚠️ Ajoutez plus d'angles pour améliorer la visibilité",
+      "💡 Photo sur fond blanc recommandée"
+    ]);
+  }, 1000);
+};
 
   const getSubcategories = () => {
     return subcategories[formData.categoryId as keyof typeof subcategories] || [];

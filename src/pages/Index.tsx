@@ -122,7 +122,7 @@ const Index = () => {
           onMessageClick={handleMessageClick}
         />
       )}
-      <main className="pt-24 pb-24 animate-fade-in min-h-screen">
+<main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] animate-fade-in min-h-screen">
         {renderActiveTab()}
       </main>
       
