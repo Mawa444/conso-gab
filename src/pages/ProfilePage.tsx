@@ -175,7 +175,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
         <div className="relative z-10">
-          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
             <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
               <User className="w-12 h-12 text-white" />
             </div>
@@ -191,6 +191,14 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
                   Membre depuis {userProfile.joinDate}
                 </Badge>
               </div>
+              {/* Bouton S'abonner */}
+              <Button 
+                className="mt-3 bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm"
+                size="sm"
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                S'abonner aux notifications
+              </Button>
             </div>
             
             <div className="flex items-center gap-2">

@@ -226,6 +226,14 @@ export const BusinessDetailPage = () => {
               <div>
                 <h1 className="font-bold text-xl">{business.name}</h1>
                 <p className="text-muted-foreground">{business.type}</p>
+                {/* Bouton S'abonner */}
+                <Button
+                  className="mt-2 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
+                  size="sm"
+                >
+                  <Bell className="w-4 h-4 mr-2" />
+                  S'abonner à ce commerce
+                </Button>
               </div>
             </div>
             <Button

@@ -269,7 +269,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
                   onClick={() => setStep('signup')}
                   className="text-primary hover:underline text-sm"
                 >
-                  Créer un compte
+                  Créer un nouveau compte
                 </button>
               </div>
             </CardContent>
