@@ -1,15 +1,1 @@
 project_id = "vflyjeqwvkqnmihncjoy"
-
-[auth]
-# Complètement désactiver la confirmation d'email
-enable_confirmations = false
-enable_email_confirmations = false
-# Connexion automatique après inscription
-enable_signup = true
-# Sessions persistantes
-site_url = "http://localhost:5173"
-# Désactiver toute validation email
-[auth.email]
-enable_signup = true
-double_confirm_changes = false
-enable_confirmations = false
