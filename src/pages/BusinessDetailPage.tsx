@@ -7,10 +7,8 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CatalogDashboard } from "@/components/catalog/CatalogDashboard";
-import { ProfessionalDashboard } from "@/components/professional/ProfessionalDashboard";
 import { useNavigate, useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { getCategoryConfig } from "@/data/professionalTools";
 
 interface BusinessDetail {
   id: string;
@@ -273,14 +271,13 @@ export const BusinessDetailPage = () => {
         {/* Tabs de contenu */}
         <div className="mt-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="info" className="text-xs">Infos</TabsTrigger>
               <TabsTrigger value="catalog" className="text-xs">
                 Catalogues
               </TabsTrigger>
               <TabsTrigger value="reviews" className="text-xs">Avis</TabsTrigger>
               <TabsTrigger value="team" className="text-xs">Équipe</TabsTrigger>
-              <TabsTrigger value="pro" className="text-xs">Pro</TabsTrigger>
             </TabsList>
 
             <TabsContent value="info" className="space-y-6 mt-6">
@@ -438,14 +435,6 @@ export const BusinessDetailPage = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="pro" className="mt-6">
-              <ProfessionalDashboard
-                businessId={business.id}
-                businessName={business.name}
-                businessCategory="Restauration"
-                userType="owner"
-              />
-            </TabsContent>
           </Tabs>
         </div>
       </div>
