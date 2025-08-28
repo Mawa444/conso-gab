@@ -7,7 +7,6 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { RoleBasedRouter } from "@/components/auth/RoleBasedRouter";
 
 import ConsumerApp from "./pages/ConsumerApp";
-import MerchantApp from "./pages/MerchantApp";
 import { AuthFlowPage } from "./pages/AuthFlowPage";
 import { BusinessDetailPage } from "./pages/BusinessDetailPage";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
@@ -33,9 +32,7 @@ const App = () => (
               <Route path="/consumer/home" element={<ConsumerApp />} />
               <Route path="/consumer/*" element={<ConsumerApp />} />
               
-              {/* Routes opérateur/merchant */}
-              <Route path="/merchant/dashboard" element={<MerchantApp />} />
-              <Route path="/merchant/*" element={<MerchantApp />} />
+              {/* Routes supprimées - les opérateurs utilisent leur profil business */}
               
               {/* Routes partagées */}
               <Route path="/business/:id" element={<BusinessDetailPage />} />

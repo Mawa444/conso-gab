@@ -67,7 +67,8 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
       // Rediriger depuis la racine ou auth vers l'espace approprié
       if (currentPath === '/' || currentPath.startsWith('/auth')) {
         if (userProfile.role === 'merchant') {
-          navigate('/merchant', { replace: true });
+          // Rediriger vers le profil business du marchand
+          navigate(`/business/${user.id}`, { replace: true });
         } else {
           navigate('/consumer/home', { replace: true });
         }
@@ -75,18 +76,7 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [loading, profileLoading, user, userProfile.role, navigate]);
 
-  // Protection unique du dashboard marchand - tout le reste est libre d'accès
-  useEffect(() => {
-    if (!loading && !profileLoading && user && userProfile.role) {
-      const currentPath = window.location.pathname;
-      
-      // Seul le dashboard marchand nécessite d'être un marchand
-      if (currentPath.startsWith('/merchant/dashboard') && userProfile.role !== 'merchant') {
-        navigate('/consumer/home', { replace: true });
-      }
-      // Toutes les autres pages (profils d'entreprises, catalogues, etc.) sont accessibles à tous
-    }
-  }, [user, userProfile.role, loading, profileLoading, navigate, window.location.pathname]);
+  // Plus de restrictions basées sur les rôles - tous les utilisateurs connectés ont accès à tout
 
   // Afficher un overlay de chargement sans bloquer le rendu de l'application
   const showLoading = loading || profileLoading;
