@@ -10,6 +10,7 @@ import { MessageModal } from "@/components/messaging/MessageModal";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const ConsumerApp = () => {
   const { user } = useAuth();
@@ -38,11 +39,31 @@ const ConsumerApp = () => {
     else if (path.startsWith("/consumer/profile")) setActiveTab("profile");
     else setActiveTab("home");
   }, [location.pathname]);
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = async (tab: string) => {
     if (tab === "scanner") {
       setShowScanner(true);
       return;
     }
+
+    // Si c'est le profil, vérifier le rôle de l'utilisateur
+    if (tab === "profile" && user) {
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+
+        if (!error && data?.role === 'merchant') {
+          // Rediriger vers le profil business si c'est un marchand
+          navigate(`/business/${user.id}`, { replace: false });
+          return;
+        }
+      } catch (error) {
+        console.error('Erreur vérification rôle:', error);
+      }
+    }
+
     setActiveTab(tab);
     const path = tab === "home" ? "/consumer/home" : `/consumer/${tab}`;
     if (location.pathname !== path) {

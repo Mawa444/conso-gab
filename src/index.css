@@ -281,6 +281,41 @@ All colors MUST be HSL.
 }
 
 /* Dynamic Island animations */
+@keyframes dynamic-island-enter {
+  0% {
+    transform: translate(-50%, -100%) scale(0.1);
+    opacity: 0;
+    border-radius: 50%;
+    background: hsl(var(--primary));
+  }
+  30% {
+    transform: translate(-50%, -30px) scale(0.6);
+    opacity: 0.7;
+    border-radius: 50%;
+  }
+  70% {
+    transform: translate(-50%, 5px) scale(1.05);
+    opacity: 0.95;
+    border-radius: 2rem;
+  }
+  100% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+    border-radius: 2rem;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
 @keyframes island-in {
   0% { transform: translate(-50%, -20px) scale(0.85); opacity: 0; }
   60% { transform: translate(-50%, 4px) scale(1.02); opacity: 1; }
@@ -293,5 +328,13 @@ All colors MUST be HSL.
   100% { transform: translate(-50%, -20px) scale(0.85); opacity: 0; }
 }
 
-.dynamic-island-enter { animation: island-in 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
-.dynamic-island-exit { animation: island-out 0.3s ease-in forwards; }
+.dynamic-island-enter { 
+  animation: dynamic-island-enter 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); 
+}
+.dynamic-island-exit { 
+  animation: island-out 0.3s ease-in forwards; 
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s infinite;
+}
