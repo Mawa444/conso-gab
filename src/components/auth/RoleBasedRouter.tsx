@@ -72,17 +72,20 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [user, userProfile.role, loading, profileLoading, navigate, window.location.pathname]);
 
-  // Afficher loader pendant la vérification
-  if (loading || profileLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary via-secondary to-accent">
-        <div className="text-center text-white">
-          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p>Chargement...</p>
-        </div>
-      </div>
-    );
-  }
+  // Afficher un overlay de chargement sans bloquer le rendu de l'application
+  const showLoading = loading || profileLoading;
 
-  return <>{children}</>;
-};
+  return (
+    <>
+      {children}
+      {showLoading && (
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center bg-gradient-to-b from-primary/20 via-secondary/20 to-accent/20">
+          <div className="text-center text-white">
+            <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p>Chargement...</p>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

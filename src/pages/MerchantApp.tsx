@@ -20,7 +20,7 @@ import { CatalogManager } from "@/components/catalog/CatalogManager";
 import { EnhancedProductCreationWizard } from "@/components/products/EnhancedProductCreationWizard";
 import { CatalogCreationWizard } from "@/components/catalog/CatalogCreationWizard";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
-import { MerchantDashboard } from "./MerchantDashboard";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -29,6 +29,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 type MerchantView = 'dashboard' | 'catalogs' | 'products' | 'orders' | 'inventory' | 'analytics' | 'messages' | 'settings';
 
 interface BusinessProfile {
+  id: string;
   business_name: string;
   business_category: string;
   user_id: string;
@@ -48,7 +49,7 @@ const MerchantApp = () => {
       
       const { data, error } = await supabase
         .from('business_profiles')
-        .select('business_name, business_category, user_id')
+        .select('id, business_name, business_category, user_id')
         .eq('user_id', user.id)
         .single();
         
@@ -140,15 +141,22 @@ const MerchantApp = () => {
   const handleNavigateToSection = (section: string) => {
     setCurrentView(section as MerchantView);
   };
-
+        
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <MerchantDashboard onNavigate={handleNavigateToSection} />;
+        return (
+          <ProfessionalDashboard 
+            businessId={businessProfile.id}
+            businessName={businessProfile.business_name}
+            businessCategory={businessProfile.business_category}
+            userType="owner"
+          />
+        );
       case 'catalogs':
         return (
           <CatalogManager 
-            businessId={businessProfile.user_id}
+            businessId={businessProfile.id}
             businessCategory={businessProfile.business_category}
           />
         );
@@ -287,7 +295,14 @@ const MerchantApp = () => {
           </div>
         );
       default:
-        return <MerchantDashboard onNavigate={handleNavigateToSection} />;
+        return (
+          <ProfessionalDashboard 
+            businessId={businessProfile.id}
+            businessName={businessProfile.business_name}
+            businessCategory={businessProfile.business_category}
+            userType="owner"
+          />
+        );
     }
   };
 
@@ -344,7 +359,7 @@ const MerchantApp = () => {
             }}
             onCancel={() => setShowProductCreation(false)}
             businessCategory={businessProfile.business_category}
-            businessId={businessProfile.user_id}
+            businessId={businessProfile.id}
           />
         </DialogContent>
       </Dialog>
