@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProfessionalCatalog } from "@/components/commerce/ProfessionalCatalog";
+import { CatalogDashboard } from "@/components/catalog/CatalogDashboard";
 import { ProfessionalDashboard } from "@/components/professional/ProfessionalDashboard";
 import { useNavigate, useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -365,11 +365,10 @@ export const BusinessDetailPage = () => {
             </TabsContent>
 
             <TabsContent value="catalog" className="mt-6">
-              <ProfessionalCatalog
-                commerceId={business.id}
-                commerceName={business.name}
-                type="mixed"
-                onMessage={() => console.log("Message au commerce")}
+              <CatalogDashboard
+                businessId={business.id}
+                businessName={business.name}
+                businessCategory={business.type}
               />
             </TabsContent>
 
