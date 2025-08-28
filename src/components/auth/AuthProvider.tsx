@@ -96,6 +96,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password,
     });
+    
+    // Note: La redirection basée sur le rôle est gérée par RoleBasedRouter
     return { data, error };
   };
 
