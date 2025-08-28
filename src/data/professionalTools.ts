@@ -200,7 +200,7 @@ export const categoryConfigs: CategoryConfig[] = [
     defaultTools: ["menu", "orders", "visitor_analytics", "messaging", "promotions"],
     availableTools: ["menu", "orders", "visitor_analytics", "sales_analytics", "geo_analytics", "messaging", "reviews_management", "promotions", "qr_generator", "loyalty_program", "inventory"],
     customSections: {
-      catalog: "menu",
+      catalog: "Catalogues",
       pricing: "tarifs", 
       booking: "commande"
     },
@@ -215,7 +215,7 @@ export const categoryConfigs: CategoryConfig[] = [
     defaultTools: ["services", "appointments", "visitor_analytics", "messaging", "promotions"],
     availableTools: ["services", "appointments", "visitor_analytics", "sales_analytics", "customer_insights", "messaging", "reviews_management", "promotions", "loyalty_program"],
     customSections: {
-      catalog: "services",
+      catalog: "Catalogues",
       pricing: "tarifs",
       booking: "rendez-vous"
     },
@@ -230,7 +230,7 @@ export const categoryConfigs: CategoryConfig[] = [
     defaultTools: ["services", "quotes", "visitor_analytics", "messaging", "appointments"],
     availableTools: ["services", "quotes", "appointments", "visitor_analytics", "sales_analytics", "messaging", "reviews_management", "inventory"],
     customSections: {
-      catalog: "services",
+      catalog: "Catalogues",
       pricing: "devis",
       booking: "rendez-vous"
     },
@@ -245,7 +245,7 @@ export const categoryConfigs: CategoryConfig[] = [
     defaultTools: ["services", "appointments", "visitor_analytics", "messaging"],
     availableTools: ["services", "appointments", "visitor_analytics", "customer_insights", "messaging", "reviews_management"],
     customSections: {
-      catalog: "services",
+      catalog: "Catalogues",
       pricing: "tarifs",
       booking: "rendez-vous"
     },
@@ -260,7 +260,7 @@ export const categoryConfigs: CategoryConfig[] = [
     defaultTools: ["products", "inventory", "visitor_analytics", "messaging", "promotions"],
     availableTools: ["products", "inventory", "orders", "visitor_analytics", "sales_analytics", "geo_analytics", "messaging", "reviews_management", "promotions", "loyalty_program"],
     customSections: {
-      catalog: "produits",
+      catalog: "Catalogues",
       pricing: "prix",
       booking: "commande"
     },
@@ -275,7 +275,7 @@ export const categoryConfigs: CategoryConfig[] = [
     defaultTools: ["services", "quotes", "visitor_analytics", "messaging", "appointments"],
     availableTools: ["services", "quotes", "appointments", "visitor_analytics", "sales_analytics", "customer_insights", "messaging", "reviews_management", "promotions"],
     customSections: {
-      catalog: "services",
+      catalog: "Catalogues",
       pricing: "devis",
       booking: "contact"
     },
@@ -290,7 +290,7 @@ export const categoryConfigs: CategoryConfig[] = [
     defaultTools: ["products", "inventory", "quotes", "visitor_analytics", "messaging"],
     availableTools: ["products", "inventory", "quotes", "visitor_analytics", "sales_analytics", "messaging", "reviews_management"],
     customSections: {
-      catalog: "produits",
+      catalog: "Catalogues",
       pricing: "prix",
       booking: "devis"
     },

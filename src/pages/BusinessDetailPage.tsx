@@ -276,7 +276,7 @@ export const BusinessDetailPage = () => {
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="info" className="text-xs">Infos</TabsTrigger>
               <TabsTrigger value="catalog" className="text-xs">
-                {getCategoryConfig("Restauration")?.customSections.catalog || "Menu"}
+                Catalogues
               </TabsTrigger>
               <TabsTrigger value="reviews" className="text-xs">Avis</TabsTrigger>
               <TabsTrigger value="team" className="text-xs">Équipe</TabsTrigger>
