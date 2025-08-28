@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Settings, User, Store, Users, Camera, Phone, MapPin, Save } from "lucide-react";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { Settings, User, Store, Users, Camera, Phone, MapPin, Save, Plus, X } from "lucide-react";
 
 interface ProfileSettingsProps {
   open: boolean;
@@ -31,7 +32,10 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
     visibility: true,
     commerceName: "", // Champ UI seulement pour l'instant
     commerceType: "", // Champ UI seulement pour l'instant
-    employeeRole: "" // Champ UI seulement pour l'instant
+    employeeRole: "", // Champ UI seulement pour l'instant
+    hasPhone: false,
+    hasAddress: false,
+    hasBio: false
   });
 
   useEffect(() => {
@@ -51,17 +55,23 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
         }
 
         if (data) {
+          const addressParts = [data.quartier, data.arrondissement, data.department, data.province, data.country].filter(Boolean);
+          const fullAddress = addressParts.join(', ');
+          
           setProfile({
             name: data.pseudo || "",
             phone: data.phone || "",
             email: user.email || "",
-            address: `${data.quartier || ""}, ${data.arrondissement || ""}, ${data.department || ""}, ${data.province || ""}, ${data.country || ""}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ','),
+            address: fullAddress,
             bio: "", // À implémenter dans le schéma DB plus tard
             notifications: true, // À implémenter dans le schéma DB plus tard
             visibility: data.visibility === 'public',
             commerceName: "", // À implémenter dans le schéma DB plus tard
             commerceType: "", // À implémenter dans le schéma DB plus tard
-            employeeRole: "" // À implémenter dans le schéma DB plus tard
+            employeeRole: "", // À implémenter dans le schéma DB plus tard
+            hasPhone: Boolean(data.phone),
+            hasAddress: Boolean(fullAddress),
+            hasBio: false
           });
         }
       } catch (error) {
@@ -180,11 +190,30 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
               </div>
               
               <div>
-                <label className="text-sm font-medium">Téléphone</label>
-                <Input
-                  value={profile.phone}
-                  onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium">Téléphone</label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setProfile({ ...profile, hasPhone: !profile.hasPhone, phone: profile.hasPhone ? "" : profile.phone })}
+                    className="text-xs"
+                  >
+                    {profile.hasPhone ? <X className="w-3 h-3 mr-1" /> : <Plus className="w-3 h-3 mr-1" />}
+                    {profile.hasPhone ? "Supprimer" : "Ajouter"}
+                  </Button>
+                </div>
+                {profile.hasPhone ? (
+                  <PhoneInput
+                    value={profile.phone}
+                    onChange={(phone) => setProfile({ ...profile, phone })}
+                    placeholder="Numéro de téléphone"
+                  />
+                ) : (
+                  <div className="bg-muted rounded-md p-3 text-sm text-muted-foreground">
+                    Aucun numéro de téléphone renseigné
+                  </div>
+                )}
               </div>
               
               <div>
@@ -199,28 +228,66 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
               </div>
               
               <div>
-                <label className="text-sm font-medium">Adresse</label>
-                <Input
-                  value={profile.address}
-                  onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                  disabled
-                  className="bg-muted"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Adresse basée sur votre localisation d'inscription
-                </p>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium">Adresse</label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setProfile({ ...profile, hasAddress: !profile.hasAddress })}
+                    className="text-xs"
+                  >
+                    <MapPin className="w-3 h-3 mr-1" />
+                    {profile.hasAddress ? "Masquer" : "Afficher"}
+                  </Button>
+                </div>
+                {profile.hasAddress ? (
+                  <div>
+                    <Input
+                      value={profile.address}
+                      onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+                      disabled
+                      className="bg-muted"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Adresse basée sur votre localisation d'inscription
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-muted rounded-md p-3 text-sm text-muted-foreground">
+                    Adresse non affichée dans le profil
+                  </div>
+                )}
               </div>
               
               <div>
-                <label className="text-sm font-medium">Bio (optionnel)</label>
-                <Textarea
-                  placeholder="Parlez-nous de vous... (fonctionnalité à venir)"
-                  value={profile.bio}
-                  onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                  rows={2}
-                  disabled
-                  className="bg-muted"
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium">Bio (optionnel)</label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setProfile({ ...profile, hasBio: !profile.hasBio, bio: profile.hasBio ? "" : profile.bio })}
+                    className="text-xs"
+                  >
+                    {profile.hasBio ? <X className="w-3 h-3 mr-1" /> : <Plus className="w-3 h-3 mr-1" />}
+                    {profile.hasBio ? "Supprimer" : "Ajouter"}
+                  </Button>
+                </div>
+                {profile.hasBio ? (
+                  <Textarea
+                    placeholder="Parlez-nous de vous... (fonctionnalité à venir)"
+                    value={profile.bio}
+                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                    rows={2}
+                    disabled
+                    className="bg-muted"
+                  />
+                ) : (
+                  <div className="bg-muted rounded-md p-3 text-sm text-muted-foreground">
+                    Aucune biographie ajoutée
+                  </div>
+                )}
               </div>
             </div>
           </div>
