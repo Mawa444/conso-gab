@@ -31,6 +31,18 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // Pré-remplir l'email si disponible (ex: après inscription sans auto-login)
+  useEffect(() => {
+    try {
+      const prefill = localStorage.getItem('prefillEmail');
+      if (prefill) {
+        setEmail(prefill);
+        // Optionnel: nettoyer après lecture
+        localStorage.removeItem('prefillEmail');
+      }
+    } catch {}
+  }, []);
+
   // Rediriger si déjà connecté
   useEffect(() => {
     if (!loading && user) {
@@ -163,7 +175,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   if (step === 'signup') {
     return (
       <GuidedSignupFlow 
-        onComplete={onComplete}
+        onComplete={() => setStep('login')}
         onBack={() => setStep('welcome')}
       />
     );

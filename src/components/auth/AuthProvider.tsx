@@ -50,7 +50,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, userData: any) => {
-    const { data, error } = await supabase.auth.signUp({
+    // 1) Créer le compte
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -59,13 +60,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       },
     });
 
-    // Créer le profil utilisateur après inscription
-    if (data.user && !error) {
-      try {
+    if (signUpError) {
+      return { data: signUpData, error: signUpError };
+    }
+
+    try {
+      // 2) Connexion automatique si aucune session n'est retournée (selon la config Supabase)
+      let sessionUser = signUpData.user;
+      if (!signUpData.session) {
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (signInError) {
+          // Pré-remplir l'email pour un fallback de connexion manuel
+          try { localStorage.setItem('prefillEmail', email); } catch {}
+          console.warn('Auto-login après inscription impossible:', signInError.message);
+        } else {
+          sessionUser = signInData.user ?? sessionUser;
+        }
+      }
+
+      // 3) Créer le profil utilisateur une fois l'utilisateur authentifié
+      if (sessionUser) {
         const { error: profileError } = await supabase
           .from('user_profiles')
           .insert({
-            user_id: data.user.id,
+            user_id: sessionUser.id,
             pseudo: userData.pseudo,
             role: userData.role,
             phone: userData.phone,
@@ -83,14 +104,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (profileError) {
           console.error('Erreur création profil utilisateur:', profileError);
         }
-      } catch (err) {
-        console.error('Erreur lors de la création du profil:', err);
       }
+    } catch (err) {
+      console.error('Erreur lors du post-signup:', err);
     }
 
-    return { data, error };
+    return { data: signUpData, error: signUpError };
   };
-
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
