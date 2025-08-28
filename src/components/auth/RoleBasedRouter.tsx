@@ -47,32 +47,28 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [user, loading]);
 
-  // Redirection automatique vers la page d'accueil commune
+  // Redirection automatique vers la page d'accueil commune pour nouveaux utilisateurs
   useEffect(() => {
     if (!loading && !profileLoading) {
       const currentPath = window.location.pathname;
       
-      // Tous les utilisateurs (connectés ou anonymes) vont sur la page d'accueil commune
+      // Redirection uniquement depuis la racine ou auth vers la page d'accueil commune
       if (currentPath === '/' || currentPath.includes('/auth')) {
-        // Laisser passer les pages d'accueil et d'auth
-        return;
-      } else if (!currentPath.startsWith('/consumer') && !currentPath.startsWith('/merchant')) {
-        // Rediriger vers la page d'accueil commune
         navigate('/consumer/home', { replace: true });
       }
     }
-  }, [user, userProfile.role, loading, profileLoading, navigate]);
+  }, [loading, profileLoading, navigate]);
 
-  // Middleware de sécurité des routes - protection des routes marchands uniquement
+  // Protection unique du dashboard marchand - tout le reste est libre d'accès
   useEffect(() => {
     if (!loading && !profileLoading && user && userProfile.role) {
       const currentPath = window.location.pathname;
       
-      // Seules les routes marchands sont protégées - les utilisateurs non-marchands sont redirigés
-      if (currentPath.startsWith('/merchant') && userProfile.role !== 'merchant') {
+      // Seul le dashboard marchand nécessite d'être un marchand
+      if (currentPath.startsWith('/merchant/dashboard') && userProfile.role !== 'merchant') {
         navigate('/consumer/home', { replace: true });
       }
-      // Les marchands peuvent accéder à toutes les pages (commune + leur dashboard)
+      // Toutes les autres pages (profils d'entreprises, catalogues, etc.) sont accessibles à tous
     }
   }, [user, userProfile.role, loading, profileLoading, navigate, window.location.pathname]);
 
