@@ -117,11 +117,37 @@ export const ProductSearchResults = ({
           <TabsContent value="products" className="h-full m-0">
             <div className="h-full overflow-y-auto p-4 space-y-3">
               {products.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">Aucun produit trouvé</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Essayez de modifier vos critères de recherche
-                  </p>
+                <div className="text-center py-12">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                      🔍
+                    </div>
+                    <h3 className="font-medium text-lg mb-2">Aucun produit trouvé</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      Nous n'avons trouvé aucun produit correspondant à votre recherche.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-3 max-w-sm mx-auto">
+                    <p className="text-sm font-medium">Suggestions :</p>
+                    <div className="text-left space-y-2 text-sm text-muted-foreground">
+                      <p>• Vérifiez l'orthographe de votre recherche</p>
+                      <p>• Essayez des mots-clés plus génériques</p>
+                      <p>• Élargissez votre zone de recherche</p>
+                      <p>• Réduisez le nombre de filtres actifs</p>
+                    </div>
+                    
+                    <div className="mt-4 pt-4 border-t">
+                      <p className="text-xs text-muted-foreground mb-2">Recherches populaires :</p>
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {["t-shirt", "chaussures", "sac", "jean", "robe"].map(suggestion => (
+                          <Badge key={suggestion} variant="outline" className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                            {suggestion}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 products.map((product) => (
@@ -226,8 +252,17 @@ export const ProductSearchResults = ({
           <TabsContent value="merchants" className="h-full m-0">
             <div className="h-full overflow-y-auto p-4 space-y-3">
               {merchants.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">Aucun commerce trouvé</p>
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                    🏪
+                  </div>
+                  <h3 className="font-medium text-lg mb-2">Aucun commerce trouvé</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Aucun commerce dans votre zone ne propose ce type de produit.
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Essayez d'élargir votre zone de recherche ou de modifier vos critères.
+                  </p>
                 </div>
               ) : (
                 merchants.map((merchant) => (

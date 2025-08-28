@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { 
   Settings, TrendingUp, Users, MapPin, Star, MessageSquare, 
-  Calendar, ShoppingCart, FileText, Target, Crown, Plus
+  Calendar, ShoppingCart, FileText, Target, Crown, Plus, Package
 } from "lucide-react";
 import { 
   getToolsForCategory, 
@@ -19,6 +19,7 @@ import {
   getDefaultToolsForCategory,
   type ProfessionalTool 
 } from "@/data/professionalTools";
+import { CatalogManager } from "@/components/catalog/CatalogManager";
 
 interface ProfessionalDashboardProps {
   businessId: string;
@@ -101,8 +102,12 @@ export const ProfessionalDashboard = ({
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+          <TabsTrigger value="catalogs">
+            <Package className="w-4 h-4 mr-2" />
+            Catalogues
+          </TabsTrigger>
           <TabsTrigger value="tools">Outils</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="settings">Configuration</TabsTrigger>
@@ -219,6 +224,10 @@ export const ProfessionalDashboard = ({
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="catalogs" className="space-y-6">
+          <CatalogManager businessId={businessId} businessCategory={businessCategory} />
         </TabsContent>
 
         <TabsContent value="tools" className="space-y-6">
