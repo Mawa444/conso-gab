@@ -1,16 +1,19 @@
 import { useState } from "react";
-import { ArrowLeft, Star, MapPin, Phone, Clock, Share, Heart, ThumbsUp, ThumbsDown, MessageCircle, Navigation, ExternalLink, Users, Award, Camera } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Phone, Clock, Share, Heart, ThumbsUp, ThumbsDown, MessageCircle, Navigation, ExternalLink, Users, Award, Camera, Settings, Store, Bell, Shield, Headphones, FileText, HelpCircle, LogOut, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CatalogDashboard } from "@/components/catalog/CatalogDashboard";
 import { ProfessionalDashboard } from "@/components/professional/ProfessionalDashboard";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
+import { FavoritesSection } from "@/components/profile/FavoritesSection";
+import { BusinessToolsSection } from "@/components/business/BusinessToolsSection";
 import { useNavigate, useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface BusinessDetail {
   id: string;
@@ -273,13 +276,14 @@ export const BusinessDetailPage = () => {
         {/* Tabs de contenu */}
         <div className="mt-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="info" className="text-xs">Infos</TabsTrigger>
               <TabsTrigger value="catalog" className="text-xs">
                 Catalogues
               </TabsTrigger>
               <TabsTrigger value="reviews" className="text-xs">Avis</TabsTrigger>
               <TabsTrigger value="team" className="text-xs">Équipe</TabsTrigger>
+              <TabsTrigger value="favorites" className="text-xs">Favoris</TabsTrigger>
               <TabsTrigger value="pro" className="text-xs">Pro</TabsTrigger>
             </TabsList>
 
@@ -438,13 +442,101 @@ export const BusinessDetailPage = () => {
               </Card>
             </TabsContent>
 
+            <TabsContent value="favorites" className="mt-6">
+              <FavoritesSection userType="business" />
+            </TabsContent>
+
             <TabsContent value="pro" className="mt-6">
-              <ProfessionalDashboard
-                businessId={business.id}
-                businessName={business.name}
-                businessCategory="Restauration"
-                userType="owner"
-              />
+              <div className="space-y-6">
+                <BusinessToolsSection businessName={business.name} />
+                
+                <Card className="border-2 border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="w-6 h-6 text-primary" />
+                      Paramètres Business
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Section Compte */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Store className="w-5 h-5" />
+                          Gestion du profil
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <Button variant="outline" className="w-full justify-start">
+                          <Settings className="w-4 h-4 mr-2" />
+                          Modifier les informations
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <Camera className="w-4 h-4 mr-2" />
+                          Gérer les photos
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <Shield className="w-4 h-4 mr-2" />
+                          Sécurité et accès
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <Bell className="w-4 h-4 mr-2" />
+                          Notifications business
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Section Support Business */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Support Professionnel</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <Button variant="outline" className="w-full justify-start">
+                          <Headphones className="w-4 h-4 mr-2" />
+                          Support prioritaire
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <FileText className="w-4 h-4 mr-2" />
+                          Documentation business
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <HelpCircle className="w-4 h-4 mr-2" />
+                          Formation & conseils
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Section Danger */}
+                    <Card className="border-red-200">
+                      <CardHeader>
+                        <CardTitle className="text-red-600">Zone dangereuse</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
+                          onClick={() => toast.error("Fonctionnalité à venir - Suppression de compte")}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer l'entreprise
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          className="w-full justify-start"
+                          onClick={() => {
+                            toast.success("Déconnexion réussie");
+                            navigate('/auth');
+                          }}
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Se déconnecter
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
           </Tabs>

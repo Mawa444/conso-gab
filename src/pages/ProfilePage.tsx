@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp } from "lucide-react";
+import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FavoritesSection } from "@/components/profile/FavoritesSection";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface UserProfileData {
   name: string;
@@ -80,6 +83,8 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [activityFilter, setActivityFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfileData>({
     name: "Chargement...",
     email: "",
@@ -149,6 +154,20 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success("Déconnexion réussie");
+      navigate('/auth');
+    } catch (error) {
+      toast.error("Erreur lors de la déconnexion");
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    toast.error("Fonctionnalité à venir - Suppression de compte");
+  };
+
   return (
     <div className="min-h-screen animate-fade-in">
       {/* Header Profile moderne */}
@@ -173,14 +192,32 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
               </div>
             </div>
             
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onSettings}
-              className="text-white hover:bg-white/20 backdrop-blur-sm"
-            >
-              <Settings className="w-6 h-6" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onSettings}
+                className="text-white hover:bg-white/20 backdrop-blur-sm"
+              >
+                <Settings className="w-6 h-6" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleDeleteAccount}
+                className="text-white hover:bg-white/20 backdrop-blur-sm"
+              >
+                <Trash2 className="w-6 h-6" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleLogout}
+                className="text-white hover:bg-red-500/30 backdrop-blur-sm"
+              >
+                <LogOut className="w-6 h-6" />
+              </Button>
+            </div>
           </div>
 
           {/* Stats rapides modernisées */}
@@ -210,10 +247,11 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
       {/* Tabs */}
       <div className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="overview" className="text-xs">Aperçu</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs">Activité</TabsTrigger>
             <TabsTrigger value="favorites" className="text-xs">Favoris</TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs">Paramètres</TabsTrigger>
           </TabsList>
 
           {/* Aperçu */}
@@ -359,38 +397,85 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
 
           {/* Favoris */}
           <TabsContent value="favorites" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Commerces favoris</h3>
-              <Badge variant="outline">{favoriteCommerces.length}</Badge>
-            </div>
-            
-            {favoriteCommerces.map((commerce) => (
-              <div
-                key={commerce.id}
-                className="bg-card rounded-xl border border-border/50 p-4"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium">{commerce.name}</h4>
-                    <p className="text-sm text-muted-foreground">{commerce.type}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs">{commerce.rating}</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">•</span>
-                      <span className="text-xs text-muted-foreground">{commerce.lastVisit}</span>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    Visiter
+            <FavoritesSection userType="consumer" />
+          </TabsContent>
+
+          {/* Paramètres */}
+          <TabsContent value="settings" className="space-y-6">
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold">Paramètres du compte</h3>
+              
+              {/* Section Compte */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="w-5 h-5" />
+                    Informations du compte
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={onSettings}
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Modifier mon profil
                   </Button>
-                </div>
-              </div>
-            ))}
+                  <Button variant="outline" className="w-full justify-start">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Sécurité et confidentialité
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <Bell className="w-4 h-4 mr-2" />
+                    Notifications
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Section Support */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Support & Aide</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button variant="outline" className="w-full justify-start">
+                    Centre d'aide
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    Nous contacter
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    À propos de ConsoGab
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Section Danger */}
+              <Card className="border-red-200">
+                <CardHeader>
+                  <CardTitle className="text-red-600">Zone dangereuse</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={handleDeleteAccount}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Supprimer mon compte
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    className="w-full justify-start"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Se déconnecter
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

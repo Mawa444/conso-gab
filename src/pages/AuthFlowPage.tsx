@@ -116,7 +116,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
                 onClick={() => setStep('signup')} 
                 className="w-full h-12 text-base bg-primary hover:bg-primary/90"
               >
-                Créer mon compte gratuitement
+                Créer un nouveau compte
               </Button>
               
               <Button 
