@@ -47,16 +47,16 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [user, loading]);
 
-  // Redirection automatique basée sur le rôle
+  // Redirection automatique basée sur le rôle (selon le schéma conceptuel)
   useEffect(() => {
     if (!loading && !profileLoading && user && userProfile.role) {
       const currentPath = window.location.pathname;
       
-      // Redirection vers l'interface appropriée
-      if (userProfile.role === 'consumer' && !currentPath.includes('/consumer')) {
-        navigate('/consumer', { replace: true });
-      } else if (userProfile.role === 'merchant' && !currentPath.includes('/merchant')) {
-        navigate('/merchant', { replace: true });
+      // Redirection stricte selon le rôle vers les tableaux de bord principaux
+      if (userProfile.role === 'consumer' && !currentPath.startsWith('/consumer')) {
+        navigate('/consumer/home', { replace: true });
+      } else if (userProfile.role === 'merchant' && !currentPath.startsWith('/merchant')) {
+        navigate('/merchant/dashboard', { replace: true });
       }
     } else if (!loading && !user) {
       const currentPath = window.location.pathname;
@@ -65,12 +65,26 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
       if (currentPath === '/' || currentPath.includes('/auth')) {
         // Laisser passer les pages d'accueil et d'auth
         return;
-      } else if (!currentPath.includes('/consumer')) {
+      } else if (!currentPath.startsWith('/consumer')) {
         // Rediriger les utilisateurs anonymes vers l'interface consommateur
-        navigate('/consumer', { replace: true });
+        navigate('/consumer/home', { replace: true });
       }
     }
   }, [user, userProfile.role, loading, profileLoading, navigate]);
+
+  // Middleware de sécurité des routes (selon le schéma conceptuel)
+  useEffect(() => {
+    if (!loading && !profileLoading && user && userProfile.role) {
+      const currentPath = window.location.pathname;
+      
+      // Vérification stricte des accès selon le rôle
+      if (currentPath.startsWith('/merchant') && userProfile.role !== 'merchant') {
+        navigate('/consumer/home', { replace: true });
+      } else if (currentPath.startsWith('/consumer') && userProfile.role === 'merchant') {
+        navigate('/merchant/dashboard', { replace: true });
+      }
+    }
+  }, [user, userProfile.role, loading, profileLoading, navigate, window.location.pathname]);
 
   // Afficher loader pendant la vérification
   if (loading || profileLoading) {

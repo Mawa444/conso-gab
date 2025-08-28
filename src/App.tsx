@@ -28,13 +28,23 @@ const App = () => (
           <RoleBasedRouter>
             <Routes>
               <Route path="/auth" element={<AuthFlowPage onComplete={() => {}} />} />
-              <Route path="/consumer" element={<ConsumerApp />} />
-              <Route path="/merchant" element={<MerchantApp />} />
+              
+              {/* Routes consommateur */}
+              <Route path="/consumer/home" element={<ConsumerApp />} />
+              <Route path="/consumer/*" element={<ConsumerApp />} />
+              
+              {/* Routes opérateur/merchant */}
+              <Route path="/merchant/dashboard" element={<MerchantApp />} />
+              <Route path="/merchant/*" element={<MerchantApp />} />
+              
+              {/* Routes partagées */}
               <Route path="/business/:id" element={<BusinessDetailPage />} />
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/promotion/:id" element={<PromotionDetailPage />} />
               <Route path="/rankings/personal" element={<PersonalRankingsPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
+              
+              {/* Route par défaut : page d'authentification */}
               <Route path="/" element={<AuthFlowPage onComplete={() => {}} />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

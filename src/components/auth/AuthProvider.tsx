@@ -117,13 +117,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       password,
     });
     
-    // Note: La redirection basée sur le rôle est gérée par RoleBasedRouter
+    // La redirection post-connexion est gérée par RoleBasedRouter selon le schéma conceptuel
+    // consumer → /consumer/home
+    // merchant → /merchant/dashboard
     return { data, error };
   };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    
+    // Redirection vers la page d'authentification après déconnexion
+    // (selon le schéma conceptuel : session invalidée, retour à l'auth)
+    window.location.href = '/auth';
   };
 
   const value = {

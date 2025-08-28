@@ -11,17 +11,22 @@ import {
   Settings,
   LogOut,
   TrendingUp,
+  ChevronLeft,
+  ShoppingCart,
+  Warehouse
 } from "lucide-react";
 import { ProfessionalDashboard } from "@/components/professional/ProfessionalDashboard";
 import { CatalogManager } from "@/components/catalog/CatalogManager";
 import { EnhancedProductCreationWizard } from "@/components/products/EnhancedProductCreationWizard";
 import { CatalogCreationWizard } from "@/components/catalog/CatalogCreationWizard";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
+import { MerchantDashboard } from "./MerchantDashboard";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
-type MerchantView = 'dashboard' | 'catalogs' | 'products' | 'analytics' | 'messages' | 'settings';
+// Types selon le schéma conceptuel : tableau de bord central + sous-modules
+type MerchantView = 'dashboard' | 'catalogs' | 'products' | 'orders' | 'inventory' | 'analytics' | 'messages' | 'settings';
 
 interface BusinessProfile {
   business_name: string;
@@ -96,40 +101,50 @@ const MerchantApp = () => {
     </div>
   );
 
+  // Navigation selon le schéma conceptuel : tableau de bord central
   const renderNavigation = () => (
-    <div className="grid grid-cols-5 gap-2 mb-6 p-2 bg-muted/50 rounded-lg">
-      {[
-        { id: 'dashboard', icon: BarChart3, label: 'Tableau de Bord' },
-        { id: 'catalogs', icon: Store, label: 'Catalogues' },
-        { id: 'products', icon: Package, label: 'Produits' },
-        { id: 'analytics', icon: TrendingUp, label: 'Analytics' },
-        { id: 'messages', icon: MessageSquare, label: 'Messages' },
-      ].map((item) => (
-        <Button
-          key={item.id}
-          variant={currentView === item.id ? "default" : "ghost"}
-          size="sm"
-          onClick={() => setCurrentView(item.id as MerchantView)}
-          className="flex flex-col gap-1 h-16"
-        >
-          <item.icon className="h-4 w-4" />
-          <span className="text-xs">{item.label}</span>
-        </Button>
-      ))}
+    <div className="border-b border-border bg-muted/30 p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          {currentView !== 'dashboard' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentView('dashboard')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Tableau de bord
+            </Button>
+          )}
+          
+          {currentView === 'dashboard' && (
+            <h2 className="text-lg font-semibold text-foreground">
+              Centre de contrôle opérateur
+            </h2>
+          )}
+        </div>
+
+        {currentView !== 'dashboard' && (
+          <div className="flex items-center space-x-2">
+            <Badge variant="secondary" className="text-xs">
+              Navigation libre entre sections
+            </Badge>
+          </div>
+        )}
+      </div>
     </div>
   );
+
+  // Navigation handler pour le schéma conceptuel
+  const handleNavigateToSection = (section: string) => {
+    setCurrentView(section as MerchantView);
+  };
 
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        return (
-          <ProfessionalDashboard 
-            businessId={businessProfile.user_id}
-            businessName={businessProfile.business_name}
-            businessCategory={businessProfile.business_category}
-            userType="owner"
-          />
-        );
+        return <MerchantDashboard onNavigate={handleNavigateToSection} />;
       case 'catalogs':
         return (
           <CatalogManager 
@@ -155,6 +170,44 @@ const MerchantApp = () => {
                 <Button onClick={() => setCurrentView('catalogs')}>
                   Voir mes catalogues
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case 'orders':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5" />
+                Gestion des Commandes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">
+                  Module de gestion des commandes en cours de développement
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case 'inventory':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Warehouse className="h-5 w-5" />
+                Stocks & Inventaire
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Warehouse className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">
+                  Module de gestion des stocks en cours de développement
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -214,15 +267,27 @@ const MerchantApp = () => {
             </CardContent>
           </Card>
         );
-      default:
+      case 'settings':
         return (
-          <ProfessionalDashboard 
-            businessId={businessProfile.user_id}
-            businessName={businessProfile.business_name}
-            businessCategory={businessProfile.business_category}
-            userType="owner"
-          />
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Paramètres du compte
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ProfileSettings 
+                  open={true}
+                  onClose={() => setCurrentView('dashboard')}
+                />
+              </CardContent>
+            </Card>
+          </div>
         );
+      default:
+        return <MerchantDashboard onNavigate={handleNavigateToSection} />;
     }
   };
 
@@ -259,15 +324,14 @@ const MerchantApp = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto p-4 pt-6">
-        {/* Quick Actions */}
-        {renderQuickActions()}
-        
+      <div className="max-w-4xl mx-auto">
         {/* Navigation */}
         {renderNavigation()}
         
         {/* Main Content */}
-        {renderCurrentView()}
+        <div className="p-4">
+          {renderCurrentView()}
+        </div>
       </div>
 
       {/* Modals */}
