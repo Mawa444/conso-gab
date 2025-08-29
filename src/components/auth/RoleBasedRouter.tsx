@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
+import { ModeGuard } from './ModeGuard';
 
 interface UserProfile {
   role: 'consumer' | 'merchant' | null;
