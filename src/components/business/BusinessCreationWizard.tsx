@@ -22,8 +22,10 @@ interface BusinessCreationWizardProps {
 interface BusinessCreationData {
   businessName: string;
   businessCategory: string;
+  description?: string;
   businessPhone?: string;
   businessEmail?: string;
+  website?: string;
   country?: string;
   province?: string;
   department?: string;
@@ -81,16 +83,18 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
 
       const mappedCategory = categoryMap[data.businessCategory] || "other";
 
-      // Créer le profil business
+      // Créer le profil business avec tous les champs nécessaires pour la visibilité
       const { data: inserted, error } = await supabase
         .from("business_profiles")
         .insert({
           user_id: user.id,
           business_name: data.businessName,
           business_category: mappedCategory as any,
+          description: data.description,
           phone: data.businessPhone,
           email: data.businessEmail,
-          country: data.country,
+          website: data.website,
+          country: data.country || "Gabon",
           province: data.province,
           department: data.department,
           arrondissement: data.arrondissement,
@@ -98,16 +102,25 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
           address: data.address,
           latitude: data.latitude,
           longitude: data.longitude,
+          // Garantir que l'entreprise est visible par tous
           is_active: true,
+          is_sleeping: false,
+          is_deactivated: false,
+          is_verified: false,
+          is_primary: true
         })
-        .select("id")
+        .select("*")
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erreur création business_profiles:", error);
+        throw error;
+      }
 
       const newBusinessId = inserted?.id as string;
-
-      // Créer automatiquement le collaborateur owner
+      
+      // Note: Le trigger create_business_owner_collaborator() devrait créer automatiquement
+      // le collaborateur owner, mais on le fait manuellement pour être sûr
       const { error: collaboratorError } = await supabase
         .from("business_collaborators")
         .insert({
@@ -121,10 +134,10 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
 
       if (collaboratorError) {
         console.error("Erreur création collaborateur:", collaboratorError);
-        // Continuer même si ça échoue
+        // Ne pas échouer si le trigger a déjà créé le collaborateur
       }
 
-      toast.success("Entreprise créée avec succès 🇬🇦");
+      toast.success(`Entreprise "${data.businessName}" créée avec succès 🇬🇦`);
 
       // Rafraîchir les profils et basculer automatiquement en mode business
       await refreshBusinessProfiles();
@@ -133,7 +146,7 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
       onCreated?.(newBusinessId);
     } catch (e: any) {
       console.error("Erreur création business:", e);
-      toast.error(e.message || "Création impossible");
+      toast.error(e.message || "Impossible de créer l'entreprise");
     } finally {
       setLoading(false);
     }
@@ -190,6 +203,16 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
               </Select>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="businessDescription">Description de l'activité</Label>
+              <Input
+                id="businessDescription"
+                value={data.description || ""}
+                onChange={(e) => setData((p) => ({ ...p, description: e.target.value }))}
+                placeholder="Décrivez brièvement votre activité..."
+              />
+            </div>
+
             <div className="flex justify-end">
               <Button onClick={() => setStep(1)} disabled={!canNext()}>
                 Suivant
@@ -217,6 +240,16 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
                 value={data.businessEmail || ""}
                 onChange={(e) => setData((p) => ({ ...p, businessEmail: e.target.value }))}
                 placeholder="contact@monentreprise.ga"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="businessWebsite">Site web (optionnel)</Label>
+              <Input
+                id="businessWebsite"
+                type="url"
+                value={data.website || ""}
+                onChange={(e) => setData((p) => ({ ...p, website: e.target.value }))}
+                placeholder="https://monentreprise.ga"
               />
             </div>
             <div className="flex justify-between">
