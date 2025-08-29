@@ -114,7 +114,7 @@ export const BusinessDetailPage = () => {
     deletionDate: null as string | null
   });
 
-  const business = mockBusiness; // En réalité, on fetcherait par ID
+  const [business, setBusiness] = useState<BusinessDetail>(mockBusiness);
 
   useEffect(() => {
     fetchBusinessData();
@@ -126,13 +126,27 @@ export const BusinessDetailPage = () => {
     try {
       const { data, error } = await supabase
         .from('business_profiles')
-        .select('is_sleeping, deactivation_scheduled_at, is_deactivated')
+        .select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated')
         .eq('id', id)
-        .eq('user_id', user.id)
         .single();
 
       if (error || !data) return;
 
+      // Mettre à jour les infos affichées (nom, catégorie, contacts...)
+      setBusiness((prev) => ({
+        ...prev,
+        id: data.id,
+        name: data.business_name || prev.name,
+        type: (data.business_category as any) || prev.type,
+        address: data.address || prev.address,
+        phone: data.phone || prev.phone,
+        whatsapp: data.whatsapp || undefined,
+        website: data.website || undefined,
+        email: data.email || undefined,
+        description: data.description || prev.description,
+      }));
+
+      // Mettre à jour l'état d'activité
       setBusinessData({
         isSleeping: data.is_sleeping || false,
         isScheduledForDeletion: !!data.deactivation_scheduled_at,

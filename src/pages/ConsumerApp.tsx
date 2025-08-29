@@ -11,6 +11,7 @@ import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useProfileMode } from "@/hooks/use-profile-mode";
 
 const ConsumerApp = () => {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ const ConsumerApp = () => {
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  const { currentMode, currentBusinessId } = useProfileMode();
   const getPageTitle = () => {
     switch (activeTab) {
       case "home": return "Découvrir";
@@ -45,6 +47,14 @@ const ConsumerApp = () => {
     if (tab === "scanner") {
       setShowScanner(true);
       return;
+    }
+
+    // Rediriger "Profil" selon le mode actuel
+    if (tab === "profile") {
+      if (currentMode === "business" && currentBusinessId) {
+        navigate(`/business/${currentBusinessId}`);
+        return;
+      }
     }
 
     if (tab === activeTab) return;

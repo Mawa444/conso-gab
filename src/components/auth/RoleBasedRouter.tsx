@@ -77,5 +77,5 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
 
   // Plus de restrictions basées sur les rôles - tous les utilisateurs connectés ont accès à tout
 
-  return <>{children}</>;
+  return <ModeGuard>{children}</ModeGuard>;
 }
