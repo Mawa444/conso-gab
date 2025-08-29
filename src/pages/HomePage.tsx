@@ -175,7 +175,7 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
     { name: "Restaurants", icon: "🍽️", color: "bg-gradient-to-r from-orange-500 to-red-600", id: "restauration" },
     { name: "Commerce", icon: "🛍️", color: "bg-gradient-to-r from-blue-500 to-indigo-600", id: "commerce" },
     { name: "Hôtels", icon: "🏨", color: "bg-gradient-to-r from-purple-500 to-pink-600", id: "hotellerie" },
-    { name: "Transport", icon: "🚗", color: "bg-gradient-to-r from-green-500 to-teal-600", id: "automobile" },
+    { name: "Transport", icon: "🚗", color: "bg-green-500", id: "automobile" },
   ];
 
   const handleCategoryClick = (category: any) => {
