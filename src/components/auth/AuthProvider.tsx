@@ -78,30 +78,57 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
 
-      // 3) Créer le profil utilisateur une fois l'utilisateur authentifié
-      if (sessionUser) {
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            user_id: sessionUser.id,
-            pseudo: userData.pseudo,
-            role: userData.role,
-            phone: userData.phone,
-            country: userData.country || 'Gabon',
-            province: userData.province,
-            department: userData.department,
-            arrondissement: userData.arrondissement,
-            quartier: userData.quartier,
-            address: userData.address,
-            latitude: userData.latitude,
-            longitude: userData.longitude,
-            visibility: 'public'
-          });
+        // 3) Créer le profil utilisateur une fois l'utilisateur authentifié
+        if (sessionUser) {
+          // Créer le profil consommateur
+          const { error: profileError } = await supabase
+            .from('user_profiles')
+            .insert({
+              user_id: sessionUser.id,
+              pseudo: userData.pseudo,
+              role: userData.role,
+              phone: userData.phone,
+              country: userData.country || 'Gabon',
+              province: userData.province,
+              department: userData.department,
+              arrondissement: userData.arrondissement,
+              quartier: userData.quartier,
+              address: userData.address,
+              latitude: userData.latitude,
+              longitude: userData.longitude,
+              visibility: 'public'
+            });
 
-        if (profileError) {
-          console.error('Erreur création profil utilisateur:', profileError);
+          if (profileError) {
+            console.error('Erreur création profil utilisateur:', profileError);
+          }
+
+          // Si c'est un créateur (merchant), créer aussi le profil business
+          if (userData.role === 'merchant' && userData.businessName) {
+            const { error: businessError } = await supabase
+              .from('business_profiles')
+              .insert({
+                user_id: sessionUser.id,
+                business_name: userData.businessName,
+                business_category: userData.businessCategory || 'Services',
+                description: userData.businessDescription,
+                country: userData.country || 'Gabon',
+                province: userData.province,
+                department: userData.department,
+                arrondissement: userData.arrondissement,
+                quartier: userData.quartier,
+                address: userData.address,
+                latitude: userData.latitude,
+                longitude: userData.longitude,
+                is_primary: true, // Premier business = principal
+                is_active: true
+              });
+
+            if (businessError) {
+              console.error('Erreur création profil business:', businessError);
+            }
+          }
         }
-      }
     } catch (err) {
       console.error('Erreur lors du post-signup:', err);
     }

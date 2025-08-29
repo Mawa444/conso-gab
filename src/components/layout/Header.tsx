@@ -1,6 +1,7 @@
 import { ArrowLeft, Bell, MapPin, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import gabomaLogo from "@/assets/gaboma-logo.png";
+import { ProfileModeSwitch } from "@/components/profile/ProfileModeSwitch";
 
 interface HeaderProps {
   title?: string;
@@ -50,6 +51,9 @@ export const Header = ({ title, showBack, onBack, showNotifications = true, onLo
 
         {/* Côté droit - Actions */}
         <div className="flex items-center gap-2">
+          {/* Bouton changement de profil avec indicateur visuel */}
+          <ProfileModeSwitch className="text-white hover:bg-white/20 transition-colors" />
+          
           {/* Bouton localisation */}
           <Button
             variant="ghost"

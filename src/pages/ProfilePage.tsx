@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut } from "lucide-react";
+import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FavoritesSection } from "@/components/profile/FavoritesSection";
+import { MultiBusinessManager } from "@/components/business/MultiBusinessManager";
 import { useNavigate } from "react-router-dom";
 import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { toast } from "sonner";
@@ -256,10 +257,11 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
       {/* Tabs */}
       <div className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="overview" className="text-xs">Aperçu</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs">Activité</TabsTrigger>
             <TabsTrigger value="favorites" className="text-xs">Favoris</TabsTrigger>
+            <TabsTrigger value="businesses" className="text-xs">Entreprises</TabsTrigger>
             <TabsTrigger value="settings" className="text-xs">Paramètres</TabsTrigger>
           </TabsList>
 
@@ -407,6 +409,11 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
           {/* Favoris */}
           <TabsContent value="favorites" className="space-y-4">
             <FavoritesSection userType="consumer" />
+          </TabsContent>
+
+          {/* Entreprises */}
+          <TabsContent value="businesses" className="space-y-4">
+            <MultiBusinessManager />
           </TabsContent>
 
           {/* Paramètres */}

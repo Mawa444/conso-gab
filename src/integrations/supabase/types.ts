@@ -58,6 +58,48 @@ export type Database = {
           },
         ]
       }
+      business_collaborators: {
+        Row: {
+          accepted_at: string | null
+          business_id: string
+          created_at: string
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          permissions: Json | null
+          role: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          business_id: string
+          created_at?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          permissions?: Json | null
+          role: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          business_id?: string
+          created_at?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          permissions?: Json | null
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_profiles: {
         Row: {
           address: string | null
@@ -75,6 +117,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_deactivated: boolean | null
+          is_primary: boolean | null
           is_sleeping: boolean | null
           is_verified: boolean | null
           latitude: number | null
@@ -105,6 +148,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_deactivated?: boolean | null
+          is_primary?: boolean | null
           is_sleeping?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
@@ -135,6 +179,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_deactivated?: boolean | null
+          is_primary?: boolean | null
           is_sleeping?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
@@ -600,6 +645,27 @@ export type Database = {
           },
         ]
       }
+      user_current_mode: {
+        Row: {
+          current_business_id: string | null
+          current_mode: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_business_id?: string | null
+          current_mode?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_business_id?: string | null
+          current_mode?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           address: string | null
@@ -684,6 +750,10 @@ export type Database = {
       }
       schedule_business_deletion: {
         Args: { business_profile_id: string }
+        Returns: undefined
+      }
+      switch_user_mode: {
+        Args: { business_id_param?: string; new_mode: string }
         Returns: undefined
       }
       toggle_business_sleep_mode: {
