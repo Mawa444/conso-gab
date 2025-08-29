@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { GuidedSignupFlow } from "@/components/auth/GuidedSignupFlow";
+import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 type AuthStep = 'welcome' | 'login' | 'signup';
 
 interface AuthFlowPageProps {
@@ -21,6 +22,7 @@ interface AuthFlowPageProps {
 export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   const { user, loading, signIn } = useAuth();
   const navigate = useNavigate();
+  const { cleanupAuthState } = useAuthCleanup();
   const [step, setStep] = useState<AuthStep>('welcome');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -64,6 +66,10 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
     setIsLoading(true);
     
     try {
+      // Nettoyage complet pour éviter les états de limbo
+      try { cleanupAuthState(); } catch {}
+      try { await supabase.auth.signOut({ scope: 'global' } as any); } catch {}
+
       const { error } = await signIn(email, password);
       if (error) throw error;
       

@@ -80,27 +80,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         // 3) Créer le profil utilisateur une fois l'utilisateur authentifié
         if (sessionUser) {
-          // Créer le profil consommateur
-          const { error: profileError } = await supabase
+          // Vérifier si un profil existe déjà (créé par trigger DB)
+          const { data: existingProfile } = await supabase
             .from('user_profiles')
-            .insert({
-              user_id: sessionUser.id,
-              pseudo: userData.pseudo,
-              role: userData.role,
-              phone: userData.phone,
-              country: userData.country || 'Gabon',
-              province: userData.province,
-              department: userData.department,
-              arrondissement: userData.arrondissement,
-              quartier: userData.quartier,
-              address: userData.address,
-              latitude: userData.latitude,
-              longitude: userData.longitude,
-              visibility: 'public'
-            });
+            .select('id')
+            .eq('user_id', sessionUser.id)
+            .maybeSingle();
 
-          if (profileError) {
-            console.error('Erreur création profil utilisateur:', profileError);
+          if (!existingProfile) {
+            // Créer le profil consommateur (fallback si le trigger n'a pas tourné)
+            const { error: profileError } = await supabase
+              .from('user_profiles')
+              .insert({
+                user_id: sessionUser.id,
+                pseudo: userData.pseudo,
+                role: userData.role,
+                phone: userData.phone,
+                country: userData.country || 'Gabon',
+                province: userData.province,
+                department: userData.department,
+                arrondissement: userData.arrondissement,
+                quartier: userData.quartier,
+                address: userData.address,
+                latitude: userData.latitude,
+                longitude: userData.longitude,
+                visibility: 'public'
+              });
+
+            if (profileError) {
+              console.error('Erreur création profil utilisateur:', profileError);
+            }
           }
 
           // Si c'est un créateur (merchant), créer aussi le profil business
