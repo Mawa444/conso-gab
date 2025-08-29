@@ -11,12 +11,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileModeSwitchProps {
   className?: string;
 }
 
 export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
+  const navigate = useNavigate();
   const { 
     currentMode, 
     businessProfiles, 
@@ -80,7 +82,7 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
 
         {/* Mode Consommateur */}
         <DropdownMenuItem 
-          onClick={() => switchMode('consumer')}
+          onClick={() => switchMode('consumer', undefined, navigate)}
           className={`flex items-center gap-3 p-3 ${
             currentMode === 'consumer' ? 'bg-green-50 text-green-700' : ''
           }`}
@@ -107,7 +109,7 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
         {businessProfiles.map((business) => (
           <DropdownMenuItem
             key={business.id}
-            onClick={() => switchMode('business', business.id)}
+            onClick={() => switchMode('business', business.id, navigate)}
             className={`flex items-center gap-3 p-3 ${
               currentMode === 'business' && currentBusiness?.id === business.id 
                 ? 'bg-blue-50 text-blue-700' 

@@ -106,7 +106,7 @@ export const useProfileMode = () => {
     }
   };
 
-  const switchMode = async (mode: ProfileMode, businessId?: string) => {
+  const switchMode = async (mode: ProfileMode, businessId?: string, navigate?: (path: string) => void) => {
     if (!user) return;
 
     try {
@@ -121,6 +121,15 @@ export const useProfileMode = () => {
 
       setCurrentMode(mode);
       setCurrentBusinessId(businessId || null);
+      
+      // Redirection automatique selon le mode
+      if (navigate) {
+        if (mode === 'business' && businessId) {
+          navigate(`/business/${businessId}`);
+        } else if (mode === 'consumer') {
+          navigate('/consumer/home');
+        }
+      }
       
       toast({
         title: "Mode changé avec succès",

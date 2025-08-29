@@ -21,6 +21,7 @@ import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ProfileModeSwitch } from "@/components/profile/ProfileModeSwitch";
 
 interface BusinessDetail {
   id: string;
@@ -181,15 +182,19 @@ export const BusinessDetailPage = () => {
     <div className="min-h-screen bg-background">
       {/* Header avec image */}
       <div className="relative h-64 bg-gradient-to-br from-primary/20 to-accent/20">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 z-10 bg-white/90 hover:bg-white"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Retour
-        </Button>
+        <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="bg-white/90 hover:bg-white"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Retour
+          </Button>
+          
+          <ProfileModeSwitch className="bg-white/90 hover:bg-white" />
+        </div>
 
         {/* Galerie photos */}
         <div className="relative w-full h-full overflow-hidden">
