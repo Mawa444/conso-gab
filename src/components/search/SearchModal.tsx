@@ -8,6 +8,7 @@ import { CommerceListBlock } from "@/components/blocks/CommerceListBlock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CategoryPage } from "@/pages/CategoryPage";
 import { cn } from "@/lib/utils";
+import { useBusinessList } from "@/hooks/use-business-list";
 
 // Données de recherche simulées
 const searchData = [
@@ -164,6 +165,7 @@ export const SearchModal = ({ open, onClose, onSelect, userLocation = "Librevill
   const [selectedLocation, setSelectedLocation] = useState(userLocation);
   const [selectedZone, setSelectedZone] = useState<string>("all");
   const inputRef = useRef<HTMLInputElement>(null);
+  const { businesses, loading } = useBusinessList();
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -173,49 +175,58 @@ export const SearchModal = ({ open, onClose, onSelect, userLocation = "Librevill
 
   // Algorithme de recherche intelligente avec tolérance aux fautes
   const results = useMemo(() => {
-    if (searchQuery.length < 2) return [];
+    if (searchQuery.length < 2 || loading) return [];
 
     const searchTerm = searchQuery.toLowerCase().trim();
     
-    return searchData
-      .map(item => {
+    return businesses
+      .map(business => {
         let score = 0;
         
         // Recherche exacte dans le nom (score le plus élevé)
-        if (item.name.toLowerCase().includes(searchTerm)) {
+        if (business.name.toLowerCase().includes(searchTerm)) {
           score += 100;
         }
         
-        // Recherche dans les mots-clés
-        const matchingKeywords = item.keywords.filter(keyword => 
-          keyword.includes(searchTerm) || 
-          searchTerm.includes(keyword) ||
-          // Tolérance aux fautes : distance de Levenshtein approximative
-          Math.abs(keyword.length - searchTerm.length) <= 2 && 
-          keyword.substring(0, Math.min(3, searchTerm.length)) === searchTerm.substring(0, Math.min(3, searchTerm.length))
-        );
+        // Recherche dans la description
+        if (business.description && business.description.toLowerCase().includes(searchTerm)) {
+          score += 50;
+        }
         
-        score += matchingKeywords.length * 20;
+        // Recherche dans le type de business
+        if (business.type.toLowerCase().includes(searchTerm)) {
+          score += 30;
+        }
+        
+        // Recherche dans l'adresse
+        if (business.address && business.address.toLowerCase().includes(searchTerm)) {
+          score += 20;
+        }
         
         // Recherche floue par caractères partagés
         const sharedChars = searchTerm.split('').filter(char => 
-          item.name.toLowerCase().includes(char)
+          business.name.toLowerCase().includes(char)
         ).length;
         
         if (sharedChars >= Math.min(3, searchTerm.length)) {
           score += sharedChars * 5;
         }
         
-        // Bonus pour les commerces bien notés et proches
-        if (item.rating >= 4.5) score += 10;
-        if (parseFloat(item.distance) <= 1) score += 15;
+        // Bonus pour les commerces bien notés et vérifiés
+        if (business.rating >= 4.5) score += 10;
+        if (business.verified) score += 15;
         
-        return { ...item, score };
+        return { 
+          ...business, 
+          score,
+          category: business.type, // Map type to category for display
+          coordinates: { lat: 0, lng: 0 } // Default coordinates since not available in BusinessListItem
+        };
       })
       .filter(item => item.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 8);
-  }, [searchQuery]);
+  }, [searchQuery, businesses, loading]);
 
   const handleSelect = (item: any) => {
     setSearchQuery("");
@@ -316,11 +327,23 @@ export const SearchModal = ({ open, onClose, onSelect, userLocation = "Librevill
         <div className="p-4 space-y-6">
           {searchQuery.length < 2 && (
             <div className="space-y-6">
-              {/* Suggestions d'entreprises en tendance */}
+              {/* Suggestions d'entreprises réelles */}
               <div>
                 <CommerceListBlock
                   title="Populaire dans votre zone"
-                  commerces={suggestedCommerces.slice(0, 5)}
+                  commerces={businesses.slice(0, 5).map(business => ({
+                    id: business.id,
+                    name: business.name,
+                    type: business.type,
+                    owner: business.owner || "Propriétaire",
+                    address: business.address || "",
+                    rating: business.rating,
+                    verified: business.verified,
+                    employees: [],
+                    distance: "N/A",
+                    isFavorite: false,
+                    sponsored: false
+                  }))}
                   onSelect={(commerce) => {
                     onSelect?.(commerce);
                     onClose();

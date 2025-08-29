@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { SearchModal } from "./SearchModal";
 import { useNavigate } from "react-router-dom";
+import { useBusinessList } from "@/hooks/use-business-list";
 
 const quickCategories = [
   { name: "Restaurants", icon: "🍽️", color: "bg-gradient-to-r from-orange-500 to-red-600", id: "restauration" },
@@ -26,6 +27,7 @@ interface IntelligentSearchBarProps {
 export const IntelligentSearchBar = ({ userLocation = "Libreville" }: IntelligentSearchBarProps) => {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const navigate = useNavigate();
+  const { businesses } = useBusinessList();
 
   const handleCategoryClick = (category: any) => {
     navigate(`/category/${category.id}`);
@@ -48,7 +50,7 @@ export const IntelligentSearchBar = ({ userLocation = "Libreville" }: Intelligen
                 readOnly
               />
               <p className="text-base text-muted-foreground mt-2">
-                Commerce • Service • Produit dans {userLocation}
+                {businesses.length > 0 ? `${businesses.length} entreprises` : 'Commerce • Service • Produit'} dans {userLocation}
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0">

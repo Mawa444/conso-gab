@@ -80,10 +80,9 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
         
         <DropdownMenuSeparator />
 
-        {/* Mode Consommateur */}
+        {/* Mode Consommateur - Lecture seule */}
         <DropdownMenuItem 
-          onClick={() => switchMode('consumer', undefined, navigate)}
-          className={`flex items-center gap-3 p-3 ${
+          className={`flex items-center gap-3 p-3 cursor-not-allowed opacity-60 ${
             currentMode === 'consumer' ? 'bg-green-50 text-green-700' : ''
           }`}
         >
@@ -105,12 +104,11 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
           Mes Entreprises
         </DropdownMenuLabel>
 
-        {/* Liste des profils business */}
+        {/* Liste des profils business - Lecture seule */}
         {businessProfiles.map((business) => (
           <DropdownMenuItem
             key={business.id}
-            onClick={() => switchMode('business', business.id, navigate)}
-            className={`flex items-center gap-3 p-3 ${
+            className={`flex items-center gap-3 p-3 cursor-not-allowed opacity-60 ${
               currentMode === 'business' && currentBusiness?.id === business.id 
                 ? 'bg-blue-50 text-blue-700' 
                 : ''
@@ -148,7 +146,10 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
 
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem className="text-center text-primary">
+        <DropdownMenuItem 
+          onClick={() => navigate('/business/create')} 
+          className="text-center text-primary cursor-pointer"
+        >
           <div className="flex items-center gap-2 w-full justify-center">
             <Building2 className="w-4 h-4" />
             <span className="text-sm">Créer une nouvelle entreprise</span>
