@@ -45,24 +45,7 @@ const ConsumerApp = () => {
       return;
     }
 
-    // Si c'est le profil, vérifier le rôle de l'utilisateur
-    if (tab === "profile" && user) {
-      try {
-        const { data, error } = await supabase
-          .from('user_profiles')
-          .select('role')
-          .eq('user_id', user.id)
-          .single();
-
-        if (!error && data?.role === 'merchant') {
-          // Rediriger vers le profil business si c'est un marchand
-          navigate(`/business/${user.id}`, { replace: false });
-          return;
-        }
-      } catch (error) {
-        console.error('Erreur vérification rôle:', error);
-      }
-    }
+    // Interface unifiée: pas de redirection spéciale pour les marchands
 
     setActiveTab(tab);
     const path = tab === "home" ? "/consumer/home" : `/consumer/${tab}`;

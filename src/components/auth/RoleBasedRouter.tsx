@@ -66,12 +66,8 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
       
       // Rediriger depuis la racine ou auth vers l'espace approprié
       if (currentPath === '/' || currentPath.startsWith('/auth')) {
-        if (userProfile.role === 'merchant') {
-          // Rediriger vers le profil business du marchand
-          navigate(`/business/${user.id}`, { replace: true });
-        } else {
-          navigate('/consumer/home', { replace: true });
-        }
+        // Interface unifiée pour tous les rôles
+        navigate('/consumer/home', { replace: true });
       }
     }
   }, [loading, profileLoading, user, userProfile.role, navigate]);

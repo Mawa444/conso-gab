@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { toast } from "sonner";
+import { BusinessCreationWizard } from "@/components/business/BusinessCreationWizard";
 
 interface AdvancedBusinessManagerProps {
   className?: string;
