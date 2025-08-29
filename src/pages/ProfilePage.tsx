@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FavoritesSection } from "@/components/profile/FavoritesSection";
-import { MultiBusinessManager } from "@/components/business/MultiBusinessManager";
+import { AdvancedBusinessManager } from "@/components/profile/AdvancedBusinessManager";
 import { useNavigate } from "react-router-dom";
 import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { toast } from "sonner";
@@ -413,7 +413,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
 
           {/* Entreprises */}
           <TabsContent value="businesses" className="space-y-4">
-            <MultiBusinessManager />
+            <AdvancedBusinessManager />
           </TabsContent>
 
           {/* Paramètres */}
