@@ -5,6 +5,9 @@ import { IntelligentSearchBar } from "@/components/search/IntelligentSearchBar";
 import { CommerceListBlock } from "@/components/blocks/CommerceListBlock";
 import { CategoriesSection } from "@/components/blocks/CategoriesSection";
 import { CommerceDetailsPopup } from "@/components/commerce/CommerceDetailsPopup";
+import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
+import { OperatorDashboardModal } from "@/components/business/OperatorDashboardModal";
+import { useNavigate } from "react-router-dom";
 
 const sponsoredCommerces = [
   {
@@ -146,9 +149,11 @@ interface HomePageProps {
 }
 
 export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }: HomePageProps) => {
+  const navigate = useNavigate();
   const [showScanner, setShowScanner] = useState(false);
   const [scannedCommerce, setScannedCommerce] = useState<any>(null);
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
+  const [showOperatorDashboard, setShowOperatorDashboard] = useState(false);
 
   const handleScanResult = (result: string) => {
     try {
@@ -204,6 +209,18 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
           <IntelligentSearchBar userLocation={userLocation} />
         </div>
 
+        {/* Boutons d'actions rapides */}
+        <div className="mb-6">
+          <ActionButtonsBlock
+            onScanClick={() => setShowScanner(true)}
+            onNearbyClick={() => onNavigate('map')}
+            onRankingsClick={() => onNavigate('rankings')}
+            onTopBusinessesClick={() => onNavigate('rankings')}
+            onOperatorDashboardClick={() => setShowOperatorDashboard(true)}
+            className="mb-4"
+          />
+        </div>
+
         {/* Commerces avec bannières publicitaires intégrées */}
         {renderCommercesWithAds()}
 
@@ -229,6 +246,12 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
         open={!!selectedCommerce}
         onClose={() => setSelectedCommerce(null)}
         commerce={selectedCommerce}
+      />
+
+      {/* Operator Dashboard Modal */}
+      <OperatorDashboardModal
+        open={showOperatorDashboard}
+        onOpenChange={setShowOperatorDashboard}
       />
     </div>
   );

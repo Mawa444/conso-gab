@@ -1,12 +1,14 @@
-import { QrCode, MapPin, Trophy, Zap } from "lucide-react";
+import { QrCode, MapPin, Trophy, Zap, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useProfileMode } from "@/hooks/use-profile-mode";
 
 interface ActionButtonsBlockProps {
   onScanClick?: () => void;
   onNearbyClick?: () => void;
   onRankingsClick?: () => void;
   onTopBusinessesClick?: () => void;
+  onOperatorDashboardClick?: () => void;
   className?: string;
 }
 
@@ -15,9 +17,12 @@ export const ActionButtonsBlock = ({
   onNearbyClick, 
   onRankingsClick, 
   onTopBusinessesClick,
+  onOperatorDashboardClick,
   className 
 }: ActionButtonsBlockProps) => {
-  const actions = [
+  const { businessProfiles, currentMode } = useProfileMode();
+  // Actions de base toujours disponibles
+  const baseActions = [
     {
       title: "Scanner QR",
       description: "Découvrir un commerce",
@@ -41,16 +46,31 @@ export const ActionButtonsBlock = ({
       onClick: onRankingsClick,
       variant: "outline" as const,
       className: "border-2 border-accent/30 hover:bg-accent/5 hover:border-accent/50"
-    },
-    {
-      title: "Tendances",
-      description: "Commerces populaires",
-      icon: Zap,
-      onClick: onTopBusinessesClick,
-      variant: "outline" as const,
-      className: "border-2 border-secondary/30 hover:bg-secondary/5 hover:border-secondary/50"
     }
   ];
+
+  // Action conditionnelle selon le profil utilisateur
+  const conditionalAction = businessProfiles.length > 0 ? {
+    title: "Dashboard Opérateur",
+    description: `${businessProfiles.length} entreprise${businessProfiles.length > 1 ? 's' : ''}`,
+    icon: Settings,
+    onClick: onOperatorDashboardClick,
+    variant: "outline" as const,
+    className: `border-2 transition-all duration-300 ${
+      currentMode === 'business' 
+        ? 'border-blue-500/50 bg-blue-50/50 hover:bg-blue-100/70 hover:border-blue-600/70' 
+        : 'border-secondary/30 hover:bg-secondary/5 hover:border-secondary/50'
+    }`
+  } : {
+    title: "Tendances",
+    description: "Commerces populaires",
+    icon: Zap,
+    onClick: onTopBusinessesClick,
+    variant: "outline" as const,
+    className: "border-2 border-secondary/30 hover:bg-secondary/5 hover:border-secondary/50"
+  };
+
+  const actions = [...baseActions, conditionalAction];
 
   return (
     <div className={`grid grid-cols-2 gap-4 ${className}`}>

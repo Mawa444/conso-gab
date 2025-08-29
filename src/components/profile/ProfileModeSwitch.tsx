@@ -40,22 +40,27 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button 
-          variant="ghost" 
+          variant={isBusinessMode ? "default" : "secondary"}
           size="icon" 
-          className={`${className} relative transition-all duration-300 ${
+          className={`${className} relative transition-all duration-500 transform hover:scale-110 ${
             isBusinessMode 
-              ? 'text-blue-600 hover:text-blue-700 hover:bg-blue-50' 
-              : 'text-green-600 hover:text-green-700 hover:bg-green-50'
+              ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 border-2 border-blue-400/30' 
+              : 'bg-gradient-to-br from-green-600 to-green-700 text-white shadow-lg shadow-green-500/25 border-2 border-green-400/30'
           }`}
         >
           {isBusinessMode ? (
-            <Building2 className="w-6 h-6" />
+            <Building2 className="w-6 h-6 drop-shadow-sm" />
           ) : (
-            <User className="w-6 h-6" />
+            <User className="w-6 h-6 drop-shadow-sm" />
           )}
           
-          {/* Indicateur visuel du mode actuel */}
-          <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
+          {/* Indicateur visuel animé du mode actuel */}
+          <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white animate-pulse ${
+            isBusinessMode ? 'bg-blue-400' : 'bg-green-400'
+          }`} />
+          
+          {/* Effet de lueur en arrière-plan */}
+          <div className={`absolute inset-0 rounded-md blur-lg opacity-30 ${
             isBusinessMode ? 'bg-blue-600' : 'bg-green-600'
           }`} />
         </Button>
