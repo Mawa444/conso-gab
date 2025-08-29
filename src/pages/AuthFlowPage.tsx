@@ -111,7 +111,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
               <h1 className="text-3xl font-bold text-foreground">ConsoGab</h1>
               <p className="text-lg text-muted-foreground">L'économie gabonaise à portée de main</p>
               <p className="text-sm text-muted-foreground">
-                Découvrez, soutenez et connectez-vous avec les opérateurs économiques du Gabon
+                Découvrez, soutenez et connectez-vous avec les Paresseux du Gabon
               </p>
             </div>
           </div>
