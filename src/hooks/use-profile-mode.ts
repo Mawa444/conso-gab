@@ -25,10 +25,50 @@ export const useProfileMode = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchUserMode();
-      fetchBusinessProfiles();
-    }
+    // Hydrate depuis le cache local immédiatement pour synchroniser toutes les instances
+    try {
+      const cached = localStorage.getItem('gaboma.profile_mode');
+      if (cached) {
+        const parsed = JSON.parse(cached) as { current_mode?: ProfileMode; current_business_id?: string | null };
+        if (parsed?.current_mode) setCurrentMode(parsed.current_mode);
+        if (parsed?.current_business_id !== undefined) setCurrentBusinessId(parsed.current_business_id || null);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    fetchUserMode();
+    fetchBusinessProfiles();
+
+    // Abonnement temps réel au changement de mode
+    const channel = supabase
+      .channel('user-mode-' + user.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_current_mode', filter: `user_id=eq.${user.id}` }, (payload) => {
+        const row: any = payload.new || payload.old;
+        if (row) {
+          const newMode = (row.current_mode ?? currentMode) as ProfileMode;
+          const newBizId = row.current_business_id ?? null;
+          setCurrentMode(newMode);
+          setCurrentBusinessId(newBizId);
+
+          // Mettre en cache
+          try {
+            localStorage.setItem('gaboma.profile_mode', JSON.stringify({
+              current_mode: newMode,
+              current_business_id: newBizId,
+            }));
+          } catch {}
+        }
+      })
+      .subscribe();
+
+    return () => {
+      try {
+        supabase.removeChannel(channel);
+      } catch {}
+    };
   }, [user]);
 
   const fetchUserMode = async () => {
@@ -121,7 +161,16 @@ export const useProfileMode = () => {
 
       setCurrentMode(mode);
       setCurrentBusinessId(businessId || null);
+
+      // Mettre en cache immédiatement pour synchroniser toutes les instances
+      try {
+        localStorage.setItem('gaboma.profile_mode', JSON.stringify({
+          current_mode: mode,
+          current_business_id: businessId || null,
+        }));
+      } catch {}
       
+
       // Redirection automatique selon le mode
       if (navigate) {
         if (mode === 'business' && businessId) {

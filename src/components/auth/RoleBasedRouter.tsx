@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { ModeGuard } from './ModeGuard';
+import { useProfileMode } from '@/hooks/use-profile-mode';
 
 interface UserProfile {
   role: 'consumer' | 'merchant' | null;
@@ -18,6 +19,7 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<UserProfile>({ role: null, pseudo: null });
   const [profileLoading, setProfileLoading] = useState(false);
+  const { currentMode, currentBusinessId, loading: modeLoading } = useProfileMode();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -65,16 +67,19 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
 
   // Redirection automatique selon le rôle après connexion
   useEffect(() => {
-    if (!loading && !profileLoading && user && userProfile.role) {
+    if (!loading && !profileLoading && !modeLoading && user && userProfile.role) {
       const currentPath = window.location.pathname;
       
       // Rediriger depuis la racine ou auth vers l'espace approprié
       if (currentPath === '/' || currentPath.startsWith('/auth')) {
-        // Interface unifiée pour tous les rôles (la navigation spécifique business est gérée par switchMode)
-        navigate('/consumer/home', { replace: true });
+        if (currentMode === 'business' && currentBusinessId) {
+          navigate(`/business/${currentBusinessId}`, { replace: true });
+        } else {
+          navigate('/consumer/home', { replace: true });
+        }
       }
     }
-  }, [loading, profileLoading, user, userProfile.role, navigate]);
+  }, [loading, profileLoading, modeLoading, user, userProfile.role, currentMode, currentBusinessId, navigate]);
 
   // Plus de restrictions basées sur les rôles - tous les utilisateurs connectés ont accès à tout
 
