@@ -79,6 +79,7 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
 
       const mappedCategory = categoryMap[data.businessCategory] || "other";
 
+      // Créer le profil business
       const { data: inserted, error } = await supabase
         .from("business_profiles")
         .insert({
@@ -102,15 +103,34 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
 
       if (error) throw error;
 
-      const newId = inserted?.id as string;
+      const newBusinessId = inserted?.id as string;
+
+      // Créer automatiquement le collaborateur owner
+      const { error: collaboratorError } = await supabase
+        .from("business_collaborators")
+        .insert({
+          business_id: newBusinessId,
+          user_id: user.id,
+          role: "owner",
+          status: "accepted",
+          accepted_at: new Date().toISOString(),
+          permissions: { all: true }
+        });
+
+      if (collaboratorError) {
+        console.error("Erreur création collaborateur:", collaboratorError);
+        // Continuer même si ça échoue
+      }
+
       toast.success("Entreprise créée avec succès 🇬🇦");
 
       // Rafraîchir les profils et basculer automatiquement en mode business
       await refreshBusinessProfiles();
-      await switchMode("business", newId);
+      await switchMode("business", newBusinessId);
 
-      onCreated?.(newId);
+      onCreated?.(newBusinessId);
     } catch (e: any) {
+      console.error("Erreur création business:", e);
       toast.error(e.message || "Création impossible");
     } finally {
       setLoading(false);

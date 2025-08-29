@@ -91,7 +91,7 @@ const ConsumerApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background transition-all duration-300">
       {activeTab === "home" && (
         <Header 
           title={getPageTitle()}
@@ -101,8 +101,10 @@ const ConsumerApp = () => {
         />
       )}
       
-      <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] animate-fade-in min-h-screen">
-        {renderActiveTab()}
+      <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen overflow-hidden">
+        <div className="transition-transform duration-500 ease-out">
+          {renderActiveTab()}
+        </div>
       </main>
       
       <BottomNavigation 

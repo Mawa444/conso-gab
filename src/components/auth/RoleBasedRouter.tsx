@@ -47,14 +47,16 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [user, loading]);
 
-  // Redirection vers auth si pas connecté
+  // Redirection vers auth si pas connecté - IMMÉDIATE
   useEffect(() => {
     if (!loading && !user) {
       const currentPath = window.location.pathname;
       
-      // Rediriger vers /auth si l'utilisateur n'est pas connecté et pas déjà sur cette page
-      if (!currentPath.startsWith('/auth')) {
+      // Redirection IMMÉDIATE vers /auth si l'utilisateur n'est pas connecté
+      if (!currentPath.startsWith('/auth') && !currentPath.startsWith('/splash')) {
+        console.log("Utilisateur non connecté, redirection vers /auth");
         navigate('/auth', { replace: true });
+        return;
       }
     }
   }, [loading, user, navigate]);

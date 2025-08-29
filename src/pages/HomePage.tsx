@@ -165,72 +165,137 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
     }
   };
 
-  // Fonction pour insérer des pubs tous les 10 commerces
-  const renderCommercesWithAds = () => {
-    const elementsToRender = [];
-    
-    for (let i = 0; i < sponsoredCommerces.length; i += 10) {
-      const chunk = sponsoredCommerces.slice(i, i + 10);
-      
-      // Ajouter la bannière publicitaire avant chaque groupe
-      elementsToRender.push(
-        <div key={`ad-${i}`} className="relative mb-8">
-          <AdCarousel userLocation={userLocation} />
-        </div>
-      );
-      
-      // Ajouter le groupe de 10 commerces
-      elementsToRender.push(
-        <CommerceListBlock
-          key={`commerces-${i}`}
-          title={i === 0 ? "En tendance" : `En tendance (${i + 1}-${Math.min(i + 10, sponsoredCommerces.length)})`}
-          commerces={chunk}
-          onSelect={(commerce) => {
-            console.log("Commerce sélectionné:", commerce);
-            setSelectedCommerce(commerce);
-          }}
-          onFavorite={(commerce) => console.log("Favoris:", commerce)}
-          onMessage={onMessage}
-          showFilters={false}
-          viewMode="grid"
-        />
-      );
-    }
-    
-    return elementsToRender;
+  const quickCategories = [
+    { name: "Restaurants", icon: "🍽️", color: "bg-gradient-to-r from-orange-500 to-red-600", id: "restauration" },
+    { name: "Commerce", icon: "🛍️", color: "bg-gradient-to-r from-blue-500 to-indigo-600", id: "commerce" },
+    { name: "Hôtels", icon: "🏨", color: "bg-gradient-to-r from-purple-500 to-pink-600", id: "hotellerie" },
+    { name: "Transport", icon: "🚗", color: "bg-gradient-to-r from-green-500 to-teal-600", id: "automobile" },
+  ];
+
+  const handleCategoryClick = (category: any) => {
+    navigate(`/category/${category.id}`);
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Contenu principal avec espacements réduits */}
-      <div className="space-y-6 p-4 pt-16">
-        {/* Barre de recherche intelligente */}
-        <div className="mb-4">
-          <IntelligentSearchBar userLocation={userLocation} />
+    <div className="min-h-screen bg-gray-50">
+      {/* Contenu principal */}
+      <div className="space-y-6 p-4">
+        {/* Barre de recherche simple comme dans l'image */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="text-xl font-medium text-gray-800">Que recherchez-vous ?</p>
+              <p className="text-sm text-gray-500 mt-1">Commerce • Service • Produit dans {userLocation}</p>
+            </div>
+            <button className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </button>
+            <button className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* Boutons d'actions rapides */}
-        <div className="mb-6">
-          <ActionButtonsBlock
-            onScanClick={() => setShowScanner(true)}
-            onNearbyClick={() => onNavigate('map')}
-            onRankingsClick={() => onNavigate('rankings')}
-            onTopBusinessesClick={() => onNavigate('rankings')}
-            onOperatorDashboardClick={() => setShowOperatorDashboard(true)}
-            className="mb-4"
-          />
+        {/* Catégories rapides comme dans l'image */}
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {quickCategories.map((category, index) => (
+            <button
+              key={index}
+              onClick={() => handleCategoryClick(category)}
+              className={`flex-shrink-0 px-6 py-4 rounded-2xl text-white font-semibold flex items-center gap-2 shadow-sm ${category.color}`}
+            >
+              <span className="text-lg">{category.icon}</span>
+              <span>{category.name}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Commerces avec bannières publicitaires intégrées */}
-        {renderCommercesWithAds()}
-
-        {/* Bannière publicitaire finale */}
-        <div className="relative">
+        {/* Section Publicité Partenaire */}
+        <div className="space-y-4">
           <AdCarousel userLocation={userLocation} />
         </div>
 
-        {/* Toutes les catégories avec pubs intégrées */}
-        <CategoriesSection userLocation={userLocation} />
+        {/* Section En tendance */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              En tendance
+              <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                {sponsoredCommerces.length}
+              </span>
+            </h2>
+          </div>
+          
+          <div className="space-y-4">
+            {sponsoredCommerces.slice(0, 10).map((commerce) => (
+              <div key={commerce.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      {commerce.verified && (
+                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          Vérifié
+                        </span>
+                      )}
+                      <span className="text-sm text-gray-500">{commerce.distance}</span>
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-900">{commerce.name}</h3>
+                    <p className="text-sm text-gray-600 mb-1">{commerce.type} • Par {commerce.owner} • {commerce.address}</p>
+                    <div className="flex items-center gap-4 mt-3">
+                      <button className="flex items-center gap-1 text-gray-500 hover:text-blue-600">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V18m-7-8a2 2 0 01-2-2V4a2 2 0 012-2h2.343M7 12h4m-4-8V4a2 2 0 012-2h1.657M7 8v4" />
+                        </svg>
+                      </button>
+                      <button className="flex items-center gap-1 text-gray-500 hover:text-red-600">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 13l3 3 7-7" />
+                        </svg>
+                      </button>
+                      <button className="flex items-center gap-1 text-gray-500 hover:text-green-600">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                      </button>
+                      <button className="flex items-center gap-1 text-gray-500 hover:text-yellow-600">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-1">
+                      <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span className="font-semibold text-gray-900">{commerce.rating}</span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedCommerce(commerce)}
+                      className="bg-green-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-green-700"
+                    >
+                      Voir
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Scanner Modal */}
