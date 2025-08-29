@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { RoleBasedRouter } from "@/components/auth/RoleBasedRouter";
 import { DynamicIslandToaster } from "@/components/ui/DynamicIslandToaster";
+import { SplashScreenOverlay } from "@/components/layout/SplashScreenOverlay";
 
 import ConsumerApp from "./pages/ConsumerApp";
 import { AuthFlowPage } from "./pages/AuthFlowPage";
@@ -20,6 +21,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
+        <SplashScreenOverlay />
         <DynamicIslandToaster />
         <BrowserRouter>
           <RoleBasedRouter>

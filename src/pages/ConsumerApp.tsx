@@ -21,6 +21,8 @@ const ConsumerApp = () => {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const getPageTitle = () => {
     switch (activeTab) {
@@ -45,13 +47,32 @@ const ConsumerApp = () => {
       return;
     }
 
-    // Interface unifiée: pas de redirection spéciale pour les marchands
+    if (tab === activeTab) return;
 
-    setActiveTab(tab);
-    const path = tab === "home" ? "/consumer/home" : `/consumer/${tab}`;
-    if (location.pathname !== path) {
-      navigate(path, { replace: false });
-    }
+    // Déterminer la direction du slide
+    const tabOrder = ["home", "map", "rankings", "profile"];
+    const currentIndex = tabOrder.indexOf(activeTab);
+    const newIndex = tabOrder.indexOf(tab);
+    const direction = newIndex > currentIndex ? 'right' : 'left';
+
+    // Démarrer la transition
+    setIsTransitioning(true);
+    setSlideDirection(direction);
+
+    // Changer l'onglet après un court délai pour l'animation
+    setTimeout(() => {
+      setActiveTab(tab);
+      const path = tab === "home" ? "/consumer/home" : `/consumer/${tab}`;
+      if (location.pathname !== path) {
+        navigate(path, { replace: false });
+      }
+      
+      // Terminer la transition
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setSlideDirection(null);
+      }, 50);
+    }, 150);
   };
 
   const handleLocationClick = () => {
@@ -102,7 +123,13 @@ const ConsumerApp = () => {
       )}
       
       <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen overflow-hidden">
-        <div className="transition-transform duration-500 ease-out">
+        <div className={`transition-all duration-300 ease-out ${
+          isTransitioning 
+            ? slideDirection === 'left' 
+              ? 'animate-slide-out-left' 
+              : 'animate-slide-out-right'
+            : 'animate-slide-in-right'
+        }`}>
           {renderActiveTab()}
         </div>
       </main>
