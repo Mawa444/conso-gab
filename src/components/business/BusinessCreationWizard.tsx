@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 interface BusinessCreationWizardProps {
   onCancel?: () => void;
@@ -39,6 +40,7 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
   const [data, setData] = useState<Partial<BusinessCreationData>>({});
   const { refreshBusinessProfiles, switchMode } = useProfileMode();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const canNext = () => {
     if (step === 0) return !!data.businessName && !!data.businessCategory;
@@ -126,8 +128,8 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
 
       // Rafraîchir les profils et basculer automatiquement en mode business
       await refreshBusinessProfiles();
-      await switchMode("business", newBusinessId);
-
+      await switchMode("business", newBusinessId, navigate);
+ 
       onCreated?.(newBusinessId);
     } catch (e: any) {
       console.error("Erreur création business:", e);

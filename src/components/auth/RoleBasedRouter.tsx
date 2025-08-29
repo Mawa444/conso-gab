@@ -69,7 +69,7 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
       
       // Rediriger depuis la racine ou auth vers l'espace approprié
       if (currentPath === '/' || currentPath.startsWith('/auth')) {
-        // Interface unifiée pour tous les rôles
+        // Interface unifiée pour tous les rôles (la navigation spécifique business est gérée par switchMode)
         navigate('/consumer/home', { replace: true });
       }
     }

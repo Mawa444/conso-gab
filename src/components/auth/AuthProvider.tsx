@@ -37,10 +37,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      try {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const sid = `${session.user.id}-${Date.now()}`;
+          localStorage.setItem('gb_session_id', sid);
+          localStorage.setItem('gb_session_started_at', String(Date.now()));
+          localStorage.setItem('gb_welcome_shown', 'false');
+        }
+        if (event === 'SIGNED_OUT') {
+          localStorage.setItem('gb_last_logout_at', String(Date.now()));
+          localStorage.removeItem('gb_session_id');
+          localStorage.removeItem('gb_welcome_shown');
+        }
+      } catch {}
     });
 
     return () => subscription.unsubscribe();
@@ -159,9 +173,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+
+    try {
+      localStorage.setItem('gb_last_logout_at', String(Date.now()));
+      localStorage.removeItem('gb_session_id');
+      localStorage.removeItem('gb_welcome_shown');
+    } catch {}
     
-    // Redirection vers la page d'authentification après déconnexion
-    // (selon le schéma conceptuel : session invalidée, retour à l'auth)
     window.location.href = '/auth';
   };
 

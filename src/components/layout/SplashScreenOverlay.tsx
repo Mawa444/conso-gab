@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 import gabomaLogo from "@/assets/gaboma-logo.png";
 
 export const SplashScreenOverlay = () => {
@@ -7,29 +8,57 @@ export const SplashScreenOverlay = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [appReady, setAppReady] = useState(false);
   const [welcomeStep, setWelcomeStep] = useState<'loading' | 'welcome' | 'hidden'>('loading');
+  const [pseudo, setPseudo] = useState<string | null>(null);
+  const [variant, setVariant] = useState<'first' | 'welcomeBack' | 'longTime' | null>(null);
 
   useEffect(() => {
-    // L'app est prête quand l'auth est complètement chargée
-    if (!loading) {
-      setAppReady(true);
-      
-      // Si l'utilisateur est connecté, montrer le message de bienvenue
-      if (user) {
-        setWelcomeStep('welcome');
-        // Masquer après 1.5s
-        const timer = setTimeout(() => {
-          setWelcomeStep('hidden');
-          setShowSplash(false);
-        }, 1500);
-        return () => clearTimeout(timer);
-      } else {
-        // Si pas connecté, masquer immédiatement
-        const timer = setTimeout(() => {
-          setShowSplash(false);
-        }, 200);
-        return () => clearTimeout(timer);
-      }
+    if (loading) return;
+    setAppReady(true);
+
+    // Si non connecté, masquer rapidement
+    if (!user) {
+      const t = setTimeout(() => setShowSplash(false), 150);
+      return () => clearTimeout(t);
     }
+
+    // Connecté: ne montrer le message que 1x par session
+    const welcomeShown = localStorage.getItem('gb_welcome_shown') === 'true';
+    if (welcomeShown) {
+      setShowSplash(false);
+      return;
+    }
+
+    // Déterminer le message selon le temps écoulé depuis la dernière déconnexion
+    const now = Date.now();
+    const lastLogout = parseInt(localStorage.getItem('gb_last_logout_at') || '0');
+    let v: 'first' | 'welcomeBack' | 'longTime' = 'first';
+    if (lastLogout) {
+      const diffHours = (now - lastLogout) / (1000 * 60 * 60);
+      if (diffHours < 24) v = 'welcomeBack';
+      else if (diffHours >= 24 * 30) v = 'longTime';
+      else v = 'welcomeBack';
+    }
+    setVariant(v);
+
+    // Récupérer le pseudo (de façon différée pour éviter tout deadlock auth)
+    setTimeout(async () => {
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('pseudo')
+          .eq('user_id', user.id)
+          .single();
+        if (data?.pseudo) setPseudo(data.pseudo);
+      } catch {}
+    }, 0);
+
+    setWelcomeStep('welcome');
+    const timer = setTimeout(() => {
+      setWelcomeStep('hidden');
+      setShowSplash(false);
+      try { localStorage.setItem('gb_welcome_shown', 'true'); } catch {}
+    }, 1500);
+    return () => clearTimeout(timer);
   }, [loading, user]);
 
   if (!showSplash) return null;
@@ -72,9 +101,13 @@ export const SplashScreenOverlay = () => {
 
         {welcomeStep === 'welcome' && user && (
           <div className="space-y-2 animate-fade-in">
-            <p className="text-lg text-white/90">Bienvenue</p>
+            <p className="text-lg text-white/90">
+              {variant === 'welcomeBack' && 'Heureux de vous revoir'}
+              {variant === 'longTime' && "Quel plaisir de vous revoir !"}
+              {variant === 'first' && 'Bienvenue'}
+            </p>
             <h2 className="text-2xl font-bold text-white">
-              {user.email?.split('@')[0] || 'Utilisateur'}
+              {pseudo || user.email?.split('@')[0] || 'Utilisateur'}
             </h2>
           </div>
         )}

@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { toast } from "sonner";
 import { BusinessCreationWizard } from "@/components/business/BusinessCreationWizard";
+import { useNavigate } from "react-router-dom";
 
 interface AdvancedBusinessManagerProps {
   className?: string;
@@ -20,7 +21,8 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
     getCurrentBusiness,
     loading 
   } = useProfileMode();
-
+  const navigate = useNavigate();
+  
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   const currentBusiness = getCurrentBusiness();
@@ -121,7 +123,7 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
                 <Button 
                   variant={currentMode === 'consumer' ? "default" : "outline"}
                   size="sm"
-                  onClick={() => switchMode('consumer')}
+                  onClick={() => switchMode('consumer', undefined, navigate)}
                 >
                   {currentMode === 'consumer' ? 'Actuel' : 'Basculer'}
                 </Button>
@@ -183,7 +185,7 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
                             : "outline"
                         }
                         size="sm"
-                        onClick={() => switchMode('business', business.id)}
+                        onClick={() => switchMode('business', business.id, navigate)}
                       >
                         {currentMode === 'business' && currentBusiness?.id === business.id 
                           ? 'Actuel' 
