@@ -248,9 +248,9 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
 
       {/* Create Business Form */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] animate-fade-in">
           <div className="w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <BusinessCreationWizard 
+            <BusinessCreationWizard
               onCancel={() => setShowCreateForm(false)}
               onCreated={(businessId) => {
                 setShowCreateForm(false);

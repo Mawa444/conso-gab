@@ -100,51 +100,19 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
 
       case 1:
         return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold text-center">Tu es ici pour explorer ou pour créer ?</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card 
-                className={`cursor-pointer transition-all hover:shadow-lg ${
-                  data.userType === "explorateur" ? "ring-2 ring-primary" : ""
-                }`}
-                onClick={() => {
-                  setData(prev => ({ ...prev, userType: "explorateur" }));
-                  addPoints(10, "Bienvenue explorateur ! Tu vas découvrir les richesses de ton pays 🇬🇦");
-                }}
-              >
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl mb-4">🌍</div>
-                  <h3 className="font-bold mb-2">Explorateur</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Je cherche, je découvre, je soutiens, je consomme.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card 
-                className={`cursor-pointer transition-all hover:shadow-lg ${
-                  data.userType === "createur" ? "ring-2 ring-primary" : ""
-                }`}
-                onClick={() => {
-                  setData(prev => ({ ...prev, userType: "createur" }));
-                  addPoints(10, "Excellent ! Tu rejoins les entrepreneurs qui construisent l'avenir du Gabon 💪");
-                }}
-              >
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl mb-4">💼</div>
-                  <h3 className="font-bold mb-2">Créateur</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Je propose mes services, je fais découvrir mon activité.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-            
-            {data.userType && (
-              <Button onClick={nextStep} className="w-full">
-                Continuer
-              </Button>
-            )}
+          <div className="space-y-6 text-center">
+            <h2 className="text-xl font-bold">Bienvenue dans ConsoGab !</h2>
+            <p className="text-muted-foreground">Vous créez un profil consommateur. Vous pourrez créer votre entreprise plus tard depuis votre profil.</p>
+            <Button 
+              onClick={() => {
+                setData(prev => ({ ...prev, userType: "explorateur" }));
+                addPoints(10, "Bienvenue ! Découvrez l'économie gabonaise 🇬🇦");
+                nextStep();
+              }}
+              className="w-full"
+            >
+              Commencer
+            </Button>
           </div>
         );
 

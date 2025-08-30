@@ -45,16 +45,14 @@ interface GuidedSignupFlowProps {
 
 export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) => {
   const { signUp } = useAuth();
-  const [currentStep, setCurrentStep] = useState<SignupStep>('profile-choice');
+  const [currentStep, setCurrentStep] = useState<SignupStep>('basic-info');
   const [isLoading, setIsLoading] = useState(false);
-  const [signupData, setSignupData] = useState<Partial<SignupData>>({});
+  const [signupData, setSignupData] = useState<Partial<SignupData>>({ accountType: 'consumer' });
 
   const steps = [
-    { id: 'profile-choice', title: 'Type de compte', step: 1 },
-    { id: 'basic-info', title: 'Informations de base', step: 2 },
-    { id: 'contact-info', title: 'Contact', step: 3 },
-    { id: 'location-info', title: 'Localisation', step: 4 },
-    ...(signupData.accountType === 'merchant' ? [{ id: 'business-info', title: 'Informations business', step: 5 }] : []),
+    { id: 'basic-info', title: 'Informations de base', step: 1 },
+    { id: 'contact-info', title: 'Contact', step: 2 },
+    { id: 'location-info', title: 'Localisation', step: 3 },
   ];
 
   const currentStepIndex = steps.findIndex(step => step.id === currentStep);
@@ -108,42 +106,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
 
       if (error) throw error;
 
-      // Créer le profil business si nécessaire
-      if (signupData.accountType === 'merchant' && data.user) {
-        const categoryMap: Record<string, string> = {
-          'artisan': 'manufacturing',
-          'commerce': 'retail',
-          'service': 'services',
-          'restauration': 'restaurant',
-          'technologie': 'technology',
-          'transport': 'automotive'
-        };
-
-        const mappedCategory = categoryMap[signupData.businessCategory || 'service'] || 'other';
-
-        const { error: businessError } = await supabase
-          .from('business_profiles')
-          .insert({
-            user_id: data.user.id,
-            business_name: signupData.businessName || signupData.pseudo,
-            business_category: mappedCategory as any,
-            phone: signupData.businessPhone,
-            email: signupData.businessEmail,
-            country: signupData.country,
-            province: signupData.province,
-            department: signupData.department,
-            arrondissement: signupData.arrondissement,
-            quartier: signupData.quartier,
-            address: signupData.address,
-            latitude: signupData.latitude,
-            longitude: signupData.longitude,
-            is_active: true
-          });
-
-        if (businessError) {
-          console.error('Erreur création business profile:', businessError);
-        }
-      }
 
       toast.success('Bienvenue dans la communauté ConsoGab ! 🇬🇦');
       onComplete();
@@ -171,16 +133,12 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
 
   const canProceed = () => {
     switch (currentStep) {
-      case 'profile-choice':
-        return signupData.accountType;
       case 'basic-info':
         return signupData.pseudo && signupData.firstName && signupData.lastName;
       case 'contact-info':
         return signupData.email && signupData.password;
       case 'location-info':
         return signupData.province || (signupData.latitude && signupData.longitude);
-      case 'business-info':
-        return signupData.businessName && signupData.businessCategory;
       default:
         return true;
     }
@@ -225,43 +183,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            
-            {/* Profile Choice Step */}
-            {currentStep === 'profile-choice' && (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground text-center">
-                  Choisissez le type de compte qui vous correspond
-                </p>
-                
-                <div className="space-y-3">
-                  <Button
-                    type="button"
-                    variant={signupData.accountType === 'consumer' ? 'default' : 'outline'}
-                    onClick={() => setSignupData({ ...signupData, accountType: 'consumer' })}
-                    className="w-full justify-start h-auto py-4"
-                  >
-                    <User className="mr-3 h-5 w-5" />
-                    <div className="text-left">
-                      <div className="font-medium">Consommateur</div>
-                      <div className="text-xs opacity-80">Je découvre et soutiens les opérateurs gabonais</div>
-                    </div>
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant={signupData.accountType === 'merchant' ? 'default' : 'outline'}
-                    onClick={() => setSignupData({ ...signupData, accountType: 'merchant' })}
-                    className="w-full justify-start h-auto py-4"
-                  >
-                    <Building className="mr-3 h-5 w-5" />
-                    <div className="text-left">
-                      <div className="font-medium">Opérateur économique</div>
-                      <div className="text-xs opacity-80">Je valorise mon savoir-faire gabonais</div>
-                    </div>
-                  </Button>
-                </div>
-              </div>
-            )}
 
             {/* Basic Info Step */}
             {currentStep === 'basic-info' && (
@@ -381,65 +302,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
               </div>
             )}
 
-            {/* Business Info Step */}
-            {currentStep === 'business-info' && signupData.accountType === 'merchant' && (
-              <div className="space-y-4">
-                <Badge variant="secondary" className="w-fit">
-                  Informations professionnelles
-                </Badge>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="businessName">Nom de l'entreprise/boutique *</Label>
-                  <Input
-                    id="businessName"
-                    value={signupData.businessName || ''}
-                    onChange={(e) => setSignupData({ ...signupData, businessName: e.target.value })}
-                    placeholder="Mon Entreprise Gabonaise"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="businessCategory">Catégorie d'activité *</Label>
-                  <select
-                    id="businessCategory"
-                    className="w-full p-2 border rounded-md bg-background text-foreground"
-                    value={signupData.businessCategory || ''}
-                    onChange={(e) => setSignupData({ ...signupData, businessCategory: e.target.value })}
-                    required
-                  >
-                    <option value="">Sélectionner une catégorie</option>
-                    <option value="artisan">Artisan</option>
-                    <option value="commerce">Commerce</option>
-                    <option value="service">Service</option>
-                    <option value="restauration">Restauration</option>
-                    <option value="technologie">Technologie</option>
-                    <option value="transport">Transport</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="businessPhone">Téléphone professionnel</Label>
-                  <Input
-                    id="businessPhone"
-                    value={signupData.businessPhone || ''}
-                    onChange={(e) => setSignupData({ ...signupData, businessPhone: e.target.value })}
-                    placeholder="+241 XX XX XX XX"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="businessEmail">Email professionnel</Label>
-                  <Input
-                    id="businessEmail"
-                    type="email"
-                    value={signupData.businessEmail || ''}
-                    onChange={(e) => setSignupData({ ...signupData, businessEmail: e.target.value })}
-                    placeholder="contact@monentreprise.ga"
-                  />
-                </div>
-              </div>
-            )}
 
             {/* Navigation Buttons */}
             <div className="flex justify-between pt-4">
