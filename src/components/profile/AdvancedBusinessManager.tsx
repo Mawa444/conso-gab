@@ -37,10 +37,6 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
     );
   }
 
-  const handleCreateBusiness = () => {
-    toast.info("Création d'entreprise - Fonctionnalité à venir");
-    setShowCreateForm(false);
-  };
 
   return (
     <div className={className}>
@@ -134,83 +130,86 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
 
         {/* Business Profiles */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-lg">Mes Entreprises</h3>
-            <Button 
-              onClick={() => setShowCreateForm(!showCreateForm)}
-              size="sm"
-              className="bg-gradient-to-r from-primary to-accent text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nouvelle Entreprise
-            </Button>
-          </div>
+          <h3 className="font-semibold text-lg">Mes Entreprises</h3>
 
           {businessProfiles.length > 0 ? (
-            businessProfiles.map((business) => (
-              <Card key={business.id} className={`transition-all duration-300 cursor-pointer hover:scale-[1.02] ${
-                currentMode === 'business' && currentBusiness?.id === business.id
-                  ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' 
-                  : 'hover:bg-muted/30'
-              }`}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-10 h-10">
-                        <AvatarImage src={business.logo_url} />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-                          <Building2 className="w-5 h-5" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold truncate">{business.business_name}</h3>
-                        <p className="text-sm text-muted-foreground">Mode Professionnel</p>
+            <div className="space-y-3">
+              {businessProfiles.map((business) => (
+                <Card key={business.id} className={`transition-all duration-300 cursor-pointer hover:scale-[1.02] ${
+                  currentMode === 'business' && currentBusiness?.id === business.id
+                    ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' 
+                    : 'hover:bg-muted/30'
+                }`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={business.logo_url} />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                            <Building2 className="w-5 h-5" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold truncate">{business.business_name}</h3>
+                          <p className="text-sm text-muted-foreground">Mode Professionnel</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        {business.is_primary && (
+                          <Badge variant="outline" className="text-xs">
+                            <Crown className="w-3 h-3 mr-1" />
+                            Principal
+                          </Badge>
+                        )}
+                        {currentMode === 'business' && currentBusiness?.id === business.id && (
+                          <Badge variant="default" className="text-xs">ACTUEL</Badge>
+                        )}
+                        <Button 
+                          variant={
+                            currentMode === 'business' && currentBusiness?.id === business.id 
+                              ? "default" 
+                              : "outline"
+                          }
+                          size="sm"
+                          onClick={() => switchMode('business', business.id, navigate)}
+                        >
+                          {currentMode === 'business' && currentBusiness?.id === business.id 
+                            ? 'Actuel' 
+                            : 'Basculer'
+                          }
+                        </Button>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {business.is_primary && (
-                        <Badge variant="outline" className="text-xs">
-                          <Crown className="w-3 h-3 mr-1" />
-                          Principal
-                        </Badge>
-                      )}
-                      {currentMode === 'business' && currentBusiness?.id === business.id && (
-                        <Badge variant="default" className="text-xs">ACTUEL</Badge>
-                      )}
-                      <Button 
-                        variant={
-                          currentMode === 'business' && currentBusiness?.id === business.id 
-                            ? "default" 
-                            : "outline"
-                        }
-                        size="sm"
-                        onClick={() => switchMode('business', business.id, navigate)}
-                      >
-                        {currentMode === 'business' && currentBusiness?.id === business.id 
-                          ? 'Actuel' 
-                          : 'Basculer'
-                        }
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {/* Bouton unique pour créer une nouvelle entreprise */}
+              <Button 
+                onClick={() => setShowCreateForm(true)}
+                className="w-full h-14 bg-gradient-to-r from-primary to-accent text-white hover:scale-[1.02] transition-all duration-300 shadow-lg"
+                size="lg"
+              >
+                <Plus className="w-5 h-5 mr-3" />
+                <span className="text-lg font-semibold">Créer mon entreprise</span>
+              </Button>
+            </div>
           ) : (
             <Card className="border-dashed border-2 border-muted-foreground/30">
               <CardContent className="p-8 text-center">
-                <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold text-lg mb-2">Aucune entreprise</h3>
-                <p className="text-muted-foreground mb-4">
+                <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+                <h3 className="font-semibold text-xl mb-3">Aucune entreprise</h3>
+                <p className="text-muted-foreground mb-6 text-base">
                   Créez votre première entreprise pour accéder aux fonctionnalités business
                 </p>
                 <Button 
                   onClick={() => setShowCreateForm(true)}
-                  className="bg-gradient-to-r from-primary to-accent text-white"
+                  className="bg-gradient-to-r from-primary to-accent text-white h-14 px-8 text-lg font-semibold hover:scale-105 transition-all duration-300 shadow-lg"
+                  size="lg"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Créer une entreprise
+                  <Plus className="w-5 h-5 mr-3" />
+                  Créer mon entreprise
                 </Button>
               </CardContent>
             </Card>
@@ -249,27 +248,21 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
 
       {/* Create Business Form */}
       {showCreateForm && (
-        <Card className="mt-6 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="w-5 h-5" />
-              Créer une nouvelle entreprise
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Cette fonctionnalité sera bientôt disponible. Vous pourrez créer et gérer plusieurs profils business.
-            </p>
-            <div className="flex gap-2">
-              <Button onClick={handleCreateBusiness} className="flex-1">
-                Créer
-              </Button>
-              <Button variant="outline" onClick={() => setShowCreateForm(false)}>
-                Annuler
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in">
+          <div className="w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <BusinessCreationWizard 
+              onCancel={() => setShowCreateForm(false)}
+              onCreated={(businessId) => {
+                setShowCreateForm(false);
+                toast.success("Entreprise créée avec succès !");
+                // Redirection automatique vers le profil business
+                setTimeout(() => {
+                  switchMode('business', businessId, navigate);
+                }, 1000);
+              }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
