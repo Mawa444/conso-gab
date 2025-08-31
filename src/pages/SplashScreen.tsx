@@ -22,27 +22,22 @@ export const SplashScreen = ({ onStart }: SplashScreenProps) => {
       {/* Overlay pour améliorer la lisibilité */}
       <div className="absolute inset-0 bg-black/10" />
       
-      <div className={`relative z-10 text-center transition-all duration-700 transform ${
-        showContent ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-      }`}>
+      <div className="relative z-10 text-center">
         {/* Logo centré */}
         <div className="mb-12">
-          <div className="w-32 h-32 mx-auto mb-6 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl">
-            <img 
-              src={gabomaLogo} 
-              alt="Gaboma Logo" 
-              className="w-20 h-20 object-contain"
-              onError={(e) => {
-                // Fallback si l'image n'est pas trouvée
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = `
-                  <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center">
-                    <span class="text-2xl font-bold text-[#009739]">G</span>
-                  </div>
-                `;
-              }}
-            />
-          </div>
+          <img 
+            src={gabomaLogo} 
+            alt="Gaboma Logo" 
+            className="w-40 h-40 object-contain mx-auto mb-6"
+            onError={(e) => {
+              // Fallback si l'image n'est pas trouvée
+              e.currentTarget.style.display = 'none';
+              const fallback = document.createElement('div');
+              fallback.className = 'w-40 h-40 bg-white rounded-full flex items-center justify-center mx-auto mb-6';
+              fallback.innerHTML = '<span class="text-4xl font-bold text-[#009739]">G</span>';
+              e.currentTarget.parentElement!.appendChild(fallback);
+            }}
+          />
         </div>
 
         {/* Slogan patriotique */}
@@ -60,7 +55,7 @@ export const SplashScreen = ({ onStart }: SplashScreenProps) => {
         <Button
           onClick={onStart}
           size="lg"
-          className="bg-white text-black hover:bg-white/90 font-semibold py-4 px-8 rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 text-lg min-w-[200px]"
+          className="bg-white text-black hover:bg-white/90 font-semibold py-4 px-8 rounded-xl shadow-2xl text-lg min-w-[200px]"
         >
           Commencer
         </Button>

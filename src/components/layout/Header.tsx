@@ -28,11 +28,11 @@ export const Header = ({ title, showBack, onBack, showNotifications = true, onLo
             </Button>
           ) : (
             <div className="flex items-center gap-2">
-              <img 
-                src={gabomaLogo} 
-                alt="ConsoGab" 
-                className="w-8 h-8"
-              />
+               <img 
+                 src={gabomaLogo} 
+                 alt="ConsoGab" 
+                 className="w-16 h-16 object-contain"
+               />
               <div>
                 <h1 className="text-lg font-bold">ConsoGab</h1>
                 <p className="text-xs text-white/70">Découvrez le commerce gabonais</p>

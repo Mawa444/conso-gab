@@ -137,7 +137,13 @@ const progress = (currentStep / 3) * 100;
 const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
   if (!file) return;
-  const uploaded = await uploadImage('catalog-images', file, { folder: 'covers' });
+  
+  const uploaded = await uploadImage('catalog-images', file, { 
+    folder: 'covers', 
+    maxSize: 2 * 1024 * 1024, // 2MB max
+    forceSquare: true // Images carrées uniquement
+  });
+  
   if (uploaded?.url) {
     setCatalogData(prev => ({ ...prev, coverImage: uploaded.url }));
     toast({ title: 'Image téléversée', description: 'Image de couverture ajoutée avec succès.' });
@@ -189,9 +195,9 @@ const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
                 <Label className="text-base font-medium">
                   Image de couverture <span className="text-destructive">*</span>
                 </Label>
-                <p className="text-xs text-muted-foreground">
-                  Choisissez une image attrayante qui représente bien votre catalogue
-                </p>
+                 <p className="text-xs text-muted-foreground">
+                   Image carrée requise (max 1000x1000px, 2MB max)
+                 </p>
                 <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
                   {catalogData.coverImage ? (
                     <div className="space-y-2">
@@ -211,12 +217,12 @@ const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
                   ) : (
                     <div>
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Cliquez pour télécharger une image
-                      </p>
+                       <p className="text-sm text-muted-foreground mb-2">
+                         Image carrée 1000x1000px max
+                       </p>
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         onChange={handleImageUpload}
                         className="hidden"
                         id="cover-upload"

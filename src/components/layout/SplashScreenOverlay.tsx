@@ -64,31 +64,28 @@ export const SplashScreenOverlay = () => {
   if (!showSplash) return null;
 
   return (
-    <div className={`fixed inset-0 z-[9999] flex items-center justify-center transition-all duration-500 ${
+    <div className={`fixed inset-0 z-[9999] flex items-center justify-center ${
       welcomeStep === 'hidden' ? 'opacity-0 pointer-events-none' : 'opacity-100'
     }`}>
       {/* Arrière-plan avec dégradé Gaboma */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent" />
       <div className="absolute inset-0 bg-black/10" />
       
-      <div className="relative z-10 text-center animate-fade-in">
+      <div className="relative z-10 text-center">
         {/* Logo */}
         <div className="mb-8">
-          <div className="w-24 h-24 mx-auto mb-4 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl animate-scale-in">
-            <img 
-              src={gabomaLogo} 
-              alt="Gaboma Logo" 
-              className="w-14 h-14 object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = `
-                  <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
-                    <span class="text-xl font-bold text-primary">G</span>
-                  </div>
-                `;
-              }}
-            />
-          </div>
+          <img 
+            src={gabomaLogo} 
+            alt="Gaboma Logo" 
+            className="w-28 h-28 object-contain mx-auto mb-4"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              const fallback = document.createElement('div');
+              fallback.className = 'w-28 h-28 bg-white rounded-full flex items-center justify-center mx-auto mb-4';
+              fallback.innerHTML = '<span class="text-2xl font-bold text-primary">G</span>';
+              e.currentTarget.parentElement!.appendChild(fallback);
+            }}
+          />
         </div>
 
         {welcomeStep === 'loading' && (
@@ -100,7 +97,7 @@ export const SplashScreenOverlay = () => {
         )}
 
         {welcomeStep === 'welcome' && user && (
-          <div className="space-y-2 animate-fade-in">
+          <div className="space-y-2">
             <p className="text-lg text-white/90">
               {variant === 'welcomeBack' && 'Heureux de vous revoir'}
               {variant === 'longTime' && "Quel plaisir de vous revoir !"}

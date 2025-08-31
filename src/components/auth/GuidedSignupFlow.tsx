@@ -159,9 +159,9 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
             Retour
           </Button>
           
-          <div className="flex justify-center">
-            <img src={gabomaLogo} alt="ConsoGab" className="w-12 h-12 rounded-lg" />
-          </div>
+           <div className="flex justify-center">
+             <img src={gabomaLogo} alt="ConsoGab" className="w-24 h-24 object-contain" />
+           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">Création de votre compte</h1>
             <p className="text-muted-foreground text-sm">Rejoignez la communauté économique gabonaise</p>

@@ -14,10 +14,39 @@ export const useStorageUpload = () => {
   const uploadImage = async (
     bucket: string,
     file: File,
-    options?: { folder?: string }
+    options?: { folder?: string; maxSize?: number; forceSquare?: boolean }
   ): Promise<UploadResult | null> => {
     setIsUploading(true);
     try {
+      // Validation du type de fichier
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Le fichier doit être une image');
+      }
+
+      // Validation de la taille (si spécifiée)
+      const maxSize = options?.maxSize || 5 * 1024 * 1024; // 5MB par défaut
+      if (file.size > maxSize) {
+        throw new Error(`L'image est trop volumineuse (max ${Math.round(maxSize / (1024 * 1024))}MB)`);
+      }
+
+      // Validation des dimensions pour images carrées (si demandée)
+      if (options?.forceSquare) {
+        await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            if (img.width !== img.height) {
+              reject(new Error('L\'image doit être carrée (même largeur et hauteur)'));
+            } else if (img.width > 1000 || img.height > 1000) {
+              reject(new Error('L\'image ne doit pas dépasser 1000x1000 pixels'));
+            } else {
+              resolve(true);
+            }
+          };
+          img.onerror = () => reject(new Error('Impossible de lire l\'image'));
+          img.src = URL.createObjectURL(file);
+        });
+      }
+
       const folder = options?.folder ?? 'uploads';
       const ext = file.name.split('.').pop();
       const safeName = file.name.replace(/[^a-zA-Z0-9-_\.]/g, '_');

@@ -104,9 +104,9 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center space-y-6">
-            <div className="flex justify-center">
-              <img src={gabomaLogo} alt="ConsoGab" className="w-20 h-20 rounded-xl shadow-lg" />
-            </div>
+             <div className="flex justify-center">
+               <img src={gabomaLogo} alt="ConsoGab" className="w-40 h-40 object-contain" />
+             </div>
             <div className="space-y-3">
               <h1 className="text-3xl font-bold text-foreground">ConsoGab</h1>
               <p className="text-lg text-muted-foreground">L'économie gabonaise à portée de main</p>
@@ -183,9 +183,9 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
         <div className="w-full max-w-md space-y-6">
           {/* Header */}
           <div className="text-center space-y-4">
-            <div className="flex justify-center">
-              <img src={gabomaLogo} alt="ConsoGab" className="w-16 h-16 rounded-xl shadow-lg" />
-            </div>
+             <div className="flex justify-center">
+               <img src={gabomaLogo} alt="ConsoGab" className="w-32 h-32 object-contain" />
+             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">ConsoGab 🇬🇦</h1>
               <p className="text-muted-foreground">L'économie gabonaise à portée de main</p>
