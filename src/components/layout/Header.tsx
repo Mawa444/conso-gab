@@ -31,7 +31,7 @@ export const Header = ({ title, showBack, onBack, showNotifications = true, onLo
               <img 
                 src={gabomaLogo} 
                 alt="ConsoGab" 
-                className="w-8 h-8 rounded-lg shadow-md"
+                className="w-8 h-8"
               />
               <div>
                 <h1 className="text-lg font-bold">ConsoGab</h1>

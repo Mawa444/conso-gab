@@ -12,18 +12,22 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";
+import { PageTransition } from "@/components/layout/PageTransition";
+import { useActivityTracker } from "@/hooks/use-activity-tracker";
 
 const ConsumerApp = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { trackNavigation, trackButtonClick, trackTabChange, trackModalOpen } = useActivityTracker();
+  
   const [activeTab, setActiveTab] = useState("home");
   const [showScanner, setShowScanner] = useState(false);
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [previousTab, setPreviousTab] = useState("home");
 
   const { currentMode, currentBusinessId } = useProfileMode();
   const getPageTitle = () => {
@@ -45,6 +49,8 @@ const ConsumerApp = () => {
   }, [location.pathname]);
   const handleTabChange = async (tab: string) => {
     if (tab === "scanner") {
+      trackButtonClick("Scanner QR", "Navigation");
+      trackModalOpen("Scanner QR");
       setShowScanner(true);
       return;
     }
@@ -52,6 +58,7 @@ const ConsumerApp = () => {
     // Rediriger "Profil" selon le mode actuel
     if (tab === "profile") {
       if (currentMode === "business" && currentBusinessId) {
+        trackNavigation(activeTab, "business-profile");
         navigate(`/business/${currentBusinessId}`);
         return;
       }
@@ -59,66 +66,83 @@ const ConsumerApp = () => {
 
     if (tab === activeTab) return;
 
+    // Track l'activité de changement d'onglet
+    trackTabChange(activeTab, tab);
+
     // Déterminer la direction du slide
     const tabOrder = ["home", "map", "rankings", "profile"];
     const currentIndex = tabOrder.indexOf(activeTab);
     const newIndex = tabOrder.indexOf(tab);
     const direction = newIndex > currentIndex ? 'right' : 'left';
 
-    // Démarrer la transition
-    setIsTransitioning(true);
     setSlideDirection(direction);
-
-    // Changer l'onglet après un court délai pour l'animation
-    setTimeout(() => {
-      setActiveTab(tab);
-      const path = tab === "home" ? "/consumer/home" : `/consumer/${tab}`;
-      if (location.pathname !== path) {
-        navigate(path, { replace: false });
-      }
-      
-      // Terminer la transition
-      setTimeout(() => {
-        setIsTransitioning(false);
-        setSlideDirection(null);
-      }, 50);
-    }, 150);
+    setPreviousTab(activeTab);
+    setActiveTab(tab);
+    
+    const path = tab === "home" ? "/consumer/home" : `/consumer/${tab}`;
+    if (location.pathname !== path) {
+      navigate(path, { replace: false });
+    }
   };
 
   const handleLocationClick = () => {
+    trackButtonClick("Localisation", "Header");
     handleTabChange("map");
   };
 
   const handleMessageClick = () => {
+    trackButtonClick("Messages", "Header");
+    trackModalOpen("Messages");
     setShowMessageModal(true);
   };
 
   const handleProfileSettings = () => {
+    trackButtonClick("Paramètres Profil", "Header");
+    trackModalOpen("Paramètres Profil");
     setShowProfileSettings(true);
   };
 
   const handleScanResult = (result: string) => {
     console.log("QR Code scanné:", result);
+    trackButtonClick("QR Code Scanné", "Scanner");
     setShowScanner(false);
   };
 
   const renderActiveTab = () => {
-    switch (activeTab) {
-      case "map":
-        return <MapPage onBack={() => setActiveTab("home")} />;
-      case "rankings":
-        return <RankingsPage onBack={() => setActiveTab("home")} />;
-      case "profile":
-        return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
-      default:
-        return <HomePage 
-          onNavigate={setActiveTab} 
-          onMessage={(commerce) => {
-            setSelectedCommerce(commerce);
-            setShowMessageModal(true);
-          }} 
-        />;
-    }
+    const getTransitionDirection = () => {
+      if (slideDirection === 'right') return 'right';
+      if (slideDirection === 'left') return 'left';
+      return 'fade';
+    };
+
+    const content = (() => {
+      switch (activeTab) {
+        case "map":
+          return <MapPage onBack={() => setActiveTab("home")} />;
+        case "rankings":
+          return <RankingsPage onBack={() => setActiveTab("home")} />;
+        case "profile":
+          return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
+        default:
+          return <HomePage 
+            onNavigate={setActiveTab} 
+            onMessage={(commerce) => {
+              setSelectedCommerce(commerce);
+              handleMessageClick();
+            }} 
+          />;
+      }
+    })();
+
+    return (
+      <PageTransition 
+        key={activeTab} 
+        direction={getTransitionDirection()}
+        className="h-full"
+      >
+        {content}
+      </PageTransition>
+    );
   };
 
   return (
@@ -132,16 +156,8 @@ const ConsumerApp = () => {
         />
       )}
       
-      <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen overflow-hidden">
-        <div className={`transition-all duration-300 ease-out ${
-          isTransitioning 
-            ? slideDirection === 'left' 
-              ? 'animate-slide-out-left' 
-              : 'animate-slide-out-right'
-            : 'animate-slide-in-right'
-        }`}>
-          {renderActiveTab()}
-        </div>
+      <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen">
+        {renderActiveTab()}
       </main>
       
       <BottomNavigation 
@@ -151,7 +167,10 @@ const ConsumerApp = () => {
 
       {showScanner && (
         <QRScanner
-          onClose={() => setShowScanner(false)}
+          onClose={() => {
+            trackModalOpen("Scanner QR - Fermeture");
+            setShowScanner(false);
+          }}
           onScan={handleScanResult}
         />
       )}
@@ -159,7 +178,10 @@ const ConsumerApp = () => {
       {showMessageModal && (
         <MessageModal
           open={showMessageModal}
-          onClose={() => setShowMessageModal(false)}
+          onClose={() => {
+            trackModalOpen("Messages - Fermeture");
+            setShowMessageModal(false);
+          }}
           commerce={selectedCommerce}
         />
       )}
@@ -167,7 +189,10 @@ const ConsumerApp = () => {
       {showProfileSettings && (
         <ProfileSettings
           open={showProfileSettings}
-          onClose={() => setShowProfileSettings(false)}
+          onClose={() => {
+            trackModalOpen("Paramètres Profil - Fermeture");
+            setShowProfileSettings(false);
+          }}
           userType="client"
         />
       )}

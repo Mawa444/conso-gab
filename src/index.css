@@ -157,16 +157,8 @@ All colors MUST be HSL.
     animation: slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .animate-slide-in-right {
-    animation: slide-in-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .animate-slide-out-left {
-    animation: slide-out-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .animate-slide-out-right {
-    animation: slide-out-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .animate-slide-down {
+    animation: slide-down 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
   /* QR Scanner overlay */
@@ -228,6 +220,11 @@ All colors MUST be HSL.
 @keyframes slide-out-right {
   from { transform: translateX(0); }
   to { transform: translateX(100%); }
+}
+
+@keyframes slide-down {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Scroll behavior */
