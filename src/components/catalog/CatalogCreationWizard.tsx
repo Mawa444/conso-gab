@@ -10,23 +10,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Upload, ArrowLeft, ArrowRight, Check, Camera, Tags, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useStorageUpload } from "@/hooks/use-storage-upload";
+import { ImageEnforcer } from "./ImageEnforcer";
 
 interface CatalogData {
-  coverImage: string | null;
+  cover_url: string | null;
   name: string;
   description: string;
   category: string;
   subcategory: string;
   keywords: string[];
+  synonyms: string[];
   visibility: "draft" | "public";
-  availabilityZone: "neighborhood" | "city" | "department" | "province" | "national";
+  availability_zone: "neighborhood" | "city" | "department" | "province" | "national";
+  geo_city: string;
+  geo_district: string;
 }
 
 interface CatalogCreationWizardProps {
   onComplete: (catalogData: CatalogData) => void;
   onCancel: () => void;
-  businessCategory: string;
+  businessId: string;
 }
 
 const CATEGORIES = {
@@ -44,21 +47,24 @@ const ZONE_LABELS = {
   national: "National"
 };
 
-export const CatalogCreationWizard = ({ onComplete, onCancel, businessCategory }: CatalogCreationWizardProps) => {
+export const CatalogCreationWizard = ({ onComplete, onCancel, businessId }: CatalogCreationWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [catalogData, setCatalogData] = useState<CatalogData>({
-    coverImage: null,
+    cover_url: null,
     name: "",
     description: "",
     category: "",
     subcategory: "",
     keywords: [],
+    synonyms: [],
     visibility: "draft",
-    availabilityZone: "city"
+    availability_zone: "city",
+    geo_city: "",
+    geo_district: ""
   });
   const [keywordInput, setKeywordInput] = useState("");
-const { toast } = useToast();
-const { uploadImage, isUploading } = useStorageUpload();
+  const [synonymInput, setSynonymInput] = useState("");
+  const { toast } = useToast();
 
 const progress = (currentStep / 3) * 100;
 
@@ -83,7 +89,7 @@ const progress = (currentStep / 3) * 100;
           });
           return false;
         }
-        if (!catalogData.coverImage) {
+        if (!catalogData.cover_url) {
           toast({
             title: "Image obligatoire",
             description: "Une image de couverture est requise pour votre catalogue",
@@ -127,6 +133,16 @@ const progress = (currentStep / 3) * 100;
     }
   };
 
+  const addSynonym = () => {
+    if (synonymInput.trim() && !catalogData.synonyms.includes(synonymInput.trim().toLowerCase())) {
+      setCatalogData(prev => ({
+        ...prev,
+        synonyms: [...prev.synonyms, synonymInput.trim().toLowerCase()]
+      }));
+      setSynonymInput("");
+    }
+  };
+
   const removeKeyword = (keyword: string) => {
     setCatalogData(prev => ({
       ...prev,
@@ -134,21 +150,16 @@ const progress = (currentStep / 3) * 100;
     }));
   };
 
-const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  
-  const uploaded = await uploadImage('catalog-images', file, { 
-    folder: 'covers', 
-    maxSize: 2 * 1024 * 1024, // 2MB max
-    forceSquare: true // Images carrées uniquement
-  });
-  
-  if (uploaded?.url) {
-    setCatalogData(prev => ({ ...prev, coverImage: uploaded.url }));
-    toast({ title: 'Image téléversée', description: 'Image de couverture ajoutée avec succès.' });
-  }
-};
+  const removeSynonym = (synonym: string) => {
+    setCatalogData(prev => ({
+      ...prev,
+      synonyms: prev.synonyms.filter(s => s !== synonym)
+    }));
+  };
+
+  const handleImageUploaded = (result: { url: string; path: string }) => {
+    setCatalogData(prev => ({ ...prev, cover_url: result.url }));
+  };
 
   const handleComplete = () => {
     if (validateStep()) {
@@ -191,51 +202,14 @@ const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
               </div>
 
               {/* Upload image */}
-              <div className="space-y-2">
-                <Label className="text-base font-medium">
-                  Image de couverture <span className="text-destructive">*</span>
-                </Label>
-                 <p className="text-xs text-muted-foreground">
-                   Image carrée requise (max 1000x1000px, 2MB max)
-                 </p>
-                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-                  {catalogData.coverImage ? (
-                    <div className="space-y-2">
-                      <img 
-                        src={catalogData.coverImage} 
-                        alt="Couverture" 
-                        className="w-32 h-32 object-cover rounded-lg mx-auto"
-                      />
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setCatalogData(prev => ({ ...prev, coverImage: null }))}
-                      >
-                        Changer l'image
-                      </Button>
-                    </div>
-                  ) : (
-                    <div>
-                      <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                       <p className="text-sm text-muted-foreground mb-2">
-                         Image carrée 1000x1000px max
-                       </p>
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        id="cover-upload"
-                      />
-                      <Label htmlFor="cover-upload" className="cursor-pointer">
-                        <Button type="button" size="sm">
-                          Choisir une image
-                        </Button>
-                      </Label>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <ImageEnforcer
+                onImageUploaded={handleImageUploaded}
+                bucket="catalog-covers"
+                folder="covers"
+                currentImageUrl={catalogData.cover_url || undefined}
+                label="Image de couverture *"
+                description="Image carrée 1300×1300px requise, max 2MB"
+              />
 
               {/* Nom du catalogue */}
               <div className="space-y-2">
@@ -369,6 +343,43 @@ const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
                   {catalogData.keywords.length} mots-clés ajoutés (minimum 3 recommandé)
                 </p>
               </div>
+
+              {/* Synonymes */}
+              <div className="space-y-2">
+                <Label className="text-base font-medium">
+                  Synonymes (optionnel mais recommandé)
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Termes alternatifs pour améliorer la recherche
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Ex: pas cher, économique, abordable..."
+                    value={synonymInput}
+                    onChange={(e) => setSynonymInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSynonym())}
+                  />
+                  <Button onClick={addSynonym} disabled={!synonymInput.trim()}>
+                    Ajouter
+                  </Button>
+                </div>
+                
+                {catalogData.synonyms.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {catalogData.synonyms.map(synonym => (
+                      <Badge 
+                        key={synonym}
+                        variant="outline"
+                        className="cursor-pointer hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => removeSynonym(synonym)}
+                      >
+                        {synonym}
+                        <span className="ml-1">×</span>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -383,6 +394,33 @@ const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
                 </p>
               </div>
 
+              {/* Zone géographique */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="geo-city" className="text-base font-medium">
+                    Ville <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="geo-city"
+                    placeholder="Ex: Libreville"
+                    value={catalogData.geo_city}
+                    onChange={(e) => setCatalogData(prev => ({ ...prev, geo_city: e.target.value }))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="geo-district" className="text-base font-medium">
+                    Quartier (optionnel)
+                  </Label>
+                  <Input
+                    id="geo-district"
+                    placeholder="Ex: Glass"
+                    value={catalogData.geo_district}
+                    onChange={(e) => setCatalogData(prev => ({ ...prev, geo_district: e.target.value }))}
+                  />
+                </div>
+              </div>
+
               {/* Zone de disponibilité */}
               <div className="space-y-3">
                 <Label className="text-base font-medium">Zone de disponibilité</Label>
@@ -390,10 +428,10 @@ const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
                   Dans quelle zone géographique livrez-vous ou vendez-vous ces produits ?
                 </p>
                 <RadioGroup
-                  value={catalogData.availabilityZone}
+                  value={catalogData.availability_zone}
                   onValueChange={(value) => setCatalogData(prev => ({ 
                     ...prev, 
-                    availabilityZone: value as CatalogData["availabilityZone"] 
+                    availability_zone: value as CatalogData["availability_zone"] 
                   }))}
                   className="space-y-3"
                 >
@@ -451,7 +489,9 @@ const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
                   <div><strong>Nom :</strong> {catalogData.name}</div>
                   <div><strong>Catégorie :</strong> {catalogData.category} &gt; {catalogData.subcategory}</div>
                   <div><strong>Mots-clés :</strong> {catalogData.keywords.join(", ")}</div>
-                  <div><strong>Zone :</strong> {ZONE_LABELS[catalogData.availabilityZone]}</div>
+                  <div><strong>Synonymes :</strong> {catalogData.synonyms.join(", ")}</div>
+                  <div><strong>Ville :</strong> {catalogData.geo_city} {catalogData.geo_district && `(${catalogData.geo_district})`}</div>
+                  <div><strong>Zone :</strong> {ZONE_LABELS[catalogData.availability_zone]}</div>
                   <div><strong>Statut :</strong> {catalogData.visibility === "draft" ? "Brouillon" : "Public"}</div>
                 </div>
               </div>

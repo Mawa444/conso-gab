@@ -76,7 +76,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
       <CatalogCreationWizard
         onComplete={handleWizardComplete}
         onCancel={handleWizardCancel}
-        businessCategory={businessCategory}
+        businessId={businessId}
       />
     );
   }

@@ -163,7 +163,7 @@ export const CatalogManager = ({ businessId, businessCategory }: CatalogManagerP
                 <CatalogCreationWizard
                   onComplete={handleCreateCatalog}
                   onCancel={() => setShowCreateWizard(false)}
-                  businessCategory={businessCategory}
+                  businessId={businessId}
                 />
               </DialogContent>
             </Dialog>
