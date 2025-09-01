@@ -198,37 +198,76 @@ export type Database = {
       }
       catalogs: {
         Row: {
+          availability_zone: string | null
           business_id: string
+          category: string | null
+          cover_blurhash: string | null
+          cover_url: string | null
           created_at: string
           description: string | null
           display_order: number | null
+          geo_city: string | null
+          geo_district: string | null
           id: string
           is_active: boolean | null
           is_public: boolean | null
+          keywords: string[] | null
+          language: string | null
           name: string
+          phonetics: string[] | null
+          seo_score: number | null
+          subcategory: string | null
+          synonyms: string[] | null
           updated_at: string
+          visibility: string | null
         }
         Insert: {
+          availability_zone?: string | null
           business_id: string
+          category?: string | null
+          cover_blurhash?: string | null
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           display_order?: number | null
+          geo_city?: string | null
+          geo_district?: string | null
           id?: string
           is_active?: boolean | null
           is_public?: boolean | null
+          keywords?: string[] | null
+          language?: string | null
           name: string
+          phonetics?: string[] | null
+          seo_score?: number | null
+          subcategory?: string | null
+          synonyms?: string[] | null
           updated_at?: string
+          visibility?: string | null
         }
         Update: {
+          availability_zone?: string | null
           business_id?: string
+          category?: string | null
+          cover_blurhash?: string | null
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           display_order?: number | null
+          geo_city?: string | null
+          geo_district?: string | null
           id?: string
           is_active?: boolean | null
           is_public?: boolean | null
+          keywords?: string[] | null
+          language?: string | null
           name?: string
+          phonetics?: string[] | null
+          seo_score?: number | null
+          subcategory?: string | null
+          synonyms?: string[] | null
           updated_at?: string
+          visibility?: string | null
         }
         Relationships: [
           {
