@@ -5,19 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { allCommerces, categories } from "@/data/mockCommerces";
-import { ProductSearchBar, type ProductFilters } from "@/components/search/ProductSearchBar";
+import { UnifiedSearchBar } from "@/components/search/UnifiedSearchBar";
 import { ProductSearchResults } from "@/components/products/ProductSearchResults";
 
 export const MapTab = () => {
   const navigate = useNavigate();
   const [zoomLevel, setZoomLevel] = useState(1);
   const [hoveredCommerce, setHoveredCommerce] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchFilters, setSearchFilters] = useState<ProductFilters>({
-    colors: [], sizes: [], ageGroups: [], priceRange: [0, 1000000],
-    brands: [], availability: [], distance: 5000, minRating: 0,
-    verified: false, categories: []
-  });
   const [showResults, setShowResults] = useState(false);
   const [searchResults, setSearchResults] = useState({ products: [], merchants: [] });
 
@@ -44,19 +38,8 @@ export const MapTab = () => {
 
   // Filtrage des commerces pour la carte
   const filteredCommerces = useMemo(() => {
-    if (!searchQuery && searchFilters.colors.length === 0) {
-      return allCommerces;
-    }
-    
-    // Simulation de filtrage basé sur les produits
-    return allCommerces.filter(commerce => {
-      const searchMatch = searchQuery === "" || 
-        commerce.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        commerce.type.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      return searchMatch;
-    });
-  }, [searchQuery, searchFilters]);
+    return allCommerces;
+  }, []);
 
   // Positions des commerces sur la carte
   const commercePositions = useMemo(() => {
@@ -77,38 +60,53 @@ export const MapTab = () => {
     }));
   }, [filteredCommerces]);
 
-  const handleProductSearch = (query: string, filters: ProductFilters) => {
-    setSearchQuery(query);
-    setSearchFilters(filters);
-    
-    if (query || Object.values(filters).some(f => Array.isArray(f) ? f.length > 0 : f !== filters.distance && f !== 5000)) {
-      // Simulation de recherche de produits
-      const filteredProducts = mockProducts.filter(product => {
-        const titleMatch = !query || product.title.toLowerCase().includes(query.toLowerCase());
-        const colorMatch = filters.colors.length === 0 || filters.colors.includes(product.attributes.color?.toLowerCase() || "");
-        return titleMatch && colorMatch;
-      });
+  const handleUnifiedSearch = (results: any[]) => {
+    if (results.length > 0) {
+      // Transformation des résultats en format compatible
+      const transformedProducts = results.filter(r => r.type === 'product').map((result, index) => ({
+        id: result.id,
+        title: result.title,
+        description: result.description,
+        brand: "N/A",
+        price: Math.floor(Math.random() * 50000) + 5000,
+        currency: "XAF",
+        images: [`https://picsum.photos/200/200?random=${index}`],
+        merchant: allCommerces[index % allCommerces.length],
+        attributes: {
+          color: "Bleu",
+          size: "M",
+          material: "Coton"
+        },
+        availability: "in_stock" as "in_stock",
+        matchScore: result.score / 100
+      }));
 
-      const merchantsWithProducts = filteredProducts.reduce((acc, product) => {
-        const merchantId = product.merchant.id;
-        if (!acc[merchantId]) {
-          acc[merchantId] = {
-            ...product.merchant,
-            productCount: 0,
-            coordinates: { lat: 0, lng: 0 } // Simulation
-          };
-        }
-        acc[merchantId].productCount++;
-        return acc;
-      }, {} as Record<string, any>);
+      const merchantsWithProducts = results
+        .filter(r => r.type === 'business')
+        .map(result => ({
+          id: result.businessId,
+          name: result.title,
+          type: result.category || "Commerce",
+          verified: result.verified,
+          productCount: 1,
+          coordinates: { lat: 0, lng: 0 }
+        }));
 
       setSearchResults({
-        products: filteredProducts,
-        merchants: Object.values(merchantsWithProducts)
+        products: transformedProducts,
+        merchants: merchantsWithProducts
       });
       setShowResults(true);
     } else {
       setShowResults(false);
+    }
+  };
+
+  const handleSearchResultSelect = (result: any) => {
+    if (result.type === 'business') {
+      navigate(`/business/${result.businessId}`);
+    } else if (result.type === 'product') {
+      navigate(`/product/${result.id}`);
     }
   };
 
@@ -122,7 +120,6 @@ export const MapTab = () => {
 
   const handleShareLocation = () => {
     const url = new URL(window.location.href);
-    url.searchParams.set('q', searchQuery);
     navigator.clipboard.writeText(url.toString());
   };
 
@@ -131,11 +128,16 @@ export const MapTab = () => {
 
   return (
     <div className="h-full relative overflow-hidden">
-      {/* Barre de recherche de produits */}
+      {/* Barre de recherche unifiée */}
       <div className="absolute top-4 left-4 z-20 w-96">
-        <ProductSearchBar
-          onSearch={handleProductSearch}
-          currentLocation={{ lat: 0, lng: 0 }}
+        <UnifiedSearchBar
+          onSearch={handleUnifiedSearch}
+          onSelect={handleSearchResultSelect}
+          placeholder="Rechercher un commerce, produit..."
+          variant="card"
+          size="md"
+          currentLocation="Libreville"
+          showResults={false}
         />
       </div>
 
