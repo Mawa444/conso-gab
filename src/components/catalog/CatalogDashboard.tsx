@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { CatalogCreationWizard } from "./CatalogCreationWizard";
 import { CatalogManager } from "./CatalogManager";
 import { EnhancedProductCreationWizard } from "../products/EnhancedProductCreationWizard";
+import { CatalogVisibilityManager } from "./CatalogVisibilityManager";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useProductManagement } from "@/hooks/use-product-management";
 
@@ -17,7 +18,7 @@ interface CatalogDashboardProps {
 }
 
 export const CatalogDashboard = ({ businessId, businessName, businessCategory }: CatalogDashboardProps) => {
-  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics' | 'createProduct'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics' | 'createProduct' | 'visibility'>('dashboard');
   
   // Real data hooks
   const {
@@ -137,6 +138,24 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
     );
   }
 
+  // Vue de gestion de la visibilité
+  if (activeView === 'visibility') {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Visibilité des catalogues</h2>
+          <Button
+            variant="outline"
+            onClick={() => setActiveView('dashboard')}
+          >
+            Retour au tableau de bord
+          </Button>
+        </div>
+        <CatalogVisibilityManager businessId={businessId} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -144,6 +163,15 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
         <p className="text-muted-foreground">
           Créez et gérez vos catalogues de produits pour {businessName}
         </p>
+        {catalogs.length > 0 && (
+          <div className="mt-4 flex justify-center gap-4 text-sm text-muted-foreground">
+            <span>{catalogs.length} catalogues créés</span>
+            <span>•</span>
+            <span>{totalProducts} produits au total</span>
+            <span>•</span>
+            <span>{catalogs.filter(c => c.is_public).length} catalogues publics</span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -191,6 +219,22 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
             </p>
             <Button variant="outline" className="w-full">
               Gérer les catalogues
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Visibilité des catalogues */}
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setActiveView('visibility')}>
+          <CardContent className="p-6 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Eye className="w-8 h-8 text-green-600" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Visibilité des catalogues</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Gérez qui peut voir vos catalogues et produits
+            </p>
+            <Button variant="outline" className="w-full">
+              Gérer la visibilité
             </Button>
           </CardContent>
         </Card>

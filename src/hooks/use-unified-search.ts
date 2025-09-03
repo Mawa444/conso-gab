@@ -19,10 +19,11 @@ export interface SearchResult {
 
 export interface UnifiedSearchFilters {
   location?: string;
-  category?: "restaurant" | "retail" | "services" | "technology" | "healthcare" | "education" | "finance" | "real_estate" | "automotive" | "beauty" | "fitness" | "entertainment" | "agriculture" | "manufacturing" | "other";
+  category?: string;
   verified?: boolean;
   minRating?: number;
   businessType?: string;
+  subcategory?: string;
 }
 
 export const useUnifiedSearch = () => {
@@ -36,10 +37,19 @@ export const useUnifiedSearch = () => {
     try {
       const searchTerm = query.toLowerCase().trim();
       
-      // Recherche dans business_profiles
+      // Recherche dans business_profiles avec jointure pour plus d'infos
       let businessQuery = supabase
         .from('business_profiles')
-        .select('*')
+        .select(`
+          *,
+          catalogs!inner(
+            id,
+            name,
+            keywords,
+            synonyms,
+            category
+          )
+        `)
         .eq('is_active', true)
         .eq('is_sleeping', false)
         .eq('is_deactivated', false);
@@ -49,21 +59,136 @@ export const useUnifiedSearch = () => {
       }
 
       if (filters?.category) {
-        businessQuery = businessQuery.eq('business_category', filters.category);
+        businessQuery = businessQuery.eq('business_category', filters.category as any);
       }
 
       if (filters?.location) {
         businessQuery = businessQuery.or(`city.ilike.%${filters.location}%,quartier.ilike.%${filters.location}%,department.ilike.%${filters.location}%`);
       }
 
-      const { data: businesses, error: businessError } = await businessQuery;
+      const { data: businessesWithCatalogs } = await businessQuery;
       
-      if (businessError) throw businessError;
+      // Recherche aussi les entreprises sans catalogues
+      let businessOnlyQuery = supabase
+        .from('business_profiles')
+        .select('*')
+        .eq('is_active', true)
+        .eq('is_sleeping', false)
+        .eq('is_deactivated', false);
 
-      return businesses?.map(business => {
+      if (filters?.verified) {
+        businessOnlyQuery = businessOnlyQuery.eq('is_verified', true);
+      }
+
+      if (filters?.category) {
+        businessOnlyQuery = businessOnlyQuery.eq('business_category', filters.category as any);
+      }
+
+      if (filters?.location) {
+        businessOnlyQuery = businessOnlyQuery.or(`city.ilike.%${filters.location}%,quartier.ilike.%${filters.location}%,department.ilike.%${filters.location}%`);
+      }
+
+      const { data: allBusinesses } = await businessOnlyQuery;
+
+      const businessResults: SearchResult[] = [];
+      
+      // Traiter les entreprises avec catalogues
+      businessesWithCatalogs?.forEach(business => {
         let score = 0;
         
-        // Calcul du score de pertinence
+        // Recherche dans le nom de l'entreprise
+        if (business.business_name.toLowerCase().includes(searchTerm)) {
+          score += 100;
+        }
+        
+        // Recherche dans la description
+        if (business.description && business.description.toLowerCase().includes(searchTerm)) {
+          score += 60;
+        }
+        
+        // Recherche dans l'adresse et localisation
+        if (business.address && business.address.toLowerCase().includes(searchTerm)) {
+          score += 40;
+        }
+        
+        if (business.quartier && business.quartier.toLowerCase().includes(searchTerm)) {
+          score += 30;
+        }
+
+        if (business.city && business.city.toLowerCase().includes(searchTerm)) {
+          score += 25;
+        }
+        
+        // Recherche dans les catalogues associés
+        if (business.catalogs) {
+          business.catalogs.forEach((catalog: any) => {
+            if (catalog.name && catalog.name.toLowerCase().includes(searchTerm)) {
+              score += 70;
+            }
+            if (catalog.keywords) {
+              catalog.keywords.forEach((keyword: string) => {
+                if (keyword.toLowerCase().includes(searchTerm)) {
+                  score += 30;
+                }
+              });
+            }
+            if (catalog.synonyms) {
+              catalog.synonyms.forEach((synonym: string) => {
+                if (synonym.toLowerCase().includes(searchTerm)) {
+                  score += 25;
+                }
+              });
+            }
+          });
+        }
+        
+        // Recherche phonétique/floue améliorée
+        const businessWords = business.business_name.toLowerCase().split(' ');
+        const queryWords = searchTerm.split(' ');
+        
+        queryWords.forEach(queryWord => {
+          businessWords.forEach(businessWord => {
+            // Correspondance partielle (début de mot)
+            if (businessWord.startsWith(queryWord) || queryWord.startsWith(businessWord)) {
+              score += 15;
+            }
+            // Correspondance floue (Levenshtein distance approximative)
+            if (Math.abs(businessWord.length - queryWord.length) <= 2) {
+              const commonChars = queryWord.split('').filter(char => businessWord.includes(char)).length;
+              if (commonChars >= Math.min(3, queryWord.length * 0.7)) {
+                score += 10;
+              }
+            }
+          });
+        });
+        
+        // Bonus pour les entreprises vérifiées et actives
+        if (business.is_verified) score += 20;
+        
+        if (score > 0) {
+          businessResults.push({
+            id: business.id,
+            name: business.business_name,
+            type: 'business' as const,
+            title: business.business_name,
+            description: business.description,
+            category: business.business_category,
+            address: `${business.address || ''} ${business.quartier || ''} ${business.city || ''}`.trim(),
+            verified: business.is_verified,
+            score,
+            businessId: business.id
+          });
+        }
+      });
+
+      // Traiter toutes les autres entreprises (sans doublon)
+      const processedIds = new Set(businessResults.map(b => b.id));
+      allBusinesses?.forEach(business => {
+        if (processedIds.has(business.id)) return;
+        
+        let score = 0;
+        
+        // Même logique de scoring pour les entreprises sans catalogue
         if (business.business_name.toLowerCase().includes(searchTerm)) {
           score += 100;
         }
@@ -79,32 +204,38 @@ export const useUnifiedSearch = () => {
         if (business.quartier && business.quartier.toLowerCase().includes(searchTerm)) {
           score += 20;
         }
+
+        // Recherche floue
+        const businessWords = business.business_name.toLowerCase().split(' ');
+        const queryWords = searchTerm.split(' ');
         
-        // Recherche floue par caractères partagés
-        const sharedChars = searchTerm.split('').filter(char => 
-          business.business_name.toLowerCase().includes(char)
-        ).length;
+        queryWords.forEach(queryWord => {
+          businessWords.forEach(businessWord => {
+            if (businessWord.startsWith(queryWord) && queryWord.length >= 2) {
+              score += 10;
+            }
+          });
+        });
         
-        if (sharedChars >= Math.min(3, searchTerm.length)) {
-          score += sharedChars * 5;
-        }
-        
-        // Bonus pour les commerces vérifiés
         if (business.is_verified) score += 15;
         
-        return {
-          id: business.id,
-          name: business.business_name,
-          type: 'business' as const,
-          title: business.business_name,
-          description: business.description,
-          category: business.business_category,
-          address: `${business.address || ''} ${business.quartier || ''} ${business.city || ''}`.trim(),
-          verified: business.is_verified,
-          score,
-          businessId: business.id
-        } as SearchResult;
-      }).filter(item => item.score > 0) || [];
+        if (score > 0) {
+          businessResults.push({
+            id: business.id,
+            name: business.business_name,
+            type: 'business' as const,
+            title: business.business_name,
+            description: business.description,
+            category: business.business_category,
+            address: `${business.address || ''} ${business.quartier || ''} ${business.city || ''}`.trim(),
+            verified: business.is_verified,
+            score,
+            businessId: business.id
+          });
+        }
+      });
+      
+      return businessResults.filter(item => item.score > 0);
       
     } catch (error) {
       console.error('Error searching businesses:', error);

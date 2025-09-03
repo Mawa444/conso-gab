@@ -8,8 +8,8 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* 100% Gaboma Design System - Couleurs riches du Gabon */
-    --background: 130 15% 92%; /* Vert très clair inspiré de la nature gabonaise - assombri de 5% */
+    /* Couleurs officielles du Gabon - HSL correctement formatées */
+    --background: 130 15% 97%;
     --foreground: 0 0% 9%;
 
     --card: 0 0% 100%;
@@ -18,18 +18,18 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
 
-    /* Couleurs officielles du Gabon enrichies */
-    --gaboma-green: 140 100% 29%; /* #009639 - Vert du drapeau exact */
-    --gaboma-green-light: 140 60% 45%; /* Version plus claire */
-    --gaboma-green-dark: 140 100% 25%; /* Version plus foncée */
+    /* Palette Gaboma - Couleurs nationales */
+    --gaboma-green: 140 85% 35%;
+    --gaboma-green-light: 140 60% 50%;
+    --gaboma-green-dark: 140 90% 25%;
     
-    --gaboma-yellow: 48 100% 50%; /* #FFD100 - Jaune du drapeau exact */
-    --gaboma-yellow-light: 48 80% 60%; /* Version plus claire */
-    --gaboma-yellow-dark: 48 100% 40%; /* Version plus foncée */
+    --gaboma-yellow: 48 95% 55%;
+    --gaboma-yellow-light: 48 80% 65%;
+    --gaboma-yellow-dark: 48 100% 45%;
     
-    --gaboma-blue: 215 51% 50%; /* #3A75C4 - Bleu du drapeau exact */
-    --gaboma-blue-light: 215 40% 60%; /* Version plus claire */
-    --gaboma-blue-dark: 215 70% 40%; /* Version plus foncée */
+    --gaboma-blue: 215 60% 50%;
+    --gaboma-blue-light: 215 50% 65%;
+    --gaboma-blue-dark: 215 70% 35%;
     
     --primary: var(--gaboma-green);
     --primary-foreground: 0 0% 100%;

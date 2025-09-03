@@ -7,6 +7,7 @@ import { Plus, Eye, EyeOff, Edit, Trash2, Package, TrendingUp } from 'lucide-rea
 import { useCatalogManagement } from '@/hooks/use-catalog-management';
 import { EnhancedCatalogCreationWizard } from './EnhancedCatalogCreationWizard';
 import { ProductManager } from './ProductManager';
+import { ProductListWithCatalogCreation } from '../products/ProductListWithCatalogCreation';
 import { SEOScoreCoach } from './SEOScoreCoach';
 
 interface EnhancedCatalogManagerProps {
@@ -105,7 +106,11 @@ export const EnhancedCatalogManager = ({ businessId }: EnhancedCatalogManagerPro
           </TabsList>
 
           <TabsContent value="products">
-            <ProductManager catalogId={selectedCatalog} businessId={businessId} />
+            <ProductListWithCatalogCreation 
+              catalogId={selectedCatalog} 
+              businessId={businessId}
+              showCatalogCreation={false}
+            />
           </TabsContent>
 
           <TabsContent value="seo">
