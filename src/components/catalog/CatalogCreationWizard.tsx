@@ -10,10 +10,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Upload, ArrowLeft, ArrowRight, Check, Camera, Tags, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ImageEnforcer } from "./ImageEnforcer";
+import { MultiImageEnforcer } from "./MultiImageEnforcer";
+
+interface ImageData {
+  url: string;
+  path: string;
+  id: string;
+}
 
 interface CatalogData {
-  cover_url: string | null;
+  images: ImageData[];
+  cover_index: number;
   name: string;
   description: string;
   category: string;
@@ -50,7 +57,8 @@ const ZONE_LABELS = {
 export const CatalogCreationWizard = ({ onComplete, onCancel, businessId }: CatalogCreationWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [catalogData, setCatalogData] = useState<CatalogData>({
-    cover_url: null,
+    images: [],
+    cover_index: 0,
     name: "",
     description: "",
     category: "",
@@ -89,10 +97,10 @@ const progress = (currentStep / 3) * 100;
           });
           return false;
         }
-        if (!catalogData.cover_url) {
+        if (catalogData.images.length < 4) {
           toast({
-            title: "Image obligatoire",
-            description: "Une image de couverture est requise pour votre catalogue",
+            title: "Images obligatoires",
+            description: "Au minimum 4 images sont requises pour créer un catalogue",
             variant: "destructive"
           });
           return false;
@@ -157,8 +165,12 @@ const progress = (currentStep / 3) * 100;
     }));
   };
 
-  const handleImageUploaded = (result: { url: string; path: string }) => {
-    setCatalogData(prev => ({ ...prev, cover_url: result.url }));
+  const handleImagesChanged = (images: ImageData[]) => {
+    setCatalogData(prev => ({ ...prev, images }));
+  };
+
+  const handleCoverChanged = (index: number) => {
+    setCatalogData(prev => ({ ...prev, cover_index: index }));
   };
 
   const handleComplete = () => {
@@ -201,14 +213,18 @@ const progress = (currentStep / 3) * 100;
                 </p>
               </div>
 
-              {/* Upload image */}
-              <ImageEnforcer
-                onImageUploaded={handleImageUploaded}
-                bucket="catalog-covers"
-                folder="covers"
-                currentImageUrl={catalogData.cover_url || undefined}
-                label="Image de couverture *"
-                description="Image carrée 1300×1300px requise, max 2MB"
+              {/* Upload images */}
+              <MultiImageEnforcer
+                onImagesChanged={handleImagesChanged}
+                onCoverChanged={handleCoverChanged}
+                bucket="catalog-images"
+                folder="galleries"
+                currentImages={catalogData.images}
+                coverIndex={catalogData.cover_index}
+                minImages={4}
+                maxImages={8}
+                label="Galerie du catalogue (minimum 4 images) *"
+                description="Format 16:9 automatique, max 2MB chacune"
               />
 
               {/* Nom du catalogue */}

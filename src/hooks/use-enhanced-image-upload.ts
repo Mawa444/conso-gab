@@ -36,13 +36,14 @@ export const useEnhancedImageUpload = () => {
       img.onload = () => {
         const { width, height } = img;
         
-        // Vérifier les dimensions minimales
-        if (width < 1300 || height < 1300) {
+        // Vérifier les dimensions minimales (plus flexible pour 16:9)
+        const minDimension = Math.min(width, height);
+        if (minDimension < 800) {
           resolve({ 
             width, 
             height, 
             isValid: false, 
-            message: 'L\'image doit faire au minimum 1300x1300 pixels' 
+            message: 'L\'image doit faire au minimum 800px sur sa plus petite dimension' 
           });
           return;
         }
@@ -200,8 +201,8 @@ export const useEnhancedImageUpload = () => {
       let message = 'Échec du téléversement de l\'image';
       if (error.message.includes('trop volumineuse')) {
         message = '❌ Votre image dépasse 2 MB après optimisation. Essayez un fond plus simple ou moins de texte.';
-      } else if (error.message.includes('1300')) {
-        message = '❌ L\'image doit être au moins 1300×1300 ou recadrée au format carré.';
+      } else if (error.message.includes('800')) {
+        message = '❌ L\'image doit être au moins 800px sur sa plus petite dimension.';
       }
 
       toast({
