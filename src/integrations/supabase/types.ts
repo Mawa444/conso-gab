@@ -209,6 +209,7 @@ export type Database = {
           geo_city: string | null
           geo_district: string | null
           id: string
+          images: Json | null
           is_active: boolean | null
           is_public: boolean | null
           keywords: string[] | null
@@ -233,6 +234,7 @@ export type Database = {
           geo_city?: string | null
           geo_district?: string | null
           id?: string
+          images?: Json | null
           is_active?: boolean | null
           is_public?: boolean | null
           keywords?: string[] | null
@@ -257,6 +259,7 @@ export type Database = {
           geo_city?: string | null
           geo_district?: string | null
           id?: string
+          images?: Json | null
           is_active?: boolean | null
           is_public?: boolean | null
           keywords?: string[] | null

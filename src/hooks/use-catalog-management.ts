@@ -34,10 +34,15 @@ export const useCatalogManagement = (businessId: string) => {
 
   // Create catalog mutation
   const createCatalogMutation = useMutation({
-    mutationFn: async (catalogData: Omit<CatalogInsert, 'business_id'>) => {
+    mutationFn: async (catalogData: Omit<CatalogInsert, 'business_id'> & { images?: any[] }) => {
+      const { images, ...catalogInsert } = catalogData;
       const { data, error } = await supabase
         .from('catalogs')
-        .insert({ ...catalogData, business_id: businessId })
+        .insert({ 
+          ...catalogInsert, 
+          business_id: businessId,
+          images: images || []
+        })
         .select()
         .single();
       

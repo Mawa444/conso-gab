@@ -18,7 +18,9 @@ interface CatalogDashboardProps {
 }
 
 export const CatalogDashboard = ({ businessId, businessName, businessCategory }: CatalogDashboardProps) => {
-  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics' | 'createProduct' | 'visibility'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics' | 'createProduct' | 'visibility' | 'catalogs'>('dashboard');
+  const [selectedCatalogId, setSelectedCatalogId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'catalogs' | 'products'>('catalogs');
   
   // Real data hooks
   const {
@@ -63,8 +65,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
     setActiveView('dashboard');
   };
 
-  const handleProductComplete = (productData: any) => {
-    console.log("Produit créé:", productData);
+  const handleProductComplete = () => {
     setActiveView('dashboard');
   };
 
