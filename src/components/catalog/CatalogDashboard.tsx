@@ -8,6 +8,7 @@ import { CatalogCreationWizard } from "./CatalogCreationWizard";
 import { CatalogManager } from "./CatalogManager";
 import { EnhancedProductCreationWizard } from "../products/EnhancedProductCreationWizard";
 import { CatalogVisibilityManager } from "./CatalogVisibilityManager";
+import { CatalogManagementPage } from "./CatalogManagementPage";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useProductManagement } from "@/hooks/use-product-management";
 
@@ -18,7 +19,7 @@ interface CatalogDashboardProps {
 }
 
 export const CatalogDashboard = ({ businessId, businessName, businessCategory }: CatalogDashboardProps) => {
-  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics' | 'createProduct' | 'visibility' | 'catalogs'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics' | 'createProduct' | 'visibility' | 'catalogs' | 'managementPage'>('dashboard');
   const [selectedCatalogId, setSelectedCatalogId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'catalogs' | 'products'>('catalogs');
   
@@ -58,7 +59,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
 
   const handleWizardComplete = (catalogData: any) => {
     console.log("Catalogue créé:", catalogData);
-    setActiveView('dashboard');
+    setActiveView('managementPage');
   };
 
   const handleWizardCancel = () => {
@@ -157,9 +158,32 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
     );
   }
 
+  // Page de gestion avancée des catalogues
+  if (activeView === 'managementPage') {
+    return (
+      <CatalogManagementPage
+        businessId={businessId}
+        businessName={businessName}
+        businessCategory={businessCategory}
+        onBack={() => setActiveView('dashboard')}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div />
+          <Button 
+            variant="outline" 
+            onClick={() => setActiveView('managementPage')}
+            className="gap-2"
+          >
+            <Package className="w-4 h-4" />
+            Gestion avancée
+          </Button>
+        </div>
         <h2 className="text-2xl font-bold mb-2">Gestion des Catalogues</h2>
         <p className="text-muted-foreground">
           Créez et gérez vos catalogues de produits pour {businessName}
@@ -209,7 +233,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
         </Card>
 
         {/* Gérer mes catalogues */}
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={handleManageCatalogs}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setActiveView('managementPage')}>
           <CardContent className="p-6 text-center">
             <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Package className="w-8 h-8 text-secondary" />
@@ -219,7 +243,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
               Modifiez, organisez et mettez à jour vos catalogues existants
             </p>
             <Button variant="outline" className="w-full">
-              Gérer les catalogues
+              Accéder à la gestion
             </Button>
           </CardContent>
         </Card>
