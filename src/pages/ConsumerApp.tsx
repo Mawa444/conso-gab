@@ -3,7 +3,6 @@ import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { Header } from "@/components/layout/Header";
 import { HomePage } from "@/pages/HomePage";
 import { MapPage } from "@/pages/MapPage";
-import { RankingsPage } from "@/pages/RankingsPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { QRScanner } from "@/components/scanner/QRScanner";
 import { MessageModal } from "@/components/messaging/MessageModal";
@@ -34,7 +33,6 @@ const ConsumerApp = () => {
     switch (activeTab) {
       case "home": return "Découvrir";
       case "map": return "Carte";
-      case "rankings": return "Classements";
       case "profile": return "Profil";
       default: return "Découvrir";
     }
@@ -43,7 +41,6 @@ const ConsumerApp = () => {
   useEffect(() => {
     const path = location.pathname;
     if (path.startsWith("/consumer/map")) setActiveTab("map");
-    else if (path.startsWith("/consumer/rankings")) setActiveTab("rankings");
     else if (path.startsWith("/consumer/profile")) setActiveTab("profile");
     else setActiveTab("home");
   }, [location.pathname]);
@@ -70,7 +67,7 @@ const ConsumerApp = () => {
     trackTabChange(activeTab, tab);
 
     // Déterminer la direction du slide
-    const tabOrder = ["home", "map", "rankings", "profile"];
+    const tabOrder = ["home", "map", "profile"];
     const currentIndex = tabOrder.indexOf(activeTab);
     const newIndex = tabOrder.indexOf(tab);
     const direction = newIndex > currentIndex ? 'right' : 'left';
@@ -119,8 +116,6 @@ const ConsumerApp = () => {
       switch (activeTab) {
         case "map":
           return <MapPage onBack={() => setActiveTab("home")} />;
-        case "rankings":
-          return <RankingsPage onBack={() => setActiveTab("home")} />;
         case "profile":
           return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
         default:

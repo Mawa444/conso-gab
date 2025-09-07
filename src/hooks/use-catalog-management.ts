@@ -34,27 +34,39 @@ export const useCatalogManagement = (businessId: string) => {
 
   // Create catalog mutation
   const createCatalogMutation = useMutation({
-    mutationFn: async (catalogData: Omit<CatalogInsert, 'business_id'> & { images?: any[] }) => {
-      const { images, ...catalogInsert } = catalogData;
+    mutationFn: async (catalogData: Omit<CatalogInsert, 'business_id'> & { images?: any[]; title?: string }) => {
+      console.log('Creating catalog with data:', catalogData);
+      const { images, title, ...catalogInsert } = catalogData;
       
       // Ensure RLS will work by including the authenticated user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        throw new Error('User must be authenticated to create a catalog');
+        throw new Error('Utilisateur non authentifié');
       }
+      
+      console.log('Current user:', user.id);
+      console.log('Business ID:', businessId);
+      
+      const insertData = { 
+        ...catalogInsert, 
+        business_id: businessId,
+        images: images || [],
+        name: title || catalogInsert.name || 'Catalogue sans nom'
+      };
+      
+      console.log('Insert data:', insertData);
       
       const { data, error } = await supabase
         .from('catalogs')
-        .insert({ 
-          ...catalogInsert, 
-          business_id: businessId,
-          images: images || []
-        })
+        .insert(insertData)
         .select()
-        .maybeSingle();
+        .single();
       
-      if (error) throw error;
-      if (!data) throw new Error('Failed to create catalog');
+      if (error) {
+        console.error('Catalog creation error:', error);
+        throw new Error(`Impossible de créer le catalogue: ${error.message}`);
+      }
+      
       return data;
     },
     onSuccess: () => {

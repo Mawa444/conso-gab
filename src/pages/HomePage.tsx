@@ -9,8 +9,9 @@ import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
 import { OperatorDashboardModal } from "@/components/business/OperatorDashboardModal";
 import { useBusinessList } from "@/hooks/use-business-list";
 import { useNavigate } from "react-router-dom";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, Grid3X3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const sponsoredCommerces = [
   {
@@ -218,6 +219,29 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
             </button>
           ))}
         </div>
+
+        {/* Section Catalogues publics */}
+        <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Catalogues publics</h3>
+                <p className="text-sm text-muted-foreground">
+                  Découvrez tous les catalogues des commerces
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/catalogs')}
+                className="gap-2"
+              >
+                <Grid3X3 className="w-4 h-4" />
+                Voir tout
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Section Publicité Partenaire */}
         <div className="space-y-4">

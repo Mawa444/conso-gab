@@ -10,7 +10,6 @@ const navItems = [
   { id: "home", icon: Home, label: "Accueil" },
   { id: "map", icon: MapPin, label: "Carte" },
   { id: "scanner", icon: QrCode, label: "Scanner", isMain: true },
-  { id: "rankings", icon: Trophy, label: "Classements" },
   { id: "profile", icon: User, label: "Profil" },
 ];
 

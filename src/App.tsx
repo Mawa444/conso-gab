@@ -13,6 +13,7 @@ import { ProductDetailPage } from "./pages/ProductDetailPage";
 import { PromotionDetailPage } from "./pages/PromotionDetailPage";
 import { PersonalRankingsPage } from "./pages/PersonalRankingsPage";
 import { CategoryPage } from "./pages/CategoryPage";
+import { PublicCatalogsPage } from "./pages/PublicCatalogsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/promotion/:id" element={<PromotionDetailPage />} />
               <Route path="/rankings/personal" element={<PersonalRankingsPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
+              <Route path="/catalogs" element={<PublicCatalogsPage />} />
               
               {/* Route par défaut : page d'authentification */}
               <Route path="/" element={<AuthFlowPage onComplete={() => {}} />} />
