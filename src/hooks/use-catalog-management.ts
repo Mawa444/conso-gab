@@ -36,6 +36,13 @@ export const useCatalogManagement = (businessId: string) => {
   const createCatalogMutation = useMutation({
     mutationFn: async (catalogData: Omit<CatalogInsert, 'business_id'> & { images?: any[] }) => {
       const { images, ...catalogInsert } = catalogData;
+      
+      // Ensure RLS will work by including the authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User must be authenticated to create a catalog');
+      }
+      
       const { data, error } = await supabase
         .from('catalogs')
         .insert({ 
@@ -44,9 +51,10 @@ export const useCatalogManagement = (businessId: string) => {
           images: images || []
         })
         .select()
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
+      if (!data) throw new Error('Failed to create catalog');
       return data;
     },
     onSuccess: () => {

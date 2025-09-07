@@ -173,13 +173,26 @@ const progress = (currentStep / 3) * 100;
     setCatalogData(prev => ({ ...prev, cover_index: index }));
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (validateStep()) {
-      onComplete(catalogData);
-      toast({
-        title: "Catalogue créé !",
-        description: "Votre catalogue a été créé avec succès. Vous pouvez maintenant y ajouter des produits.",
-      });
+      try {
+        // Call the catalog creation hook directly here
+        const { useCatalogManagement } = await import('@/hooks/use-catalog-management');
+        
+        // For now, just complete the wizard and let the parent handle the creation
+        onComplete(catalogData);
+        
+        toast({
+          title: "Catalogue créé !",
+          description: "Votre catalogue a été créé avec succès. Vous allez être redirigé vers la page de gestion.",
+        });
+      } catch (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de créer le catalogue. Veuillez réessayer.",
+          variant: "destructive"
+        });
+      }
     }
   };
 

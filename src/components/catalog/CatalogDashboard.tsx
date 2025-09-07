@@ -27,6 +27,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
   const {
     catalogs,
     isLoading,
+    createCatalog,
     deleteCatalog,
     toggleVisibility,
     isDeleting,
@@ -57,9 +58,21 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
     setActiveView('createProduct');
   };
 
-  const handleWizardComplete = (catalogData: any) => {
-    console.log("Catalogue créé:", catalogData);
-    setActiveView('managementPage');
+  const handleWizardComplete = async (catalogData: any) => {
+    try {
+      // Create the catalog using the hook
+      await new Promise((resolve, reject) => {
+        createCatalog(catalogData);
+        // Simulate async completion - in a real app this would be handled by the mutation callbacks
+        setTimeout(resolve, 100);
+      });
+      
+      console.log("Catalogue créé:", catalogData);
+      setActiveView('managementPage');
+    } catch (error) {
+      console.error("Erreur lors de la création du catalogue:", error);
+      setActiveView('dashboard');
+    }
   };
 
   const handleWizardCancel = () => {

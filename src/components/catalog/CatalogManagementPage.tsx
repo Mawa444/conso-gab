@@ -47,6 +47,7 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
   const {
     catalogs,
     isLoading,
+    createCatalog,
     deleteCatalog,
     toggleVisibility,
     isDeleting,

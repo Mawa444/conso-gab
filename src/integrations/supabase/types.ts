@@ -206,6 +206,7 @@ export type Database = {
           created_at: string
           description: string | null
           display_order: number | null
+          folder: string | null
           geo_city: string | null
           geo_district: string | null
           id: string
@@ -231,6 +232,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           display_order?: number | null
+          folder?: string | null
           geo_city?: string | null
           geo_district?: string | null
           id?: string
@@ -256,6 +258,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           display_order?: number | null
+          folder?: string | null
           geo_city?: string | null
           geo_district?: string | null
           id?: string
