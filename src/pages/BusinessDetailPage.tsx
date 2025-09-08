@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CatalogDashboard } from "@/components/catalog/CatalogDashboard";
+import { BusinessCatalogView } from "@/components/business/BusinessCatalogView";
 import { ProfessionalDashboard } from "@/components/professional/ProfessionalDashboard";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { FavoritesSection } from "@/components/profile/FavoritesSection";
@@ -105,7 +105,7 @@ export const BusinessDetailPage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [activeTab, setActiveTab] = useState("info");
+  const [activeTab, setActiveTab] = useState("catalog");
   const [proSubTab, setProSubTab] = useState("dashboard");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [businessData, setBusinessData] = useState({
@@ -346,13 +346,12 @@ export const BusinessDetailPage = () => {
         {/* Tabs de contenu */}
         <div className="mt-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="info" className="text-xs">Infos</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="catalog" className="text-xs">
                 Catalogues
               </TabsTrigger>
+              <TabsTrigger value="info" className="text-xs">Infos</TabsTrigger>
               <TabsTrigger value="reviews" className="text-xs">Avis</TabsTrigger>
-              <TabsTrigger value="team" className="text-xs">Équipe</TabsTrigger>
               <TabsTrigger value="favorites" className="text-xs">Favoris</TabsTrigger>
               <TabsTrigger value="pro" className="text-xs">Pro</TabsTrigger>
             </TabsList>
@@ -439,10 +438,9 @@ export const BusinessDetailPage = () => {
             </TabsContent>
 
             <TabsContent value="catalog" className="mt-6">
-              <CatalogDashboard
+              <BusinessCatalogView
                 businessId={business.id}
                 businessName={business.name}
-                businessCategory={business.type}
               />
             </TabsContent>
 
@@ -457,30 +455,6 @@ export const BusinessDetailPage = () => {
               ))}
             </TabsContent>
 
-            <TabsContent value="team" className="space-y-4 mt-6">
-              <Card>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    Équipe ({business.employees.length} personnes)
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {business.employees.map((employee, index) => (
-                      <div key={index} className="text-center">
-                        <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-white font-semibold mb-2 mx-auto">
-                          {employee[0]}
-                        </div>
-                        <p className="text-sm font-medium">{employee}</p>
-                        <div className="flex items-center justify-center gap-1 mt-1">
-                          <Star className="w-3 h-3 fill-[hsl(var(--gaboma-yellow))] text-[hsl(var(--gaboma-yellow))]" />
-                          <span className="text-xs">4.{7 + index}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             <TabsContent value="favorites" className="mt-6">
               <FavoritesSection userType="business" />
