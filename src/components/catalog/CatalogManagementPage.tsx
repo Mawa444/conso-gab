@@ -11,9 +11,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { CatalogCreationWizard } from "./CatalogCreationWizard";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useToast } from "@/hooks/use-toast";
+import { CatalogCreateForm } from "./CatalogCreateForm";
 
 interface CatalogManagementPageProps {
   businessId: string;
@@ -146,10 +146,10 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
 
   if (showCreateWizard) {
     return (
-      <CatalogCreationWizard
-        onComplete={handleCreateComplete}
-        onCancel={() => setShowCreateWizard(false)}
+      <CatalogCreateForm
         businessId={businessId}
+        onCancel={() => setShowCreateWizard(false)}
+        onCreated={() => setShowCreateWizard(false)}
       />
     );
   }

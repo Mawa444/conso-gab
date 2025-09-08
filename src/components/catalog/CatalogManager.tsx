@@ -11,7 +11,7 @@ import {
   Plus, MoreHorizontal, Edit3, Trash2, Eye, EyeOff, 
   Package, BarChart3, Search, Filter, Star, MapPin
 } from "lucide-react";
-import { CatalogCreationWizard } from "./CatalogCreationWizard";
+import { CatalogCreateForm } from "./CatalogCreateForm";
 import { useToast } from "@/hooks/use-toast";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useProductManagement } from "@/hooks/use-product-management";
@@ -160,10 +160,10 @@ export const CatalogManager = ({ businessId, businessCategory }: CatalogManagerP
                 <DialogHeader>
                   <DialogTitle>Créer un nouveau catalogue</DialogTitle>
                 </DialogHeader>
-                <CatalogCreationWizard
-                  onComplete={handleCreateCatalog}
-                  onCancel={() => setShowCreateWizard(false)}
+                <CatalogCreateForm
                   businessId={businessId}
+                  onCancel={() => setShowCreateWizard(false)}
+                  onCreated={() => setShowCreateWizard(false)}
                 />
               </DialogContent>
             </Dialog>

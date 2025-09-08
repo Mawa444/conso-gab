@@ -5,10 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Eye, EyeOff, Edit, Trash2, Package, TrendingUp } from 'lucide-react';
 import { useCatalogManagement } from '@/hooks/use-catalog-management';
-import { EnhancedCatalogCreationWizard } from './EnhancedCatalogCreationWizard';
 import { ProductManager } from './ProductManager';
 import { ProductListWithCatalogCreation } from '../products/ProductListWithCatalogCreation';
 import { SEOScoreCoach } from './SEOScoreCoach';
+import { CatalogCreateForm } from './CatalogCreateForm';
 
 interface EnhancedCatalogManagerProps {
   businessId: string;
@@ -66,11 +66,13 @@ export const EnhancedCatalogManager = ({ businessId }: EnhancedCatalogManagerPro
 
   if (showCreateWizard) {
     return (
-      <EnhancedCatalogCreationWizard
-        onComplete={handleCreateCatalog}
-        onCancel={() => setShowCreateWizard(false)}
-        businessId={businessId}
-      />
+      <div className="max-w-3xl mx-auto">
+        <CatalogCreateForm
+          businessId={businessId}
+          onCancel={() => setShowCreateWizard(false)}
+          onCreated={() => setShowCreateWizard(false)}
+        />
+      </div>
     );
   }
 
