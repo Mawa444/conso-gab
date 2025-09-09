@@ -164,6 +164,7 @@ export const CatalogManager = ({ businessId, businessCategory }: CatalogManagerP
                   businessId={businessId}
                   onCancel={() => setShowCreateWizard(false)}
                   onCreated={() => setShowCreateWizard(false)}
+                  isModal={false}
                 />
               </DialogContent>
             </Dialog>

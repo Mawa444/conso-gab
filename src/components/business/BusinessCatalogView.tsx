@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Eye, Star, Package, Calendar } from "lucide-react";
 import { mockCatalogs, getCatalogsByBusinessId, type MockCatalog } from "@/data/mockCatalogs";
+import { CatalogInteractionModal } from "@/components/catalog/CatalogInteractionModal";
 
 interface BusinessCatalogViewProps {
   businessId: string;
@@ -12,6 +13,7 @@ interface BusinessCatalogViewProps {
 
 export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalogViewProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({});
+  const [selectedCatalog, setSelectedCatalog] = useState<MockCatalog | null>(null);
   
   const catalogs = getCatalogsByBusinessId(businessId);
 
@@ -171,9 +173,10 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
                   <div className="flex gap-3">
                     <Button 
                       className="flex-1 bg-gradient-to-r from-primary to-accent text-white hover:opacity-90"
+                      onClick={() => setSelectedCatalog(catalog)}
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      Voir les produits
+                      Voir et interagir
                     </Button>
                   </div>
                 </CardContent>
@@ -182,6 +185,29 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
           );
         })}
       </div>
+
+      {/* Modal d'interaction */}
+      {selectedCatalog && (
+        <CatalogInteractionModal
+          isOpen={!!selectedCatalog}
+          onClose={() => setSelectedCatalog(null)}
+          catalog={{
+            id: selectedCatalog.id,
+            name: selectedCatalog.name,
+            description: selectedCatalog.description,
+            images: selectedCatalog.images,
+            business: {
+              id: businessId,
+              name: businessName
+            },
+            stats: {
+              likes: Math.floor(Math.random() * 50) + 10,
+              comments: Math.floor(Math.random() * 20) + 5,
+              views: selectedCatalog.product_count * 15
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

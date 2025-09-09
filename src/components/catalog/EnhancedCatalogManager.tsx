@@ -71,6 +71,7 @@ export const EnhancedCatalogManager = ({ businessId }: EnhancedCatalogManagerPro
           businessId={businessId}
           onCancel={() => setShowCreateWizard(false)}
           onCreated={() => setShowCreateWizard(false)}
+          isModal={false}
         />
       </div>
     );

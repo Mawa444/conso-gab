@@ -150,6 +150,7 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
         businessId={businessId}
         onCancel={() => setShowCreateWizard(false)}
         onCreated={() => setShowCreateWizard(false)}
+        isModal={false}
       />
     );
   }

@@ -16,7 +16,9 @@ export interface CreateCatalogInput {
   cover_url?: string;
   geo_city?: string;
   geo_district?: string;
-  availability_zone?: string; // 'city' | 'district' | ...
+  availability_zone?: string;
+  keywords?: string[];
+  synonyms?: string[];
 }
 
 export const useCreateCatalog = (businessId: string) => {
@@ -41,6 +43,8 @@ export const useCreateCatalog = (businessId: string) => {
         geo_city: payload.geo_city || null,
         geo_district: payload.geo_district || null,
         availability_zone: (payload.availability_zone as any) || 'city',
+        keywords: payload.keywords || [],
+        synonyms: payload.synonyms || [],
         // Keep both visibility and is_public in sync for now
         visibility: payload.isPublic ? 'public' : 'draft',
         is_public: !!payload.isPublic,

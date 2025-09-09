@@ -93,6 +93,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
         businessId={businessId}
         onCancel={handleWizardCancel}
         onCreated={() => setActiveView('managementPage')}
+        isModal={false}
       />
     );
   }
