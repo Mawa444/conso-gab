@@ -189,22 +189,11 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
       {/* Modal d'interaction */}
       {selectedCatalog && (
         <CatalogInteractionModal
-          isOpen={!!selectedCatalog}
+          open={!!selectedCatalog}
           onClose={() => setSelectedCatalog(null)}
           catalog={{
-            id: selectedCatalog.id,
-            name: selectedCatalog.name,
-            description: selectedCatalog.description,
-            images: selectedCatalog.images,
-            business: {
-              id: businessId,
-              name: businessName
-            },
-            stats: {
-              likes: Math.floor(Math.random() * 50) + 10,
-              comments: Math.floor(Math.random() * 20) + 5,
-              views: selectedCatalog.product_count * 15
-            }
+            ...selectedCatalog,
+            catalog_type: 'products'
           }}
         />
       )}

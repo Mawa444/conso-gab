@@ -391,7 +391,7 @@ export const UnifiedCatalogView = ({ userId }: UnifiedCatalogViewProps) => {
       {/* Interaction Modal */}
       {selectedCatalog && (
         <CatalogInteractionModal
-          isOpen={!!selectedCatalog}
+          open={!!selectedCatalog}
           onClose={() => setSelectedCatalog(null)}
           catalog={selectedCatalog}
         />

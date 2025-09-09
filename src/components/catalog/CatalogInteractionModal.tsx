@@ -1,377 +1,503 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  Heart, 
-  MessageSquare, 
-  Share2, 
-  Send, 
-  Star,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  Package
+  Star, 
+  ThumbsUp, 
+  MessageCircle, 
+  Phone, 
+  Mail, 
+  MapPin,
+  Clock,
+  Send,
+  Heart,
+  Share2,
+  Flag,
+  Truck,
+  Percent,
+  Package,
+  Store
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useCatalogComments, useCatalogLikes, useCatalogImageComments, useCatalogImageLikes } from '@/hooks/use-catalog-interactions';
+
+interface Catalog {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  subcategory?: string;
+  catalog_type: 'products' | 'services';
+  images?: any[];
+  cover_url?: string;
+  cover_image_url?: string;
+  business_id: string;
+  geo_city?: string;
+  geo_district?: string;
+  keywords?: string[];
+  on_sale?: boolean;
+  sale_percentage?: number;
+  delivery_available?: boolean;
+  delivery_zones?: string[];
+  delivery_cost?: number;
+  contact_whatsapp?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  business_hours?: any;
+}
 
 interface CatalogInteractionModalProps {
-  isOpen: boolean;
+  catalog: Catalog;
+  open: boolean;
   onClose: () => void;
-  catalog: {
-    id: string;
-    name: string;
-    description: string;
-    images: string[];
-    business: {
-      id: string;
-      name: string;
-      avatar?: string;
-    };
-    stats: {
-      likes: number;
-      comments: number;
-      views: number;
-    };
-  };
 }
 
-interface Comment {
-  id: string;
-  user: {
-    name: string;
-    avatar?: string;
-  };
-  text: string;
-  createdAt: string;
-  imageIndex?: number;
-}
-
-export const CatalogInteractionModal = ({ isOpen, onClose, catalog }: CatalogInteractionModalProps) => {
-  const { toast } = useToast();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(catalog.stats.likes);
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: '1',
-      user: { name: 'Marie Dupont', avatar: '/placeholder.svg' },
-      text: 'Magnifique collection ! J\'adore les couleurs.',
-      createdAt: '2024-01-15T10:30:00Z'
-    },
-    {
-      id: '2',
-      user: { name: 'Jean Martin' },
-      text: 'Très belle présentation, bravo !',
-      createdAt: '2024-01-15T09:15:00Z'
-    }
-  ]);
-  
+export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInteractionModalProps) => {
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [newComment, setNewComment] = useState('');
-  const [newMessage, setNewMessage] = useState('');
-  const [selectedImageComments, setSelectedImageComments] = useState<Comment[]>([
-    {
-      id: '3',
-      user: { name: 'Sophie Leblanc' },
-      text: 'Ce produit est exactement ce que je cherche !',
-      createdAt: '2024-01-15T11:00:00Z',
-      imageIndex: 0
-    }
-  ]);
   const [newImageComment, setNewImageComment] = useState('');
+  const [selectedImageForComment, setSelectedImageForComment] = useState<string | null>(null);
+  const [commentRating, setCommentRating] = useState(5);
+  
+  // Hooks pour les interactions
+  const { comments, addComment, isAdding } = useCatalogComments(catalog.id);
+  const { likesCount, isLiked, toggleLike, isToggling } = useCatalogLikes(catalog.id);
+  
+  const images = catalog.images || [];
+  const selectedImage = images[selectedImageIndex];
+  
+  // Hooks pour les interactions sur l'image sélectionnée
+  const { 
+    likesCount: imageLikesCount, 
+    isLiked: isImageLiked, 
+    toggleLike: toggleImageLike 
+  } = useCatalogImageLikes(catalog.id, selectedImage?.url || '');
+  
+  const { 
+    comments: imageComments, 
+    addComment: addImageComment 
+  } = useCatalogImageComments(catalog.id, selectedImage?.url || '');
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-    toast({
-      title: isLiked ? "Like retiré" : "Catalogue liké !",
-      description: isLiked ? "Vous n'aimez plus ce catalogue" : "Merci pour votre soutien"
-    });
+  const handleSendComment = () => {
+    if (newComment.trim()) {
+      addComment({ comment: newComment, rating: commentRating });
+      setNewComment('');
+      setCommentRating(5);
+    }
   };
 
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-    
-    const comment: Comment = {
-      id: Date.now().toString(),
-      user: { name: 'Vous' },
-      text: newComment.trim(),
-      createdAt: new Date().toISOString()
-    };
-    
-    setComments([comment, ...comments]);
-    setNewComment('');
-    toast({ title: "Commentaire ajouté !" });
-  };
-
-  const handleAddImageComment = () => {
-    if (!newImageComment.trim()) return;
-    
-    const comment: Comment = {
-      id: Date.now().toString(),
-      user: { name: 'Vous' },
-      text: newImageComment.trim(),
-      createdAt: new Date().toISOString(),
-      imageIndex: currentImageIndex
-    };
-    
-    setSelectedImageComments([comment, ...selectedImageComments]);
-    setNewImageComment('');
-    toast({ title: "Commentaire sur l'image ajouté !" });
+  const handleSendImageComment = () => {
+    if (newImageComment.trim() && selectedImageForComment) {
+      addImageComment({ comment: newImageComment });
+      setNewImageComment('');
+      setSelectedImageForComment(null);
+    }
   };
 
   const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+    // TODO: Implémenter l'envoi de message direct
+    console.log('Envoyer message au business');
+  };
+
+  const formatBusinessHours = (hours: any) => {
+    if (!hours) return [];
     
-    toast({
-      title: "Message envoyé !",
-      description: `Votre message a été envoyé à ${catalog.business.name}`
-    });
-    setNewMessage('');
-  };
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const dayNames = {
+      monday: 'Lundi',
+      tuesday: 'Mardi', 
+      wednesday: 'Mercredi',
+      thursday: 'Jeudi',
+      friday: 'Vendredi',
+      saturday: 'Samedi',
+      sunday: 'Dimanche'
+    };
     
-    if (diffInHours < 1) return 'Il y a moins d\'une heure';
-    if (diffInHours < 24) return `Il y a ${diffInHours}h`;
-    return `Il y a ${Math.floor(diffInHours / 24)}j`;
-  };
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % catalog.images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + catalog.images.length) % catalog.images.length);
+    return Object.entries(hours).map(([day, info]: [string, any]) => ({
+      day: dayNames[day as keyof typeof dayNames],
+      ...info
+    }));
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src={catalog.business.avatar} />
-              <AvatarFallback>
-                {catalog.business.name.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="font-bold">{catalog.name}</h3>
-              <p className="text-sm text-muted-foreground">{catalog.business.name}</p>
-            </div>
-          </DialogTitle>
-        </DialogHeader>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden p-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 h-[80vh]">
+          {/* Colonne gauche - Images */}
+          <div className="relative bg-black">
+            {images.length > 0 && selectedImage ? (
+              <img 
+                src={selectedImage.url} 
+                alt={catalog.name}
+                className="w-full h-full object-cover"
+              />
+            ) : catalog.cover_image_url || catalog.cover_url ? (
+              <img 
+                src={catalog.cover_image_url || catalog.cover_url} 
+                alt={catalog.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                {catalog.catalog_type === 'products' ? (
+                  <Package className="w-16 h-16 text-muted-foreground" />
+                ) : (
+                  <Store className="w-16 h-16 text-muted-foreground" />
+                )}
+                <span className="text-muted-foreground ml-2">Aucune image</span>
+              </div>
+            )}
+            
+            {/* Navigation des images */}
+            {images.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-lg">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`w-12 h-12 rounded overflow-hidden border-2 ${
+                      index === selectedImageIndex ? 'border-white' : 'border-transparent'
+                    }`}
+                  >
+                    <img 
+                      src={images[index]?.url} 
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {/* Actions sur l'image */}
+            {selectedImage && (
+              <div className="absolute top-4 right-4 flex gap-2">
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  className={`bg-white/90 hover:bg-white ${isImageLiked ? 'text-red-600' : ''}`}
+                  onClick={() => toggleImageLike()}
+                >
+                  <Heart className={`w-4 h-4 ${isImageLiked ? 'fill-current' : ''}`} />
+                  <span className="ml-1 text-xs">{imageLikesCount}</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  className="bg-white/90 hover:bg-white"
+                  onClick={() => setSelectedImageForComment(selectedImage?.url || null)}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="ml-1 text-xs">{imageComments.length}</span>
+                </Button>
+              </div>
+            )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Section images */}
-          <div className="space-y-4">
-            <div className="relative">
-              <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg overflow-hidden">
-                <img
-                  src={catalog.images[currentImageIndex]}
-                  alt={`${catalog.name} - Image ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                
-                {catalog.images.length > 1 && (
+            {/* Badges informatifs */}
+            <div className="absolute top-4 left-4 flex flex-col gap-2">
+              {catalog.catalog_type === 'services' && (
+                <Badge className="bg-blue-500/90 text-white">
+                  <Store className="w-3 h-3 mr-1" />
+                  Services
+                </Badge>
+              )}
+              {catalog.on_sale && catalog.sale_percentage && catalog.sale_percentage > 0 && (
+                <Badge className="bg-red-500/90 text-white">
+                  <Percent className="w-3 h-3 mr-1" />
+                  -{catalog.sale_percentage}%
+                </Badge>
+              )}
+              {catalog.delivery_available && (
+                <Badge className="bg-green-500/90 text-white">
+                  <Truck className="w-3 h-3 mr-1" />
+                  Livraison
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Colonne droite - Informations et interactions */}
+          <div className="flex flex-col">
+            <DialogHeader className="p-4 border-b">
+              <DialogTitle className="text-xl flex items-center gap-2">
+                {catalog.catalog_type === 'products' ? (
+                  <Package className="w-5 h-5" />
+                ) : (
+                  <Store className="w-5 h-5" />
+                )}
+                {catalog.name}
+              </DialogTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="w-4 h-4" />
+                <span>{catalog.category}</span>
+                {catalog.subcategory && (
                   <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                      onClick={prevImage}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                      onClick={nextImage}
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
+                    <span>•</span>
+                    <span>{catalog.subcategory}</span>
+                  </>
+                )}
+                {catalog.geo_city && (
+                  <>
+                    <span>•</span>
+                    <span>{catalog.geo_city}</span>
                   </>
                 )}
               </div>
-              
-              {/* Pagination dots */}
-              <div className="flex justify-center mt-3 gap-2">
-                {catalog.images.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      index === currentImageIndex ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  />
-                ))}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <ThumbsUp className="w-4 h-4" />
+                  {likesCount} j'aime
+                </span>
+                <span className="flex items-center gap-1">
+                  <MessageCircle className="w-4 h-4" />
+                  {comments.length} commentaires
+                </span>
               </div>
-            </div>
+            </DialogHeader>
 
-            {/* Actions rapides */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLike}
-                  className={isLiked ? 'text-red-500' : ''}
-                >
-                  <Heart className={`w-5 h-5 mr-2 ${isLiked ? 'fill-current' : ''}`} />
-                  {likeCount}
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  {comments.length}
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Eye className="w-5 h-5 mr-2" />
-                  {catalog.stats.views}
-                </Button>
-              </div>
-              <Button variant="ghost" size="sm">
-                <Share2 className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Description */}
-            <Card>
-              <CardContent className="pt-4">
-                <p className="text-sm leading-relaxed">{catalog.description}</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Section interactions */}
-          <div className="space-y-4">
-            <Tabs defaultValue="comments" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+            <Tabs defaultValue="details" className="flex-1 flex flex-col">
+              <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
+                <TabsTrigger value="details">Détails</TabsTrigger>
                 <TabsTrigger value="comments">Commentaires</TabsTrigger>
-                <TabsTrigger value="image-comments">Sur l'image</TabsTrigger>
-                <TabsTrigger value="message">Message</TabsTrigger>
+                <TabsTrigger value="contact">Contact</TabsTrigger>
               </TabsList>
 
-              {/* Commentaires généraux */}
-              <TabsContent value="comments" className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Ajouter un commentaire..."
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
-                    />
-                    <Button onClick={handleAddComment} size="sm">
-                      <Send className="w-4 h-4" />
-                    </Button>
-                  </div>
+              <TabsContent value="details" className="flex-1 p-4">
+                <ScrollArea className="h-full">
+                  {catalog.description && (
+                    <div className="mb-4">
+                      <h4 className="font-medium mb-2">Description</h4>
+                      <p className="text-sm text-muted-foreground">{catalog.description}</p>
+                    </div>
+                  )}
+
+                  {catalog.delivery_available && (
+                    <div className="mb-4">
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Truck className="w-4 h-4" />
+                        Livraison disponible
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        {catalog.delivery_zones && catalog.delivery_zones.length > 0 && (
+                          <div>
+                            <strong>Zones:</strong> {catalog.delivery_zones.join(', ')}
+                          </div>
+                        )}
+                        {catalog.delivery_cost && catalog.delivery_cost > 0 && (
+                          <div>
+                            <strong>Coût:</strong> {catalog.delivery_cost.toLocaleString()} FCFA
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   
-                  <div className="max-h-80 overflow-y-auto space-y-3">
+                  {catalog.keywords && catalog.keywords.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="font-medium mb-2">Mots-clés</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {catalog.keywords.map((keyword, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {keyword}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <Button 
+                      onClick={handleSendMessage}
+                      className="w-full bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Envoyer un message
+                    </Button>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className={`flex-1 ${isLiked ? 'bg-red-50 text-red-600 border-red-200' : ''}`}
+                        onClick={() => toggleLike()}
+                        disabled={isToggling}
+                      >
+                        <ThumbsUp className={`w-4 h-4 mr-2 ${isLiked ? 'fill-current' : ''}`} />
+                        {isLiked ? 'Aimé' : 'J\'aime'} ({likesCount})
+                      </Button>
+                      <Button variant="outline" size="sm" className="flex-1">
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Partager
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Flag className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+
+              <TabsContent value="comments" className="flex-1 flex flex-col p-4">
+                <ScrollArea className="flex-1 mb-4">
+                  <div className="space-y-4">
                     {comments.map((comment) => (
-                      <div key={comment.id} className="flex gap-3 p-3 rounded-lg bg-muted/50">
+                      <div key={comment.id} className="flex gap-3">
                         <Avatar className="w-8 h-8">
-                          <AvatarImage src={comment.user.avatar} />
-                          <AvatarFallback>
-                            {comment.user.name.slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
+                          <AvatarFallback>U</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold text-sm">{comment.user.name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {formatTimeAgo(comment.createdAt)}
-                            </span>
+                          <div className="bg-muted p-3 rounded-lg">
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="font-medium text-sm">Utilisateur</div>
+                              {comment.rating && (
+                                <div className="flex items-center gap-1">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star 
+                                      key={i} 
+                                      className={`w-3 h-3 ${i < comment.rating! ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-sm">{comment.comment}</div>
                           </div>
-                          <p className="text-sm">{comment.text}</p>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {new Date(comment.created_at).toLocaleString('fr-FR')}
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              </TabsContent>
-
-              {/* Commentaires sur l'image actuelle */}
-              <TabsContent value="image-comments" className="space-y-4">
+                </ScrollArea>
+                
                 <div className="space-y-3">
-                  <div className="text-sm text-muted-foreground">
-                    Commentaires sur l'image {currentImageIndex + 1}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">Note:</span>
+                    <div className="flex gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setCommentRating(i + 1)}
+                          className="focus:outline-none"
+                        >
+                          <Star 
+                            className={`w-4 h-4 ${i < commentRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  
                   <div className="flex gap-2">
-                    <Input
-                      placeholder="Commenter cette image..."
-                      value={newImageComment}
-                      onChange={(e) => setNewImageComment(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleAddImageComment()}
+                    <Textarea 
+                      placeholder="Ajouter un commentaire..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      className="min-h-[80px]"
                     />
-                    <Button onClick={handleAddImageComment} size="sm">
+                    <Button onClick={handleSendComment} disabled={isAdding} className="self-end">
                       <Send className="w-4 h-4" />
                     </Button>
                   </div>
-                  
-                  <div className="max-h-80 overflow-y-auto space-y-3">
-                    {selectedImageComments
-                      .filter(c => c.imageIndex === currentImageIndex)
-                      .map((comment) => (
-                        <div key={comment.id} className="flex gap-3 p-3 rounded-lg bg-muted/50">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={comment.user.avatar} />
-                            <AvatarFallback>
-                              {comment.user.name.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-sm">{comment.user.name}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {formatTimeAgo(comment.createdAt)}
-                              </span>
-                            </div>
-                            <p className="text-sm">{comment.text}</p>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
                 </div>
               </TabsContent>
 
-              {/* Message privé */}
-              <TabsContent value="message" className="space-y-4">
-                <div className="space-y-4">
-                  <div className="text-sm text-muted-foreground">
-                    Envoyer un message privé à {catalog.business.name}
+              <TabsContent value="contact" className="flex-1 p-4">
+                <ScrollArea className="h-full">
+                  <div className="space-y-4">
+                    {catalog.contact_phone && (
+                      <div className="flex items-center gap-3 p-3 border rounded-lg">
+                        <Phone className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">Téléphone</div>
+                          <div className="text-sm text-muted-foreground">{catalog.contact_phone}</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {catalog.contact_whatsapp && (
+                      <div className="flex items-center gap-3 p-3 border rounded-lg">
+                        <MessageCircle className="w-5 h-5 text-green-600" />
+                        <div>
+                          <div className="font-medium">WhatsApp</div>
+                          <div className="text-sm text-muted-foreground">{catalog.contact_whatsapp}</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {catalog.contact_email && (
+                      <div className="flex items-center gap-3 p-3 border rounded-lg">
+                        <Mail className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">Email</div>
+                          <div className="text-sm text-muted-foreground">{catalog.contact_email}</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {catalog.business_hours && (
+                      <div className="flex items-start gap-3 p-3 border rounded-lg">
+                        <Clock className="w-5 h-5 text-muted-foreground mt-1" />
+                        <div>
+                          <div className="font-medium mb-2">Horaires d'ouverture</div>
+                          <div className="space-y-1 text-sm text-muted-foreground">
+                            {formatBusinessHours(catalog.business_hours).map((day, index) => (
+                              <div key={index}>
+                                {day.day}: {day.closed ? 'Fermé' : `${day.open} - ${day.close}`}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <Button 
+                      onClick={handleSendMessage}
+                      className="w-full bg-[hsl(var(--gaboma-blue))] hover:bg-[hsl(var(--gaboma-blue))]/90"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Contacter directement
+                    </Button>
                   </div>
-                  
-                  <Textarea
-                    placeholder="Écrivez votre message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    rows={4}
-                  />
-                  
-                  <Button onClick={handleSendMessage} className="w-full">
-                    <Send className="w-4 h-4 mr-2" />
-                    Envoyer le message
-                  </Button>
-                  
-                  <div className="text-xs text-muted-foreground text-center">
-                    Votre message sera envoyé directement au propriétaire du catalogue
-                  </div>
-                </div>
+                </ScrollArea>
               </TabsContent>
             </Tabs>
           </div>
         </div>
+
+        {/* Modal pour commenter une image */}
+        {selectedImageForComment && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-background p-4 rounded-lg max-w-md w-full mx-4">
+              <h3 className="font-medium mb-3">Commenter cette image</h3>
+              <Textarea 
+                placeholder="Votre commentaire..."
+                value={newImageComment}
+                onChange={(e) => setNewImageComment(e.target.value)}
+                className="mb-3"
+              />
+              <div className="flex gap-2 justify-end">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    setSelectedImageForComment(null);
+                    setNewImageComment('');
+                  }}
+                >
+                  Annuler
+                </Button>
+                <Button size="sm" onClick={handleSendImageComment}>
+                  Envoyer
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
