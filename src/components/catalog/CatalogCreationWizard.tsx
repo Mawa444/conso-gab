@@ -8,10 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ArrowRight, Package, Tags, Image, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Package, Store, Tags, Image, Check, Settings, Clock, Phone, Percent, Truck } from 'lucide-react';
 import { MultiImageEnforcer } from './MultiImageEnforcer';
 import { ProductManager } from './ProductManager';
 import { useCreateCatalog } from '@/hooks/use-create-catalog';
+import { businessCategories } from '@/data/businessCategories';
 
 interface ImageData {
   url: string;
@@ -28,16 +29,19 @@ interface CatalogWizardProps {
 export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: CatalogWizardProps) => {
   const { createCatalog, isCreating } = useCreateCatalog(businessId);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 7;
 
-  // Étape 1: Informations de base
+  // Étape 1: Type de catalogue et informations de base
+  const [catalogType, setCatalogType] = useState<'products' | 'services'>('products');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<string>('');
-  const [subcategory, setSubcategory] = useState<string>('');
   const [isPublic, setIsPublic] = useState(false);
 
-  // Étape 2: Métadonnées SEO
+  // Étape 2: Catégories
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [subcategoryId, setSubcategoryId] = useState<string>('');
+
+  // Étape 3: Métadonnées SEO
   const [keywords, setKeywords] = useState<string[]>([]);
   const [newKeyword, setNewKeyword] = useState('');
   const [synonyms, setSynonyms] = useState<string[]>([]);
@@ -45,12 +49,39 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
   const [geoCity, setGeoCity] = useState('');
   const [geoDistrict, setGeoDistrict] = useState('');
 
-  // Étape 3: Images du catalogue
+  // Étape 4: Paramètres commerciaux
+  const [hasLimitedQuantity, setHasLimitedQuantity] = useState(false);
+  const [onSale, setOnSale] = useState(false);
+  const [salePercentage, setSalePercentage] = useState(0);
+  const [deliveryAvailable, setDeliveryAvailable] = useState(false);
+  const [deliveryZones, setDeliveryZones] = useState<string[]>([]);
+  const [newDeliveryZone, setNewDeliveryZone] = useState('');
+  const [deliveryCost, setDeliveryCost] = useState(0);
+
+  // Étape 5: Contact et horaires
+  const [contactWhatsapp, setContactWhatsapp] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [businessHours, setBusinessHours] = useState({
+    monday: { open: '08:00', close: '18:00', closed: false },
+    tuesday: { open: '08:00', close: '18:00', closed: false },
+    wednesday: { open: '08:00', close: '18:00', closed: false },
+    thursday: { open: '08:00', close: '18:00', closed: false },
+    friday: { open: '08:00', close: '18:00', closed: false },
+    saturday: { open: '08:00', close: '18:00', closed: false },
+    sunday: { open: '08:00', close: '18:00', closed: true }
+  });
+
+  // Étape 6: Images du catalogue
   const [catalogImages, setCatalogImages] = useState<ImageData[]>([]);
   const [coverImageIndex, setCoverImageIndex] = useState(0);
+  const [coverImage, setCoverImage] = useState<ImageData | null>(null);
 
-  // Étape 4: États finaux
+  // Étape 7: États finaux
   const [createdCatalogId, setCreatedCatalogId] = useState<string | null>(null);
+
+  const selectedCategory = businessCategories.find(cat => cat.id === categoryId);
+  const selectedSubcategory = selectedCategory?.subcategories.find(sub => sub.id === subcategoryId);
 
   const addKeyword = () => {
     if (newKeyword.trim() && !keywords.includes(newKeyword.trim())) {
@@ -74,6 +105,17 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
     setSynonyms(synonyms.filter(s => s !== synonym));
   };
 
+  const addDeliveryZone = () => {
+    if (newDeliveryZone.trim() && !deliveryZones.includes(newDeliveryZone.trim())) {
+      setDeliveryZones([...deliveryZones, newDeliveryZone.trim()]);
+      setNewDeliveryZone('');
+    }
+  };
+
+  const removeDeliveryZone = (zone: string) => {
+    setDeliveryZones(deliveryZones.filter(z => z !== zone));
+  };
+
   const nextStep = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
@@ -89,12 +131,18 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
   const canProceedToNext = () => {
     switch (currentStep) {
       case 1:
-        return name.trim() && category;
+        return name.trim() && catalogType;
       case 2:
-        return keywords.length >= 3;
+        return categoryId;
       case 3:
-        return catalogImages.length >= 4;
+        return keywords.length >= 3;
       case 4:
+        return true; // Toutes les options sont facultatives
+      case 5:
+        return true; // Toutes les options sont facultatives
+      case 6:
+        return catalogImages.length >= 1 && coverImage;
+      case 7:
         return true;
       default:
         return false;
@@ -107,30 +155,58 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
     const catalog = await createCatalog({
       name: name.trim(),
       description: description.trim() || undefined,
-      category,
-      subcategory: subcategory || undefined,
+      catalog_type: catalogType,
+      category: selectedCategory?.nom,
+      subcategory: selectedSubcategory?.nom,
       isPublic,
       images: catalogImages,
       cover_url: catalogImages[coverImageIndex]?.url,
+      cover_image_url: coverImage?.url,
       geo_city: geoCity || undefined,
       geo_district: geoDistrict || undefined,
       keywords,
       synonyms,
+      has_limited_quantity: hasLimitedQuantity,
+      on_sale: onSale,
+      sale_percentage: onSale ? salePercentage : 0,
+      delivery_available: deliveryAvailable,
+      delivery_zones: deliveryZones,
+      delivery_cost: deliveryAvailable ? deliveryCost : 0,
+      contact_whatsapp: contactWhatsapp || undefined,
+      contact_phone: contactPhone || undefined,
+      contact_email: contactEmail || undefined,
+      business_hours: businessHours
     });
 
     if (catalog?.id) {
       setCreatedCatalogId(catalog.id);
-      setCurrentStep(4);
+      setCurrentStep(7);
     }
   };
 
   const getStepIcon = (stepNumber: number) => {
     switch (stepNumber) {
-      case 1: return <Package className="w-5 h-5" />;
+      case 1: return catalogType === 'products' ? <Package className="w-5 h-5" /> : <Store className="w-5 h-5" />;
       case 2: return <Tags className="w-5 h-5" />;
-      case 3: return <Image className="w-5 h-5" />;
-      case 4: return <Check className="w-5 h-5" />;
+      case 3: return <Tags className="w-5 h-5" />;
+      case 4: return <Settings className="w-5 h-5" />;
+      case 5: return <Phone className="w-5 h-5" />;
+      case 6: return <Image className="w-5 h-5" />;
+      case 7: return <Check className="w-5 h-5" />;
       default: return null;
+    }
+  };
+
+  const getStepTitle = (stepNumber: number) => {
+    switch (stepNumber) {
+      case 1: return 'Type & Infos';
+      case 2: return 'Catégorie';
+      case 3: return 'Référencement';
+      case 4: return 'Commerce';
+      case 5: return 'Contact';
+      case 6: return 'Images';
+      case 7: return catalogType === 'products' ? 'Produits' : 'Services';
+      default: return '';
     }
   };
 
@@ -146,25 +222,22 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
         
         {/* Step indicators */}
         <div className="flex items-center justify-between">
-          {[1, 2, 3, 4].map((step) => (
+          {[1, 2, 3, 4, 5, 6, 7].map((step) => (
             <div 
               key={step}
-              className={`flex items-center gap-2 ${
+              className={`flex flex-col items-center gap-2 ${
                 step === currentStep ? 'text-primary' : 
                 step < currentStep ? 'text-green-600' : 'text-muted-foreground'
               }`}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
                 step === currentStep ? 'border-primary bg-primary text-white' :
                 step < currentStep ? 'border-green-600 bg-green-600 text-white' : 'border-muted'
               }`}>
-                {step < currentStep ? <Check className="w-4 h-4" /> : getStepIcon(step)}
+                {step < currentStep ? <Check className="w-5 h-5" /> : getStepIcon(step)}
               </div>
-              <span className="hidden md:inline text-sm font-medium">
-                {step === 1 && 'Informations'}
-                {step === 2 && 'Référencement'}
-                {step === 3 && 'Images'}
-                {step === 4 && 'Produits'}
+              <span className="text-xs font-medium text-center">
+                {getStepTitle(step)}
               </span>
             </div>
           ))}
@@ -174,23 +247,56 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
       <Card>
         <CardHeader>
           <CardTitle>
-            {currentStep === 1 && 'Informations du catalogue'}
-            {currentStep === 2 && 'Métadonnées et référencement'}
-            {currentStep === 3 && 'Images du catalogue'}
-            {currentStep === 4 && 'Gérer les produits'}
+            {currentStep === 1 && 'Type de catalogue et informations'}
+            {currentStep === 2 && 'Catégorie et domaine d\'activité'}
+            {currentStep === 3 && 'Métadonnées et référencement'}
+            {currentStep === 4 && 'Paramètres commerciaux'}
+            {currentStep === 5 && 'Contact et horaires d\'ouverture'}
+            {currentStep === 6 && 'Images et couverture'}
+            {currentStep === 7 && `Gérer les ${catalogType === 'products' ? 'produits' : 'services'}`}
           </CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Étape 1: Informations de base */}
+          {/* Étape 1: Type et informations de base */}
           {currentStep === 1 && (
             <div className="space-y-6">
+              <div className="space-y-4">
+                <Label>Type de catalogue *</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <Card 
+                    className={`cursor-pointer transition-all ${catalogType === 'products' ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-accent'}`}
+                    onClick={() => setCatalogType('products')}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <Package className="w-8 h-8 mx-auto mb-2 text-primary" />
+                      <h3 className="font-medium">Produits</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Objets physiques, marchandises, articles à vendre
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card 
+                    className={`cursor-pointer transition-all ${catalogType === 'services' ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-accent'}`}
+                    onClick={() => setCatalogType('services')}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <Store className="w-8 h-8 mx-auto mb-2 text-primary" />
+                      <h3 className="font-medium">Services</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Prestations, réparations, conseils, consultations
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nom du catalogue *</Label>
                   <Input 
                     id="name" 
-                    placeholder="Ex: Nouveautés Automne 2024"
+                    placeholder={catalogType === 'products' ? "Ex: Nouveautés Automne 2024" : "Ex: Services de plomberie"}
                     value={name} 
                     onChange={(e) => setName(e.target.value)}
                   />
@@ -208,50 +314,80 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
                 <Label htmlFor="description">Description</Label>
                 <Textarea 
                   id="description"
-                  placeholder="Décrivez le contenu de votre catalogue..."
+                  placeholder={catalogType === 'products' ? "Décrivez vos produits..." : "Décrivez vos services..."}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                 />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Catégorie *</Label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choisir une catégorie" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="mode">Mode</SelectItem>
-                      <SelectItem value="beaute">Beauté & Cosmétiques</SelectItem>
-                      <SelectItem value="restauration">Restauration</SelectItem>
-                      <SelectItem value="services">Services</SelectItem>
-                      <SelectItem value="electronique">Électronique</SelectItem>
-                      <SelectItem value="maison">Maison & Jardin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Sous-catégorie</Label>
-                  <Select value={subcategory} onValueChange={setSubcategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Optionnel" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="homme">Homme</SelectItem>
-                      <SelectItem value="femme">Femme</SelectItem>
-                      <SelectItem value="enfants">Enfants</SelectItem>
-                      <SelectItem value="unisexe">Unisexe</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
             </div>
           )}
 
-          {/* Étape 2: Métadonnées SEO */}
+          {/* Étape 2: Catégories */}
           {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label>Catégorie principale *</Label>
+                <Select value={categoryId} onValueChange={(value) => {
+                  setCategoryId(value);
+                  setSubcategoryId(''); // Reset subcategory
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choisir une catégorie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {businessCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{category.icon}</span>
+                          <span>{category.nom}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedCategory && (
+                <div className="space-y-2">
+                  <Label>Sous-catégorie</Label>
+                  <Select value={subcategoryId} onValueChange={setSubcategoryId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir une sous-catégorie (optionnel)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectedCategory.subcategories.map((subcategory) => (
+                        <SelectItem key={subcategory.id} value={subcategory.id}>
+                          {subcategory.nom}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {selectedCategory && (
+                <div className="space-y-2">
+                  <Label>Tags suggérés pour cette catégorie</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCategory.tags.slice(0, 10).map((tag, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {selectedSubcategory && selectedSubcategory.tags.slice(0, 8).map((tag, index) => (
+                      <Badge key={`sub-${index}`} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Étape 3: Métadonnées SEO */}
+          {currentStep === 3 && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -317,41 +453,265 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
                     </Badge>
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Améliorez la découverte avec des termes similaires
-                </p>
               </div>
             </div>
           )}
 
-          {/* Étape 3: Images du catalogue */}
-          {currentStep === 3 && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <Image className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="font-semibold mb-2">Images de présentation</h3>
-                <p className="text-sm text-muted-foreground">
-                  Ajoutez des images attractives pour présenter votre catalogue
-                </p>
-              </div>
-
-              <MultiImageEnforcer
-                onImagesChanged={setCatalogImages}
-                onCoverChanged={setCoverImageIndex}
-                bucket="catalog-images"
-                folder="catalogs"
-                currentImages={catalogImages}
-                coverIndex={coverImageIndex}
-                minImages={4}
-                maxImages={8}
-                label="Images du catalogue (minimum 4) *"
-                description="Format 16:9 automatique, max 2MB chacune"
-              />
-            </div>
-          )}
-
-          {/* Étape 4: Gestion des produits */}
+          {/* Étape 4: Paramètres commerciaux */}
           {currentStep === 4 && (
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between rounded-md border p-4">
+                  <div className="space-y-1">
+                    <span className="font-medium">Quantité limitée</span>
+                    <p className="text-sm text-muted-foreground">
+                      {catalogType === 'products' ? 'Indiquer si certains produits sont en stock limité' : 'Indiquer si vos services ont une disponibilité limitée'}
+                    </p>
+                  </div>
+                  <Switch checked={hasLimitedQuantity} onCheckedChange={setHasLimitedQuantity} />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between rounded-md border p-4">
+                    <div className="space-y-1">
+                      <span className="font-medium flex items-center gap-2">
+                        <Percent className="w-4 h-4" />
+                        Promotion active
+                      </span>
+                      <p className="text-sm text-muted-foreground">
+                        Afficher une réduction sur ce catalogue
+                      </p>
+                    </div>
+                    <Switch checked={onSale} onCheckedChange={setOnSale} />
+                  </div>
+
+                  {onSale && (
+                    <div className="space-y-2 ml-4">
+                      <Label>Pourcentage de réduction</Label>
+                      <div className="flex items-center gap-2">
+                        <Input 
+                          type="number"
+                          min="0"
+                          max="99"
+                          value={salePercentage}
+                          onChange={(e) => setSalePercentage(parseInt(e.target.value) || 0)}
+                          className="w-24"
+                        />
+                        <span className="text-sm text-muted-foreground">%</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between rounded-md border p-4">
+                    <div className="space-y-1">
+                      <span className="font-medium flex items-center gap-2">
+                        <Truck className="w-4 h-4" />
+                        Livraison disponible
+                      </span>
+                      <p className="text-sm text-muted-foreground">
+                        {catalogType === 'products' ? 'Proposer la livraison de vos produits' : 'Proposer des services à domicile'}
+                      </p>
+                    </div>
+                    <Switch checked={deliveryAvailable} onCheckedChange={setDeliveryAvailable} />
+                  </div>
+
+                  {deliveryAvailable && (
+                    <div className="space-y-4 ml-4">
+                      <div className="space-y-2">
+                        <Label>Zones de livraison</Label>
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="Ex: Libreville Centre"
+                            value={newDeliveryZone}
+                            onChange={(e) => setNewDeliveryZone(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addDeliveryZone())}
+                          />
+                          <Button type="button" onClick={addDeliveryZone} variant="outline">
+                            Ajouter
+                          </Button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {deliveryZones.map((zone, index) => (
+                            <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeDeliveryZone(zone)}>
+                              {zone} ×
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Coût de livraison (FCFA)</Label>
+                        <Input 
+                          type="number"
+                          min="0"
+                          value={deliveryCost}
+                          onChange={(e) => setDeliveryCost(parseInt(e.target.value) || 0)}
+                          placeholder="Ex: 2000"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Étape 5: Contact et horaires */}
+          {currentStep === 5 && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>WhatsApp</Label>
+                  <Input 
+                    placeholder="+241 XX XX XX XX"
+                    value={contactWhatsapp}
+                    onChange={(e) => setContactWhatsapp(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Téléphone</Label>
+                  <Input 
+                    placeholder="+241 XX XX XX XX"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input 
+                    type="email"
+                    placeholder="contact@example.com"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Label className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Horaires d'ouverture
+                </Label>
+                <div className="space-y-3">
+                  {Object.entries(businessHours).map(([day, hours]) => {
+                    const dayNames = {
+                      monday: 'Lundi',
+                      tuesday: 'Mardi', 
+                      wednesday: 'Mercredi',
+                      thursday: 'Jeudi',
+                      friday: 'Vendredi',
+                      saturday: 'Samedi',
+                      sunday: 'Dimanche'
+                    };
+
+                    return (
+                      <div key={day} className="flex items-center gap-4 p-3 border rounded-lg">
+                        <div className="w-20 text-sm font-medium">
+                          {dayNames[day as keyof typeof dayNames]}
+                        </div>
+                        <Switch 
+                          checked={!hours.closed}
+                          onCheckedChange={(checked) => 
+                            setBusinessHours(prev => ({
+                              ...prev,
+                              [day]: { ...prev[day as keyof typeof prev], closed: !checked }
+                            }))
+                          }
+                        />
+                        {!hours.closed && (
+                          <>
+                            <Input 
+                              type="time"
+                              value={hours.open}
+                              onChange={(e) => 
+                                setBusinessHours(prev => ({
+                                  ...prev,
+                                  [day]: { ...prev[day as keyof typeof prev], open: e.target.value }
+                                }))
+                              }
+                              className="w-24"
+                            />
+                            <span className="text-sm text-muted-foreground">à</span>
+                            <Input 
+                              type="time"
+                              value={hours.close}
+                              onChange={(e) => 
+                                setBusinessHours(prev => ({
+                                  ...prev,
+                                  [day]: { ...prev[day as keyof typeof prev], close: e.target.value }
+                                }))
+                              }
+                              className="w-24"
+                            />
+                          </>
+                        )}
+                        {hours.closed && (
+                          <span className="text-sm text-muted-foreground">Fermé</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Étape 6: Images du catalogue */}
+          {currentStep === 6 && (
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="text-center">
+                  <Image className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="font-semibold mb-2">Image de couverture</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Choisissez l'image principale qui représentera votre catalogue
+                  </p>
+                </div>
+
+                <MultiImageEnforcer
+                  onImagesChanged={(images) => {
+                    setCoverImage(images[0] || null);
+                  }}
+                  onCoverChanged={() => {}}
+                  bucket="catalog-covers"
+                  folder="covers"
+                  currentImages={coverImage ? [coverImage] : []}
+                  coverIndex={0}
+                  minImages={1}
+                  maxImages={1}
+                  label="Image de couverture *"
+                  description="Format 16:9 recommandé, max 2MB"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="text-center">
+                  <h3 className="font-semibold mb-2">Images de présentation</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Ajoutez des images pour présenter vos {catalogType === 'products' ? 'produits' : 'services'}
+                  </p>
+                </div>
+
+                <MultiImageEnforcer
+                  onImagesChanged={setCatalogImages}
+                  onCoverChanged={setCoverImageIndex}
+                  bucket="catalog-images"
+                  folder="catalogs"
+                  currentImages={catalogImages}
+                  coverIndex={coverImageIndex}
+                  minImages={1}
+                  maxImages={10}
+                  label="Images du catalogue (minimum 1) *"
+                  description="Format libre, max 2MB chacune"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Étape 7: Gestion des produits/services */}
+          {currentStep === 7 && (
             <div className="space-y-6">
               {createdCatalogId ? (
                 <ProductManager 
@@ -360,10 +720,14 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
                 />
               ) : (
                 <div className="text-center py-12">
-                  <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  {catalogType === 'products' ? (
+                    <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  ) : (
+                    <Store className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  )}
                   <h3 className="text-lg font-semibold mb-2">Prêt à créer votre catalogue</h3>
                   <p className="text-muted-foreground mb-6">
-                    Cliquez sur "Créer le catalogue" pour continuer vers l'ajout de produits
+                    Cliquez sur "Créer le catalogue" pour continuer vers l'ajout de {catalogType === 'products' ? 'produits' : 'services'}
                   </p>
                   <Button onClick={handleCreateCatalog} disabled={isCreating} size="lg">
                     {isCreating ? 'Création...' : 'Créer le catalogue'}

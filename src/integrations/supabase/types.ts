@@ -196,19 +196,166 @@ export type Database = {
         }
         Relationships: []
       }
+      catalog_comments: {
+        Row: {
+          catalog_id: string
+          comment: string
+          created_at: string | null
+          id: string
+          rating: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          catalog_id: string
+          comment: string
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          catalog_id?: string
+          comment?: string
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_comments_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catalog_image_comments: {
+        Row: {
+          catalog_id: string
+          comment: string
+          created_at: string | null
+          id: string
+          image_url: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          catalog_id: string
+          comment: string
+          created_at?: string | null
+          id?: string
+          image_url: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          catalog_id?: string
+          comment?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_image_comments_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catalog_image_likes: {
+        Row: {
+          catalog_id: string
+          created_at: string | null
+          id: string
+          image_url: string
+          user_id: string
+        }
+        Insert: {
+          catalog_id: string
+          created_at?: string | null
+          id?: string
+          image_url: string
+          user_id: string
+        }
+        Update: {
+          catalog_id?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_image_likes_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catalog_likes: {
+        Row: {
+          catalog_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          catalog_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          catalog_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_likes_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       catalogs: {
         Row: {
           availability_zone: string | null
+          business_hours: Json | null
           business_id: string
+          catalog_type: string | null
           category: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          contact_whatsapp: string | null
           cover_blurhash: string | null
+          cover_image_url: string | null
           cover_url: string | null
           created_at: string
+          delivery_available: boolean | null
+          delivery_cost: number | null
+          delivery_zones: string[] | null
           description: string | null
           display_order: number | null
           folder: string | null
           geo_city: string | null
           geo_district: string | null
+          has_limited_quantity: boolean | null
           id: string
           images: Json | null
           is_active: boolean | null
@@ -216,7 +363,9 @@ export type Database = {
           keywords: string[] | null
           language: string | null
           name: string
+          on_sale: boolean | null
           phonetics: string[] | null
+          sale_percentage: number | null
           seo_score: number | null
           subcategory: string | null
           synonyms: string[] | null
@@ -225,16 +374,26 @@ export type Database = {
         }
         Insert: {
           availability_zone?: string | null
+          business_hours?: Json | null
           business_id: string
+          catalog_type?: string | null
           category?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
           cover_blurhash?: string | null
+          cover_image_url?: string | null
           cover_url?: string | null
           created_at?: string
+          delivery_available?: boolean | null
+          delivery_cost?: number | null
+          delivery_zones?: string[] | null
           description?: string | null
           display_order?: number | null
           folder?: string | null
           geo_city?: string | null
           geo_district?: string | null
+          has_limited_quantity?: boolean | null
           id?: string
           images?: Json | null
           is_active?: boolean | null
@@ -242,7 +401,9 @@ export type Database = {
           keywords?: string[] | null
           language?: string | null
           name: string
+          on_sale?: boolean | null
           phonetics?: string[] | null
+          sale_percentage?: number | null
           seo_score?: number | null
           subcategory?: string | null
           synonyms?: string[] | null
@@ -251,16 +412,26 @@ export type Database = {
         }
         Update: {
           availability_zone?: string | null
+          business_hours?: Json | null
           business_id?: string
+          catalog_type?: string | null
           category?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
           cover_blurhash?: string | null
+          cover_image_url?: string | null
           cover_url?: string | null
           created_at?: string
+          delivery_available?: boolean | null
+          delivery_cost?: number | null
+          delivery_zones?: string[] | null
           description?: string | null
           display_order?: number | null
           folder?: string | null
           geo_city?: string | null
           geo_district?: string | null
+          has_limited_quantity?: boolean | null
           id?: string
           images?: Json | null
           is_active?: boolean | null
@@ -268,7 +439,9 @@ export type Database = {
           keywords?: string[] | null
           language?: string | null
           name?: string
+          on_sale?: boolean | null
           phonetics?: string[] | null
+          sale_percentage?: number | null
           seo_score?: number | null
           subcategory?: string | null
           synonyms?: string[] | null
