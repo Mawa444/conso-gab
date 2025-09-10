@@ -96,12 +96,24 @@ export const useCreateCatalog = (businessId: string) => {
       });
     },
     onError: (err: any) => {
+      console.error('Erreur création catalogue complète:', err);
+      
+      let errorMessage = "Impossible de créer le catalogue.";
+      
+      // Extract more specific error messages from Supabase
+      if (err?.message) {
+        errorMessage = err.message;
+      } else if (err?.error?.message) {
+        errorMessage = err.error.message;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      }
+      
       toast({
-        title: 'Erreur',
-        description: "Impossible de créer le catalogue.",
+        title: 'Erreur de création',
+        description: errorMessage,
         variant: 'destructive',
       });
-      console.error('Erreur création catalogue:', err);
     }
   });
 
