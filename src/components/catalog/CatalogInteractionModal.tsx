@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +25,8 @@ import {
   Store
 } from 'lucide-react';
 import { useCatalogComments, useCatalogLikes, useCatalogImageComments, useCatalogImageLikes } from '@/hooks/use-catalog-interactions';
+import { useCatalogFavorites, useCatalogShares } from '@/hooks/use-catalog-favorites';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Catalog {
   id: string;
@@ -67,6 +69,17 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
   // Hooks pour les interactions
   const { comments, addComment, isAdding } = useCatalogComments(catalog.id);
   const { likesCount, isLiked, toggleLike, isToggling } = useCatalogLikes(catalog.id);
+  
+  // Get current user for favorites
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUser(data.user);
+    });
+  }, []);
+  
+  const { isFavorited, toggleFavorite, isToggling: isTogglingFavorite } = useCatalogFavorites(currentUser?.id);
+  const { shareCatalog } = useCatalogShares();
   
   const images = catalog.images || [];
   const selectedImage = images[selectedImageIndex];
@@ -329,7 +342,22 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                         <ThumbsUp className={`w-4 h-4 mr-2 ${isLiked ? 'fill-current' : ''}`} />
                         {isLiked ? 'Aimé' : 'J\'aime'} ({likesCount})
                       </Button>
-                      <Button variant="outline" size="sm" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className={`flex-1 ${isFavorited(catalog.id) ? 'bg-yellow-50 text-yellow-600 border-yellow-200' : ''}`}
+                        onClick={() => toggleFavorite(catalog.id)}
+                        disabled={isTogglingFavorite}
+                      >
+                        <Heart className={`w-4 h-4 mr-2 ${isFavorited(catalog.id) ? 'fill-current' : ''}`} />
+                        {isFavorited(catalog.id) ? 'Favori' : 'Favoris'}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => shareCatalog(catalog.id, catalog.name)}
+                      >
                         <Share2 className="w-4 h-4 mr-2" />
                         Partager
                       </Button>

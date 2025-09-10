@@ -3,19 +3,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Eye, Star, Package, Calendar } from "lucide-react";
-import { mockCatalogs, getCatalogsByBusinessId, type MockCatalog } from "@/data/mockCatalogs";
+import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { CatalogInteractionModal } from "@/components/catalog/CatalogInteractionModal";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface BusinessCatalogViewProps {
   businessId: string;
   businessName: string;
 }
 
+interface ImageData {
+  url: string;
+  path?: string;
+  id?: string;
+}
+
+interface CatalogWithImages extends Omit<Tables<'catalogs'>, 'images'> {
+  images?: ImageData[];
+}
+
+type Catalog = Tables<'catalogs'>;
+
 export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalogViewProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({});
-  const [selectedCatalog, setSelectedCatalog] = useState<MockCatalog | null>(null);
+  const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null);
   
-  const catalogs = getCatalogsByBusinessId(businessId);
+  const { catalogs, isLoading } = useCatalogManagement(businessId);
 
   const nextImage = (catalogId: string, totalImages: number) => {
     setCurrentImageIndex(prev => ({
@@ -46,12 +59,25 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
     }).format(new Date(dateString));
   };
 
-  const getScoreBadge = (score: number) => {
+  const getScoreBadge = (score: number | null) => {
+    if (!score) return <Badge variant="secondary">Non évalué</Badge>;
     if (score >= 90) return <Badge className="bg-[hsl(var(--gaboma-green))] text-white">Excellent</Badge>;
     if (score >= 80) return <Badge className="bg-[hsl(var(--gaboma-blue))] text-white">Très bon</Badge>;
     if (score >= 70) return <Badge className="bg-[hsl(var(--gaboma-yellow))] text-black">Bon</Badge>;
     return <Badge variant="secondary">À améliorer</Badge>;
   };
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-12">
+        <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4 animate-pulse" />
+        <h3 className="text-lg font-semibold mb-2">Chargement des catalogues...</h3>
+        <p className="text-muted-foreground">
+          Récupération des catalogues en cours.
+        </p>
+      </div>
+    );
+  }
 
   if (catalogs.length === 0) {
     return (
@@ -76,27 +102,53 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
         {catalogs.map((catalog) => {
+          // Safely parse images JSON
+          let images: ImageData[] = [];
+          try {
+            if (Array.isArray(catalog.images)) {
+              images = catalog.images as unknown as ImageData[];
+            } else if (typeof catalog.images === 'string') {
+              images = JSON.parse(catalog.images);
+            }
+          } catch (error) {
+            console.warn('Error parsing catalog images:', error);
+            images = [];
+          }
+          
           const currentIndex = currentImageIndex[catalog.id] || 0;
+          const currentImage = images[currentIndex];
           
           return (
             <Card key={catalog.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative">
                 {/* Image principale */}
                 <div className="relative h-64 bg-gradient-to-br from-primary/10 to-accent/10">
-                  <img
-                    src={catalog.images[currentIndex]}
-                    alt={catalog.name}
-                    className="w-full h-full object-cover"
-                  />
+                  {currentImage?.url ? (
+                    <img
+                      src={currentImage.url}
+                      alt={catalog.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : catalog.cover_image_url || catalog.cover_url ? (
+                    <img
+                      src={catalog.cover_image_url || catalog.cover_url}
+                      alt={catalog.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center">
+                      <Package className="w-12 h-12 text-muted-foreground" />
+                    </div>
+                  )}
                   
                   {/* Navigation des images */}
-                  {catalog.images.length > 1 && (
+                  {images.length > 1 && (
                     <>
                       <Button
                         variant="ghost"
                         size="sm"
                         className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                        onClick={() => prevImage(catalog.id, catalog.images.length)}
+                        onClick={() => prevImage(catalog.id, images.length)}
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </Button>
@@ -104,14 +156,14 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
                         variant="ghost"
                         size="sm"
                         className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                        onClick={() => nextImage(catalog.id, catalog.images.length)}
+                        onClick={() => nextImage(catalog.id, images.length)}
                       >
                         <ChevronRight className="w-4 h-4" />
                       </Button>
                       
                       {/* Indicateurs de pagination */}
                       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                        {catalog.images.map((_, index) => (
+                        {images.map((_, index) => (
                           <button
                             key={index}
                             onClick={() => setImageIndex(catalog.id, index)}
@@ -126,9 +178,9 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
                   
                   {/* Badge de statut */}
                   <div className="absolute top-4 left-4">
-                    <Badge className="bg-[hsl(var(--gaboma-green))] text-white">
+                    <Badge className={catalog.is_public ? "bg-[hsl(var(--gaboma-green))] text-white" : "bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))]"}>
                       <Eye className="w-3 h-3 mr-1" />
-                      Public
+                      {catalog.is_public ? 'Public' : 'Brouillon'}
                     </Badge>
                   </div>
                   
@@ -158,7 +210,7 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                     <div className="flex items-center gap-1">
                       <Package className="w-4 h-4" />
-                      <span>{catalog.product_count} produits</span>
+                      <span>{images.length} images</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
@@ -166,7 +218,7 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
                     </div>
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-[hsl(var(--gaboma-yellow))] text-[hsl(var(--gaboma-yellow))]" />
-                      <span>Score: {catalog.seo_score}/100</span>
+                      <span>Score: {catalog.seo_score || 0}/100</span>
                     </div>
                   </div>
 
@@ -192,8 +244,39 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
           open={!!selectedCatalog}
           onClose={() => setSelectedCatalog(null)}
           catalog={{
-            ...selectedCatalog,
-            catalog_type: 'products'
+            id: selectedCatalog.id,
+            name: selectedCatalog.name || '',
+            description: selectedCatalog.description,
+            category: selectedCatalog.category,
+            subcategory: selectedCatalog.subcategory,
+            catalog_type: (selectedCatalog.catalog_type as 'products' | 'services') || 'products',
+            images: (() => {
+              try {
+                if (Array.isArray(selectedCatalog.images)) {
+                  return selectedCatalog.images as unknown as ImageData[];
+                } else if (typeof selectedCatalog.images === 'string') {
+                  return JSON.parse(selectedCatalog.images);
+                }
+              } catch (error) {
+                console.warn('Error parsing images for modal:', error);
+              }
+              return [];
+            })(),
+            cover_url: selectedCatalog.cover_url,
+            cover_image_url: selectedCatalog.cover_image_url,
+            business_id: selectedCatalog.business_id,
+            geo_city: selectedCatalog.geo_city,
+            geo_district: selectedCatalog.geo_district,
+            keywords: Array.isArray(selectedCatalog.keywords) ? selectedCatalog.keywords as string[] : [],
+            on_sale: selectedCatalog.on_sale,
+            sale_percentage: selectedCatalog.sale_percentage,
+            delivery_available: selectedCatalog.delivery_available,
+            delivery_zones: Array.isArray(selectedCatalog.delivery_zones) ? selectedCatalog.delivery_zones as string[] : [],
+            delivery_cost: selectedCatalog.delivery_cost,
+            contact_whatsapp: selectedCatalog.contact_whatsapp,
+            contact_phone: selectedCatalog.contact_phone,
+            contact_email: selectedCatalog.contact_email,
+            business_hours: selectedCatalog.business_hours
           }}
         />
       )}
