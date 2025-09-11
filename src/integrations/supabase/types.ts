@@ -336,6 +336,7 @@ export type Database = {
       catalogs: {
         Row: {
           availability_zone: string | null
+          base_price: number | null
           business_hours: Json | null
           business_id: string
           catalog_type: string | null
@@ -365,6 +366,9 @@ export type Database = {
           name: string
           on_sale: boolean | null
           phonetics: string[] | null
+          price_currency: string | null
+          price_details: Json | null
+          price_type: string | null
           sale_percentage: number | null
           seo_score: number | null
           subcategory: string | null
@@ -374,6 +378,7 @@ export type Database = {
         }
         Insert: {
           availability_zone?: string | null
+          base_price?: number | null
           business_hours?: Json | null
           business_id: string
           catalog_type?: string | null
@@ -403,6 +408,9 @@ export type Database = {
           name: string
           on_sale?: boolean | null
           phonetics?: string[] | null
+          price_currency?: string | null
+          price_details?: Json | null
+          price_type?: string | null
           sale_percentage?: number | null
           seo_score?: number | null
           subcategory?: string | null
@@ -412,6 +420,7 @@ export type Database = {
         }
         Update: {
           availability_zone?: string | null
+          base_price?: number | null
           business_hours?: Json | null
           business_id?: string
           catalog_type?: string | null
@@ -441,6 +450,9 @@ export type Database = {
           name?: string
           on_sale?: boolean | null
           phonetics?: string[] | null
+          price_currency?: string | null
+          price_details?: Json | null
+          price_type?: string | null
           sale_percentage?: number | null
           seo_score?: number | null
           subcategory?: string | null

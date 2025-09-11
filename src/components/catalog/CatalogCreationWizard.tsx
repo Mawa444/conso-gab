@@ -29,7 +29,7 @@ interface CatalogWizardProps {
 export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: CatalogWizardProps) => {
   const { createCatalog, isCreating } = useCreateCatalog(businessId);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 7;
+  const totalSteps = 8;
 
   // Étape 1: Type de catalogue et informations de base
   const [catalogType, setCatalogType] = useState<'products' | 'services'>('products');
@@ -77,7 +77,13 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
   const [coverImageIndex, setCoverImageIndex] = useState(0);
   const [coverImage, setCoverImage] = useState<ImageData | null>(null);
 
-  // Étape 7: États finaux
+  // Étape 6: Paramètres de prix
+  const [priceType, setPriceType] = useState<'fixed' | 'from' | 'variable'>('fixed');
+  const [basePrice, setBasePrice] = useState<number>(0);
+  const [priceCurrency, setPriceCurrency] = useState('FCFA');
+  const [priceDetails, setPriceDetails] = useState<any[]>([]);
+  
+  // Étape 8: États finaux
   const [createdCatalogId, setCreatedCatalogId] = useState<string | null>(null);
 
   const selectedCategory = businessCategories.find(cat => cat.id === categoryId);
@@ -143,6 +149,8 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
       case 6:
         return catalogImages.length >= 1 && coverImage;
       case 7:
+        return priceType === 'variable' ? priceDetails.length > 0 : basePrice > 0;
+      case 8:
         return true;
       default:
         return false;
@@ -175,12 +183,16 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
       contact_whatsapp: contactWhatsapp || undefined,
       contact_phone: contactPhone || undefined,
       contact_email: contactEmail || undefined,
-      business_hours: businessHours
+      business_hours: businessHours,
+      base_price: basePrice > 0 ? basePrice : undefined,
+      price_type: priceType,
+      price_currency: priceCurrency,
+      price_details: priceDetails
     });
 
     if (catalog?.id) {
       setCreatedCatalogId(catalog.id);
-      setCurrentStep(7);
+      setCurrentStep(8);
     }
   };
 
@@ -192,7 +204,8 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
       case 4: return <Settings className="w-5 h-5" />;
       case 5: return <Phone className="w-5 h-5" />;
       case 6: return <Image className="w-5 h-5" />;
-      case 7: return <Check className="w-5 h-5" />;
+      case 7: return <Settings className="w-5 h-5" />;
+      case 8: return <Check className="w-5 h-5" />;
       default: return null;
     }
   };
@@ -205,7 +218,8 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
       case 4: return 'Commerce';
       case 5: return 'Contact';
       case 6: return 'Images';
-      case 7: return catalogType === 'products' ? 'Produits' : 'Services';
+      case 7: return 'Prix';
+      case 8: return catalogType === 'products' ? 'Produits' : 'Services';
       default: return '';
     }
   };
@@ -222,7 +236,7 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
         
         {/* Step indicators */}
         <div className="flex items-center justify-between">
-          {[1, 2, 3, 4, 5, 6, 7].map((step) => (
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => (
             <div 
               key={step}
               className={`flex flex-col items-center gap-2 ${
@@ -253,7 +267,8 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             {currentStep === 4 && 'Paramètres commerciaux'}
             {currentStep === 5 && 'Contact et horaires d\'ouverture'}
             {currentStep === 6 && 'Images et couverture'}
-            {currentStep === 7 && `Gérer les ${catalogType === 'products' ? 'produits' : 'services'}`}
+            {currentStep === 7 && 'Paramètres de prix'}
+            {currentStep === 8 && `Gérer les ${catalogType === 'products' ? 'produits' : 'services'}`}
           </CardTitle>
         </CardHeader>
 
@@ -710,8 +725,172 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             </div>
           )}
 
-          {/* Étape 7: Gestion des produits/services */}
+          {/* Étape 7: Paramètres de prix */}
           {currentStep === 7 && (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h3 className="text-lg font-semibold mb-2">Configuration des prix</h3>
+                <p className="text-muted-foreground">
+                  Définissez les prix de vos {catalogType === 'products' ? 'produits' : 'services'}
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <Label>Type de tarification *</Label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card 
+                    className={`cursor-pointer transition-all ${priceType === 'fixed' ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-accent'}`}
+                    onClick={() => setPriceType('fixed')}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <h4 className="font-medium">Prix fixe</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Un prix unique pour tout le catalogue
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card 
+                    className={`cursor-pointer transition-all ${priceType === 'from' ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-accent'}`}
+                    onClick={() => setPriceType('from')}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <h4 className="font-medium">À partir de</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Prix de base "à partir de"
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card 
+                    className={`cursor-pointer transition-all ${priceType === 'variable' ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-accent'}`}
+                    onClick={() => setPriceType('variable')}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <h4 className="font-medium">Prix variables</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Prix différents par {catalogType === 'products' ? 'produit' : 'service'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              {(priceType === 'fixed' || priceType === 'from') && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="basePrice">
+                      {priceType === 'fixed' ? 'Prix unique' : 'Prix de base'} *
+                    </Label>
+                    <Input 
+                      id="basePrice"
+                      type="number"
+                      placeholder="Ex: 15000"
+                      value={basePrice || ''}
+                      onChange={(e) => setBasePrice(Number(e.target.value))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="currency">Devise</Label>
+                    <Select value={priceCurrency} onValueChange={setPriceCurrency}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choisir la devise" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="FCFA">FCFA</SelectItem>
+                        <SelectItem value="EUR">Euro (€)</SelectItem>
+                        <SelectItem value="USD">Dollar ($)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+
+              {priceType === 'variable' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label>Prix individuels *</Label>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setPriceDetails([...priceDetails, { name: '', price: 0, description: '' }])}
+                    >
+                      Ajouter un prix
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {priceDetails.map((detail, index) => (
+                      <Card key={index} className="p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <Label>Nom du {catalogType === 'products' ? 'produit' : 'service'}</Label>
+                            <Input 
+                              placeholder={catalogType === 'products' ? "Ex: T-shirt rouge" : "Ex: Consultation 1h"}
+                              value={detail.name}
+                              onChange={(e) => {
+                                const newDetails = [...priceDetails];
+                                newDetails[index].name = e.target.value;
+                                setPriceDetails(newDetails);
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Prix ({priceCurrency})</Label>
+                            <Input 
+                              type="number"
+                              placeholder="15000"
+                              value={detail.price || ''}
+                              onChange={(e) => {
+                                const newDetails = [...priceDetails];
+                                newDetails[index].price = Number(e.target.value);
+                                setPriceDetails(newDetails);
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Description (optionnel)</Label>
+                            <div className="flex gap-2">
+                              <Input 
+                                placeholder="Description courte"
+                                value={detail.description}
+                                onChange={(e) => {
+                                  const newDetails = [...priceDetails];
+                                  newDetails[index].description = e.target.value;
+                                  setPriceDetails(newDetails);
+                                }}
+                              />
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  const newDetails = priceDetails.filter((_, i) => i !== index);
+                                  setPriceDetails(newDetails);
+                                }}
+                              >
+                                ×
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                  
+                  {priceDetails.length === 0 && (
+                    <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
+                      <p className="text-muted-foreground">
+                        Ajoutez au moins un prix pour continuer
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Étape 8: Gestion des produits/services */}
+          {currentStep === 8 && (
             <div className="space-y-6">
               {createdCatalogId ? (
                 <ProductManager 

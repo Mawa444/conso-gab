@@ -31,6 +31,10 @@ export interface CreateCatalogInput {
   contact_phone?: string;
   contact_email?: string;
   business_hours?: any;
+  base_price?: number;
+  price_type?: 'fixed' | 'from' | 'variable';
+  price_currency?: string;
+  price_details?: any[];
 }
 
 export const useCreateCatalog = (businessId: string) => {
@@ -68,9 +72,13 @@ export const useCreateCatalog = (businessId: string) => {
         contact_whatsapp: payload.contact_whatsapp || null,
         contact_phone: payload.contact_phone || null,
         contact_email: payload.contact_email || null,
-        business_hours: payload.business_hours || null,
-        // Keep both visibility and is_public in sync for now
-        visibility: payload.isPublic ? 'public' : 'draft',
+      business_hours: payload.business_hours || null,
+      base_price: payload.base_price || null,
+      price_type: (payload.price_type as any) || 'fixed',
+      price_currency: payload.price_currency || 'FCFA',
+      price_details: (payload.price_details ?? []) as unknown as CatalogInsert['price_details'],
+      // Keep both visibility and is_public in sync for now
+      visibility: payload.isPublic ? 'public' : 'draft',
         is_public: !!payload.isPublic,
         is_active: true,
       };
