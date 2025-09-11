@@ -165,24 +165,63 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
               </div>
             )}
             
-            {/* Navigation des images */}
+            {/* Carousel avec swipe et plein écran */}
             {images.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-lg">
-                {images.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImageIndex(index)}
-                    className={`w-12 h-12 rounded overflow-hidden border-2 ${
-                      index === selectedImageIndex ? 'border-white' : 'border-transparent'
-                    }`}
-                  >
-                    <img 
-                      src={images[index]?.url} 
-                      alt=""
-                      className="w-full h-full object-cover"
+              <div className="absolute inset-0">
+                <div 
+                  className="flex h-full transition-transform duration-300 ease-out cursor-grab active:cursor-grabbing"
+                  style={{ transform: `translateX(-${selectedImageIndex * 100}%)` }}
+                  onTouchStart={(e) => {
+                    const startX = e.touches[0].clientX;
+                    const handleTouchMove = (e: TouchEvent) => {
+                      const currentX = e.touches[0].clientX;
+                      const diff = startX - currentX;
+                      if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                          setSelectedImageIndex((prev) => (prev + 1) % images.length);
+                        } else {
+                          setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
+                        }
+                        document.removeEventListener('touchmove', handleTouchMove);
+                      }
+                    };
+                    document.addEventListener('touchmove', handleTouchMove, { once: true });
+                  }}
+                  onClick={() => {
+                    // Mode plein écran au clic
+                    const fullscreenElement = document.querySelector('.catalog-image-fullscreen');
+                    if (fullscreenElement) {
+                      if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                      } else {
+                        fullscreenElement.requestFullscreen();
+                      }
+                    }
+                  }}
+                >
+                  {images.concat(images).map((image, index) => (
+                    <img
+                      key={index}
+                      src={image.url}
+                      alt={catalog.name}
+                      className="catalog-image-fullscreen w-full h-full object-cover flex-shrink-0"
+                      style={{ minWidth: '100%' }}
                     />
-                  </button>
-                ))}
+                  ))}
+                </div>
+                
+                {/* Indicateurs de pagination */}
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-lg">
+                  {images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`w-3 h-3 rounded-full transition-all ${
+                        index === selectedImageIndex ? 'bg-white' : 'bg-white/50'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
             )}
             
