@@ -184,7 +184,7 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
     { name: "Santé & Bien-être", icon: "💊", color: "bg-gradient-to-r from-red-400 to-pink-600", id: "sante" },
     { name: "Culture, Divertissement & Sport", icon: "🎭", color: "bg-gradient-to-r from-pink-500 to-purple-700", id: "culture" },
     { name: "Technologie & Numérique", icon: "💻", color: "bg-gradient-to-r from-cyan-400 to-blue-500", id: "technologie" },
-    { name: "Banques, Finance & Assurances", icon: "🏦", color: "bg-gradient-to-r from-yellow-400 to-orange-500", id: "banque" },
+    { name: "Banques, Finance & Assurances", icon: "💳", color: "bg-gradient-to-r from-yellow-400 to-orange-500", id: "banque" },
     { name: "Agriculture & Environnement", icon: "🌱", color: "bg-gradient-to-r from-green-400 to-lime-600", id: "agriculture" },
     { name: "Institutions & Vie Publique", icon: "🏛️", color: "bg-gradient-to-r from-gray-500 to-gray-800", id: "institutions" },
     { name: "Logistique & Services", icon: "📦", color: "bg-gradient-to-r from-amber-500 to-yellow-600", id: "logistique" },
