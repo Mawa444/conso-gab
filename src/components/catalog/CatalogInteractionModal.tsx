@@ -26,6 +26,7 @@ import {
   Package,
   Store
 } from 'lucide-react';
+import { BusinessVitrineTab } from '@/components/business/BusinessVitrineTab';
 import { useCatalogComments, useCatalogLikes, useCatalogImageComments, useCatalogImageLikes } from '@/hooks/use-catalog-interactions';
 import { useCatalogFavorites, useCatalogShares } from '@/hooks/use-catalog-favorites';
 import { supabase } from '@/integrations/supabase/client';
@@ -191,7 +192,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                         <img
                           src={image.url}
                           alt={catalog.name}
-                          className="catalog-image-fullscreen w-full h-full object-cover cursor-pointer"
+                          className="catalog-image-fullscreen w-full h-full object-contain cursor-pointer"
                           onClick={() => {
                             // Mode plein écran au clic
                             const fullscreenElement = document.querySelector('.catalog-image-fullscreen');
@@ -311,10 +312,9 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
             </DialogHeader>
 
             <Tabs defaultValue="details" className="flex-1 flex flex-col">
-              <TabsList className="grid w-full grid-cols-4 mx-4 mt-2">
+              <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
                 <TabsTrigger value="details">Détails</TabsTrigger>
                 <TabsTrigger value="comments">Commentaires</TabsTrigger>
-                <TabsTrigger value="contact">Contact</TabsTrigger>
                 <TabsTrigger value="vitrine">Vitrine</TabsTrigger>
               </TabsList>
 
@@ -360,6 +360,57 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                       </div>
                     </div>
                   )}
+
+                  {/* Informations de contact déplacées depuis l'onglet Contact */}
+                  <div className="space-y-4 mb-4">
+                    <h4 className="font-medium mb-2">Contact</h4>
+                    
+                    {catalog.contact_phone && (
+                      <a href={`tel:${catalog.contact_phone}`} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <Phone className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">Téléphone</div>
+                          <div className="text-sm text-muted-foreground">{catalog.contact_phone}</div>
+                        </div>
+                      </a>
+                    )}
+                    
+                    {catalog.contact_whatsapp && (
+                      <a href={`https://wa.me/${catalog.contact_whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 border rounded-lg hover:bg-green-50 transition-colors">
+                        <MessageCircle className="w-5 h-5 text-green-600" />
+                        <div>
+                          <div className="font-medium">WhatsApp</div>
+                          <div className="text-sm text-muted-foreground">{catalog.contact_whatsapp}</div>
+                        </div>
+                      </a>
+                    )}
+                    
+                    {catalog.contact_email && (
+                      <a href={`mailto:${catalog.contact_email}`} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <Mail className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">Email</div>
+                          <div className="text-sm text-muted-foreground">{catalog.contact_email}</div>
+                        </div>
+                      </a>
+                    )}
+                    
+                    {catalog.business_hours && (
+                      <div className="flex items-start gap-3 p-3 border rounded-lg">
+                        <Clock className="w-5 h-5 text-muted-foreground mt-1" />
+                        <div>
+                          <div className="font-medium mb-2">Horaires d'ouverture</div>
+                          <div className="space-y-1 text-sm text-muted-foreground">
+                            {formatBusinessHours(catalog.business_hours).map((day, index) => (
+                              <div key={index}>
+                                {day.day}: {day.closed ? 'Fermé' : `${day.open} - ${day.close}`}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="space-y-4">
                     <Button 
@@ -473,64 +524,8 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                 </div>
               </TabsContent>
 
-              <TabsContent value="contact" className="flex-1 p-4">
-                <ScrollArea className="h-full">
-                  <div className="space-y-4">
-                    {catalog.contact_phone && (
-                      <div className="flex items-center gap-3 p-3 border rounded-lg">
-                        <Phone className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">Téléphone</div>
-                          <div className="text-sm text-muted-foreground">{catalog.contact_phone}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {catalog.contact_whatsapp && (
-                      <div className="flex items-center gap-3 p-3 border rounded-lg">
-                        <MessageCircle className="w-5 h-5 text-green-600" />
-                        <div>
-                          <div className="font-medium">WhatsApp</div>
-                          <div className="text-sm text-muted-foreground">{catalog.contact_whatsapp}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {catalog.contact_email && (
-                      <div className="flex items-center gap-3 p-3 border rounded-lg">
-                        <Mail className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">Email</div>
-                          <div className="text-sm text-muted-foreground">{catalog.contact_email}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {catalog.business_hours && (
-                      <div className="flex items-start gap-3 p-3 border rounded-lg">
-                        <Clock className="w-5 h-5 text-muted-foreground mt-1" />
-                        <div>
-                          <div className="font-medium mb-2">Horaires d'ouverture</div>
-                          <div className="space-y-1 text-sm text-muted-foreground">
-                            {formatBusinessHours(catalog.business_hours).map((day, index) => (
-                              <div key={index}>
-                                {day.day}: {day.closed ? 'Fermé' : `${day.open} - ${day.close}`}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <Button 
-                      onClick={handleSendMessage}
-                      className="w-full bg-[hsl(var(--gaboma-blue))] hover:bg-[hsl(var(--gaboma-blue))]/90"
-                    >
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Contacter directement
-                    </Button>
-                  </div>
-                </ScrollArea>
+              <TabsContent value="vitrine" className="flex-1 p-4">
+                <BusinessVitrineTab businessId={catalog.business_id} businessName={catalog.businessName || 'Commerce'} />
               </TabsContent>
             </Tabs>
           </div>

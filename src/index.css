@@ -92,7 +92,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 130 15% 3%; /* Fond sombre avec teinte verte - assombri de 5% */
+    --background: 130 15% 1%; /* Fond sombre avec teinte verte - assombri de 20% supplémentaire */
     --foreground: 130 5% 95%;
 
     --card: 130 10% 12%;
