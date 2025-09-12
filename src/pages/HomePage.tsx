@@ -177,6 +177,17 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
     { name: "Commerce", icon: "🛍️", color: "bg-gradient-to-r from-blue-500 to-indigo-600", id: "commerce" },
     { name: "Hôtels", icon: "🏨", color: "bg-gradient-to-r from-purple-500 to-pink-600", id: "hotellerie" },
     { name: "Transport", icon: "🚗", color: "bg-green-500", id: "automobile" },
+    { name: "Banques & Finances", icon: "🏦", color: "bg-gradient-to-r from-yellow-500 to-orange-600", id: "banque" },
+    { name: "Santé", icon: "💊", color: "bg-gradient-to-r from-red-400 to-pink-500", id: "sante" },
+    { name: "Beauté & Bien-être", icon: "💅", color: "bg-gradient-to-r from-pink-400 to-rose-600", id: "beaute" },
+    { name: "Éducation & Formation", icon: "📚", color: "bg-gradient-to-r from-indigo-400 to-blue-600", id: "education" },
+    { name: "Artisanat & Création", icon: "🎨", color: "bg-gradient-to-r from-yellow-400 to-orange-500", id: "artisanat" },
+    { name: "Agriculture & Agroalimentaire", icon: "🌾", color: "bg-gradient-to-r from-green-400 to-lime-600", id: "agriculture" },
+    { name: "Immobilier", icon: "🏠", color: "bg-gradient-to-r from-gray-400 to-gray-700", id: "immobilier" },
+    { name: "Technologie & Services", icon: "💻", color: "bg-gradient-to-r from-cyan-400 to-blue-500", id: "technologie" },
+    { name: "Événementiel", icon: "🎉", color: "bg-gradient-to-r from-pink-500 to-purple-700", id: "evenementiel" },
+    { name: "Mode & Accessoires", icon: "👗", color: "bg-gradient-to-r from-fuchsia-400 to-pink-600", id: "mode" },
+    { name: "Sport & Loisirs", icon: "⚽", color: "bg-gradient-to-r from-emerald-400 to-teal-600", id: "sport" },
   ];
 
   const handleCategoryClick = (category: any) => {
