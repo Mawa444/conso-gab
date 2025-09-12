@@ -208,7 +208,7 @@ export const CatalogCard = ({
           <div className="flex items-center gap-1 mb-4">
             <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
             <div className="text-sm text-muted-foreground truncate">
-              <span>Par {catalog.business?.business_name || 'Utilisateur'}</span>
+              <span>de {catalog.business?.business_name || 'Utilisateur'}</span>
               {catalog.geo_district && (
                 <>
                   <span className="mx-1">•</span>

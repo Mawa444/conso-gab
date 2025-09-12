@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { 
   Star, 
   ThumbsUp, 
@@ -51,6 +53,7 @@ interface Catalog {
   contact_phone?: string;
   contact_email?: string;
   business_hours?: any;
+  businessName?: string;
 }
 
 interface CatalogInteractionModalProps {
@@ -168,47 +171,43 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
             {/* Carousel avec swipe et plein écran */}
             {images.length > 1 && (
               <div className="absolute inset-0">
-                <div 
-                  className="flex h-full transition-transform duration-300 ease-out cursor-grab active:cursor-grabbing"
-                  style={{ transform: `translateX(-${selectedImageIndex * 100}%)` }}
-                  onTouchStart={(e) => {
-                    const startX = e.touches[0].clientX;
-                    const handleTouchMove = (e: TouchEvent) => {
-                      const currentX = e.touches[0].clientX;
-                      const diff = startX - currentX;
-                      if (Math.abs(diff) > 50) {
-                        if (diff > 0) {
-                          setSelectedImageIndex((prev) => (prev + 1) % images.length);
-                        } else {
-                          setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
-                        }
-                        document.removeEventListener('touchmove', handleTouchMove);
-                      }
-                    };
-                    document.addEventListener('touchmove', handleTouchMove, { once: true });
+                <Carousel
+                  opts={{
+                    align: "start",
+                    loop: true,
                   }}
-                  onClick={() => {
-                    // Mode plein écran au clic
-                    const fullscreenElement = document.querySelector('.catalog-image-fullscreen');
-                    if (fullscreenElement) {
-                      if (document.fullscreenElement) {
-                        document.exitFullscreen();
-                      } else {
-                        fullscreenElement.requestFullscreen();
-                      }
+                  className="w-full h-full"
+                  setApi={(api) => {
+                    if (api) {
+                      api.on('select', () => {
+                        setSelectedImageIndex(api.selectedScrollSnap());
+                      });
                     }
                   }}
                 >
-                  {images.concat(images).map((image, index) => (
-                    <img
-                      key={index}
-                      src={image.url}
-                      alt={catalog.name}
-                      className="catalog-image-fullscreen w-full h-full object-cover flex-shrink-0"
-                      style={{ minWidth: '100%' }}
-                    />
-                  ))}
-                </div>
+                  <CarouselContent className="-ml-0">
+                    {images.map((image, index) => (
+                      <CarouselItem key={index} className="pl-0">
+                        <img
+                          src={image.url}
+                          alt={catalog.name}
+                          className="catalog-image-fullscreen w-full h-full object-cover cursor-pointer"
+                          onClick={() => {
+                            // Mode plein écran au clic
+                            const fullscreenElement = document.querySelector('.catalog-image-fullscreen');
+                            if (fullscreenElement) {
+                              if (document.fullscreenElement) {
+                                document.exitFullscreen();
+                              } else {
+                                fullscreenElement.requestFullscreen();
+                              }
+                            }
+                          }}
+                        />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
                 
                 {/* Indicateurs de pagination */}
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-lg">
@@ -312,10 +311,11 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
             </DialogHeader>
 
             <Tabs defaultValue="details" className="flex-1 flex flex-col">
-              <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
+              <TabsList className="grid w-full grid-cols-4 mx-4 mt-2">
                 <TabsTrigger value="details">Détails</TabsTrigger>
                 <TabsTrigger value="comments">Commentaires</TabsTrigger>
                 <TabsTrigger value="contact">Contact</TabsTrigger>
+                <TabsTrigger value="vitrine">Vitrine</TabsTrigger>
               </TabsList>
 
               <TabsContent value="details" className="flex-1 p-4">

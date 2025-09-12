@@ -240,7 +240,7 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
             contact_whatsapp: selectedCatalog.contact_whatsapp,
             contact_phone: selectedCatalog.contact_phone,
             contact_email: selectedCatalog.contact_email,
-            business_hours: selectedCatalog.business_hours
+            businessName: businessName
           }}
         />
       )}

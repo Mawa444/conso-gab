@@ -2,11 +2,10 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Eye, Star, Package, Calendar, Store } from "lucide-react";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { CatalogInteractionModal } from "@/components/catalog/CatalogInteractionModal";
-import { BusinessVitrineTab } from "./BusinessVitrineTab";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface BusinessCatalogViewProps {
@@ -122,19 +121,13 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
   }
 
   return (
-    <Tabs defaultValue="featured" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="featured">Catalogues vedettes</TabsTrigger>
-        <TabsTrigger value="showcase">Vitrine complète</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="featured" className="space-y-6">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold mb-2">Catalogues de {businessName}</h2>
-          <p className="text-muted-foreground">
-            Découvrez nos {catalogs.length} catalogue{catalogs.length > 1 ? 's' : ''} de produits et services
-          </p>
-        </div>
+    <div className="w-full space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold mb-2">Catalogues de {businessName}</h2>
+        <p className="text-muted-foreground">
+          Découvrez nos {catalogs.length} catalogue{catalogs.length > 1 ? 's' : ''} de produits et services
+        </p>
+      </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
           {catalogs.slice(0, 3).map((catalog) => {
@@ -171,35 +164,25 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
                         {/* Carousel avec swipe infini */}
                         {images.length > 1 && (
                           <div className="absolute inset-0">
-                            <div 
-                              className="flex h-full transition-transform duration-300 ease-out cursor-grab active:cursor-grabbing"
-                              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-                              onTouchStart={(e) => {
-                                const startX = e.touches[0].clientX;
-                                const handleTouchMove = (e: TouchEvent) => {
-                                  const currentX = e.touches[0].clientX;
-                                  const diff = startX - currentX;
-                                  if (Math.abs(diff) > 50) {
-                                    if (diff > 0) {
-                                      nextImage(catalog.id, images.length);
-                                    } else {
-                                      prevImage(catalog.id, images.length);
-                                    }
-                                    document.removeEventListener('touchmove', handleTouchMove);
-                                  }
-                                };
-                                document.addEventListener('touchmove', handleTouchMove, { once: true });
+                            <Carousel
+                              opts={{
+                                align: "start",
+                                loop: true,
                               }}
+                              className="w-full h-full"
                             >
-                              {images.concat(images).map((image, index) => (
-                                <img
-                                  key={index}
-                                  src={image.url}
-                                  alt={catalog.name}
-                                  className="w-full h-full object-cover flex-shrink-0"
-                                />
-                              ))}
-                            </div>
+                              <CarouselContent className="-ml-0">
+                                {images.map((image, index) => (
+                                  <CarouselItem key={index} className="pl-0">
+                                    <img
+                                      src={image.url}
+                                      alt={catalog.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </CarouselItem>
+                                ))}
+                              </CarouselContent>
+                            </Carousel>
                             
                             {/* Indicateurs de pagination */}
                             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
@@ -296,11 +279,6 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
             );
           })}
         </div>
-      </TabsContent>
-      
-      <TabsContent value="showcase">
-        <BusinessVitrineTab businessId={businessId} businessName={businessName} />
-      </TabsContent>
 
       {/* Modal d'interaction */}
       {selectedCatalog && (
@@ -340,10 +318,11 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
             contact_whatsapp: selectedCatalog.contact_whatsapp,
             contact_phone: selectedCatalog.contact_phone,
             contact_email: selectedCatalog.contact_email,
-            business_hours: selectedCatalog.business_hours
+            business_hours: selectedCatalog.business_hours,
+            businessName: businessName
           }}
         />
       )}
-    </Tabs>
+    </div>
   );
 };
