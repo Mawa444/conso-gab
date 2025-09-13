@@ -11,6 +11,8 @@ interface Commerce {
   name: string;
   type: string;
   owner: string;
+  category?: string;
+  subcategory?: string;
 }
 
 interface MessageSheetProps {
@@ -19,25 +21,99 @@ interface MessageSheetProps {
   commerce: Commerce;
 }
 
-const messageTemplates = {
-  reserve: [
-    "Table pour 2 ce soir à 19h.",
-    "Réserver 5 plateaux-repas pour demain midi.",
-    "Table pour 4 personnes samedi soir.",
-    "Réservation pour un groupe de 8 personnes."
-  ],
-  quote: [
-    "Devis pour 50 unités du produit X.",
-    "Demande de tarifs pour mariage 100 personnes.",
-    "Devis pour livraison hebdomadaire.",
-    "Prix pour prestation complète."
-  ],
-  appointment: [
-    "Puis-je passer demain à 10h ?",
-    "RDV disponible cette semaine ?",
-    "Consultation possible cet après-midi ?",
-    "Rendez-vous pour vendredi matin."
-  ]
+const getCustomizedTemplates = (category?: string, subcategory?: string) => {
+  const baseTemplates = {
+    reserve: [
+      "Table pour 2 ce soir à 19h.",
+      "Réserver 5 plateaux-repas pour demain midi.",
+      "Table pour 4 personnes samedi soir.",
+      "Réservation pour un groupe de 8 personnes."
+    ],
+    quote: [
+      "Devis pour 50 unités du produit X.",
+      "Demande de tarifs pour mariage 100 personnes.",
+      "Devis pour livraison hebdomadaire.",
+      "Prix pour prestation complète."
+    ],
+    appointment: [
+      "Puis-je passer demain à 10h ?",
+      "RDV disponible cette semaine ?",
+      "Consultation possible cet après-midi ?",
+      "Rendez-vous pour vendredi matin."
+    ]
+  };
+
+  // Personnalisation selon la catégorie
+  if (category?.toLowerCase().includes('restaurant') || category?.toLowerCase().includes('alimentation')) {
+    return {
+      reserve: [
+        "Table pour 2 ce soir à 19h.",
+        "Réserver 5 plateaux-repas pour demain midi.",
+        "Table pour 4 personnes samedi soir.",
+        "Menu du jour disponible ?"
+      ],
+      quote: [
+        "Devis pour buffet 50 personnes.",
+        "Tarifs pour traiteur mariage 100 invités.",
+        "Prix menu groupe entreprise.",
+        "Devis livraison repas hebdomadaire."
+      ],
+      appointment: [
+        "Puis-je réserver pour ce soir ?",
+        "Table disponible demain midi ?",
+        "Réservation possible ce weekend ?",
+        "Horaires d'ouverture aujourd'hui ?"
+      ]
+    };
+  }
+
+  if (category?.toLowerCase().includes('beauté') || category?.toLowerCase().includes('coiffure')) {
+    return {
+      reserve: [
+        "RDV coiffure demain matin.",
+        "Séance manucure cette semaine.",
+        "Réserver soin visage samedi.",
+        "RDV coloration vendredi."
+      ],
+      quote: [
+        "Tarifs coupe + coloration.",
+        "Prix forfait mariage complète.",
+        "Devis extension cheveux.",
+        "Tarifs soins du visage."
+      ],
+      appointment: [
+        "Créneaux libres cette semaine ?",
+        "RDV urgent possible ?",
+        "Disponibilité samedi matin ?",
+        "RDV coiffure ce soir ?"
+      ]
+    };
+  }
+
+  if (category?.toLowerCase().includes('vêtement') || category?.toLowerCase().includes('mode')) {
+    return {
+      reserve: [
+        "Réserver article en magasin.",
+        "Garder la taille M disponible.",
+        "Réserver collection arrivée.",
+        "Mettre de côté cet article."
+      ],
+      quote: [
+        "Prix pour commande groupée.",
+        "Tarifs personnalisation textile.",
+        "Devis retouches vêtements.",
+        "Prix broderie entreprise."
+      ],
+      appointment: [
+        "Essayage possible quand ?",
+        "RDV retouches cette semaine.",
+        "Consultation style personnel.",
+        "Horaires d'ouverture ?"
+      ]
+    };
+  }
+
+  return baseTemplates;
 };
 
 export const MessageSheet = ({ open, onClose, commerce }: MessageSheetProps) => {
@@ -64,7 +140,8 @@ export const MessageSheet = ({ open, onClose, commerce }: MessageSheetProps) => 
 
   const getCurrentTemplates = () => {
     if (activeTab === 'message') return [];
-    return messageTemplates[activeTab] || [];
+    const customizedTemplates = getCustomizedTemplates(commerce.category, commerce.subcategory);
+    return customizedTemplates[activeTab] || [];
   };
 
   return (

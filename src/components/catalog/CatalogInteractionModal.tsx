@@ -319,116 +319,119 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                 <TabsTrigger value="vitrine">Vitrine</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="details" className="flex-1 overflow-hidden">
-                <ScrollArea className="h-full px-4">
-                  {catalog.description && (
-                    <div className="mb-4">
-                      <h4 className="font-medium mb-2">Description</h4>
-                      <p className="text-sm text-muted-foreground">{catalog.description}</p>
-                    </div>
-                  )}
-
-                  {catalog.delivery_available && (
-                    <div className="mb-4">
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <Truck className="w-4 h-4" />
-                        Livraison disponible
-                      </h4>
-                      <div className="space-y-2 text-sm">
-                        {catalog.delivery_zones && catalog.delivery_zones.length > 0 && (
-                          <div>
-                            <strong>Zones:</strong> {catalog.delivery_zones.join(', ')}
-                          </div>
-                        )}
-                        {catalog.delivery_cost && catalog.delivery_cost > 0 && (
-                          <div>
-                            <strong>Coût:</strong> {catalog.delivery_cost.toLocaleString()} FCFA
-                          </div>
-                        )}
+              <TabsContent value="details" className="flex-1 flex flex-col overflow-hidden">
+                {/* Zone de scroll avec contour visible */}
+                <div className="flex-1 border-2 border-border/50 rounded-lg overflow-hidden mb-4">
+                  <ScrollArea className="h-full px-4 py-2">
+                    {catalog.description && (
+                      <div className="mb-4">
+                        <h4 className="font-medium mb-2">Description</h4>
+                        <p className="text-sm text-muted-foreground">{catalog.description}</p>
                       </div>
-                    </div>
-                  )}
-                  
-                  {catalog.keywords && catalog.keywords.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="font-medium mb-2">Mots-clés</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {catalog.keywords.map((keyword, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {keyword}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Horaires d'ouverture */}
-                  {catalog.business_hours && (
-                    <div className="mb-6">
-                      <h4 className="font-medium mb-3 flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        Horaires d'ouverture
-                      </h4>
-                      <div className="space-y-2 text-sm bg-muted/30 p-4 rounded-lg">
-                        {formatBusinessHours(catalog.business_hours).map((day, index) => (
-                          <div key={index} className="flex justify-between">
-                            <span className="font-medium">{day.day}:</span>
-                            <span className="text-muted-foreground">
-                              {day.closed ? 'Fermé' : `${day.open} - ${day.close}`}
-                            </span>
-                          </div>
-                        ))}
+                    {catalog.delivery_available && (
+                      <div className="mb-4">
+                        <h4 className="font-medium mb-2 flex items-center gap-2">
+                          <Truck className="w-4 h-4" />
+                          Livraison disponible
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          {catalog.delivery_zones && catalog.delivery_zones.length > 0 && (
+                            <div>
+                              <strong>Zones:</strong> {catalog.delivery_zones.join(', ')}
+                            </div>
+                          )}
+                          {catalog.delivery_cost && catalog.delivery_cost > 0 && (
+                            <div>
+                              <strong>Coût:</strong> {catalog.delivery_cost.toLocaleString()} FCFA
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Boutons de contact redessinés */}
-                  <div className="space-y-3">
-                    <h4 className="font-medium mb-3">Contact</h4>
+                    )}
                     
-                    {/* Boutons WhatsApp et Téléphone côte à côte */}
-                    <div className="flex gap-3 mb-4">
-                      {catalog.contact_whatsapp && (
-                        <a 
-                          href={`https://wa.me/${catalog.contact_whatsapp}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex-1"
-                        >
-                          <Button 
-                            className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-sm font-semibold"
-                          >
-                            <MessageCircle className="w-5 h-5 mr-2" />
-                            WhatsApp
-                          </Button>
-                        </a>
-                      )}
-                      
-                      {catalog.contact_phone && (
-                        <a 
-                          href={`tel:${catalog.contact_phone}`}
-                          className="flex-1"
-                        >
-                          <Button 
-                            className="w-full bg-[hsl(var(--gaboma-blue))] hover:bg-[hsl(var(--gaboma-blue))]/90 text-white h-12 text-sm font-semibold"
-                          >
-                            <Phone className="w-5 h-5 mr-2" />
-                            Appeler
-                          </Button>
-                        </a>
-                      )}
-                    </div>
+                    {catalog.keywords && catalog.keywords.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="font-medium mb-2">Mots-clés</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {catalog.keywords.map((keyword, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {keyword}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                    {/* Bouton de messagerie interne en pleine largeur */}
-                    <Button 
-                      onClick={handleSendMessage}
-                      className="w-full bg-yellow-400 hover:bg-yellow-500 text-black h-14 text-sm font-semibold"
-                    >
-                      <MessageCircle className="w-5 h-5 mr-2" />
-                      Messagerie • Rendez-vous • Devis • Géolocalisation
-                    </Button>
+                    {/* Horaires d'ouverture */}
+                    {catalog.business_hours && (
+                      <div className="mb-6">
+                        <h4 className="font-medium mb-3 flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          Horaires d'ouverture
+                        </h4>
+                        <div className="space-y-2 text-sm bg-muted/30 p-4 rounded-lg">
+                          {formatBusinessHours(catalog.business_hours).map((day, index) => (
+                            <div key={index} className="flex justify-between">
+                              <span className="font-medium">{day.day}:</span>
+                              <span className="text-muted-foreground">
+                                {day.closed ? 'Fermé' : `${day.open} - ${day.close}`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </ScrollArea>
+                </div>
+
+                {/* Section Contact fixe en bas */}
+                <div className="flex-shrink-0 space-y-3 px-4 pb-4 bg-background border-t border-border">
+                  <h4 className="font-medium mb-3">Contact</h4>
+                  
+                  {/* Boutons WhatsApp et Téléphone côte à côte */}
+                  <div className="flex gap-3 mb-4">
+                    {catalog.contact_whatsapp && (
+                      <a 
+                        href={`https://wa.me/${catalog.contact_whatsapp}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex-1"
+                      >
+                        <Button 
+                          className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-sm font-semibold"
+                        >
+                          <MessageCircle className="w-5 h-5 mr-2" />
+                          WhatsApp
+                        </Button>
+                      </a>
+                    )}
+                    
+                    {catalog.contact_phone && (
+                      <a 
+                        href={`tel:${catalog.contact_phone}`}
+                        className="flex-1"
+                      >
+                        <Button 
+                          className="w-full bg-[hsl(var(--gaboma-blue))] hover:bg-[hsl(var(--gaboma-blue))]/90 text-white h-12 text-sm font-semibold"
+                        >
+                          <Phone className="w-5 h-5 mr-2" />
+                          Appeler
+                        </Button>
+                      </a>
+                    )}
                   </div>
-                </ScrollArea>
+
+                  {/* Bouton de messagerie interne en pleine largeur */}
+                  <Button 
+                    onClick={handleSendMessage}
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black h-14 text-sm font-semibold"
+                  >
+                    <MessageCircle className="w-5 h-5 mr-2" />
+                    Messagerie • Rendez-vous • Devis • Géolocalisation
+                  </Button>
+                </div>
               </TabsContent>
 
               <TabsContent value="comments" className="flex-1 flex flex-col overflow-hidden">
@@ -496,8 +499,10 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                 </div>
               </TabsContent>
 
-              <TabsContent value="vitrine" className="flex-1 overflow-hidden p-4">
-                <BusinessVitrineTab businessId={catalog.business_id} businessName={catalog.businessName || 'Commerce'} />
+              <TabsContent value="vitrine" className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full px-4">
+                  <BusinessVitrineTab businessId={catalog.business_id} businessName={catalog.businessName || 'Commerce'} />
+                </ScrollArea>
               </TabsContent>
             </Tabs>
           </div>
@@ -541,7 +546,9 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
             id: catalog.business_id,
             name: catalog.businessName || catalog.name,
             type: catalog.catalog_type,
-            owner: 'Business Owner'
+            owner: 'Business Owner',
+            category: catalog.category,
+            subcategory: catalog.subcategory
           }}
         />
       </DialogContent>

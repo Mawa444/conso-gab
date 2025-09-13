@@ -83,7 +83,7 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold mb-2">Vitrine de {businessName}</h2>
