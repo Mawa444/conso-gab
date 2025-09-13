@@ -27,6 +27,7 @@ import {
   Store
 } from 'lucide-react';
 import { BusinessVitrineTab } from '@/components/business/BusinessVitrineTab';
+import { MessageSheet } from '@/components/commerce/MessageSheet';
 import { useCatalogComments, useCatalogLikes, useCatalogImageComments, useCatalogImageLikes } from '@/hooks/use-catalog-interactions';
 import { useCatalogFavorites, useCatalogShares } from '@/hooks/use-catalog-favorites';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,6 +70,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
   const [newImageComment, setNewImageComment] = useState('');
   const [selectedImageForComment, setSelectedImageForComment] = useState<string | null>(null);
   const [commentRating, setCommentRating] = useState(5);
+  const [messageSheetOpen, setMessageSheetOpen] = useState(false);
   
   // Hooks pour les interactions
   const { comments, addComment, isAdding } = useCatalogComments(catalog.id);
@@ -117,8 +119,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
   };
 
   const handleSendMessage = () => {
-    // TODO: Implémenter l'envoi de message direct
-    console.log('Envoyer message au business');
+    setMessageSheetOpen(true);
   };
 
   const formatBusinessHours = (hours: any) => {
@@ -142,8 +143,8 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden p-0">
-        <div className="grid grid-cols-1 lg:grid-cols-2 h-[80vh]">
+      <DialogContent className="max-w-6xl max-h-[90vh] p-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 h-[90vh] overflow-hidden">
           {/* Colonne gauche - Images */}
           <div className="relative bg-black">
             {images.length > 0 && selectedImage ? (
@@ -273,8 +274,8 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
           </div>
 
           {/* Colonne droite - Informations et interactions */}
-          <div className="flex flex-col">
-            <DialogHeader className="p-4 border-b">
+          <div className="flex flex-col overflow-hidden">
+            <DialogHeader className="p-4 border-b flex-shrink-0">
               <DialogTitle className="text-xl flex items-center gap-2">
                 {catalog.catalog_type === 'products' ? (
                   <Package className="w-5 h-5" />
@@ -311,15 +312,15 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
               </div>
             </DialogHeader>
 
-            <Tabs defaultValue="details" className="flex-1 flex flex-col">
-              <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
+            <Tabs defaultValue="details" className="flex-1 flex flex-col overflow-hidden">
+              <TabsList className="grid w-full grid-cols-3 mx-4 mt-2 flex-shrink-0">
                 <TabsTrigger value="details">Détails</TabsTrigger>
                 <TabsTrigger value="comments">Commentaires</TabsTrigger>
                 <TabsTrigger value="vitrine">Vitrine</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="details" className="flex-1 p-4">
-                <ScrollArea className="h-full">
+              <TabsContent value="details" className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full px-4">
                   {catalog.description && (
                     <div className="mb-4">
                       <h4 className="font-medium mb-2">Description</h4>
@@ -361,106 +362,77 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                     </div>
                   )}
 
-                  {/* Informations de contact déplacées depuis l'onglet Contact */}
-                  <div className="space-y-4 mb-4">
-                    <h4 className="font-medium mb-2">Contact</h4>
-                    
-                    {catalog.contact_phone && (
-                      <a href={`tel:${catalog.contact_phone}`} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                        <Phone className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">Téléphone</div>
-                          <div className="text-sm text-muted-foreground">{catalog.contact_phone}</div>
-                        </div>
-                      </a>
-                    )}
-                    
-                    {catalog.contact_whatsapp && (
-                      <a href={`https://wa.me/${catalog.contact_whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 border rounded-lg hover:bg-green-50 transition-colors">
-                        <MessageCircle className="w-5 h-5 text-green-600" />
-                        <div>
-                          <div className="font-medium">WhatsApp</div>
-                          <div className="text-sm text-muted-foreground">{catalog.contact_whatsapp}</div>
-                        </div>
-                      </a>
-                    )}
-                    
-                    {catalog.contact_email && (
-                      <a href={`mailto:${catalog.contact_email}`} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                        <Mail className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">Email</div>
-                          <div className="text-sm text-muted-foreground">{catalog.contact_email}</div>
-                        </div>
-                      </a>
-                    )}
-                    
-                    {catalog.business_hours && (
-                      <div className="flex items-start gap-3 p-3 border rounded-lg">
-                        <Clock className="w-5 h-5 text-muted-foreground mt-1" />
-                        <div>
-                          <div className="font-medium mb-2">Horaires d'ouverture</div>
-                          <div className="space-y-1 text-sm text-muted-foreground">
-                            {formatBusinessHours(catalog.business_hours).map((day, index) => (
-                              <div key={index}>
-                                {day.day}: {day.closed ? 'Fermé' : `${day.open} - ${day.close}`}
-                              </div>
-                            ))}
+                  {/* Horaires d'ouverture */}
+                  {catalog.business_hours && (
+                    <div className="mb-6">
+                      <h4 className="font-medium mb-3 flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Horaires d'ouverture
+                      </h4>
+                      <div className="space-y-2 text-sm bg-muted/30 p-4 rounded-lg">
+                        {formatBusinessHours(catalog.business_hours).map((day, index) => (
+                          <div key={index} className="flex justify-between">
+                            <span className="font-medium">{day.day}:</span>
+                            <span className="text-muted-foreground">
+                              {day.closed ? 'Fermé' : `${day.open} - ${day.close}`}
+                            </span>
                           </div>
-                        </div>
+                        ))}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
-                  <div className="space-y-4">
+                  {/* Boutons de contact redessinés */}
+                  <div className="space-y-3">
+                    <h4 className="font-medium mb-3">Contact</h4>
+                    
+                    {/* Boutons WhatsApp et Téléphone côte à côte */}
+                    <div className="flex gap-3 mb-4">
+                      {catalog.contact_whatsapp && (
+                        <a 
+                          href={`https://wa.me/${catalog.contact_whatsapp}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex-1"
+                        >
+                          <Button 
+                            className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-sm font-semibold"
+                          >
+                            <MessageCircle className="w-5 h-5 mr-2" />
+                            WhatsApp
+                          </Button>
+                        </a>
+                      )}
+                      
+                      {catalog.contact_phone && (
+                        <a 
+                          href={`tel:${catalog.contact_phone}`}
+                          className="flex-1"
+                        >
+                          <Button 
+                            className="w-full bg-[hsl(var(--gaboma-blue))] hover:bg-[hsl(var(--gaboma-blue))]/90 text-white h-12 text-sm font-semibold"
+                          >
+                            <Phone className="w-5 h-5 mr-2" />
+                            Appeler
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+
+                    {/* Bouton de messagerie interne en pleine largeur */}
                     <Button 
                       onClick={handleSendMessage}
-                      className="w-full bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90"
+                      className="w-full bg-yellow-400 hover:bg-yellow-500 text-black h-14 text-sm font-semibold"
                     >
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Envoyer un message
+                      <MessageCircle className="w-5 h-5 mr-2" />
+                      Messagerie • Rendez-vous • Devis • Géolocalisation
                     </Button>
-                    
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className={`flex-1 ${isLiked ? 'bg-red-50 text-red-600 border-red-200' : ''}`}
-                        onClick={() => toggleLike()}
-                        disabled={isToggling}
-                      >
-                        <ThumbsUp className={`w-4 h-4 mr-2 ${isLiked ? 'fill-current' : ''}`} />
-                        {isLiked ? 'Aimé' : 'J\'aime'} ({likesCount})
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className={`flex-1 ${isFavorited(catalog.id) ? 'bg-yellow-50 text-yellow-600 border-yellow-200' : ''}`}
-                        onClick={() => toggleFavorite(catalog.id)}
-                        disabled={isTogglingFavorite}
-                      >
-                        <Heart className={`w-4 h-4 mr-2 ${isFavorited(catalog.id) ? 'fill-current' : ''}`} />
-                        {isFavorited(catalog.id) ? 'Favori' : 'Favoris'}
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => shareCatalog(catalog.id, catalog.name)}
-                      >
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Partager
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Flag className="w-4 h-4" />
-                      </Button>
-                    </div>
                   </div>
                 </ScrollArea>
               </TabsContent>
 
-              <TabsContent value="comments" className="flex-1 flex flex-col p-4">
-                <ScrollArea className="flex-1 mb-4">
+              <TabsContent value="comments" className="flex-1 flex flex-col overflow-hidden">
+                <ScrollArea className="flex-1 mb-4 px-4">
                   <div className="space-y-4">
                     {comments.map((comment) => (
                       <div key={comment.id} className="flex gap-3">
@@ -493,7 +465,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                   </div>
                 </ScrollArea>
                 
-                <div className="space-y-3">
+                <div className="space-y-3 px-4 pb-4 flex-shrink-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">Note:</span>
                     <div className="flex gap-1">
@@ -524,7 +496,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                 </div>
               </TabsContent>
 
-              <TabsContent value="vitrine" className="flex-1 p-4">
+              <TabsContent value="vitrine" className="flex-1 overflow-hidden p-4">
                 <BusinessVitrineTab businessId={catalog.business_id} businessName={catalog.businessName || 'Commerce'} />
               </TabsContent>
             </Tabs>
@@ -560,6 +532,18 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
             </div>
           </div>
         )}
+
+        {/* MessageSheet pour la messagerie interne */}
+        <MessageSheet
+          open={messageSheetOpen}
+          onClose={() => setMessageSheetOpen(false)}
+          commerce={{
+            id: catalog.business_id,
+            name: catalog.businessName || catalog.name,
+            type: catalog.catalog_type,
+            owner: 'Business Owner'
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
