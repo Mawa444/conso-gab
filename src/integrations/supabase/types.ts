@@ -58,6 +58,51 @@ export type Database = {
           },
         ]
       }
+      booking_time_slots: {
+        Row: {
+          business_id: string
+          catalog_id: string
+          created_at: string
+          current_bookings: number | null
+          end_time: string
+          id: string
+          is_available: boolean | null
+          max_capacity: number | null
+          price: number | null
+          slot_date: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          catalog_id: string
+          created_at?: string
+          current_bookings?: number | null
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          max_capacity?: number | null
+          price?: number | null
+          slot_date: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          catalog_id?: string
+          created_at?: string
+          current_bookings?: number | null
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          max_capacity?: number | null
+          price?: number | null
+          slot_date?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       business_collaborators: {
         Row: {
           accepted_at: string | null
@@ -193,6 +238,147 @@ export type Database = {
           user_id?: string
           website?: string | null
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      catalog_booking_config: {
+        Row: {
+          advance_booking_days: number | null
+          allow_online_payment: boolean
+          available_days: string[] | null
+          booking_enabled: boolean
+          booking_hours: Json | null
+          booking_slots_duration: number | null
+          booking_type: string
+          business_id: string
+          cancellation_policy: string | null
+          catalog_id: string
+          created_at: string
+          deposit_amount: number | null
+          deposit_required: boolean | null
+          id: string
+          max_bookings_per_slot: number | null
+          require_approval: boolean
+          special_instructions: string | null
+          updated_at: string
+        }
+        Insert: {
+          advance_booking_days?: number | null
+          allow_online_payment?: boolean
+          available_days?: string[] | null
+          booking_enabled?: boolean
+          booking_hours?: Json | null
+          booking_slots_duration?: number | null
+          booking_type?: string
+          business_id: string
+          cancellation_policy?: string | null
+          catalog_id: string
+          created_at?: string
+          deposit_amount?: number | null
+          deposit_required?: boolean | null
+          id?: string
+          max_bookings_per_slot?: number | null
+          require_approval?: boolean
+          special_instructions?: string | null
+          updated_at?: string
+        }
+        Update: {
+          advance_booking_days?: number | null
+          allow_online_payment?: boolean
+          available_days?: string[] | null
+          booking_enabled?: boolean
+          booking_hours?: Json | null
+          booking_slots_duration?: number | null
+          booking_type?: string
+          business_id?: string
+          cancellation_policy?: string | null
+          catalog_id?: string
+          created_at?: string
+          deposit_amount?: number | null
+          deposit_required?: boolean | null
+          id?: string
+          max_bookings_per_slot?: number | null
+          require_approval?: boolean
+          special_instructions?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      catalog_bookings: {
+        Row: {
+          booking_date: string
+          booking_number: string
+          booking_time: string
+          booking_type: string
+          business_id: string
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          catalog_id: string
+          confirmed_at: string | null
+          created_at: string
+          customer_email: string | null
+          customer_id: string
+          customer_name: string
+          customer_phone: string | null
+          deposit_paid: number | null
+          end_time: string | null
+          id: string
+          notes: string | null
+          payment_status: string | null
+          special_requests: string | null
+          status: string
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          booking_date: string
+          booking_number: string
+          booking_time: string
+          booking_type: string
+          business_id: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          catalog_id: string
+          confirmed_at?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_id: string
+          customer_name: string
+          customer_phone?: string | null
+          deposit_paid?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          payment_status?: string | null
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          booking_date?: string
+          booking_number?: string
+          booking_time?: string
+          booking_type?: string
+          business_id?: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          catalog_id?: string
+          confirmed_at?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_id?: string
+          customer_name?: string
+          customer_phone?: string | null
+          deposit_paid?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          payment_status?: string | null
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -964,6 +1150,10 @@ export type Database = {
       cancel_business_deletion: {
         Args: { business_profile_id: string }
         Returns: undefined
+      }
+      generate_booking_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       generate_order_number: {
         Args: Record<PropertyKey, never>

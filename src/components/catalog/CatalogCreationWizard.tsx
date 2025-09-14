@@ -13,6 +13,7 @@ import { MultiImageEnforcer } from './MultiImageEnforcer';
 import { ProductManager } from './ProductManager';
 import { useCreateCatalog } from '@/hooks/use-create-catalog';
 import { businessCategories } from '@/data/businessCategories';
+import { CatalogBookingStep } from './CatalogBookingStep';
 
 interface ImageData {
   url: string;
@@ -29,7 +30,7 @@ interface CatalogWizardProps {
 export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: CatalogWizardProps) => {
   const { createCatalog, isCreating } = useCreateCatalog(businessId);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 8;
+  const totalSteps = 9;
 
   // Étape 1: Type de catalogue et informations de base
   const [catalogType, setCatalogType] = useState<'products' | 'services'>('products');
@@ -82,8 +83,23 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
   const [basePrice, setBasePrice] = useState<number>(0);
   const [priceCurrency, setPriceCurrency] = useState('FCFA');
   const [priceDetails, setPriceDetails] = useState<any[]>([]);
+
+  // Étape 7: Configuration de réservation/commande
+  const [bookingEnabled, setBookingEnabled] = useState(false);
+  const [bookingType, setBookingType] = useState<'appointment' | 'reservation' | 'order' | 'rental'>('appointment');
+  const [requireApproval, setRequireApproval] = useState(true);
+  const [allowOnlinePayment, setAllowOnlinePayment] = useState(false);
+  const [advanceBookingDays, setAdvanceBookingDays] = useState(30);
+  const [bookingSlotsDuration, setBookingSlotsDuration] = useState(60);
+  const [availableDays, setAvailableDays] = useState<string[]>(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
+  const [bookingHours, setBookingHours] = useState({ start: '08:00', end: '18:00' });
+  const [maxBookingsPerSlot, setMaxBookingsPerSlot] = useState(1);
+  const [depositRequired, setDepositRequired] = useState(false);
+  const [depositAmount, setDepositAmount] = useState(0);
+  const [cancellationPolicy, setCancellationPolicy] = useState('');
+  const [specialInstructions, setSpecialInstructions] = useState('');
   
-  // Étape 8: États finaux
+  // Étape 9: États finaux
   const [createdCatalogId, setCreatedCatalogId] = useState<string | null>(null);
 
   const selectedCategory = businessCategories.find(cat => cat.id === categoryId);
@@ -151,6 +167,8 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
       case 7:
         return priceType === 'variable' ? priceDetails.length > 0 : basePrice > 0;
       case 8:
+        return true; // Booking config is optional
+      case 9:
         return true;
       default:
         return false;
@@ -192,7 +210,33 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
 
     if (catalog?.id) {
       setCreatedCatalogId(catalog.id);
-      setCurrentStep(8);
+      
+      // Create booking configuration if enabled
+      if (bookingEnabled) {
+        try {
+          await supabase.from('catalog_booking_config').insert({
+            catalog_id: catalog.id,
+            business_id: businessId,
+            booking_enabled: true,
+            booking_type: bookingType,
+            require_approval: requireApproval,
+            allow_online_payment: allowOnlinePayment,
+            advance_booking_days: advanceBookingDays,
+            booking_slots_duration: bookingSlotsDuration,
+            available_days: availableDays,
+            booking_hours: bookingHours,
+            max_bookings_per_slot: maxBookingsPerSlot,
+            deposit_required: depositRequired,
+            deposit_amount: depositRequired ? depositAmount : 0,
+            cancellation_policy: cancellationPolicy || null,
+            special_instructions: specialInstructions || null
+          });
+        } catch (error) {
+          console.error('Error creating booking config:', error);
+        }
+      }
+      
+      setCurrentStep(9);
     }
   };
 
@@ -205,7 +249,8 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
       case 5: return <Phone className="w-5 h-5" />;
       case 6: return <Image className="w-5 h-5" />;
       case 7: return <Settings className="w-5 h-5" />;
-      case 8: return <Check className="w-5 h-5" />;
+      case 8: return <Clock className="w-5 h-5" />;
+      case 9: return <Check className="w-5 h-5" />;
       default: return null;
     }
   };
@@ -219,7 +264,8 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
       case 5: return 'Contact';
       case 6: return 'Images';
       case 7: return 'Prix';
-      case 8: return catalogType === 'products' ? 'Produits' : 'Services';
+      case 8: return 'Réservations';
+      case 9: return catalogType === 'products' ? 'Produits' : 'Services';
       default: return '';
     }
   };
@@ -236,7 +282,7 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
         
         {/* Step indicators */}
         <div className="flex items-center justify-between">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => (
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((step) => (
             <div 
               key={step}
               className={`flex flex-col items-center gap-2 ${
@@ -268,7 +314,8 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             {currentStep === 5 && 'Contact et horaires d\'ouverture'}
             {currentStep === 6 && 'Images et couverture'}
             {currentStep === 7 && 'Paramètres de prix'}
-            {currentStep === 8 && `Gérer les ${catalogType === 'products' ? 'produits' : 'services'}`}
+            {currentStep === 8 && 'Configuration des réservations'}
+            {currentStep === 9 && `Gérer les ${catalogType === 'products' ? 'produits' : 'services'}`}
           </CardTitle>
         </CardHeader>
 
@@ -889,8 +936,41 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             </div>
           )}
 
-          {/* Étape 8: Gestion des produits/services */}
+          {/* Étape 8: Configuration des réservations */}
           {currentStep === 8 && (
+            <CatalogBookingStep 
+              catalogType={catalogType}
+              bookingEnabled={bookingEnabled}
+              setBookingEnabled={setBookingEnabled}
+              bookingType={bookingType}
+              setBookingType={setBookingType}
+              requireApproval={requireApproval}
+              setRequireApproval={setRequireApproval}
+              allowOnlinePayment={allowOnlinePayment}
+              setAllowOnlinePayment={setAllowOnlinePayment}
+              advanceBookingDays={advanceBookingDays}
+              setAdvanceBookingDays={setAdvanceBookingDays}
+              bookingSlotsDuration={bookingSlotsDuration}
+              setBookingSlotsDuration={setBookingSlotsDuration}
+              availableDays={availableDays}
+              setAvailableDays={setAvailableDays}
+              bookingHours={bookingHours}
+              setBookingHours={setBookingHours}
+              maxBookingsPerSlot={maxBookingsPerSlot}
+              setMaxBookingsPerSlot={setMaxBookingsPerSlot}
+              depositRequired={depositRequired}
+              setDepositRequired={setDepositRequired}
+              depositAmount={depositAmount}
+              setDepositAmount={setDepositAmount}
+              cancellationPolicy={cancellationPolicy}
+              setCancellationPolicy={setCancellationPolicy}
+              specialInstructions={specialInstructions}
+              setSpecialInstructions={setSpecialInstructions}
+            />
+          )}
+
+          {/* Étape 9: Gestion des produits/services */}
+          {currentStep === 9 && (
             <div className="space-y-6">
               {createdCatalogId ? (
                 <ProductManager 
