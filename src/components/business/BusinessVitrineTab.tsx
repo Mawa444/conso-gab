@@ -107,7 +107,7 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 max-h-[70vh] overflow-y-auto">
         {sortedCatalogs.map((catalog) => {
           // Safely parse images JSON
           let images: ImageData[] = [];
