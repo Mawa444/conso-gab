@@ -14,6 +14,7 @@ import { ProductManager } from './ProductManager';
 import { useCreateCatalog } from '@/hooks/use-create-catalog';
 import { businessCategories } from '@/data/businessCategories';
 import { CatalogBookingStep } from './CatalogBookingStep';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageData {
   url: string;
