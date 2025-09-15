@@ -460,9 +460,9 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
 
                 <TabsContent value="vitrine" className="flex-1 overflow-hidden mx-4 mt-2">
                   <div className="h-full border-2 border-border/50 rounded-lg overflow-hidden">
-                    <ScrollArea className="h-full px-4 py-4">
+                    <div className="h-full overflow-y-auto px-4 py-4">
                       <BusinessVitrineTab businessId={catalog.business_id} businessName={catalog.businessName || 'Commerce'} />
-                    </ScrollArea>
+                    </div>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -472,38 +472,45 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
             <div className="flex-shrink-0 space-y-3 px-4 py-4 bg-background border-t-2 border-border">
               <h4 className="font-medium mb-3">Contact</h4>
               
-              {/* WhatsApp and Call buttons (if available) */}
-              {(catalog.contact_whatsapp || catalog.contact_phone) && (
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  {catalog.contact_whatsapp && (
-                    <Button 
-                      onClick={() => window.open(`https://wa.me/${catalog.contact_whatsapp}`, '_blank')}
-                      className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white flex items-center gap-2 h-12"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      WhatsApp
-                    </Button>
-                  )}
-                  {catalog.contact_phone && (
-                    <Button 
-                      onClick={() => window.open(`tel:${catalog.contact_phone}`, '_blank')}
-                      className="bg-[hsl(var(--gaboma-blue))] hover:bg-[hsl(var(--gaboma-blue))]/90 text-white flex items-center gap-2 h-12"
-                    >
-                      <Phone className="w-4 h-4" />
-                      Appeler
-                    </Button>
-                  )}
-                </div>
-              )}
-              
-              {/* Advanced messaging button - Always present */}
-              <Button 
-                onClick={() => setShowAdvancedMessaging(true)}
-                className="w-full bg-[hsl(var(--gaboma-yellow))] hover:bg-[hsl(var(--gaboma-yellow))]/90 text-black font-medium h-14"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Messagerie • Rendez-vous • Devis • Géolocalisation
-              </Button>
+              {/* Adaptive layout based on number of available contact methods */}
+              <div className="space-y-2">
+                {/* WhatsApp and Call buttons row (if any available) */}
+                {(catalog.contact_whatsapp || catalog.contact_phone) && (
+                  <div className={`grid gap-2 ${
+                    catalog.contact_whatsapp && catalog.contact_phone 
+                      ? 'grid-cols-2' 
+                      : 'grid-cols-1'
+                  }`}>
+                    {catalog.contact_whatsapp && (
+                      <Button 
+                        onClick={() => window.open(`https://wa.me/${catalog.contact_whatsapp}`, '_blank')}
+                        className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white flex items-center gap-2 h-12"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        WhatsApp
+                      </Button>
+                    )}
+                    {catalog.contact_phone && (
+                      <Button 
+                        onClick={() => window.open(`tel:${catalog.contact_phone}`, '_blank')}
+                        className="bg-[hsl(var(--gaboma-blue))] hover:bg-[hsl(var(--gaboma-blue))]/90 text-white flex items-center gap-2 h-12"
+                      >
+                        <Phone className="w-4 h-4" />
+                        Appeler
+                      </Button>
+                    )}
+                  </div>
+                )}
+                
+                {/* Advanced messaging button - Always present */}
+                <Button 
+                  onClick={() => setShowAdvancedMessaging(true)}
+                  className="w-full bg-[hsl(var(--gaboma-yellow))] hover:bg-[hsl(var(--gaboma-yellow))]/90 text-black font-medium h-14"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Messagerie • Rendez-vous • Devis • Géolocalisation
+                </Button>
+              </div>
             </div>
           </div>
         </div>
