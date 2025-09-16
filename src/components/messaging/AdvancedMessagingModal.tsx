@@ -201,22 +201,26 @@ export const AdvancedMessagingModal = ({ open, onClose, catalog }: AdvancedMessa
           </Card>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="message" className="flex items-center gap-2">
-                <MessageCircle className="w-4 h-4" />
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="message" className="flex items-center gap-1 text-xs">
+                <MessageCircle className="w-3 h-3" />
                 Message
               </TabsTrigger>
-              <TabsTrigger value="appointment" className="flex items-center gap-2">
-                <CalendarIcon className="w-4 h-4" />
-                Rendez-vous
+              <TabsTrigger value="appointment" className="flex items-center gap-1 text-xs">
+                <CalendarIcon className="w-3 h-3" />
+                RDV
               </TabsTrigger>
-              <TabsTrigger value="quote" className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
+              <TabsTrigger value="quote" className="flex items-center gap-1 text-xs">
+                <FileText className="w-3 h-3" />
                 Devis
               </TabsTrigger>
-              <TabsTrigger value="order" className="flex items-center gap-2">
-                <Gift className="w-4 h-4" />
+              <TabsTrigger value="order" className="flex items-center gap-1 text-xs">
+                <Gift className="w-3 h-3" />
                 Commande
+              </TabsTrigger>
+              <TabsTrigger value="advanced" className="flex items-center gap-1 text-xs">
+                <Star className="w-3 h-3" />
+                Plus
               </TabsTrigger>
             </TabsList>
 
