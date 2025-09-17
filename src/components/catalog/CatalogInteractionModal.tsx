@@ -29,6 +29,7 @@ import {
 import { BusinessVitrineTab } from '@/components/business/BusinessVitrineTab';
 import { MessageSheet } from '@/components/commerce/MessageSheet';
 import { AdvancedMessagingModal } from '@/components/messaging/AdvancedMessagingModal';
+import { RouteMapModal } from '@/components/map/RouteMapModal';
 import { useCatalogComments, useCatalogLikes, useCatalogImageComments, useCatalogImageLikes } from '@/hooks/use-catalog-interactions';
 import { useCatalogFavorites, useCatalogShares } from '@/hooks/use-catalog-favorites';
 import { supabase } from '@/integrations/supabase/client';
@@ -73,6 +74,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
   const [commentRating, setCommentRating] = useState(5);
   const [messageSheetOpen, setMessageSheetOpen] = useState(false);
   const [showAdvancedMessaging, setShowAdvancedMessaging] = useState(false);
+  const [showRouteModal, setShowRouteModal] = useState(false);
   
   // Hooks pour les interactions
   const { comments, addComment, isAdding } = useCatalogComments(catalog.id);
@@ -276,7 +278,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
           </div>
 
           {/* Colonne droite - Informations et interactions avec layout responsive fixe */}
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full overflow-hidden">
             <DialogHeader className="p-4 border-b flex-shrink-0">
               <DialogTitle className="text-xl flex items-center gap-2">
                 {catalog.catalog_type === 'products' ? (
@@ -288,11 +290,11 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
               </DialogTitle>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />
-                <span>{catalog.category}</span>
-                {catalog.subcategory && (
+                <span>par {catalog.businessName || 'Professionnel'}</span>
+                {catalog.category && (
                   <>
                     <span>•</span>
-                    <span>{catalog.subcategory}</span>
+                    <span>{catalog.category}</span>
                   </>
                 )}
                 {catalog.geo_city && (
@@ -302,21 +304,28 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                   </>
                 )}
               </div>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <ThumbsUp className="w-4 h-4" />
-                  {likesCount} j'aime
-                </span>
-                <span className="flex items-center gap-1">
-                  <MessageCircle className="w-4 h-4" />
-                  {comments.length} commentaires
-                </span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <ThumbsUp className="w-4 h-4" />
+                    {likesCount} j'aime
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MessageCircle className="w-4 h-4" />
+                    {comments.length} commentaires
+                  </span>
+                </div>
+                {/* Prix du service/produit */}
+                <div className="text-lg font-bold text-primary">
+                  {/* Prix simulé - à remplacer par les vraies données */}
+                  {catalog.catalog_type === 'products' ? '15,000' : '8,500'} FCFA
+                </div>
               </div>
             </DialogHeader>
 
-            {/* Structure responsive : Tabs fixes + Contenu scrollable + Contact fixe */}
-            <div className="flex-1 flex flex-col min-h-0">
-              <Tabs defaultValue="details" className="flex-1 flex flex-col min-h-0">
+            {/* Structure fixe responsive : Tabs + Contenu scrollable + Contact fixe */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <Tabs defaultValue="details" className="flex-1 flex flex-col overflow-hidden">
                 {/* Tabs fixes */}
                 <TabsList className="grid w-full grid-cols-3 mx-4 mt-2 flex-shrink-0">
                   <TabsTrigger value="details">Détails</TabsTrigger>
@@ -324,235 +333,292 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                   <TabsTrigger value="vitrine">Vitrine</TabsTrigger>
                 </TabsList>
 
-                {/* Contenu avec scroll independant pour chaque tab */}
-                <div className="flex-1 min-h-0 mx-4 mt-2 mb-4">
-                  <TabsContent value="details" className="h-full m-0">
-                    <div className="h-full border-2 border-border/50 rounded-lg overflow-hidden">
-                      <ScrollArea className="h-full">
-                        <div className="p-4 space-y-4">
-                          {catalog.description && (
-                            <div>
-                              <h4 className="font-medium mb-2">Description</h4>
-                              <p className="text-sm text-muted-foreground">{catalog.description}</p>
-                            </div>
-                          )}
+                {/* Zone de contenu scrollable avec hauteur fixe */}
+                <div className="flex-1 overflow-hidden mx-4 mt-2">
+                  <TabsContent value="details" className="h-full m-0 overflow-hidden">
+                    <ScrollArea className="h-full pr-4">
+                      <div className="p-4 space-y-4 pb-8">
+                        {catalog.description && (
+                          <div>
+                            <h4 className="font-medium mb-2">Description</h4>
+                            <p className="text-sm text-muted-foreground">{catalog.description}</p>
+                          </div>
+                        )}
 
-                          {catalog.delivery_available && (
-                            <div>
-                              <h4 className="font-medium mb-2 flex items-center gap-2">
-                                <Truck className="w-4 h-4" />
-                                Livraison disponible
-                              </h4>
-                              <div className="space-y-2 text-sm">
-                                {catalog.delivery_zones && catalog.delivery_zones.length > 0 && (
-                                  <div>
-                                    <strong>Zones:</strong> {catalog.delivery_zones.join(', ')}
-                                  </div>
-                                )}
-                                {catalog.delivery_cost && catalog.delivery_cost > 0 && (
-                                  <div>
-                                    <strong>Coût:</strong> {catalog.delivery_cost.toLocaleString()} FCFA
-                                  </div>
-                                )}
-                              </div>
+                        {catalog.delivery_available && (
+                          <div>
+                            <h4 className="font-medium mb-2 flex items-center gap-2">
+                              <Truck className="w-4 h-4" />
+                              Livraison disponible
+                            </h4>
+                            <div className="space-y-2 text-sm">
+                              {catalog.delivery_zones && catalog.delivery_zones.length > 0 && (
+                                <div>
+                                  <strong>Zones:</strong> {catalog.delivery_zones.join(', ')}
+                                </div>
+                              )}
+                              {catalog.delivery_cost && catalog.delivery_cost > 0 && (
+                                <div>
+                                  <strong>Coût:</strong> {catalog.delivery_cost.toLocaleString()} FCFA
+                                </div>
+                              )}
                             </div>
-                          )}
-                          
-                          {catalog.keywords && catalog.keywords.length > 0 && (
-                            <div>
-                              <h4 className="font-medium mb-2">Mots-clés</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {catalog.keywords.map((keyword, index) => (
-                                  <Badge key={index} variant="secondary" className="text-xs">
-                                    {keyword}
-                                  </Badge>
-                                ))}
-                              </div>
+                          </div>
+                        )}
+                        
+                        {catalog.keywords && catalog.keywords.length > 0 && (
+                          <div>
+                            <h4 className="font-medium mb-2">Mots-clés</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {catalog.keywords.map((keyword, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {keyword}
+                                </Badge>
+                              ))}
                             </div>
-                          )}
+                          </div>
+                        )}
 
-                          {/* Horaires d'ouverture */}
-                          {catalog.business_hours && (
-                            <div>
-                              <h4 className="font-medium mb-3 flex items-center gap-2">
-                                <Clock className="w-4 h-4" />
-                                Horaires d'ouverture
-                              </h4>
-                              <div className="space-y-2 text-sm bg-muted/30 p-4 rounded-lg">
-                                {formatBusinessHours(catalog.business_hours).map((day, index) => (
-                                  <div key={index} className="flex justify-between">
-                                    <span className="font-medium">{day.day}:</span>
-                                    <span className="text-muted-foreground">
-                                      {day.closed ? 'Fermé' : `${day.open} - ${day.close}`}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
+                        {/* Horaires d'ouverture */}
+                        {catalog.business_hours && (
+                          <div>
+                            <h4 className="font-medium mb-3 flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              Horaires d'ouverture
+                            </h4>
+                            <div className="space-y-2 text-sm bg-muted/30 p-4 rounded-lg">
+                              {formatBusinessHours(catalog.business_hours).map((day, index) => (
+                                <div key={index} className="flex justify-between">
+                                  <span className="font-medium">{day.day}:</span>
+                                  <span className="text-muted-foreground">
+                                    {day.closed ? 'Fermé' : `${day.open} - ${day.close}`}
+                                  </span>
+                                </div>
+                              ))}
                             </div>
-                          )}
-                        </div>
-                      </ScrollArea>
-                    </div>
+                          </div>
+                        )}
+                      </div>
+                    </ScrollArea>
                   </TabsContent>
 
-                  <TabsContent value="comments" className="h-full m-0">
-                    <div className="h-full border-2 border-border/50 rounded-lg overflow-hidden flex flex-col">
-                      <ScrollArea className="flex-1">
-                        <div className="p-4 space-y-4">
-                          {comments.map((comment) => (
-                            <div key={comment.id} className="flex gap-3">
-                              <Avatar className="w-8 h-8">
-                                <AvatarFallback>U</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                <div className="bg-muted p-3 rounded-lg">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <div className="font-medium text-sm">Utilisateur</div>
-                                    {comment.rating && (
-                                      <div className="flex items-center gap-1">
-                                        {[...Array(5)].map((_, i) => (
-                                          <Star 
-                                            key={i} 
-                                            className={`w-3 h-3 ${i < comment.rating! ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
-                                          />
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="text-sm">{comment.comment}</div>
-                                </div>
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  {new Date(comment.created_at).toLocaleString('fr-FR')}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+                   <TabsContent value="comments" className="h-full m-0 overflow-hidden">
+                     <ScrollArea className="h-full pr-4">
+                       <div className="p-4 space-y-4 pb-8">
+                         {comments.map((comment) => (
+                           <div key={comment.id} className="flex gap-3">
+                             <Avatar className="w-8 h-8">
+                               <AvatarFallback>U</AvatarFallback>
+                             </Avatar>
+                             <div className="flex-1">
+                               <div className="bg-muted p-3 rounded-lg">
+                                 <div className="flex items-center gap-2 mb-1">
+                                   <div className="font-medium text-sm">Utilisateur</div>
+                                   {comment.rating && (
+                                     <div className="flex items-center gap-1">
+                                       {[...Array(5)].map((_, i) => (
+                                         <Star 
+                                           key={i} 
+                                           className={`w-3 h-3 ${i < comment.rating! ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
+                                         />
+                                       ))}
+                                     </div>
+                                   )}
+                                 </div>
+                                 <div className="text-sm">{comment.comment}</div>
+                               </div>
+                               <div className="text-xs text-muted-foreground mt-1">
+                                 {new Date(comment.created_at).toLocaleString('fr-FR')}
+                               </div>
+                             </div>
+                           </div>
+                         ))}
+                       </div>
+                     </ScrollArea>
+                   </TabsContent>
+
+                  <TabsContent value="vitrine" className="h-full m-0 overflow-hidden">
+                    <ScrollArea className="h-full pr-4">
+                      <div className="pb-8">
+                        <BusinessVitrineTab businessId={catalog.business_id} businessName={catalog.businessName || 'Commerce'} />
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+                </div>
+
+                {/* Section contact fixe en bas - Toujours visible sur tous les onglets */}
+                <div className="flex-shrink-0 p-4 border-t bg-muted/30">
+                  <Tabs defaultValue="details" className="w-full">
+                    <TabsContent value="details" className="m-0 space-y-3">
+                      {(selectedImageForComment || newImageComment) && (
+                        <div className="bg-card p-3 rounded-lg border">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm font-medium">Commenter cette image</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Votre commentaire sur l'image..."
+                              value={newImageComment}
+                              onChange={(e) => setNewImageComment(e.target.value)}
+                              className="text-sm"
+                            />
+                            <Button size="sm" onClick={handleSendImageComment} disabled={!newImageComment.trim()}>
+                              <Send className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                      </ScrollArea>
+                      )}
+
+                      {/* Boutons de contact toujours visibles */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {catalog.contact_whatsapp && (
+                          <Button 
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            size="sm"
+                          >
+                            WhatsApp
+                          </Button>
+                        )}
+                        {catalog.contact_phone && (
+                          <Button 
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            size="sm"
+                          >
+                            <Phone className="w-3 h-3 mr-1" />
+                            Appel
+                          </Button>
+                        )}
+                        <Button 
+                          className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white"
+                          onClick={handleSendMessage}
+                          size="sm"
+                        >
+                          <MessageCircle className="w-3 h-3 mr-1" />
+                          Message
+                        </Button>
+                      </div>
                       
-                      <div className="border-t border-border p-4 space-y-3 flex-shrink-0">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                          className="bg-primary/10 text-primary hover:bg-primary/20"
+                          onClick={() => setShowAdvancedMessaging(true)}
+                          size="sm"
+                        >
+                          Options avancées
+                        </Button>
+                        <Button 
+                          className="bg-orange-500 hover:bg-orange-600 text-white"
+                          onClick={() => setShowRouteModal(true)}
+                          size="sm"
+                        >
+                          <MapPin className="w-3 h-3 mr-1" />
+                          Itinéraire
+                        </Button>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="comments" className="m-0 space-y-3">
+                      {/* Section pour ajouter un commentaire avec note */}
+                      <div className="bg-card p-3 rounded-lg border space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm">Note:</span>
-                          <div className="flex gap-1">
+                          <span className="text-sm font-medium">Noter :</span>
+                          <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
                               <button
                                 key={i}
                                 onClick={() => setCommentRating(i + 1)}
-                                className="focus:outline-none"
+                                className={`${i < commentRating ? 'text-yellow-400' : 'text-gray-300'}`}
                               >
-                                <Star 
-                                  className={`w-4 h-4 ${i < commentRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
-                                />
+                                <Star className={`w-4 h-4 ${i < commentRating ? 'fill-current' : ''}`} />
                               </button>
                             ))}
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Textarea 
-                            placeholder="Ajouter un commentaire..."
+                          <Textarea
+                            placeholder="Votre avis..."
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
-                            className="min-h-[80px]"
+                            className="text-sm resize-none"
+                            rows={2}
                           />
-                          <Button onClick={handleSendComment} disabled={isAdding} className="self-end">
+                          <Button 
+                            size="sm" 
+                            onClick={handleSendComment} 
+                            disabled={isAdding || !newComment.trim()}
+                            className="self-end"
+                          >
                             <Send className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
-                    </div>
-                  </TabsContent>
 
-                  <TabsContent value="vitrine" className="h-full m-0">
-                    <div className="h-full border-2 border-border/50 rounded-lg overflow-hidden">
-                      <ScrollArea className="h-full">
-                        <div className="p-4">
-                          <BusinessVitrineTab businessId={catalog.business_id} businessName={catalog.businessName || 'Commerce'} />
-                        </div>
-                      </ScrollArea>
-                    </div>
-                  </TabsContent>
+                      {/* Boutons de contact toujours visibles */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {catalog.contact_whatsapp && (
+                          <Button 
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            size="sm"
+                          >
+                            WhatsApp
+                          </Button>
+                        )}
+                        {catalog.contact_phone && (
+                          <Button 
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            size="sm"
+                          >
+                            <Phone className="w-3 h-3 mr-1" />
+                            Appel
+                          </Button>
+                        )}
+                        <Button 
+                          className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white"
+                          onClick={handleSendMessage}
+                          size="sm"
+                        >
+                          <MessageCircle className="w-3 h-3 mr-1" />
+                          Message
+                        </Button>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="vitrine" className="m-0">
+                      {/* Boutons de contact toujours visibles sur l'onglet vitrine aussi */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {catalog.contact_whatsapp && (
+                          <Button 
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            size="sm"
+                          >
+                            WhatsApp
+                          </Button>
+                        )}
+                        {catalog.contact_phone && (
+                          <Button 
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            size="sm"
+                          >
+                            <Phone className="w-3 h-3 mr-1" />
+                            Appel
+                          </Button>
+                        )}
+                        <Button 
+                          className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white"
+                          onClick={handleSendMessage}
+                          size="sm"
+                        >
+                          <MessageCircle className="w-3 h-3 mr-1" />
+                          Message
+                        </Button>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </Tabs>
             </div>
-
-            {/* Section Contact absolument fixe en bas - JAMAIS cachée */}
-            <div className="flex-shrink-0 bg-background border-t-2 border-border">
-              <div className="p-4 space-y-3">
-                <h4 className="font-medium text-center">Contact</h4>
-                
-                {/* Layout adaptatif selon les méthodes de contact disponibles */}
-                <div className="space-y-2">
-                  {/* Boutons WhatsApp et Appel (si disponibles) */}
-                  {(catalog.contact_whatsapp || catalog.contact_phone) && (
-                    <div className={`grid gap-2 ${
-                      catalog.contact_whatsapp && catalog.contact_phone 
-                        ? 'grid-cols-2' 
-                        : 'grid-cols-1'
-                    }`}>
-                      {catalog.contact_whatsapp && (
-                        <Button 
-                          onClick={() => window.open(`https://wa.me/${catalog.contact_whatsapp}`, '_blank')}
-                          className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white flex items-center justify-center gap-2 h-12 font-medium"
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          WhatsApp
-                        </Button>
-                      )}
-                      {catalog.contact_phone && (
-                        <Button 
-                          onClick={() => window.open(`tel:${catalog.contact_phone}`, '_blank')}
-                          className="bg-[hsl(var(--gaboma-blue))] hover:bg-[hsl(var(--gaboma-blue))]/90 text-white flex items-center justify-center gap-2 h-12 font-medium"
-                        >
-                          <Phone className="w-4 h-4" />
-                          Appeler
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                  
-                  {/* Bouton Messagerie Avancée - TOUJOURS présent */}
-                  <Button 
-                    onClick={() => setShowAdvancedMessaging(true)}
-                    className="w-full bg-[hsl(var(--gaboma-yellow))] hover:bg-[hsl(var(--gaboma-yellow))]/90 text-black font-medium h-14 text-sm"
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Messagerie • Rendez-vous • Devis • Plus d'options
-                  </Button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
-
-        {/* Modal pour commenter une image */}
-        {selectedImageForComment && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-background p-4 rounded-lg max-w-md w-full mx-4">
-              <h3 className="font-medium mb-3">Commenter cette image</h3>
-              <Textarea 
-                placeholder="Votre commentaire..."
-                value={newImageComment}
-                onChange={(e) => setNewImageComment(e.target.value)}
-                className="mb-3"
-              />
-              <div className="flex gap-2 justify-end">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => {
-                    setSelectedImageForComment(null);
-                    setNewImageComment('');
-                  }}
-                >
-                  Annuler
-                </Button>
-                <Button size="sm" onClick={handleSendImageComment}>
-                  Envoyer
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* MessageSheet pour la messagerie interne */}
         <MessageSheet
@@ -568,11 +634,20 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
           }}
         />
 
-        {/* Advanced Messaging Modal */}
-        <AdvancedMessagingModal
+        <AdvancedMessagingModal 
           open={showAdvancedMessaging}
           onClose={() => setShowAdvancedMessaging(false)}
           catalog={catalog}
+        />
+
+        <RouteMapModal
+          open={showRouteModal}
+          onClose={() => setShowRouteModal(false)}
+          destination={{
+            name: catalog.businessName || catalog.name,
+            address: `${catalog.geo_district || ''}, ${catalog.geo_city || ''}`.trim().replace(/^,\s*|,\s*$/, ''),
+            coordinates: { lat: 0, lng: 0 } // À remplacer par les vraies coordonnées
+          }}
         />
       </DialogContent>
     </Dialog>

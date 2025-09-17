@@ -185,11 +185,17 @@ export const CatalogCard = ({
             </div>
           </div>
 
-          {/* Ligne 2 - Nom & Catégorie */}
+          {/* Ligne 2 - Nom, Prix & Catégorie */}
           <div className="mb-2">
-            <h3 className="text-base font-semibold text-foreground truncate mb-1">
-              {catalog.name}
-            </h3>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-base font-semibold text-foreground truncate">
+                {catalog.name}
+              </h3>
+              {/* Prix du produit/service */}
+              <div className="text-sm font-bold text-primary">
+                {catalog.catalog_type === 'products' ? '15,000' : '8,500'} FCFA
+              </div>
+            </div>
             {catalog.category && (
               <p className="text-sm text-muted-foreground">
                 {catalog.category}{catalog.subcategory && ` • ${catalog.subcategory}`}
