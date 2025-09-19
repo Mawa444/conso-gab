@@ -35,7 +35,7 @@ export const useConversations = ({ search = "", filter = "all" }: UseConversatio
             whatsapp,
             email,
             address
-          )
+          ),
           messages (
             content,
             created_at,
