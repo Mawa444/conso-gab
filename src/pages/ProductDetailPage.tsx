@@ -361,7 +361,7 @@ export const ProductDetailPage = () => {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => console.log("Contact vendeur")}
+                onClick={() => window.location.href = "/messaging"}
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Contacter

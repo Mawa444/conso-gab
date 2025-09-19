@@ -604,7 +604,10 @@ export const AdvancedMessagingModal = ({ open, onClose, catalog }: AdvancedMessa
               Annuler
             </Button>
             <Button 
-              onClick={handleSend} 
+              onClick={() => {
+                handleSend();
+                window.location.href = "/messaging";
+              }} 
               disabled={!customerName.trim() || (!message.trim() && !quotationDetails.trim())}
               className="flex-1 bg-gradient-to-r from-primary to-accent text-white hover:opacity-90"
             >

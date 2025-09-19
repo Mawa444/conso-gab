@@ -89,8 +89,7 @@ const ConsumerApp = () => {
 
   const handleMessageClick = () => {
     trackButtonClick("Messages", "Header");
-    trackModalOpen("Messages");
-    setShowMessageModal(true);
+    navigate("/messaging");
   };
 
   const handleProfileSettings = () => {

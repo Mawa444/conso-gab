@@ -316,6 +316,7 @@ export const BusinessDetailPage = () => {
             </div>
             
             <Button
+              onClick={() => window.location.href = "/messaging"}
               className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6"
             >
               <MessageCircle className="w-4 h-4 mr-2" />

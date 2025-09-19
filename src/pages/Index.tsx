@@ -75,7 +75,7 @@ const Index = () => {
       setShowLoginModal(true);
       return;
     }
-    setShowMessageModal(true);
+    navigate("/messaging");
   };
 
   const handleProfileSettings = () => {
