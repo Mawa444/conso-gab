@@ -4,24 +4,18 @@ import {
   Users, 
   Megaphone, 
   ShoppingCart, 
-  Calendar, 
-  FileText,
   Settings,
-  Search,
+  ArrowLeft,
   Bell,
-  TrendingUp,
-  Zap,
-  Clock
+  Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Composants spécialisés
+// Import sub-components
 import { ConversationsHub } from "./ConversationsHub";
 import { GroupManager } from "./GroupManager";
 import { CampaignManager } from "./CampaignManager";
@@ -29,276 +23,349 @@ import { OrderTracker } from "./OrderTracker";
 import { QuoteManager } from "./QuoteManager";
 import { AppointmentScheduler } from "./AppointmentScheduler";
 import { CommunicationSettings } from "./CommunicationSettings";
-import { RealTimeIndicators } from "./RealTimeIndicators";
 
-interface TabItem {
+interface MainTab {
   id: string;
   label: string;
-  shortLabel?: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number;
-  color?: string;
 }
 
-const MAIN_TABS: TabItem[] = [
+const MAIN_TABS: MainTab[] = [
   { 
     id: "conversations", 
     label: "Conversations", 
-    shortLabel: "Chat",
     icon: MessageSquare, 
-    badge: 12, 
-    color: "hsl(var(--primary))" 
+    badge: 12 
   },
   { 
-    id: "groups", 
+    id: "groupes", 
     label: "Groupes", 
-    shortLabel: "Groupes",
     icon: Users, 
-    badge: 3, 
-    color: "hsl(var(--accent))" 
+    badge: 3 
   },
   { 
-    id: "campaigns", 
+    id: "campagnes", 
     label: "Campagnes", 
-    shortLabel: "Promo",
     icon: Megaphone, 
-    badge: 1, 
-    color: "hsl(var(--secondary))" 
+    badge: 1 
   },
   { 
-    id: "orders", 
+    id: "commandes", 
     label: "Commandes", 
-    shortLabel: "CMD",
     icon: ShoppingCart, 
-    badge: 8, 
-    color: "hsl(215 60% 50%)" 
+    badge: 8 
   },
   { 
-    id: "quotes", 
-    label: "Devis", 
-    shortLabel: "Devis",
-    icon: FileText, 
-    badge: 2, 
-    color: "hsl(280 60% 50%)" 
-  },
-  { 
-    id: "appointments", 
-    label: "Rendez-vous", 
-    shortLabel: "RDV",
-    icon: Calendar, 
-    badge: 5, 
-    color: "hsl(340 60% 50%)" 
-  },
-  { 
-    id: "settings", 
+    id: "parametres", 
     label: "Paramètres", 
-    shortLabel: "Config",
-    icon: Settings, 
-    color: "hsl(var(--muted-foreground))" 
+    icon: Settings 
   }
 ];
 
 export const CommunicationCenter = () => {
-  const [activeTab, setActiveTab] = useState("conversations");
+  const [activeMainTab, setActiveMainTab] = useState("conversations");
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useIsMobile();
 
-  const activeItem = MAIN_TABS.find(item => item.id === activeTab);
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case "conversations":
-        return <ConversationsHub searchQuery={searchQuery} />;
-      case "groups":
-        return <GroupManager searchQuery={searchQuery} />;
-      case "campaigns":
-        return <CampaignManager searchQuery={searchQuery} />;
-      case "orders":
-        return <OrderTracker searchQuery={searchQuery} />;
-      case "quotes":
-        return <QuoteManager searchQuery={searchQuery} />;
-      case "appointments":
-        return <AppointmentScheduler searchQuery={searchQuery} />;
-      case "settings":
-        return <CommunicationSettings />;
-      default:
-        return <ConversationsHub searchQuery={searchQuery} />;
-    }
-  };
-
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-background via-muted/20 to-accent/5">
-      {/* Header unifié */}
-      <div className="bg-gradient-to-r from-primary to-accent text-white shadow-lg">
-        <div className="p-4">
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-white border-b border-border/50 sticky top-0 z-50">
+        <div className="px-4 py-3">
           <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-xl font-bold">Centre Com. ConsoGab</h1>
-              <p className="text-xs opacity-90">Communication unifiée & intelligente</p>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" className="p-2">
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div>
+                <h1 className="text-lg font-semibold text-foreground">Centre Com. ConsoGab</h1>
+                <p className="text-xs text-muted-foreground">Communication unifiée & intelligente</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
-              <RealTimeIndicators />
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 relative">
+              <Button variant="ghost" size="sm" className="relative p-2">
                 <Bell className="w-4 h-4" />
-                <Badge className="absolute -top-1 -right-1 w-2 h-2 p-0 bg-red-500 animate-pulse" />
+                <Badge className="absolute -top-1 -right-1 w-2 h-2 p-0 bg-destructive animate-pulse" />
               </Button>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/70" />
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Rechercher conversations, commandes, clients..."
+              placeholder="Rechercher conversations, clients, commandes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30"
+              className="pl-10 bg-muted/30 border-border/50 focus:bg-background"
             />
           </div>
         </div>
 
-        {/* Quick Stats Bar */}
-        <div className="px-4 pb-4">
-          <div className="flex gap-4 overflow-x-auto">
-            <Card className="flex-shrink-0 px-3 py-2 bg-white/20 border-white/30">
-              <div className="flex items-center gap-2 text-white">
-                <TrendingUp className="w-4 h-4" />
-                <div className="text-sm">
-                  <span className="font-bold">24</span>
-                  <span className="text-xs opacity-90 ml-1">Actives</span>
-                </div>
-              </div>
-            </Card>
-            <Card className="flex-shrink-0 px-3 py-2 bg-white/20 border-white/30">
-              <div className="flex items-center gap-2 text-white">
-                <Zap className="w-4 h-4" />
-                <div className="text-sm">
-                  <span className="font-bold">12</span>
-                  <span className="text-xs opacity-90 ml-1">En cours</span>
-                </div>
-              </div>
-            </Card>
-            <Card className="flex-shrink-0 px-3 py-2 bg-white/20 border-white/30">
-              <div className="flex items-center gap-2 text-white">
-                <Clock className="w-4 h-4" />
-                <div className="text-sm">
-                  <span className="font-bold">3</span>
-                  <span className="text-xs opacity-90 ml-1">Urgents</span>
-                </div>
-              </div>
-            </Card>
+        {/* Main Navigation Tabs */}
+        <div className="px-4">
+          <div className="flex overflow-x-auto scrollbar-hide border-b border-border/30">
+            {MAIN_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveMainTab(tab.id)}
+                className={cn(
+                  "flex-shrink-0 px-4 py-3 text-sm font-medium transition-colors relative",
+                  "flex items-center gap-2 min-w-0",
+                  activeMainTab === tab.id
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <tab.icon className="w-4 h-4 flex-shrink-0" />
+                <span className={cn(
+                  "truncate",
+                  isMobile ? "text-xs" : "text-sm"
+                )}>
+                  {isMobile && tab.label.length > 8 
+                    ? tab.label.substring(0, 8) + "..." 
+                    : tab.label
+                  }
+                </span>
+                {tab.badge && (
+                  <Badge className="ml-1 text-xs min-w-[16px] h-4 px-1 bg-primary text-primary-foreground">
+                    {tab.badge}
+                  </Badge>
+                )}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Main Content with Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        {/* Navigation Tabs */}
-        <div className="bg-background/80 backdrop-blur-sm border-b border-border/50 sticky top-0 z-10">
-          <TabsList className={cn(
-            "w-full h-auto p-1 bg-transparent",
-            isMobile 
-              ? "grid grid-cols-4 gap-1" 
-              : "flex justify-start overflow-x-auto scrollbar-hide"
-          )}>
-            {MAIN_TABS.map((tab) => (
-              <TabsTrigger
+      {/* Tab Content */}
+      <div className="flex-1">
+        {activeMainTab === "conversations" && (
+          <ConversationsTabContent searchQuery={searchQuery} />
+        )}
+        {activeMainTab === "groupes" && (
+          <GroupesTabContent searchQuery={searchQuery} />
+        )}
+        {activeMainTab === "campagnes" && (
+          <CampagnesTabContent searchQuery={searchQuery} />
+        )}
+        {activeMainTab === "commandes" && (
+          <CommandesTabContent searchQuery={searchQuery} />
+        )}
+        {activeMainTab === "parametres" && (
+          <ParametresTabContent />
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Conversations Tab Content with Sub-tabs
+const ConversationsTabContent = ({ searchQuery }: { searchQuery: string }) => {
+  const [activeSubTab, setActiveSubTab] = useState("toutes");
+  
+  const subTabs = [
+    { id: "toutes", label: "Toutes" },
+    { id: "actives", label: "Actives" },
+    { id: "archivees", label: "Archivées" },
+    { id: "non-lues", label: "Non lues" }
+  ];
+
+  return (
+    <div>
+      {/* Sub-tabs */}
+      <div className="bg-muted/20 border-b border-border/30">
+        <div className="px-4 py-2">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+            {subTabs.map((tab) => (
+              <button
                 key={tab.id}
-                value={tab.id}
+                onClick={() => setActiveSubTab(tab.id)}
                 className={cn(
-                  "relative flex-shrink-0 transition-all duration-300",
-                  isMobile 
-                    ? "flex flex-col gap-1 p-3 min-h-[60px]"
-                    : "flex items-center gap-2 px-4 py-3 min-w-[120px]",
-                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent",
-                  "data-[state=active]:text-white data-[state=active]:shadow-lg",
-                  "hover:bg-muted/50"
+                  "flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  activeSubTab === tab.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
               >
-                <div className="relative">
-                  <tab.icon className={cn(
-                    isMobile ? "w-4 h-4" : "w-5 h-5",
-                    "transition-colors"
-                  )} />
-                  {tab.badge && (
-                    <Badge 
-                      className={cn(
-                        "absolute -top-1 -right-1 text-xs min-w-[16px] h-4 px-1",
-                        activeTab === tab.id 
-                          ? "bg-white text-primary" 
-                          : "bg-primary text-white"
-                      )}
-                    >
-                      {tab.badge}
-                    </Badge>
-                  )}
-                </div>
-                <span className={cn(
-                  "font-medium truncate",
-                  isMobile ? "text-xs" : "text-sm"
-                )}>
-                  {isMobile ? tab.shortLabel : tab.label}
-                </span>
-                {activeTab === tab.id && !isMobile && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
-                )}
-              </TabsTrigger>
+                {tab.label}
+              </button>
             ))}
-          </TabsList>
+          </div>
         </div>
+      </div>
+      
+      {/* Content */}
+      <div className="p-4">
+        <ConversationsHub searchQuery={searchQuery} />
+      </div>
+    </div>
+  );
+};
 
-        {/* Tab Content */}
-        <div className="flex-1 overflow-hidden">
-          <TabsContent 
-            value="conversations" 
-            className="h-full m-0 data-[state=active]:animate-fade-in"
-          >
-            <ConversationsHub searchQuery={searchQuery} />
-          </TabsContent>
-          
-          <TabsContent 
-            value="groups" 
-            className="h-full m-0 data-[state=active]:animate-fade-in"
-          >
-            <GroupManager searchQuery={searchQuery} />
-          </TabsContent>
-          
-          <TabsContent 
-            value="campaigns" 
-            className="h-full m-0 data-[state=active]:animate-fade-in"
-          >
-            <CampaignManager searchQuery={searchQuery} />
-          </TabsContent>
-          
-          <TabsContent 
-            value="orders" 
-            className="h-full m-0 data-[state=active]:animate-fade-in"
-          >
-            <OrderTracker searchQuery={searchQuery} />
-          </TabsContent>
-          
-          <TabsContent 
-            value="quotes" 
-            className="h-full m-0 data-[state=active]:animate-fade-in"
-          >
-            <QuoteManager searchQuery={searchQuery} />
-          </TabsContent>
-          
-          <TabsContent 
-            value="appointments" 
-            className="h-full m-0 data-[state=active]:animate-fade-in"
-          >
-            <AppointmentScheduler searchQuery={searchQuery} />
-          </TabsContent>
-          
-          <TabsContent 
-            value="settings" 
-            className="h-full m-0 data-[state=active]:animate-fade-in"
-          >
-            <CommunicationSettings />
-          </TabsContent>
+// Groupes Tab Content with Sub-tabs
+const GroupesTabContent = ({ searchQuery }: { searchQuery: string }) => {
+  const [activeSubTab, setActiveSubTab] = useState("mes-groupes");
+  
+  const subTabs = [
+    { id: "mes-groupes", label: "Mes groupes" },
+    { id: "creer", label: "Créer" },
+    { id: "invitations", label: "Invitations" }
+  ];
+
+  return (
+    <div>
+      <div className="bg-muted/20 border-b border-border/30">
+        <div className="px-4 py-2">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+            {subTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSubTab(tab.id)}
+                className={cn(
+                  "flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  activeSubTab === tab.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </Tabs>
+      </div>
+      
+      <div className="p-4">
+        <GroupManager searchQuery={searchQuery} />
+      </div>
+    </div>
+  );
+};
+
+// Campagnes Tab Content with Sub-tabs
+const CampagnesTabContent = ({ searchQuery }: { searchQuery: string }) => {
+  const [activeSubTab, setActiveSubTab] = useState("actives");
+  
+  const subTabs = [
+    { id: "actives", label: "Actives" },
+    { id: "brouillons", label: "Brouillons" },
+    { id: "programmees", label: "Programmées" },
+    { id: "terminees", label: "Terminées" }
+  ];
+
+  return (
+    <div>
+      <div className="bg-muted/20 border-b border-border/30">
+        <div className="px-4 py-2">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+            {subTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSubTab(tab.id)}
+                className={cn(
+                  "flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  activeSubTab === tab.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="p-4">
+        <CampaignManager searchQuery={searchQuery} />
+      </div>
+    </div>
+  );
+};
+
+// Commandes Tab Content with Sub-tabs
+const CommandesTabContent = ({ searchQuery }: { searchQuery: string }) => {
+  const [activeSubTab, setActiveSubTab] = useState("vue-ensemble");
+  
+  const subTabs = [
+    { id: "vue-ensemble", label: "Vue d'ensemble" },
+    { id: "devis", label: "Devis" },
+    { id: "commandes", label: "Commandes" },
+    { id: "rdv", label: "RDV" }
+  ];
+
+  return (
+    <div>
+      <div className="bg-muted/20 border-b border-border/30">
+        <div className="px-4 py-2">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+            {subTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSubTab(tab.id)}
+                className={cn(
+                  "flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  activeSubTab === tab.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="p-4">
+        {activeSubTab === "vue-ensemble" && <OrderTracker searchQuery={searchQuery} />}
+        {activeSubTab === "devis" && <QuoteManager searchQuery={searchQuery} />}
+        {activeSubTab === "commandes" && <OrderTracker searchQuery={searchQuery} />}
+        {activeSubTab === "rdv" && <AppointmentScheduler searchQuery={searchQuery} />}
+      </div>
+    </div>
+  );
+};
+
+// Paramètres Tab Content with Sub-tabs
+const ParametresTabContent = () => {
+  const [activeSubTab, setActiveSubTab] = useState("general");
+  
+  const subTabs = [
+    { id: "general", label: "Général" },
+    { id: "notifications", label: "Notifications" },
+    { id: "confidentialite", label: "Confidentialité" },
+    { id: "integrations", label: "Intégrations" }
+  ];
+
+  return (
+    <div>
+      <div className="bg-muted/20 border-b border-border/30">
+        <div className="px-4 py-2">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+            {subTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSubTab(tab.id)}
+                className={cn(
+                  "flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  activeSubTab === tab.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="p-4">
+        <CommunicationSettings />
+      </div>
     </div>
   );
 };
