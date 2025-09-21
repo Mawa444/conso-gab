@@ -110,6 +110,7 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
       toast.success('Bienvenue dans la communauté ConsoGab ! 🇬🇦');
       onComplete();
     } catch (error: any) {
+      console.error('Erreur inscription:', error);
       toast.error(error.message || "Erreur lors de l'inscription");
     } finally {
       setIsLoading(false);

@@ -76,6 +76,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
       toast.success('Connexion réussie !');
       onComplete();
     } catch (error: any) {
+      console.error('Erreur de connexion:', error);
       toast.error(error.message || 'Erreur de connexion');
     } finally {
       setIsLoading(false);
@@ -276,6 +277,28 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
                   className="text-primary hover:underline text-sm"
                 >
                   Créer un nouveau compte
+                </button>
+                <br />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!email) {
+                      toast.error('Veuillez entrer votre email d\'abord');
+                      return;
+                    }
+                    try {
+                      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                        redirectTo: `${window.location.origin}/auth`
+                      });
+                      if (error) throw error;
+                      toast.success('Email de récupération envoyé !');
+                    } catch (error: any) {
+                      toast.error('Erreur lors de l\'envoi: ' + error.message);
+                    }
+                  }}
+                  className="text-muted-foreground hover:text-foreground text-xs"
+                >
+                  Mot de passe oublié ?
                 </button>
               </div>
             </CardContent>

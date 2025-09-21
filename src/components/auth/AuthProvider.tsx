@@ -72,6 +72,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     if (signUpError) {
+      // Améliorer les messages d'erreur
+      if (signUpError.message.includes('already registered') || signUpError.message.includes('already been registered')) {
+        return { 
+          data: signUpData, 
+          error: { message: "Un compte existe déjà avec cet email. Essayez de vous connecter." }
+        };
+      }
       return { data: signUpData, error: signUpError };
     }
 
@@ -163,6 +170,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password,
     });
+    
+    if (error) {
+      // Améliorer les messages d'erreur
+      if (error.message.includes('Invalid login credentials')) {
+        return { 
+          data, 
+          error: { message: "Email ou mot de passe incorrect. Vérifiez vos identifiants." }
+        };
+      }
+      if (error.message.includes('Email not confirmed')) {
+        return { 
+          data, 
+          error: { message: "Veuillez confirmer votre email avant de vous connecter." }
+        };
+      }
+    }
     
     // La redirection post-connexion est gérée par RoleBasedRouter selon le schéma conceptuel
     // consumer → /consumer/home
