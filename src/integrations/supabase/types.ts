@@ -58,6 +58,62 @@ export type Database = {
           },
         ]
       }
+      automation_workflows: {
+        Row: {
+          actions: Json
+          business_id: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          execution_count: number | null
+          id: string
+          is_active: boolean | null
+          last_executed_at: string | null
+          name: string
+          trigger_conditions: Json | null
+          trigger_event: string
+          updated_at: string
+        }
+        Insert: {
+          actions?: Json
+          business_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          execution_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          name: string
+          trigger_conditions?: Json | null
+          trigger_event: string
+          updated_at?: string
+        }
+        Update: {
+          actions?: Json
+          business_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          execution_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          name?: string
+          trigger_conditions?: Json | null
+          trigger_event?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_workflows_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_time_slots: {
         Row: {
           business_id: string
@@ -658,30 +714,57 @@ export type Database = {
       }
       conversations: {
         Row: {
-          business_id: string
+          assigned_agent_id: string | null
+          business_id: string | null
+          conversation_type: Database["public"]["Enums"]["conversation_type"]
           created_at: string
           customer_id: string
           id: string
-          is_active: boolean | null
+          is_archived: boolean | null
+          is_starred: boolean | null
+          last_message_at: string | null
+          metadata: Json | null
+          participants: string[] | null
+          priority: Database["public"]["Enums"]["support_priority"] | null
+          status: string | null
           subject: string | null
+          tags: string[] | null
           updated_at: string
         }
         Insert: {
-          business_id: string
+          assigned_agent_id?: string | null
+          business_id?: string | null
+          conversation_type?: Database["public"]["Enums"]["conversation_type"]
           created_at?: string
           customer_id: string
           id?: string
-          is_active?: boolean | null
+          is_archived?: boolean | null
+          is_starred?: boolean | null
+          last_message_at?: string | null
+          metadata?: Json | null
+          participants?: string[] | null
+          priority?: Database["public"]["Enums"]["support_priority"] | null
+          status?: string | null
           subject?: string | null
+          tags?: string[] | null
           updated_at?: string
         }
         Update: {
-          business_id?: string
+          assigned_agent_id?: string | null
+          business_id?: string | null
+          conversation_type?: Database["public"]["Enums"]["conversation_type"]
           created_at?: string
           customer_id?: string
           id?: string
-          is_active?: boolean | null
+          is_archived?: boolean | null
+          is_starred?: boolean | null
+          last_message_at?: string | null
+          metadata?: Json | null
+          participants?: string[] | null
+          priority?: Database["public"]["Enums"]["support_priority"] | null
+          status?: string | null
           subject?: string | null
+          tags?: string[] | null
           updated_at?: string
         }
         Relationships: [
@@ -733,36 +816,122 @@ export type Database = {
           },
         ]
       }
-      messages: {
+      message_templates: {
         Row: {
-          attachment_url: string | null
+          business_id: string | null
+          category: string
           content: string
-          conversation_id: string
           created_at: string
+          created_by: string
           id: string
-          message_type: string | null
-          sender_id: string
-          status: Database["public"]["Enums"]["message_status"] | null
+          is_active: boolean | null
+          name: string
+          updated_at: string
+          usage_count: number | null
+          variables: Json | null
         }
         Insert: {
-          attachment_url?: string | null
+          business_id?: string | null
+          category: string
           content: string
-          conversation_id: string
           created_at?: string
+          created_by: string
           id?: string
-          message_type?: string | null
-          sender_id: string
-          status?: Database["public"]["Enums"]["message_status"] | null
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+          usage_count?: number | null
+          variables?: Json | null
         }
         Update: {
+          business_id?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+          usage_count?: number | null
+          variables?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_templates_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          attachment_size: number | null
+          attachment_type: string | null
+          attachment_url: string | null
+          content: string
+          conversation_id: string | null
+          created_at: string
+          edited_at: string | null
+          id: string
+          is_deleted: boolean | null
+          is_edited: boolean | null
+          mentions: string[] | null
+          message_type: Database["public"]["Enums"]["message_type"] | null
+          metadata: Json | null
+          reactions: Json | null
+          read_by: Json | null
+          reply_to_id: string | null
+          scheduled_for: string | null
+          sender_id: string
+          status: Database["public"]["Enums"]["message_status"] | null
+          thread_id: string | null
+        }
+        Insert: {
+          attachment_size?: number | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content: string
+          conversation_id?: string | null
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
+          mentions?: string[] | null
+          message_type?: Database["public"]["Enums"]["message_type"] | null
+          metadata?: Json | null
+          reactions?: Json | null
+          read_by?: Json | null
+          reply_to_id?: string | null
+          scheduled_for?: string | null
+          sender_id: string
+          status?: Database["public"]["Enums"]["message_status"] | null
+          thread_id?: string | null
+        }
+        Update: {
+          attachment_size?: number | null
+          attachment_type?: string | null
           attachment_url?: string | null
           content?: string
-          conversation_id?: string
+          conversation_id?: string | null
           created_at?: string
+          edited_at?: string | null
           id?: string
-          message_type?: string | null
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
+          mentions?: string[] | null
+          message_type?: Database["public"]["Enums"]["message_type"] | null
+          metadata?: Json | null
+          reactions?: Json | null
+          read_by?: Json | null
+          reply_to_id?: string | null
+          scheduled_for?: string | null
           sender_id?: string
           status?: Database["public"]["Enums"]["message_status"] | null
+          thread_id?: string | null
         }
         Relationships: [
           {
@@ -770,6 +939,20 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
@@ -971,6 +1154,190 @@ export type Database = {
         }
         Relationships: []
       }
+      quotes: {
+        Row: {
+          accepted_at: string | null
+          business_id: string | null
+          conversation_id: string | null
+          created_at: string
+          currency: string | null
+          customer_id: string
+          discount_amount: number | null
+          discount_percentage: number | null
+          expired_at: string | null
+          id: string
+          items: Json
+          notes: string | null
+          quote_number: string
+          status: Database["public"]["Enums"]["quote_status"] | null
+          subtotal: number
+          tax_amount: number | null
+          terms_conditions: string | null
+          total_amount: number
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          business_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          currency?: string | null
+          customer_id: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          expired_at?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          quote_number: string
+          status?: Database["public"]["Enums"]["quote_status"] | null
+          subtotal?: number
+          tax_amount?: number | null
+          terms_conditions?: string | null
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          business_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          currency?: string | null
+          customer_id?: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          expired_at?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          quote_number?: string
+          status?: Database["public"]["Enums"]["quote_status"] | null
+          subtotal?: number
+          tax_amount?: number | null
+          terms_conditions?: string | null
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reservations: {
+        Row: {
+          business_id: string | null
+          business_notes: string | null
+          cancelled_at: string | null
+          catalog_id: string | null
+          confirmation_sent: boolean | null
+          confirmed_at: string | null
+          conversation_id: string | null
+          created_at: string
+          customer_id: string
+          customer_notes: string | null
+          deposit_amount: number | null
+          duration_minutes: number | null
+          end_datetime: string
+          guest_count: number | null
+          id: string
+          reminder_sent: boolean | null
+          reservation_number: string
+          service_name: string
+          special_requests: string | null
+          start_datetime: string
+          status: Database["public"]["Enums"]["reservation_status"] | null
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          business_id?: string | null
+          business_notes?: string | null
+          cancelled_at?: string | null
+          catalog_id?: string | null
+          confirmation_sent?: boolean | null
+          confirmed_at?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          customer_id: string
+          customer_notes?: string | null
+          deposit_amount?: number | null
+          duration_minutes?: number | null
+          end_datetime: string
+          guest_count?: number | null
+          id?: string
+          reminder_sent?: boolean | null
+          reservation_number: string
+          service_name: string
+          special_requests?: string | null
+          start_datetime: string
+          status?: Database["public"]["Enums"]["reservation_status"] | null
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string | null
+          business_notes?: string | null
+          cancelled_at?: string | null
+          catalog_id?: string | null
+          confirmation_sent?: boolean | null
+          confirmed_at?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          customer_id?: string
+          customer_notes?: string | null
+          deposit_amount?: number | null
+          duration_minutes?: number | null
+          end_datetime?: string
+          guest_count?: number | null
+          id?: string
+          reminder_sent?: boolean | null
+          reservation_number?: string
+          service_name?: string
+          special_requests?: string | null
+          start_datetime?: string
+          status?: Database["public"]["Enums"]["reservation_status"] | null
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalogs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       review_replies: {
         Row: {
           business_id: string
@@ -1057,6 +1424,96 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          assigned_agent_id: string | null
+          business_id: string | null
+          category: string
+          closed_at: string | null
+          conversation_id: string | null
+          created_at: string
+          customer_id: string
+          description: string | null
+          first_response_time_minutes: number | null
+          id: string
+          priority: Database["public"]["Enums"]["support_priority"] | null
+          resolution: string | null
+          resolution_time_minutes: number | null
+          resolved_at: string | null
+          satisfaction_feedback: string | null
+          satisfaction_score: number | null
+          status: Database["public"]["Enums"]["support_status"] | null
+          subcategory: string | null
+          subject: string
+          tags: string[] | null
+          ticket_number: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_agent_id?: string | null
+          business_id?: string | null
+          category: string
+          closed_at?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          customer_id: string
+          description?: string | null
+          first_response_time_minutes?: number | null
+          id?: string
+          priority?: Database["public"]["Enums"]["support_priority"] | null
+          resolution?: string | null
+          resolution_time_minutes?: number | null
+          resolved_at?: string | null
+          satisfaction_feedback?: string | null
+          satisfaction_score?: number | null
+          status?: Database["public"]["Enums"]["support_status"] | null
+          subcategory?: string | null
+          subject: string
+          tags?: string[] | null
+          ticket_number: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_agent_id?: string | null
+          business_id?: string | null
+          category?: string
+          closed_at?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          customer_id?: string
+          description?: string | null
+          first_response_time_minutes?: number | null
+          id?: string
+          priority?: Database["public"]["Enums"]["support_priority"] | null
+          resolution?: string | null
+          resolution_time_minutes?: number | null
+          resolved_at?: string | null
+          satisfaction_feedback?: string | null
+          satisfaction_score?: number | null
+          status?: Database["public"]["Enums"]["support_status"] | null
+          subcategory?: string | null
+          subject?: string
+          tags?: string[] | null
+          ticket_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -1159,6 +1616,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_quote_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_reservation_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_ticket_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       log_user_activity: {
         Args: {
           action_description_param: string
@@ -1206,7 +1675,24 @@ export type Database = {
         | "phone"
         | "sms"
         | "internal"
+      conversation_type:
+        | "direct"
+        | "group"
+        | "support"
+        | "order"
+        | "reservation"
+        | "quote"
       message_status: "sent" | "delivered" | "read"
+      message_type:
+        | "text"
+        | "audio"
+        | "video"
+        | "document"
+        | "quote"
+        | "order"
+        | "reservation"
+        | "system"
+        | "action"
       order_status:
         | "pending"
         | "confirmed"
@@ -1214,6 +1700,26 @@ export type Database = {
         | "shipped"
         | "delivered"
         | "cancelled"
+      quote_status:
+        | "draft"
+        | "sent"
+        | "accepted"
+        | "rejected"
+        | "expired"
+        | "converted"
+      reservation_status:
+        | "pending"
+        | "confirmed"
+        | "cancelled"
+        | "completed"
+        | "no_show"
+      support_priority: "low" | "medium" | "high" | "urgent"
+      support_status:
+        | "open"
+        | "in_progress"
+        | "waiting_customer"
+        | "resolved"
+        | "closed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1367,7 +1873,26 @@ export const Constants = {
         "sms",
         "internal",
       ],
+      conversation_type: [
+        "direct",
+        "group",
+        "support",
+        "order",
+        "reservation",
+        "quote",
+      ],
       message_status: ["sent", "delivered", "read"],
+      message_type: [
+        "text",
+        "audio",
+        "video",
+        "document",
+        "quote",
+        "order",
+        "reservation",
+        "system",
+        "action",
+      ],
       order_status: [
         "pending",
         "confirmed",
@@ -1375,6 +1900,29 @@ export const Constants = {
         "shipped",
         "delivered",
         "cancelled",
+      ],
+      quote_status: [
+        "draft",
+        "sent",
+        "accepted",
+        "rejected",
+        "expired",
+        "converted",
+      ],
+      reservation_status: [
+        "pending",
+        "confirmed",
+        "cancelled",
+        "completed",
+        "no_show",
+      ],
+      support_priority: ["low", "medium", "high", "urgent"],
+      support_status: [
+        "open",
+        "in_progress",
+        "waiting_customer",
+        "resolved",
+        "closed",
       ],
     },
   },
