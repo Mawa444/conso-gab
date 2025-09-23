@@ -27,7 +27,7 @@ export const useConversations = ({ search = "", filter = "all" }: UseConversatio
         .from('conversations')
         .select(`
           *,
-          business_profiles!conversations_business_id_fkey (
+          business_profiles!business_id (
             business_name,
             logo_url,
             business_category,
@@ -43,7 +43,7 @@ export const useConversations = ({ search = "", filter = "all" }: UseConversatio
             status
           )
         `)
-        .eq('is_active', true)
+        .eq('status', 'active')
         .order('updated_at', { ascending: false });
 
       // Apply user-specific filter (customer or business owner)

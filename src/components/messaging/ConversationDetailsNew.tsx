@@ -202,9 +202,9 @@ export const ConversationDetailsNew: React.FC<ConversationDetailsNewProps> = ({
               
               {Object.keys(message.reactions || {}).length > 0 && (
                 <div className="flex gap-1">
-                  {Object.entries(message.reactions || {}).map(([userId, emoji]) => (
+                   {Object.entries(message.reactions || {}).map(([userId, emoji]) => (
                     <span key={userId} className="text-xs bg-background rounded px-1">
-                      {emoji}
+                      {String(emoji)}
                     </span>
                   ))}
                 </div>

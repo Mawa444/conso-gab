@@ -18,7 +18,7 @@ export const useMessaging = (conversationId: string) => {
         .from('conversations')
         .select(`
           *,
-          business_profiles!conversations_business_id_fkey (
+          business_profiles!business_id (
             business_name,
             logo_url,
             business_category,
@@ -96,7 +96,6 @@ export const useMessaging = (conversationId: string) => {
         attachment_size: msg.attachment_size,
         metadata: msg.metadata || {},
         reactions: msg.reactions || {},
-        mentions: msg.mentions || [],
         read_by: msg.read_by || {},
         status: msg.status,
         is_edited: msg.is_edited,

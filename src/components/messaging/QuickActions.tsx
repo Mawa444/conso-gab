@@ -25,11 +25,11 @@ import {
   Mail,
   Printer
 } from "lucide-react";
-import { ConversationData } from "./ConversationDetails";
+import { Conversation } from "@/types/messaging-advanced";
 
 interface QuickActionsProps {
   conversationId: string;
-  conversation: ConversationData;
+  conversation: Conversation;
   onAction: (action: QuickActionData) => void;
 }
 

@@ -36,53 +36,15 @@ import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
-export interface MessageItem {
-  id: string;
-  sender_id: string;
-  sender_name: string;
-  sender_avatar?: string;
-  content: string;
-  message_type: "text" | "image" | "audio" | "file" | "qr" | "action";
-  attachment_url?: string;
-  created_at: string;
-  is_own_message: boolean;
-  action_data?: {
-    type: "order_created" | "payment_validated" | "stock_updated" | "reservation_cancelled" | "appointment_confirmed";
-    data: Record<string, any>;
-  };
-}
+import { Message, Conversation } from "@/types/messaging-advanced";
 
-export interface ConversationData {
-  id: string;
-  business_name: string;
-  business_logo?: string;
-  business_id: string;
-  customer_name: string;
-  customer_avatar?: string;
-  customer_id: string;
-  subject?: string;
-  created_at: string;
-  is_active: boolean;
-  business_info: {
-    address?: string;
-    phone?: string;
-    whatsapp?: string;
-    email?: string;
-    category?: string;
-  };
-  stats: {
-    total_orders: number;
-    total_spent: number;
-    conversations_count: number;
-  };
-}
 
 interface ConversationDetailsProps {
   conversationId: string;
   onRefetch?: () => void;
 }
 
-const getActionIcon = (type: MessageItem["action_data"]["type"]) => {
+const getActionIcon = (type: string) => {
   switch (type) {
     case "order_created":
       return <ShoppingCart className="w-4 h-4" />;
@@ -99,7 +61,7 @@ const getActionIcon = (type: MessageItem["action_data"]["type"]) => {
   }
 };
 
-const getActionColor = (type: MessageItem["action_data"]["type"]) => {
+const getActionColor = (type: string) => {
   switch (type) {
     case "order_created":
       return "bg-blue-50 border-blue-200 text-blue-800";
@@ -185,28 +147,26 @@ export const ConversationDetails = ({ conversationId, onRefetch }: ConversationD
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10">
-              <AvatarImage src={conversation.business_logo} alt={conversation.business_name} />
+              <AvatarImage src={conversation.business_profile?.logo_url} alt={conversation.business_profile?.business_name} />
               <AvatarFallback>
-                {conversation.business_name.split(" ").map(n => n[0]).slice(0, 2).join("")}
+                {conversation.business_profile?.business_name?.split(" ").map(n => n[0]).slice(0, 2).join("") || 'B'}
               </AvatarFallback>
             </Avatar>
             
             <div>
-              <h2 className="font-semibold">{conversation.business_name}</h2>
+              <h2 className="font-semibold">{conversation.business_profile?.business_name || 'Entreprise'}</h2>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                {conversation.business_info.category && (
-                  <Badge variant="outline" className="text-xs">
-                    {conversation.business_info.category}
-                  </Badge>
-                )}
+                <Badge variant="outline" className="text-xs">
+                  {conversation.conversation_type}
+                </Badge>
                 <span>•</span>
-                <span>{conversation.stats.total_orders} commandes</span>
+                <span>Conversation active</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {conversation.business_info.phone && (
+            {conversation.business_profile?.phone && (
               <Button variant="ghost" size="sm">
                 <Phone className="w-4 h-4" />
               </Button>
@@ -227,12 +187,12 @@ export const ConversationDetails = ({ conversationId, onRefetch }: ConversationD
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-sm">
                   <User className="w-3 h-3" />
-                  <span className="font-medium">{conversation.customer_name}</span>
+                  <span className="font-medium">Client</span>
                 </div>
-                {conversation.business_info.address && (
+                {conversation.business_profile?.phone && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <MapPin className="w-3 h-3" />
-                    {conversation.business_info.address}
+                    <Phone className="w-3 h-3" />
+                    {conversation.business_profile.phone}
                   </div>
                 )}
               </div>
@@ -292,42 +252,31 @@ export const ConversationDetails = ({ conversationId, onRefetch }: ConversationD
                     "max-w-[70%] space-y-1",
                     message.is_own_message && "items-end"
                   )}>
-                    {/* Action Message */}
-                    {message.message_type === "action" && message.action_data && (
+                    {/* System Message */}
+                    {message.message_type === "system" && (
                       <div className={cn(
                         "p-3 rounded-lg border-2 border-dashed",
-                        getActionColor(message.action_data.type)
+                        "bg-gray-50 border-gray-200 text-gray-800"
                       )}>
                         <div className="flex items-center gap-2">
-                          {getActionIcon(message.action_data.type)}
+                          <FileText className="w-4 h-4" />
                           <span className="font-medium text-sm">
                             {message.content}
                           </span>
                         </div>
-                        
-                        {message.action_data.data && (
-                          <div className="mt-2 text-xs space-y-1">
-                            {Object.entries(message.action_data.data).map(([key, value]) => (
-                              <div key={key} className="flex justify-between">
-                                <span className="capitalize">{key.replace('_', ' ')}:</span>
-                                <span className="font-medium">{String(value)}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     )}
 
                     {/* Regular Message */}
-                    {message.message_type !== "action" && (
+                    {message.message_type !== "system" && (
                       <div className={cn(
                         "p-3 rounded-lg",
                         message.is_own_message 
                           ? "bg-primary text-primary-foreground" 
                           : "bg-muted"
                       )}>
-                        {/* Image Message */}
-                        {message.message_type === "image" && message.attachment_url && (
+                        {/* Document Message */}
+                        {message.message_type === "document" && message.attachment_url && (
                           <div className="mb-2">
                             <img
                               src={message.attachment_url}
@@ -350,8 +299,8 @@ export const ConversationDetails = ({ conversationId, onRefetch }: ConversationD
                           </div>
                         )}
 
-                        {/* File Message */}
-                        {message.message_type === "file" && message.attachment_url && (
+                        {/* Video Message */}
+                        {message.message_type === "video" && message.attachment_url && (
                           <div className="flex items-center gap-2 mb-2 p-2 bg-background/10 rounded">
                             <FileText className="w-4 h-4" />
                             <span className="text-sm flex-1">Document.pdf</span>
@@ -361,8 +310,8 @@ export const ConversationDetails = ({ conversationId, onRefetch }: ConversationD
                           </div>
                         )}
 
-                        {/* QR Code Message */}
-                        {message.message_type === "qr" && (
+                        {/* Order/Quote Message */}
+                        {(message.message_type === "order" || message.message_type === "quote") && (
                           <div className="flex items-center gap-2 mb-2">
                             <QrCode className="w-4 h-4" />
                             <span className="text-sm">Code QR de validation</span>
@@ -410,7 +359,7 @@ export const ConversationDetails = ({ conversationId, onRefetch }: ConversationD
         <SheetContent side="bottom" className="h-[50vh]">
           <QuickActions
             conversationId={conversationId}
-            conversation={conversation}
+            conversation={conversation as any}
             onAction={(action) => {
               console.log("Quick action:", action);
               setShowQuickActions(false);
