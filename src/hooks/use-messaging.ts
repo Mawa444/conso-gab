@@ -124,12 +124,22 @@ export const useMessaging = (conversationId: string) => {
     if (!conversationId || !user || !messageData.content.trim()) return;
 
     try {
+      // Import validation functions
+      const { sanitizeContent } = await import('@/lib/validation');
+      
+      // Sanitize content for security
+      const sanitizedContent = sanitizeContent(messageData.content);
+      
+      if (!sanitizedContent.trim()) {
+        throw new Error('Message content is invalid or empty after sanitization');
+      }
+
       const { error: insertError } = await supabase
         .from('messages')
         .insert({
           conversation_id: conversationId,
           sender_id: user.id,
-          content: messageData.content,
+          content: sanitizedContent,
           message_type: messageData.message_type || 'text',
           attachment_url: messageData.attachment_url,
           reply_to_id: messageData.reply_to_id,
@@ -140,6 +150,18 @@ export const useMessaging = (conversationId: string) => {
       if (insertError) {
         throw insertError;
       }
+
+      // Log security activity
+      await supabase.rpc('log_user_activity', {
+        action_type_param: 'MESSAGE_SENT',
+        action_description_param: 'Message sent with content sanitization',
+        metadata_param: {
+          conversation_id: conversationId,
+          message_type: messageData.message_type || 'text',
+          content_length: sanitizedContent.length,
+          timestamp: new Date().toISOString(),
+        }
+      });
 
       // Update conversation updated_at and last_message_at
       await supabase
