@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // ← Navigation
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,6 @@ import { useAuth } from "./AuthProvider";
 import { SignupWizard } from "./SignupWizard";
 import { Eye, EyeOff, X } from "lucide-react";
 
-// --- Helpers ---
 const validateEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -36,7 +35,7 @@ interface LoginModalProps {
 }
 
 export const LoginModal = ({ open, onClose }: LoginModalProps) => {
-  const navigate = useNavigate(); // ← Hook de navigation
+  const navigate = useNavigate();
 
   const [isLogin, setIsLogin] = useState(true);
   const [showSignupWizard, setShowSignupWizard] = useState(false);
@@ -53,7 +52,6 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   const { signIn, signUp, resetPassword } = useAuth();
   const { toast } = useToast();
 
-  // --- Validations ---
   useEffect(() => {
     if (!email) {
       setEmailError(null);
@@ -76,7 +74,6 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
     }
   }, [password]);
 
-  // Réinitialiser les champs si on change de mode
   useEffect(() => {
     if (!isLogin || isResetPassword) {
       setPassword("");
@@ -90,7 +87,6 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
 
   if (!open) return null;
 
-  // --- Signup Wizard ---
   if (showSignupWizard) {
     return (
       <SignupWizard
@@ -118,10 +114,9 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
               description: "Bienvenue dans la communauté ConsoGab !",
             });
 
-            // Connexion auto après inscription
             await signIn(email, password);
             onClose();
-            navigate("/consumer/home"); // ← Redirection après inscription
+            navigate("/consumer/home");
           } catch (err: any) {
             toast({
               title: "Erreur",
@@ -137,7 +132,6 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
     );
   }
 
-  // --- Reset Password ---
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (emailError || !email) {
@@ -174,7 +168,6 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
     }
   };
 
-  // --- Login / Register ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -208,7 +201,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
         });
 
         onClose();
-        navigate("/consumer/home"); // ← Redirection après connexion
+        navigate("/consumer/home");
       } else {
         setShowSignupWizard(true);
       }
@@ -260,7 +253,6 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
 
         <CardContent>
           {isResetPassword ? (
-            // --- Reset Password Form ---
             <form
               onSubmit={handleResetPassword}
               className="space-y-4"
@@ -301,9 +293,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
               </div>
             </form>
           ) : (
-            // --- Login / Register Form ---
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-              {/* Email */}
               <div>
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -325,7 +315,6 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                 )}
               </div>
 
-              {/* Password */}
               <div>
                 <Label htmlFor="password">Mot de passe</Label>
                 <div className="relative">
@@ -367,7 +356,6 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                   </p>
                 )}
 
-                {/* Password Strength */}
                 {!isLogin && password && (
                   <div className="mt-2">
                     <div className="h-2 bg-gray-200 rounded">
@@ -409,7 +397,6 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                   : "Commencer l'inscription"}
               </Button>
 
-              {/* Liens secondaires */}
               <div className="flex justify-between items-center">
                 {isLogin && (
                   <Button
