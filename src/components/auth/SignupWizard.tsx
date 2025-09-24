@@ -7,18 +7,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { MapPin, User, Star, Trophy, Flag, Navigation, Loader2, CheckCircle, Globe, MapIcon } from "lucide-react";
+import { MapPin, User, Star, Trophy, Flag, Navigation, Loader2, CheckCircle, Globe, MapIcon, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProvinces, useDepartments, useArrondissements, useQuartiers } from "@/hooks/use-location-data";
 import { LocationStep } from "./LocationStep";
 
 type UserType = "explorateur" | "createur";
 
+// ✅ Supprimé: email, password (gérés dans LoginModal)
 interface SignupData {
   userType: UserType;
   fullName: string;
   phone: string;
-  email: string;
   avatarUrl?: string;
   country?: string;
   province: string;
@@ -42,11 +42,10 @@ interface SignupWizardProps {
 
 export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [data, setData] = useState<Partial<SignupData>>({});
+  const [data, setData] = useState<Partial<SignupData>>({ userType: "explorateur" });
   const [points, setPoints] = useState(0);
   const { toast } = useToast();
 
-  // Appels de hooks de localisation au niveau supérieur (ordre des hooks stable)
   const { data: provinces } = useProvinces();
   const { data: departments } = useDepartments(data.province);
   const { data: arrondissements } = useArrondissements(data.department);
@@ -74,6 +73,17 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1);
     }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const isValidPhone = (phone: string) => {
+    const digits = phone.replace(/\D/g, "");
+    return digits.length >= 9; // +241 + 8 chiffres = 11, mais on accepte 9+ chiffres
   };
 
   const renderStep = () => {
@@ -117,6 +127,7 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
         );
 
       case 2:
+        const isInfoValid = data.fullName?.trim() && isValidPhone(data.phone || "");
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -130,7 +141,7 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
                 <Input
                   id="fullName"
                   value={data.fullName || ""}
-                  onChange={(e) => setData(prev => ({ ...prev, fullName: e.target.value }))}
+                  onChange={(e) => setData(prev => ({ ...prev, fullName: e.target.value.trim() }))}
                   placeholder="Votre nom complet"
                 />
               </div>
@@ -143,36 +154,36 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
                   onChange={(e) => setData(prev => ({ ...prev, phone: e.target.value }))}
                   placeholder="+241 XX XX XX XX"
                 />
-              </div>
-              
-              <div>
-                <Label htmlFor="email">Email (optionnel)</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={data.email || ""}
-                  onChange={(e) => setData(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder="votre@email.com"
-                />
+                {data.phone !== undefined && !isValidPhone(data.phone) && data.phone.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">Numéro de téléphone invalide</p>
+                )}
               </div>
             </div>
             
-            {data.fullName && data.phone && (
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={prevStep} size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Précédent
+              </Button>
               <Button 
                 onClick={() => {
                   addPoints(15, "Informations de base complétées !");
                   nextStep();
                 }}
-                className="w-full"
+                disabled={!isInfoValid}
+                className="w-[120px]"
               >
-                Continuer
+                Suivant
               </Button>
-            )}
+            </div>
           </div>
         );
 
-        
       case 3:
+        const isLocationValid = !!(
+          (data.province && data.department && data.arrondissement && data.quartier) ||
+          (data.latitude != null && data.longitude != null)
+        );
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -204,17 +215,22 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               }}
             />
             
-            {(data.province || data.latitude) && (
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={prevStep} size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Précédent
+              </Button>
               <Button 
                 onClick={() => {
                   addPoints(20, "Localisation validée ! Les Gabonais proches de toi pourront te trouver facilement 🚀");
                   nextStep();
                 }}
-                className="w-full"
+                disabled={!isLocationValid}
+                className="w-[120px]"
               >
-                Continuer
+                Suivant
               </Button>
-            )}
+            </div>
           </div>
         );
 
@@ -224,13 +240,20 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
             <div className="space-y-6 text-center">
               <h2 className="text-xl font-bold">Presque fini !</h2>
               <p className="text-muted-foreground">En tant qu'explorateur, tu es prêt à découvrir notre économie locale !</p>
-              <Button onClick={nextStep} className="w-full">
-                Continuer vers l'engagement
-              </Button>
+              <div className="flex justify-between">
+                <Button variant="outline" onClick={prevStep} size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Précédent
+                </Button>
+                <Button onClick={nextStep} className="w-[120px]">
+                  Suivant
+                </Button>
+              </div>
             </div>
           );
         }
 
+        const isBusinessValid = !!data.businessName?.trim();
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -244,7 +267,7 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
                 <Input
                   id="businessName"
                   value={data.businessName || ""}
-                  onChange={(e) => setData(prev => ({ ...prev, businessName: e.target.value }))}
+                  onChange={(e) => setData(prev => ({ ...prev, businessName: e.target.value.trim() }))}
                   placeholder="Nom de votre entreprise"
                 />
               </div>
@@ -278,17 +301,22 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               </div>
             </div>
             
-            {data.businessName && (
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={prevStep} size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Précédent
+              </Button>
               <Button 
                 onClick={() => {
                   addPoints(25, "Description complète ! Ta vitrine digitale est créée 🎨");
                   nextStep();
                 }}
-                className="w-full"
+                disabled={!isBusinessValid}
+                className="w-[120px]"
               >
-                Continuer
+                Suivant
               </Button>
-            )}
+            </div>
           </div>
         );
 
@@ -316,17 +344,22 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               </Label>
             </div>
             
-            {data.patrioteEcoPledge && (
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={prevStep} size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Précédent
+              </Button>
               <Button 
                 onClick={() => {
                   addPoints(50, "Badge Patriote Éco débloqué ! 🏆");
                   nextStep();
                 }}
-                className="w-full bg-gradient-to-r from-primary to-accent"
+                disabled={!data.patrioteEcoPledge}
+                className="w-[120px] bg-gradient-to-r from-primary to-accent"
               >
-                Valider mon engagement
+                Suivant
               </Button>
-            )}
+            </div>
           </div>
         );
 
