@@ -20,6 +20,7 @@ import {
   Users,
   Archive
 } from "lucide-react";
+import { ConversationItem } from "@/types/messaging";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
