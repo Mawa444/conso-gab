@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ← Navigation
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,12 +22,22 @@ const passwordStrength = (password: string) => {
   return score;
 };
 
+const passwordMeetsRequirements = (password: string) => {
+  return (
+    password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password)
+  );
+};
+
 interface LoginModalProps {
   open: boolean;
   onClose: () => void;
 }
 
 export const LoginModal = ({ open, onClose }: LoginModalProps) => {
+  const navigate = useNavigate(); // ← Hook de navigation
+
   const [isLogin, setIsLogin] = useState(true);
   const [showSignupWizard, setShowSignupWizard] = useState(false);
   const [isResetPassword, setIsResetPassword] = useState(false);
@@ -56,14 +67,26 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
       setPasswordError(null);
       return;
     }
-    if (passwordStrength(password) < 2) {
+    if (!passwordMeetsRequirements(password)) {
       setPasswordError(
-        "Le mot de passe doit contenir au moins 8 caractères, un chiffre et une majuscule."
+        "Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre."
       );
     } else {
       setPasswordError(null);
     }
   }, [password]);
+
+  // Réinitialiser les champs si on change de mode
+  useEffect(() => {
+    if (!isLogin || isResetPassword) {
+      setPassword("");
+      setPasswordError(null);
+    }
+    if (isResetPassword) {
+      setEmail("");
+      setEmailError(null);
+    }
+  }, [isLogin, isResetPassword]);
 
   if (!open) return null;
 
@@ -98,6 +121,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
             // Connexion auto après inscription
             await signIn(email, password);
             onClose();
+            navigate("/consumer/home"); // ← Redirection après inscription
           } catch (err: any) {
             toast({
               title: "Erreur",
@@ -138,6 +162,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
 
       setIsResetPassword(false);
       setIsLogin(true);
+      setEmail("");
     } catch (err: any) {
       toast({
         title: "Erreur",
@@ -152,6 +177,16 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   // --- Login / Register ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!email || (!isLogin && !password)) {
+      toast({
+        title: "Champs requis",
+        description: "Veuillez remplir tous les champs",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (emailError || passwordError) {
       toast({
         title: "Champs invalides",
@@ -171,16 +206,10 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
           title: "Connexion réussie ✅",
           description: "Bon retour parmi nous !",
         });
+
         onClose();
+        navigate("/consumer/home"); // ← Redirection après connexion
       } else {
-        if (!email || !password) {
-          toast({
-            title: "Champs requis",
-            description: "Veuillez remplir tous les champs",
-            variant: "destructive",
-          });
-          return;
-        }
         setShowSignupWizard(true);
       }
     } catch (err: any) {
@@ -202,6 +231,11 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-modal-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <Card className="w-full max-w-md shadow-xl border border-border">
         <CardHeader>
@@ -242,9 +276,12 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                   placeholder="Votre email"
                   required
                   aria-invalid={!!emailError}
+                  aria-describedby={emailError ? "reset-email-error" : undefined}
                 />
                 {emailError && (
-                  <p className="text-sm text-red-500 mt-1">{emailError}</p>
+                  <p id="reset-email-error" className="text-sm text-red-500 mt-1">
+                    {emailError}
+                  </p>
                 )}
               </div>
 
@@ -279,9 +316,12 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                   autoComplete="email"
                   required
                   aria-invalid={!!emailError}
+                  aria-describedby={emailError ? "email-error" : undefined}
                 />
                 {emailError && (
-                  <p className="text-sm text-red-500 mt-1">{emailError}</p>
+                  <p id="email-error" className="text-sm text-red-500 mt-1">
+                    {emailError}
+                  </p>
                 )}
               </div>
 
@@ -298,8 +338,9 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                     placeholder="Votre mot de passe"
                     autoComplete={isLogin ? "current-password" : "new-password"}
                     className="pr-10"
-                    required={!isResetPassword}
+                    required
                     aria-invalid={!!passwordError}
+                    aria-describedby={passwordError ? "password-error" : undefined}
                   />
                   <Button
                     type="button"
@@ -321,7 +362,9 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                   </Button>
                 </div>
                 {passwordError && (
-                  <p className="text-sm text-red-500 mt-1">{passwordError}</p>
+                  <p id="password-error" className="text-sm text-red-500 mt-1">
+                    {passwordError}
+                  </p>
                 )}
 
                 {/* Password Strength */}
