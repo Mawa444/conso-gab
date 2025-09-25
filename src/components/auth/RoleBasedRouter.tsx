@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { ModeGuard } from './ModeGuard';
@@ -15,21 +15,17 @@ interface RoleBasedRouterProps {
 }
 
 export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [userProfile, setUserProfile] = useState<UserProfile>({ role: null, pseudo: null });
-  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
   const { currentMode, currentBusinessId, loading: modeLoading } = useProfileMode();
 
-  // Charger le profil utilisateur
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!user) {
-        setProfileLoading(false);
-        return;
-      }
-
+      if (!user) return;
+      
+      setProfileLoading(true);
       try {
         const { data, error } = await supabase
           .from('user_profiles')
@@ -37,77 +33,55 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
           .eq('user_id', user.id)
           .single();
 
-        // Gérer le cas où le profil n'existe pas encore (code PGRST116 = "no rows returned")
-        if (error && error.code !== 'PGRST116') {
-          console.error('Erreur lors de la récupération du profil:', error);
+        if (error) {
+          console.error('Erreur récupération profil:', error);
+          return;
         }
 
-        setUserProfile({
-          role: (data?.role as 'consumer' | 'merchant') || null,
-          pseudo: data?.pseudo ?? null,
-        });
+        setUserProfile({ role: (data?.role as 'consumer' | 'merchant') || null, pseudo: data?.pseudo ?? null });
       } catch (error) {
-        console.error('Erreur inattendue:', error);
+        console.error('Erreur:', error);
       } finally {
         setProfileLoading(false);
       }
     };
 
-    fetchUserProfile();
-  }, [user]);
+    if (user && !loading) {
+      fetchUserProfile();
+    }
+  }, [user, loading]);
 
-  // État global de chargement
-  const globalLoading = authLoading || profileLoading || modeLoading;
-
-  // 1. Redirection vers /auth si non connecté (sauf sur /auth ou /splash)
+  // Redirection vers auth si pas connecté - IMMÉDIATE
   useEffect(() => {
-    console.log('🔍 RoleBasedRouter - Debug:', { 
-      globalLoading, 
-      user: !!user, 
-      pathname: location.pathname 
-    });
-    
-    if (!globalLoading && !user) {
-      const isAuthRoute = location.pathname.startsWith('/auth');
-      const isSplashRoute = location.pathname === '/splash';
-
-      if (!isAuthRoute && !isSplashRoute) {
-        console.log('⚠️ Utilisateur non connecté, redirection vers /auth');
+    if (!loading && !user) {
+      const currentPath = window.location.pathname;
+      
+      // Redirection IMMÉDIATE vers /auth si l'utilisateur n'est pas connecté
+      if (!currentPath.startsWith('/auth') && !currentPath.startsWith('/splash')) {
+        console.log("Utilisateur non connecté, redirection vers /auth");
         navigate('/auth', { replace: true });
+        return;
       }
     }
-  }, [globalLoading, user, navigate, location.pathname]);
+  }, [loading, user, navigate]);
 
-  // 2. Redirection après connexion vers l'espace approprié
+  // Redirection automatique selon le rôle après connexion
   useEffect(() => {
-    if (!globalLoading && user) {
-      const isAuthRoute = location.pathname.startsWith('/auth');
-      const isRoot = location.pathname === '/';
-      const isSplash = location.pathname === '/splash';
-
-      // Rediriger uniquement depuis /, /auth, ou /splash
-      if (isRoot || isAuthRoute || isSplash) {
-        let targetPath = '/consumer/home';
-
-        // Rediriger vers l'espace business si mode actif ET ID valide
+    if (!loading && !profileLoading && !modeLoading && user && userProfile.role) {
+      const currentPath = window.location.pathname;
+      
+      // Rediriger depuis la racine ou auth vers l'espace approprié
+      if (currentPath === '/' || currentPath.startsWith('/auth')) {
         if (currentMode === 'business' && currentBusinessId) {
-          targetPath = `/business/${currentBusinessId}`;
-        }
-
-        // Éviter la redirection si déjà sur la bonne page
-        if (location.pathname !== targetPath) {
-          console.log(`Redirection vers ${targetPath}`);
-          navigate(targetPath, { replace: true });
+          navigate(`/business/${currentBusinessId}`, { replace: true });
+        } else {
+          navigate('/consumer/home', { replace: true });
         }
       }
     }
-  }, [globalLoading, user, currentMode, currentBusinessId, navigate, location.pathname]);
+  }, [loading, profileLoading, modeLoading, user, userProfile.role, currentMode, currentBusinessId, navigate]);
 
-  // Afficher un loader ou rien pendant le chargement
-  if (globalLoading) {
-    return null; // ou <div className="flex items-center justify-center min-h-screen">Chargement...</div>
-  }
+  // Plus de restrictions basées sur les rôles - tous les utilisateurs connectés ont accès à tout
 
-  // Rendre les enfants une fois tout chargé (sans restriction de rôle)
   return <ModeGuard>{children}</ModeGuard>;
-};
+}

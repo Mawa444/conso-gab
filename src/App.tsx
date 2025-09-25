@@ -1,6 +1,6 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { RoleBasedRouter } from "@/components/auth/RoleBasedRouter";
 import { DynamicIslandToaster } from "@/components/ui/DynamicIslandToaster";
@@ -45,8 +45,8 @@ const App = () => (
               <Route path="/catalogs" element={<PublicCatalogsPage />} />
               <Route path="/messaging" element={<MessagingPage />} />
               
-              {/* Route par défaut : redirection vers auth */}
-              <Route path="/" element={<Navigate to="/auth" replace />} />
+              {/* Route par défaut : page d'authentification */}
+              <Route path="/" element={<AuthFlowPage onComplete={() => {}} />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </RoleBasedRouter>

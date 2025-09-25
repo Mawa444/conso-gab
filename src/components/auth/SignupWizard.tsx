@@ -7,18 +7,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { MapPin, User, Star, Trophy, Flag, Navigation, Loader2, CheckCircle, Globe, MapIcon, ArrowLeft } from "lucide-react";
+import { MapPin, User, Star, Trophy, Flag, Navigation, Loader2, CheckCircle, Globe, MapIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProvinces, useDepartments, useArrondissements, useQuartiers } from "@/hooks/use-location-data";
 import { LocationStep } from "./LocationStep";
 
 type UserType = "explorateur" | "createur";
 
-// ✅ Supprimé: email, password (gérés dans LoginModal)
 interface SignupData {
   userType: UserType;
   fullName: string;
   phone: string;
+  email: string;
   avatarUrl?: string;
   country?: string;
   province: string;
@@ -42,10 +42,11 @@ interface SignupWizardProps {
 
 export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [data, setData] = useState<Partial<SignupData>>({ userType: "explorateur" });
+  const [data, setData] = useState<Partial<SignupData>>({});
   const [points, setPoints] = useState(0);
   const { toast } = useToast();
 
+  // Appels de hooks de localisation au niveau supérieur (ordre des hooks stable)
   const { data: provinces } = useProvinces();
   const { data: departments } = useDepartments(data.province);
   const { data: arrondissements } = useArrondissements(data.department);
@@ -73,17 +74,6 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1);
     }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
-
-  const isValidPhone = (phone: string) => {
-    const digits = phone.replace(/\D/g, "");
-    return digits.length >= 9; // +241 + 8 chiffres = 11, mais on accepte 9+ chiffres
   };
 
   const renderStep = () => {
@@ -127,7 +117,6 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
         );
 
       case 2:
-        const isInfoValid = data.fullName?.trim() && isValidPhone(data.phone || "");
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -141,7 +130,7 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
                 <Input
                   id="fullName"
                   value={data.fullName || ""}
-                  onChange={(e) => setData(prev => ({ ...prev, fullName: e.target.value.trim() }))}
+                  onChange={(e) => setData(prev => ({ ...prev, fullName: e.target.value }))}
                   placeholder="Votre nom complet"
                 />
               </div>
@@ -154,36 +143,36 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
                   onChange={(e) => setData(prev => ({ ...prev, phone: e.target.value }))}
                   placeholder="+241 XX XX XX XX"
                 />
-                {data.phone !== undefined && !isValidPhone(data.phone) && data.phone.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">Numéro de téléphone invalide</p>
-                )}
+              </div>
+              
+              <div>
+                <Label htmlFor="email">Email (optionnel)</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={data.email || ""}
+                  onChange={(e) => setData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="votre@email.com"
+                />
               </div>
             </div>
             
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={prevStep} size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Précédent
-              </Button>
+            {data.fullName && data.phone && (
               <Button 
                 onClick={() => {
                   addPoints(15, "Informations de base complétées !");
                   nextStep();
                 }}
-                disabled={!isInfoValid}
-                className="w-[120px]"
+                className="w-full"
               >
-                Suivant
+                Continuer
               </Button>
-            </div>
+            )}
           </div>
         );
 
+        
       case 3:
-        const isLocationValid = !!(
-          (data.province && data.department && data.arrondissement && data.quartier) ||
-          (data.latitude != null && data.longitude != null)
-        );
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -215,22 +204,17 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               }}
             />
             
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={prevStep} size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Précédent
-              </Button>
+            {(data.province || data.latitude) && (
               <Button 
                 onClick={() => {
                   addPoints(20, "Localisation validée ! Les Gabonais proches de toi pourront te trouver facilement 🚀");
                   nextStep();
                 }}
-                disabled={!isLocationValid}
-                className="w-[120px]"
+                className="w-full"
               >
-                Suivant
+                Continuer
               </Button>
-            </div>
+            )}
           </div>
         );
 
@@ -240,20 +224,13 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
             <div className="space-y-6 text-center">
               <h2 className="text-xl font-bold">Presque fini !</h2>
               <p className="text-muted-foreground">En tant qu'explorateur, tu es prêt à découvrir notre économie locale !</p>
-              <div className="flex justify-between">
-                <Button variant="outline" onClick={prevStep} size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Précédent
-                </Button>
-                <Button onClick={nextStep} className="w-[120px]">
-                  Suivant
-                </Button>
-              </div>
+              <Button onClick={nextStep} className="w-full">
+                Continuer vers l'engagement
+              </Button>
             </div>
           );
         }
 
-        const isBusinessValid = !!data.businessName?.trim();
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -267,7 +244,7 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
                 <Input
                   id="businessName"
                   value={data.businessName || ""}
-                  onChange={(e) => setData(prev => ({ ...prev, businessName: e.target.value.trim() }))}
+                  onChange={(e) => setData(prev => ({ ...prev, businessName: e.target.value }))}
                   placeholder="Nom de votre entreprise"
                 />
               </div>
@@ -301,22 +278,17 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               </div>
             </div>
             
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={prevStep} size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Précédent
-              </Button>
+            {data.businessName && (
               <Button 
                 onClick={() => {
                   addPoints(25, "Description complète ! Ta vitrine digitale est créée 🎨");
                   nextStep();
                 }}
-                disabled={!isBusinessValid}
-                className="w-[120px]"
+                className="w-full"
               >
-                Suivant
+                Continuer
               </Button>
-            </div>
+            )}
           </div>
         );
 
@@ -344,22 +316,17 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               </Label>
             </div>
             
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={prevStep} size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Précédent
-              </Button>
+            {data.patrioteEcoPledge && (
               <Button 
                 onClick={() => {
                   addPoints(50, "Badge Patriote Éco débloqué ! 🏆");
                   nextStep();
                 }}
-                disabled={!data.patrioteEcoPledge}
-                className="w-[120px] bg-gradient-to-r from-primary to-accent"
+                className="w-full bg-gradient-to-r from-primary to-accent"
               >
-                Suivant
+                Valider mon engagement
               </Button>
-            </div>
+            )}
           </div>
         );
 
@@ -385,18 +352,7 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
             </div>
             
             <Button 
-              onClick={() => {
-                // ✅ Validation des champs obligatoires avant l'appel
-                if (!data.fullName?.trim() || !isValidPhone(data.phone || "") || !data.patrioteEcoPledge) {
-                  toast({
-                    title: "Données incomplètes",
-                    description: "Veuillez vérifier que tous les champs obligatoires sont remplis",
-                    variant: "destructive"
-                  });
-                  return;
-                }
-                onComplete(data as SignupData);
-              }}
+              onClick={() => onComplete(data as SignupData)}
               className="w-full bg-gradient-to-r from-primary to-accent text-white"
               size="lg"
             >
