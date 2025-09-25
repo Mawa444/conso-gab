@@ -61,12 +61,18 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
 
   // 1. Redirection vers /auth si non connecté (sauf sur /auth ou /splash)
   useEffect(() => {
+    console.log('🔍 RoleBasedRouter - Debug:', { 
+      globalLoading, 
+      user: !!user, 
+      pathname: location.pathname 
+    });
+    
     if (!globalLoading && !user) {
       const isAuthRoute = location.pathname.startsWith('/auth');
       const isSplashRoute = location.pathname === '/splash';
 
       if (!isAuthRoute && !isSplashRoute) {
-        console.log('Utilisateur non connecté, redirection vers /auth');
+        console.log('⚠️ Utilisateur non connecté, redirection vers /auth');
         navigate('/auth', { replace: true });
       }
     }

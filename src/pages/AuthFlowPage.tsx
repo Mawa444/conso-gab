@@ -20,6 +20,7 @@ interface AuthFlowPageProps {
 
 
 export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
+  console.log('🔍 AuthFlowPage - Mounting');
   const { user, loading, signIn } = useAuth();
   const navigate = useNavigate();
   const { cleanupAuthState } = useAuthCleanup();
@@ -30,6 +31,8 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
+  console.log('🔍 AuthFlowPage - State:', { user: !!user, loading, step });
 
   // Pré-remplir l'email si disponible (ex: après inscription sans auto-login)
   useEffect(() => {
