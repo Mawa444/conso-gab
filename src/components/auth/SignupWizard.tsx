@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { MapPin, User, Star, Trophy, Flag, Navigation, Loader2, CheckCircle, Globe, MapIcon } from "lucide-react";
+import { MapPin, User, Star, Trophy, Flag, Navigation, Loader2, CheckCircle, Globe, MapIcon, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProvinces, useDepartments, useArrondissements, useQuartiers } from "@/hooks/use-location-data";
 import { LocationStep } from "./LocationStep";
@@ -18,7 +18,6 @@ interface SignupData {
   userType: UserType;
   fullName: string;
   phone: string;
-  email: string;
   avatarUrl?: string;
   country?: string;
   province: string;
@@ -36,13 +35,38 @@ interface SignupData {
 }
 
 interface SignupWizardProps {
+  email: string;
+  password: string;
   onComplete: (data: SignupData) => void;
   onClose: () => void;
 }
 
-export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
+// Fonctions de validation
+const isValidPhone = (phone: string): boolean => {
+  const phoneRegex = /^(\+241|241)?[0-9]{8,}$/;
+  return phoneRegex.test(phone.replace(/\s/g, ''));
+};
+
+const isLocationValid = (data: Partial<SignupData>): boolean => {
+  // Validation stricte: soit tous les niveaux administratifs, soit des coordonnées valides
+  const hasAdministrative = data.province && data.department && data.arrondissement && data.quartier;
+  const hasCoordinates = data.latitude && data.longitude;
+  return Boolean(hasAdministrative || hasCoordinates);
+};
+
+const validateRequiredFields = (data: Partial<SignupData>): data is SignupData => {
+  return Boolean(
+    data.fullName &&
+    data.phone &&
+    isValidPhone(data.phone) &&
+    isLocationValid(data) &&
+    data.patrioteEcoPledge !== undefined
+  );
+};
+
+export const SignupWizard = ({ email, password, onComplete, onClose }: SignupWizardProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [data, setData] = useState<Partial<SignupData>>({});
+  const [data, setData] = useState<Partial<SignupData>>({ userType: "explorateur" });
   const [points, setPoints] = useState(0);
   const { toast } = useToast();
 
@@ -76,6 +100,27 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
     }
   };
 
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const isStepValid = (): boolean => {
+    switch (currentStep) {
+      case 2: // Informations personnelles
+        return Boolean(data.fullName && data.phone && isValidPhone(data.phone));
+      case 3: // Localisation
+        return isLocationValid(data);
+      case 4: // Business (si créateur)
+        return data.userType === "explorateur" || Boolean(data.businessName);
+      case 5: // Engagement
+        return Boolean(data.patrioteEcoPledge);
+      default:
+        return true;
+    }
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 0:
@@ -103,16 +148,27 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
           <div className="space-y-6 text-center">
             <h2 className="text-xl font-bold">Bienvenue dans ConsoGab !</h2>
             <p className="text-muted-foreground">Vous créez un profil consommateur. Vous pourrez créer votre entreprise plus tard depuis votre profil.</p>
-            <Button 
-              onClick={() => {
-                setData(prev => ({ ...prev, userType: "explorateur" }));
-                addPoints(10, "Bienvenue ! Découvrez l'économie gabonaise 🇬🇦");
-                nextStep();
-              }}
-              className="w-full"
-            >
-              Commencer
-            </Button>
+            
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline"
+                onClick={prevStep}
+                className="flex-1"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Précédent
+              </Button>
+              <Button 
+                onClick={() => {
+                  setData(prev => ({ ...prev, userType: "explorateur" }));
+                  addPoints(10, "Bienvenue ! Découvrez l'économie gabonaise 🇬🇦");
+                  nextStep();
+                }}
+                className="flex-1"
+              >
+                Commencer
+              </Button>
+            </div>
           </div>
         );
 
@@ -132,6 +188,7 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
                   value={data.fullName || ""}
                   onChange={(e) => setData(prev => ({ ...prev, fullName: e.target.value }))}
                   placeholder="Votre nom complet"
+                  required
                 />
               </div>
               
@@ -142,36 +199,48 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
                   value={data.phone || ""}
                   onChange={(e) => setData(prev => ({ ...prev, phone: e.target.value }))}
                   placeholder="+241 XX XX XX XX"
+                  required
                 />
+                {data.phone && !isValidPhone(data.phone) && (
+                  <p className="text-sm text-destructive mt-1">
+                    Numéro de téléphone invalide
+                  </p>
+                )}
               </div>
               
               <div>
-                <Label htmlFor="email">Email (optionnel)</Label>
+                <Label>Email (pré-rempli)</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={data.email || ""}
-                  onChange={(e) => setData(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder="votre@email.com"
+                  value={email}
+                  disabled
+                  className="bg-muted"
                 />
               </div>
             </div>
             
-            {data.fullName && data.phone && (
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline"
+                onClick={prevStep}
+                className="flex-1"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Précédent
+              </Button>
               <Button 
                 onClick={() => {
                   addPoints(15, "Informations de base complétées !");
                   nextStep();
                 }}
-                className="w-full"
+                className="flex-1"
+                disabled={!isStepValid()}
               >
                 Continuer
               </Button>
-            )}
+            </div>
           </div>
         );
 
-        
       case 3:
         return (
           <div className="space-y-6">
@@ -204,17 +273,26 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               }}
             />
             
-            {(data.province || data.latitude) && (
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline"
+                onClick={prevStep}
+                className="flex-1"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Précédent
+              </Button>
               <Button 
                 onClick={() => {
                   addPoints(20, "Localisation validée ! Les Gabonais proches de toi pourront te trouver facilement 🚀");
                   nextStep();
                 }}
-                className="w-full"
+                className="flex-1"
+                disabled={!isStepValid()}
               >
                 Continuer
               </Button>
-            )}
+            </div>
           </div>
         );
 
@@ -224,9 +302,20 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
             <div className="space-y-6 text-center">
               <h2 className="text-xl font-bold">Presque fini !</h2>
               <p className="text-muted-foreground">En tant qu'explorateur, tu es prêt à découvrir notre économie locale !</p>
-              <Button onClick={nextStep} className="w-full">
-                Continuer vers l'engagement
-              </Button>
+              
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline"
+                  onClick={prevStep}
+                  className="flex-1"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Précédent
+                </Button>
+                <Button onClick={nextStep} className="flex-1">
+                  Continuer vers l'engagement
+                </Button>
+              </div>
             </div>
           );
         }
@@ -246,6 +335,7 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
                   value={data.businessName || ""}
                   onChange={(e) => setData(prev => ({ ...prev, businessName: e.target.value }))}
                   placeholder="Nom de votre entreprise"
+                  required
                 />
               </div>
               
@@ -278,17 +368,26 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               </div>
             </div>
             
-            {data.businessName && (
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline"
+                onClick={prevStep}
+                className="flex-1"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Précédent
+              </Button>
               <Button 
                 onClick={() => {
                   addPoints(25, "Description complète ! Ta vitrine digitale est créée 🎨");
                   nextStep();
                 }}
-                className="w-full"
+                className="flex-1"
+                disabled={!isStepValid()}
               >
                 Continuer
               </Button>
-            )}
+            </div>
           </div>
         );
 
@@ -316,17 +415,26 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               </Label>
             </div>
             
-            {data.patrioteEcoPledge && (
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline"
+                onClick={prevStep}
+                className="flex-1"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Précédent
+              </Button>
               <Button 
                 onClick={() => {
                   addPoints(50, "Badge Patriote Éco débloqué ! 🏆");
                   nextStep();
                 }}
-                className="w-full bg-gradient-to-r from-primary to-accent"
+                className="flex-1 bg-gradient-to-r from-primary to-accent"
+                disabled={!isStepValid()}
               >
                 Valider mon engagement
               </Button>
-            )}
+            </div>
           </div>
         );
 
@@ -351,13 +459,34 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
               </div>
             </div>
             
-            <Button 
-              onClick={() => onComplete(data as SignupData)}
-              className="w-full bg-gradient-to-r from-primary to-accent text-white"
-              size="lg"
-            >
-              Découvrir ma communauté
-            </Button>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline"
+                onClick={prevStep}
+                className="flex-1"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Précédent
+              </Button>
+              <Button 
+                onClick={() => {
+                  // Validation finale avant soumission
+                  if (validateRequiredFields(data)) {
+                    onComplete(data);
+                  } else {
+                    toast({
+                      title: "Erreur",
+                      description: "Veuillez compléter tous les champs requis",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                className="flex-1 bg-gradient-to-r from-primary to-accent text-white"
+                size="lg"
+              >
+                Découvrir ma communauté
+              </Button>
+            </div>
           </div>
         );
 
