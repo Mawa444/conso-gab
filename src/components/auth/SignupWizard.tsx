@@ -385,7 +385,18 @@ export const SignupWizard = ({ onComplete, onClose }: SignupWizardProps) => {
             </div>
             
             <Button 
-              onClick={() => onComplete(data as SignupData)}
+              onClick={() => {
+                // ✅ Validation des champs obligatoires avant l'appel
+                if (!data.fullName?.trim() || !isValidPhone(data.phone || "") || !data.patrioteEcoPledge) {
+                  toast({
+                    title: "Données incomplètes",
+                    description: "Veuillez vérifier que tous les champs obligatoires sont remplis",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                onComplete(data as SignupData);
+              }}
               className="w-full bg-gradient-to-r from-primary to-accent text-white"
               size="lg"
             >
