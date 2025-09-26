@@ -95,7 +95,7 @@ export const FavoritesSection = ({
       <div className="flex gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Rechercher dans vos favoris..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
+          <Input placeholder="Rechercher dans vos favoris..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 bg-white rounded-3xl" />
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-48">
