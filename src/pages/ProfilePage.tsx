@@ -436,8 +436,8 @@ export const ProfilePage = ({
 
               {/* Section Danger */}
               <Card className="border-red-200">
-                <CardHeader className="bg-black">
-                  <CardTitle className="text-red-600 font-bold text-lg">Zone dangereuse</CardTitle>
+                <CardHeader className="bg-inherit">
+                  <CardTitle className="font-bold text-lg text-red-500">Zone dangereuse</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 bg-white my-0">
                   <Button variant="outline" onClick={handleDeleteAccount} className="w-full justify-start border-red-200 my-[12px] rounded-3xl bg-orange-300 hover:bg-orange-200 text-black">
