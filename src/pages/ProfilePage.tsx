@@ -394,18 +394,18 @@ export const ProfilePage = ({
               
               {/* Section Compte */}
               <Card>
-                <CardHeader className="bg-white">
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="bg-[3a75c4] bg-[#3a75c4]/[0.97]">
+                  <CardTitle className="flex items-center gap-2 text-white">
                     <User className="w-5 h-5" />
                     Informations du compte
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button variant="outline" className="w-full justify-start" onClick={onSettings}>
+                  <Button variant="outline" onClick={onSettings} className="w-full justify-start rounded-3xl my-[10px]">
                     <Settings className="w-4 h-4 mr-2" />
                     Modifier mon profil
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start my-[10px]">
                     <Shield className="w-4 h-4 mr-2" />
                     Sécurité et confidentialité
                   </Button>
