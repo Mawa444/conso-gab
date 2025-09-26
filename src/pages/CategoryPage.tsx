@@ -197,7 +197,7 @@ export const CategoryPage = () => {
             {/* Barre de recherche */}
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input placeholder="Rechercher dans cette catégorie..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 rounded-3xl" />
+              <Input placeholder="Rechercher dans cette catégorie..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 rounded-3xl py-0 my-0 mx-0 px-[55px]" />
             </div>
 
             {/* Filtres et options d'affichage */}
