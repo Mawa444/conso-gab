@@ -6,111 +6,86 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const favoriteCommerces = [
-  {
-    id: "fav_001",
-    name: "Restaurant Chez Tonton",
-    type: "Restaurant",
-    rating: 4.9,
-    lastVisit: "Il y a 2 jours",
-    subscribed: true,
-    category: "restaurant"
-  },
-  {
-    id: "fav_002",
-    name: "Salon Afrique Beauté", 
-    type: "Salon de beauté",
-    rating: 4.7,
-    lastVisit: "La semaine dernière",
-    subscribed: false,
-    category: "beaute"
-  },
-  {
-    id: "fav_003",
-    name: "Pharmacie du Centre",
-    type: "Pharmacie", 
-    rating: 4.8,
-    lastVisit: "Il y a 5 jours",
-    subscribed: true,
-    category: "sante"
-  }
-];
-
-const favoriteProducts = [
-  {
-    id: "prod_001",
-    name: "Poulet braisé traditionnel",
-    business: "Restaurant Chez Tonton",
-    price: "3500 FCFA",
-    image: "/placeholder-product.jpg",
-    rating: 4.9
-  },
-  {
-    id: "prod_002",
-    name: "Coiffure afro moderne",
-    business: "Salon Afrique Beauté",
-    price: "15000 FCFA",
-    image: "/placeholder-service.jpg",
-    rating: 4.7
-  }
-];
-
-const subscriptions = [
-  {
-    id: "sub_001",
-    name: "Restaurant Chez Tonton",
-    type: "Restaurant",
-    subscribed_at: "Il y a 1 mois",
-    notifications: true,
-    offers_count: 3
-  },
-  {
-    id: "sub_002",
-    name: "Pharmacie du Centre",
-    type: "Pharmacie",
-    subscribed_at: "Il y a 2 semaines", 
-    notifications: false,
-    offers_count: 1
-  }
-];
-
+const favoriteCommerces = [{
+  id: "fav_001",
+  name: "Restaurant Chez Tonton",
+  type: "Restaurant",
+  rating: 4.9,
+  lastVisit: "Il y a 2 jours",
+  subscribed: true,
+  category: "restaurant"
+}, {
+  id: "fav_002",
+  name: "Salon Afrique Beauté",
+  type: "Salon de beauté",
+  rating: 4.7,
+  lastVisit: "La semaine dernière",
+  subscribed: false,
+  category: "beaute"
+}, {
+  id: "fav_003",
+  name: "Pharmacie du Centre",
+  type: "Pharmacie",
+  rating: 4.8,
+  lastVisit: "Il y a 5 jours",
+  subscribed: true,
+  category: "sante"
+}];
+const favoriteProducts = [{
+  id: "prod_001",
+  name: "Poulet braisé traditionnel",
+  business: "Restaurant Chez Tonton",
+  price: "3500 FCFA",
+  image: "/placeholder-product.jpg",
+  rating: 4.9
+}, {
+  id: "prod_002",
+  name: "Coiffure afro moderne",
+  business: "Salon Afrique Beauté",
+  price: "15000 FCFA",
+  image: "/placeholder-service.jpg",
+  rating: 4.7
+}];
+const subscriptions = [{
+  id: "sub_001",
+  name: "Restaurant Chez Tonton",
+  type: "Restaurant",
+  subscribed_at: "Il y a 1 mois",
+  notifications: true,
+  offers_count: 3
+}, {
+  id: "sub_002",
+  name: "Pharmacie du Centre",
+  type: "Pharmacie",
+  subscribed_at: "Il y a 2 semaines",
+  notifications: false,
+  offers_count: 1
+}];
 interface FavoritesSectionProps {
   userType?: "consumer" | "business";
 }
-
-export const FavoritesSection = ({ userType = "consumer" }: FavoritesSectionProps) => {
+export const FavoritesSection = ({
+  userType = "consumer"
+}: FavoritesSectionProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [categoryFilter, setCategoryFilter] = useState("all");
-
   const handleSubscribe = (businessId: string) => {
     console.log("S'abonner à:", businessId);
     // TODO: Implémenter l'abonnement
   };
-
   const handleUnsubscribe = (businessId: string) => {
     console.log("Se désabonner de:", businessId);
     // TODO: Implémenter le désabonnement
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Favoris & Abonnements</h2>
         <div className="flex items-center gap-2">
-          <Button
-            variant={viewMode === "grid" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("grid")}
-          >
+          <Button variant={viewMode === "grid" ? "default" : "outline"} size="sm" onClick={() => setViewMode("grid")}>
             <Grid className="w-4 h-4" />
           </Button>
-          <Button
-            variant={viewMode === "list" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("list")}
-          >
+          <Button variant={viewMode === "list" ? "default" : "outline"} size="sm" onClick={() => setViewMode("list")}>
             <List className="w-4 h-4" />
           </Button>
         </div>
@@ -120,12 +95,7 @@ export const FavoritesSection = ({ userType = "consumer" }: FavoritesSectionProp
       <div className="flex gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher dans vos favoris..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Rechercher dans vos favoris..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-48">
@@ -158,12 +128,11 @@ export const FavoritesSection = ({ userType = "consumer" }: FavoritesSectionProp
           </div>
           
           <div className={viewMode === "grid" ? "grid grid-cols-2 gap-4" : "space-y-4"}>
-            {favoriteCommerces.map((business) => (
-              <Card key={business.id} className="group hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-primary" />
+            {favoriteCommerces.map(business => <Card key={business.id} className="group hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-4 bg-white rounded-3xl">
+                  <div className="flex items-start gap-3 bg-white">
+                    <div className="w-12 h-12 from-primary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0 bg-[3a75c4] bg-[#3a75c4]/[0.96]">
+                      <MapPin className="w-6 h-6 text-primary bg-inherit" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
@@ -186,12 +155,7 @@ export const FavoritesSection = ({ userType = "consumer" }: FavoritesSectionProp
                       </div>
 
                       <div className="flex items-center gap-2 mt-3">
-                        <Button
-                          size="sm"
-                          variant={business.subscribed ? "default" : "outline"}
-                          onClick={() => business.subscribed ? handleUnsubscribe(business.id) : handleSubscribe(business.id)}
-                          className="text-xs h-7"
-                        >
+                        <Button size="sm" variant={business.subscribed ? "default" : "outline"} onClick={() => business.subscribed ? handleUnsubscribe(business.id) : handleSubscribe(business.id)} className="text-xs h-7">
                           <Bell className="w-3 h-3 mr-1" />
                           {business.subscribed ? "Abonné" : "S'abonner"}
                         </Button>
@@ -202,8 +166,7 @@ export const FavoritesSection = ({ userType = "consumer" }: FavoritesSectionProp
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </TabsContent>
 
@@ -216,8 +179,7 @@ export const FavoritesSection = ({ userType = "consumer" }: FavoritesSectionProp
           </div>
           
           <div className={viewMode === "grid" ? "grid grid-cols-2 gap-4" : "space-y-4"}>
-            {favoriteProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+            {favoriteProducts.map(product => <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-16 h-16 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
@@ -244,8 +206,7 @@ export const FavoritesSection = ({ userType = "consumer" }: FavoritesSectionProp
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </TabsContent>
 
@@ -258,8 +219,7 @@ export const FavoritesSection = ({ userType = "consumer" }: FavoritesSectionProp
           </div>
           
           <div className="space-y-4">
-            {subscriptions.map((subscription) => (
-              <Card key={subscription.id}>
+            {subscriptions.map(subscription => <Card key={subscription.id}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
@@ -274,39 +234,26 @@ export const FavoritesSection = ({ userType = "consumer" }: FavoritesSectionProp
                             <Calendar className="w-3 h-3 inline mr-1" />
                             Abonné {subscription.subscribed_at}
                           </span>
-                          {subscription.offers_count > 0 && (
-                            <Badge variant="secondary" className="text-xs">
+                          {subscription.offers_count > 0 && <Badge variant="secondary" className="text-xs">
                               {subscription.offers_count} offre{subscription.offers_count > 1 ? 's' : ''} active{subscription.offers_count > 1 ? 's' : ''}
-                            </Badge>
-                          )}
+                            </Badge>}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant={subscription.notifications ? "default" : "outline"}
-                        className="text-xs"
-                      >
+                      <Button size="sm" variant={subscription.notifications ? "default" : "outline"} className="text-xs">
                         <Bell className="w-3 h-3 mr-1" />
                         {subscription.notifications ? "Notifications ON" : "Notifications OFF"}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleUnsubscribe(subscription.id)}
-                        className="text-xs text-red-600 hover:text-red-700"
-                      >
+                      <Button size="sm" variant="ghost" onClick={() => handleUnsubscribe(subscription.id)} className="text-xs text-red-600 hover:text-red-700">
                         Se désabonner
                       </Button>
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>;
 };
