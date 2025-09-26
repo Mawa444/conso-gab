@@ -8,7 +8,7 @@ import MessagingPage from "@/pages/MessagingPage";
 import ConversationDetailPage from "@/pages/ConversationDetailPage";
 import BusinessDashboardPage from "@/pages/BusinessDashboardPage";
 import BusinessCreationPage from "@/pages/BusinessCreationPage";
-import BusinessProfilePage from "@/pages/BusinessProfilePage";
+import { BusinessDetailPage } from "@/pages/BusinessDetailPage";
 import CreateCatalogPage from "@/pages/CreateCatalogPage";
 import "./App.css";
 
@@ -27,7 +27,7 @@ const App = () => (
               <Route path="/business/create" element={<BusinessCreationPage />} />
               <Route path="/business/dashboard" element={<BusinessDashboardPage />} />
               <Route path="/business/create-catalog" element={<CreateCatalogPage />} />
-              <Route path="/business/:businessId" element={<BusinessProfilePage />} />
+              <Route path="/business/:businessId" element={<BusinessDetailPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
