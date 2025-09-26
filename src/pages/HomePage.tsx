@@ -202,7 +202,7 @@ export const HomePage = ({
         </div>
 
         {/* Catégories rapides */}
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide rounded-3xl">
           {categories.slice(0, 6).map(category => <button key={category.id} onClick={() => handleCategoryClick(category)} className={`flex-shrink-0 px-6 py-4 rounded-2xl text-white font-semibold flex items-center gap-2 shadow-sm bg-gradient-to-br ${category.color}`}>
               <span className="text-lg">{category.icon}</span>
               <span className="whitespace-nowrap">{category.nom}</span>
