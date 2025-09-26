@@ -400,7 +400,7 @@ export const ProfilePage = ({
                     Informations du compte
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 bg-gray-200 px-[14px] my-[2px]">
+                <CardContent className="space-y-4 bg-gray-200 px-[14px] my-0">
                   <Button variant="outline" onClick={onSettings} className="w-full justify-start rounded-3xl my-[10px]">
                     <Settings className="w-4 h-4 mr-2" />
                     Modifier mon profil
