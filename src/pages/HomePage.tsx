@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, RefreshCw, Grid3X3, Building2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
+import { HomePageSkeleton, CommerceCardSkeleton } from "@/components/ui/skeleton-screens";
 
 const sponsoredCommerces = [
   {
@@ -195,9 +197,14 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Contenu principal */}
-      <div className="space-y-6 p-4">
+    <PageWithSkeleton
+      isLoading={loading}
+      skeleton={<HomePageSkeleton />}
+      loadingText="Chargement des entreprises..."
+    >
+      <div className="min-h-screen bg-gray-50">
+        {/* Contenu principal */}
+        <div className="space-y-6 p-4">
         {/* Barre de recherche unifiée */}
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <UnifiedSearchBar
@@ -303,9 +310,10 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
           </div>
           
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-              <span className="ml-2 text-gray-500">Chargement des entreprises...</span>
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <CommerceCardSkeleton key={index} />
+              ))}
             </div>
           ) : error ? (
             <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
@@ -489,6 +497,7 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
         open={showOperatorDashboard}
         onOpenChange={setShowOperatorDashboard}
       />
-    </div>
+      </div>
+    </PageWithSkeleton>
   );
 };

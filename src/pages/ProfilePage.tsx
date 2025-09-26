@@ -12,6 +12,8 @@ import { AdvancedBusinessManager } from "@/components/profile/AdvancedBusinessMa
 import { useNavigate } from "react-router-dom";
 import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { toast } from "sonner";
+import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
+import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
 
 interface UserProfileData {
   name: string;
@@ -85,6 +87,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [activityFilter, setActivityFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const { secureSignOut } = useAuthCleanup();
@@ -107,9 +110,13 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
       
       try {
+        setIsLoading(true);
         const { data, error } = await supabase
           .from('user_profiles')
           .select('*')
@@ -118,6 +125,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
 
         if (error) {
           console.error('Erreur récupération profil:', error);
+          setIsLoading(false);
           return;
         }
 
@@ -142,6 +150,8 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
         }
       } catch (error) {
         console.error('Erreur:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -171,7 +181,12 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
   };
 
   return (
-    <div className="min-h-screen animate-fade-in">
+    <PageWithSkeleton
+      isLoading={isLoading}
+      skeleton={<ProfilePageSkeleton />}
+      loadingText="Chargement du profil..."
+    >
+      <div className="min-h-screen animate-fade-in">
       {/* Header Profile moderne */}
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
@@ -495,6 +510,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+      </div>
+    </PageWithSkeleton>
   );
 };

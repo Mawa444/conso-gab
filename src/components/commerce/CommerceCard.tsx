@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { MessageSheet } from "./MessageSheet";
 import { SubscribeButton } from "@/components/business/SubscribeButton";
+import { CommerceCardSkeleton } from "@/components/ui/skeleton-screens";
 
 interface Commerce {
   id: string;
@@ -27,6 +28,7 @@ interface CommerceCardProps {
   onFavorite?: (commerceId: string) => void;
   onMessage?: (commerce: Commerce) => void;
   variant?: "default" | "compact" | "featured";
+  isLoading?: boolean;
 }
 
 export const CommerceCard = ({ 
@@ -34,11 +36,16 @@ export const CommerceCard = ({
   onSelect, 
   onFavorite,
   onMessage,
-  variant = "default" 
+  variant = "default",
+  isLoading = false
 }: CommerceCardProps) => {
   const [showMessageSheet, setShowMessageSheet] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
+
+  if (isLoading) {
+    return <CommerceCardSkeleton />;
+  }
 
   const handleLike = () => {
     setIsLiked(!isLiked);

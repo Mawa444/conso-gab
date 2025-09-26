@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CommerceListTab } from "@/components/map/CommerceListTab";
 import { MapTab } from "@/components/map/MapTab";
+import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
+import { MapPageSkeleton } from "@/components/ui/skeleton-screens";
 
 interface MapPageProps {
   onBack?: () => void;
@@ -11,9 +13,15 @@ interface MapPageProps {
 
 export const MapPage = ({ onBack }: MapPageProps) => {
   const [activeTab, setActiveTab] = useState("list");
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex flex-col">
+    <PageWithSkeleton
+      isLoading={isLoading}
+      skeleton={<MapPageSkeleton />}
+      loadingText="Chargement de la carte..."
+    >
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex flex-col">
       {/* Header simplifié */}
       <div className="bg-card/95 backdrop-blur-sm border-b border-border/50 p-4">
         <div className="flex items-center justify-between">
@@ -67,6 +75,7 @@ export const MapPage = ({ onBack }: MapPageProps) => {
           </div>
         </Tabs>
       </div>
-    </div>
+      </div>
+    </PageWithSkeleton>
   );
 };

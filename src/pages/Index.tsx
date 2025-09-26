@@ -10,16 +10,18 @@ import { QRScanner } from "@/components/scanner/QRScanner";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { TransitionWrapper } from "@/components/layout/TransitionWrapper";
+import { GabonLoading } from "@/components/ui/gabon-loading";
 
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("home");
   const [showScanner, setShowScanner] = useState(false);
-  // Messaging functionality will be re-implemented
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Redirection temporairement désactivée
   // useEffect(() => {
@@ -31,11 +33,8 @@ const Index = () => {
   // Afficher un loader pendant la vérification
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary via-secondary to-accent">
-        <div className="text-center text-white">
-          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p>Chargement...</p>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <GabonLoading size="lg" text="Chargement de ConsoGab..." />
       </div>
     );
   }
@@ -60,9 +59,19 @@ const Index = () => {
   const handleTabChange = (tab: string) => {
     if (tab === "scanner") {
       setShowScanner(true);
-    } else {
-      setActiveTab(tab);
+      return;
     }
+    
+    if (tab === activeTab) return;
+    
+    // Déclencher la transition pour les changements de page
+    setIsTransitioning(true);
+    
+    // Changer l'onglet après un petit délai pour la transition
+    setTimeout(() => {
+      setActiveTab(tab);
+      setIsTransitioning(false);
+    }, 150);
   };
 
   const handleLocationClick = () => {
@@ -92,23 +101,28 @@ const Index = () => {
   };
 
   const renderActiveTab = () => {
-    switch (activeTab) {
-      case "map":
-        return <MapPage onBack={() => setActiveTab("home")} />;
-      case "rankings":
-        return <RankingsPage onBack={() => setActiveTab("home")} />;
-      case "profile":
-        return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
-      default:
-        return <HomePage onNavigate={setActiveTab} onMessage={(commerce) => {
-          if (!user) {
-            setShowLoginModal(true);
-            return;
+    return (
+      <TransitionWrapper isChanging={isTransitioning} loadingText="Changement de page...">
+        {(() => {
+          switch (activeTab) {
+            case "map":
+              return <MapPage onBack={() => setActiveTab("home")} />;
+            case "rankings":
+              return <RankingsPage onBack={() => setActiveTab("home")} />;
+            case "profile":
+              return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
+            default:
+              return <HomePage onNavigate={setActiveTab} onMessage={(commerce) => {
+                if (!user) {
+                  setShowLoginModal(true);
+                  return;
+                }
+                setSelectedCommerce(commerce);
+              }} />;
           }
-          setSelectedCommerce(commerce);
-          // setShowMessageModal(true); // Will be re-implemented
-        }} />;
-    }
+        })()}
+      </TransitionWrapper>
+    );
   };
 
   return (
