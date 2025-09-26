@@ -197,11 +197,11 @@ export const CategoryPage = () => {
             {/* Barre de recherche */}
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input placeholder="Rechercher dans cette catégorie..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 rounded-3xl py-0 my-0 mx-0 px-[55px]" />
+              <Input placeholder="Rechercher dans cette catégorie..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 rounded-3xl" />
             </div>
 
             {/* Filtres et options d'affichage */}
-            <div className="flex items-center gap-3 overflow-x-auto pb-2">
+            <div className="flex items-center gap-3 overflow-x-auto pb-2 my-0">
               {/* Mode d'affichage */}
               <div className="flex items-center gap-2">
                 <Button variant={viewMode === "grid" ? "default" : "outline"} size="sm" onClick={() => setViewMode("grid")}>
