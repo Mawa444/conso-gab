@@ -251,10 +251,10 @@ export const ProfilePage = ({
           <TabsContent value="overview" className="space-y-6">
             {/* Progression niveau modernisée */}
             <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
-              <CardHeader>
+              <CardHeader className="rounded-none bg-[3a75c4] bg-[#3e78c6]">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Progression ConsoGab</CardTitle>
-                  <Badge className="bg-primary/20 text-primary">Niveau 4</Badge>
+                  <CardTitle className="text-white text-[[fcd116]] font-bold">Progression  Points ConsoGab</CardTitle>
+                  <Badge className="text-primary bg-[fcd116] bg-[#fcd116]/[0.96]">Niveau 4</Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -262,7 +262,7 @@ export const ProfilePage = ({
                   <span>Ambassador ConsoGab</span>
                   <span className="text-primary">{userProfile.points} / 5000 pts</span>
                 </div>
-                <div className="w-full bg-muted rounded-full h-3 overflow-hidden shadow-inner">
+                <div className="w-full rounded-full h-3 overflow-hidden shadow-inner bg-[fcd116] bg-[#fcd116]/[0.96]">
                   <div className="bg-gradient-to-r from-primary via-accent to-secondary h-3 rounded-full transition-all duration-700 relative overflow-hidden" style={{
                     width: `${userProfile.points / 5000 * 100}%`
                   }}>
