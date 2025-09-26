@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, MessageSquare, ShoppingCart, Calendar, Phone, Headphones } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MessagingBottomNav } from "@/components/messaging/MessagingBottomNav";
 
 interface Conversation {
   id: string;
@@ -30,6 +32,7 @@ interface Conversation {
 export const MessagingPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -162,7 +165,7 @@ export const MessagingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5 pb-20">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between p-4">
@@ -220,7 +223,7 @@ export const MessagingPage = () => {
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-4">
-            <ScrollArea className="h-[calc(100vh-250px)]">
+            <ScrollArea className="h-[calc(100vh-270px)]">
               {filteredConversations.length === 0 ? (
                 <div className="text-center py-12 space-y-4">
                   <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground" />
@@ -237,6 +240,7 @@ export const MessagingPage = () => {
                     <div
                       key={conversation.id}
                       className="p-4 rounded-lg border bg-card hover:bg-accent/5 cursor-pointer transition-colors"
+                      onClick={() => navigate(`/messaging/conversation/${conversation.id}`)}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
@@ -277,6 +281,9 @@ export const MessagingPage = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Bottom Navigation */}
+      <MessagingBottomNav activeTab="messages" />
     </div>
   );
 };
