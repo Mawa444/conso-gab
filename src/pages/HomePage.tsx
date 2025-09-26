@@ -249,9 +249,9 @@ export const HomePage = ({
   return <PageWithSkeleton isLoading={loading} skeleton={<HomePageSkeleton />}>
       <div className="min-h-screen bg-gray-50">
         {/* Contenu principal */}
-        <div className="space-y-6 p-4">
+        <div className="space-y-6 p-4 bg-[ededed] bg-slate-50">
         {/* Barre de recherche unifiée */}
-        <div className="p-4 shadow-sm border border-gray-100 rounded-3xl bg-gray-600 bg-[009e60]">
+        <div className="p-4 shadow-sm border border-gray-100 rounded-3xl bg-[009e60] bg-[#009e60]">
           <UnifiedSearchBar onSelect={result => {
             if (result.type === 'business') {
               navigate(`/business/${result.businessId}`);
@@ -283,7 +283,7 @@ export const HomePage = ({
 
         {/* Section Catalogues publics */}
         <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
-          <CardContent className="p-4 rounded-3xl">
+          <CardContent className="p-4 bg-white rounded-xl">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-lg mb-1">Catalogues publics</h3>
@@ -332,7 +332,7 @@ export const HomePage = ({
               <p className="text-gray-500 mb-2">Aucune entreprise active pour le moment</p>
               <p className="text-sm text-gray-400">Les nouvelles entreprises apparaîtront ici</p>
             </div> : <div className="space-y-4">
-              {businesses.map(commerce => <div key={commerce.id} className="bg-white p-4 shadow-sm border border-gray-100 rounded-3xl">
+              {businesses.map(commerce => <div key={commerce.id} className="p-4 shadow-sm border border-gray-100 rounded-3xl bg-white">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2 rounded-none">

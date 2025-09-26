@@ -20,7 +20,7 @@ export const Header = ({
   onMessageClick
 }: HeaderProps) => {
   return <header className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary via-accent to-primary/90 text-white shadow-[var(--shadow-elevated)] backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex items-center justify-between px-6 py-4 rounded-none bg-[009e60] bg-slate-600">
         {/* Côté gauche - Logo et titre */}
         <div className="flex items-center gap-3">
           {showBack ? <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20 transition-colors">
