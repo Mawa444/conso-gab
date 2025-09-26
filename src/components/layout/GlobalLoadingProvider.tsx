@@ -1,1 +1,0 @@
-// Global Loading Provider supprimé - ne garde que les skeleton screens
