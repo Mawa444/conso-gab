@@ -401,15 +401,15 @@ export const ProfilePage = ({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 bg-gray-200 px-[14px] my-0">
-                  <Button variant="outline" onClick={onSettings} className="w-full justify-start rounded-3xl my-[10px]">
+                  <Button variant="outline" onClick={onSettings} className="w-full justify-start rounded-3xl my-[10px] bg-white">
                     <Settings className="w-4 h-4 mr-2" />
                     Modifier mon profil
                   </Button>
-                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[5px]">
+                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[5px] bg-white">
                     <Shield className="w-4 h-4 mr-2" />
                     Sécurité et confidentialité
                   </Button>
-                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[10px]">
+                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[10px] bg-white">
                     <Bell className="w-4 h-4 mr-2" />
                     Notifications
                   </Button>
@@ -422,13 +422,13 @@ export const ProfilePage = ({
                   <CardTitle className="text-white text-left">Support & Aide</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 bg-gray-200 my-0">
-                  <Button variant="outline" className="w-full justify-start my-[12px] rounded-3xl">
+                  <Button variant="outline" className="w-full justify-start my-[12px] rounded-3xl bg-white">
                     Centre d'aide
                   </Button>
-                  <Button variant="outline" className="w-full justify-start rounded-3xl my-0">
+                  <Button variant="outline" className="w-full justify-start rounded-3xl my-0 bg-white">
                     Nous contacter
                   </Button>
-                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[12px]">
+                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[12px] bg-white">
                     À propos de ConsoGab
                   </Button>
                 </CardContent>
