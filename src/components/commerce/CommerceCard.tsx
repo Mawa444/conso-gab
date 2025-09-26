@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { MessageSheet } from "./MessageSheet";
+import { SubscribeButton } from "@/components/business/SubscribeButton";
 
 interface Commerce {
   id: string;
@@ -105,60 +106,51 @@ export const CommerceCard = ({
           </div>
         </div>
 
-        {/* Ligne 4 - Actions */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn("p-2 h-11 w-11", isLiked && "bg-[hsl(var(--gaboma-blue))] text-white hover:bg-[hsl(var(--gaboma-blue))]/90")}
-              onClick={handleLike}
-            >
-              <ThumbsUp className={cn("w-4 h-4", isLiked ? "fill-current" : "")} />
-            </Button>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn("p-2 h-10 w-10", isLiked && "bg-[hsl(var(--gaboma-blue))] text-white hover:bg-[hsl(var(--gaboma-blue))]/90")}
+                onClick={handleLike}
+              >
+                <ThumbsUp className={cn("w-4 h-4", isLiked ? "fill-current" : "")} />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn("p-2 h-10 w-10", isDisliked && "bg-[hsl(var(--gaboma-yellow))] text-black hover:bg-[hsl(var(--gaboma-yellow))]/90")}
+                onClick={handleDislike}
+              >
+                <ThumbsDown className={cn("w-4 h-4", isDisliked ? "fill-current" : "")} />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2 h-10 w-10"
+                onClick={() => setShowMessageSheet(true)}
+              >
+                <MessageCircle className="w-4 h-4" />
+              </Button>
+              
+              <SubscribeButton 
+                businessId={commerce.id} 
+                businessName={commerce.name}
+                variant="ghost"
+                size="sm"
+                className="h-10"
+              />
+            </div>
             
             <Button
-              variant="ghost"
-              size="sm"
-              className={cn("p-2 h-11 w-11", isDisliked && "bg-[hsl(var(--gaboma-yellow))] text-black hover:bg-[hsl(var(--gaboma-yellow))]/90")}
-              onClick={handleDislike}
+              onClick={() => window.location.href = `/business/${commerce.id}`}
+              className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6 h-10 rounded-xl font-medium"
             >
-              <ThumbsDown className={cn("w-4 h-4", isDisliked ? "fill-current" : "")} />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 h-11 w-11"
-              onClick={() => setShowMessageSheet(true)}
-            >
-              <MessageCircle className="w-4 h-4" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 h-11 w-11"
-            >
-              <Star className="w-4 h-4" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 h-11 w-11"
-            >
-              <Flag className="w-4 h-4" />
+              Voir
             </Button>
           </div>
-          
-          <Button
-            onClick={() => window.location.href = `/business/${commerce.id}`}
-            className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6 h-10 rounded-xl font-medium"
-          >
-            Voir
-          </Button>
-        </div>
       </div>
 
       <MessageSheet

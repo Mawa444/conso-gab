@@ -422,6 +422,36 @@ export type Database = {
         }
         Relationships: []
       }
+      business_subscriptions: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          notification_types: Json
+          subscriber_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notification_types?: Json
+          subscriber_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notification_types?: Json
+          subscriber_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       catalog: {
         Row: {
           business_id: string | null
@@ -1273,6 +1303,45 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          data: Json | null
+          id: string
+          is_read: boolean
+          message: string
+          notification_type: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean
+          message: string
+          notification_type: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          notification_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -2122,6 +2191,16 @@ export type Database = {
           action_type_param: string
           business_id_param?: string
           metadata_param?: Json
+        }
+        Returns: undefined
+      }
+      notify_business_subscribers: {
+        Args: {
+          business_id_param: string
+          data_param?: Json
+          message_param: string
+          notification_type_param: string
+          title_param: string
         }
         Returns: undefined
       }

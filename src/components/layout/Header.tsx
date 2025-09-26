@@ -1,5 +1,6 @@
-import { ArrowLeft, Bell, MapPin, MessageCircle } from "lucide-react";
+import { ArrowLeft, MapPin, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import gabomaLogo from "@/assets/gaboma-logo.png";
 
 interface HeaderProps {
@@ -75,15 +76,9 @@ export const Header = ({ title, showBack, onBack, showNotifications = true, onLo
 
           {/* Notifications */}
           {showNotifications && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/20 transition-colors relative"
-              title="Notifications"
-            >
-              <Bell className="w-5 h-5" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-pulse-soft" />
-            </Button>
+            <div className="[&_button]:text-white [&_button]:hover:bg-white/20">
+              <NotificationCenter />
+            </div>
           )}
         </div>
       </div>
