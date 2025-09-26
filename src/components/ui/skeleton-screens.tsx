@@ -213,3 +213,73 @@ export const GridSkeleton = ({ items = 6, columns = 2 }: { items?: number; colum
     </div>
   );
 };
+
+// Skeleton pour la liste des commerces
+export const CommerceListSkeleton = () => (
+  <div className="h-full flex flex-col animate-pulse">
+    {/* Header de recherche skeleton */}
+    <div className="bg-card/95 backdrop-blur-sm border-b border-border/50 p-4 space-y-4">
+      <div className="flex gap-3">
+        <div className="flex-1 h-11 bg-muted rounded-lg"></div>
+        <div className="w-20 h-11 bg-muted rounded-lg"></div>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="w-32 h-9 bg-muted rounded-lg"></div>
+        ))}
+      </div>
+    </div>
+    
+    <div className="flex-1 overflow-y-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-4">
+        {/* Sidebar skeleton */}
+        <div className="lg:col-span-1 space-y-4">
+          <div className="h-96 bg-muted rounded-lg"></div>
+          <div className="h-48 bg-muted rounded-lg"></div>
+        </div>
+        
+        {/* Commerce cards skeleton */}
+        <div className="lg:col-span-3 space-y-4">
+          <div className="flex items-center justify-between mb-6">
+            <div className="h-6 w-40 bg-muted rounded"></div>
+          </div>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-32 bg-muted rounded-lg"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Skeleton pour l'onglet carte
+export const MapTabSkeleton = () => (
+  <div className="h-full relative animate-pulse">
+    {/* Barre de recherche skeleton */}
+    <div className="absolute top-4 left-4 z-20 w-96 h-12 bg-muted rounded-lg"></div>
+    
+    {/* Contrôles skeleton */}
+    <div className="absolute top-4 right-4 z-20 w-16 h-32 bg-muted rounded-lg"></div>
+    
+    {/* Stats skeleton */}
+    <div className="absolute bottom-4 right-4 z-20 w-64 h-40 bg-muted rounded-lg"></div>
+    
+    {/* Légende skeleton */}
+    <div className="absolute bottom-4 left-4 z-20 w-48 h-32 bg-muted rounded-lg"></div>
+    
+    {/* Fond de carte skeleton */}
+    <div className="h-full w-full bg-muted rounded-lg"></div>
+    
+    {/* Points simulés */}
+    {Array.from({ length: 8 }).map((_, i) => (
+      <div 
+        key={i}
+        className="absolute w-8 h-8 bg-muted-foreground/30 rounded-full"
+        style={{ 
+          top: `${20 + (i * 10)}%`, 
+          left: `${25 + (i * 8)}%` 
+        }}
+      />
+    ))}
+  </div>
+);

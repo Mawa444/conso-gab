@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, Filter, MapPin, Star, Clock, Verified, TrendingUp, Users, Building, Calendar, Euro } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { CommerceCard } from "@/components/commerce/CommerceCard";
 import { allCommerces, categories, districts } from "@/data/mockCommerces";
 import { useNavigate } from "react-router-dom";
+import { CommerceListSkeleton } from "@/components/ui/skeleton-screens";
 
 export const CommerceListTab = () => {
   const navigate = useNavigate();
@@ -24,6 +25,26 @@ export const CommerceListTab = () => {
   const [openOnly, setOpenOnly] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Simuler une vraie requête de données
+  const [dataLoaded, setDataLoaded] = useState(false);
+
+  // Simuler le chargement des données au premier rendu
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setDataLoaded(true);
+      setIsLoading(false);
+    }, 800); // Simuler un délai de réseau
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Afficher le skeleton pendant le chargement
+  if (isLoading || !dataLoaded) {
+    return <CommerceListSkeleton />;
+  }
 
   // Filtrage et tri ultra-avancé
   const filteredAndSortedCommerces = useMemo(() => {

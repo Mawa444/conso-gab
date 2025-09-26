@@ -200,7 +200,6 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
     <PageWithSkeleton
       isLoading={loading}
       skeleton={<HomePageSkeleton />}
-      loadingText="Chargement des entreprises..."
     >
       <div className="min-h-screen bg-gray-50">
         {/* Contenu principal */}

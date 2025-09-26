@@ -11,7 +11,7 @@ import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { TransitionWrapper } from "@/components/layout/TransitionWrapper";
-import { GabonLoading } from "@/components/ui/gabon-loading";
+
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -30,11 +30,14 @@ const Index = () => {
   //   }
   // }, [loading, user, navigate]);
 
-  // Afficher un loader pendant la vérification
+  // Afficher un loader simple pendant la vérification
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <GabonLoading size="lg" text="Chargement de ConsoGab..." />
+        <div className="animate-pulse text-center space-y-4">
+          <div className="text-2xl font-bold">ConsoGab</div>
+          <div className="text-sm text-muted-foreground">Chargement...</div>
+        </div>
       </div>
     );
   }
@@ -102,7 +105,7 @@ const Index = () => {
 
   const renderActiveTab = () => {
     return (
-      <TransitionWrapper isChanging={isTransitioning} loadingText="Changement de page...">
+      <TransitionWrapper>
         {(() => {
           switch (activeTab) {
             case "map":

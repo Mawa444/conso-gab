@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ZoomIn, ZoomOut, Locate, Navigation, Eye, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { allCommerces, categories } from "@/data/mockCommerces";
 import { UnifiedSearchBar } from "@/components/search/UnifiedSearchBar";
 import { ProductSearchResults } from "@/components/products/ProductSearchResults";
+import { MapTabSkeleton } from "@/components/ui/skeleton-screens";
 
 export const MapTab = () => {
   const navigate = useNavigate();
@@ -14,6 +15,26 @@ export const MapTab = () => {
   const [hoveredCommerce, setHoveredCommerce] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [searchResults, setSearchResults] = useState({ products: [], merchants: [] });
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Simuler une vraie requête de données
+  const [dataLoaded, setDataLoaded] = useState(false);
+
+  // Simuler le chargement des données au premier rendu  
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setDataLoaded(true);
+      setIsLoading(false);
+    }, 600); // Simuler un délai de réseau
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Afficher le skeleton pendant le chargement
+  if (isLoading || !dataLoaded) {
+    return <MapTabSkeleton />;
+  }
 
   // Simulation de données de produits
   const mockProducts = useMemo(() => {

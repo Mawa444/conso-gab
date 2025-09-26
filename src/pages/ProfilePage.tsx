@@ -184,7 +184,6 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
     <PageWithSkeleton
       isLoading={isLoading}
       skeleton={<ProfilePageSkeleton />}
-      loadingText="Chargement du profil..."
     >
       <div className="min-h-screen animate-fade-in">
       {/* Header Profile moderne */}
