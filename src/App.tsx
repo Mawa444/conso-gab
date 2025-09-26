@@ -24,6 +24,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/messaging" element={<MessagingPage />} />
+              <Route path="/messaging/:section" element={<MessagingPage />} />
               <Route path="/messaging/conversation/:conversationId" element={<ConversationDetailPage />} />
               <Route path="/business/create" element={<BusinessCreationPage />} />
               <Route path="/business/dashboard" element={<BusinessDashboardPage />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Search, Plus, MessageSquare, ShoppingCart, Calendar, Phone, Headphones, ArrowLeft, CheckCheck, Check, Clock, User, Users, Mic, Image, FileText, MapPin } from "lucide-react";
+import { Search, Plus, MessageSquare, ShoppingCart, Calendar, Phone, Headphones, ArrowLeft, CheckCheck, Check, Clock, User, Users, Mic, Image, FileText, MapPin, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { useConversations } from "@/hooks/use-conversations";
 import { NewConversationModal } from "@/components/messaging/NewConversationModal";
 import { GabonLoading } from "@/components/ui/gabon-loading";
+import { MessageHomePage } from "@/components/messaging/MessageHomePage";
+import { ConversationSkeleton, MessageHomePageSkeleton } from "@/components/messaging/ConversationSkeleton";
 
 interface Conversation {
   id: string;
@@ -36,14 +38,22 @@ interface Conversation {
 export const MessagingPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { section } = useParams(); // conversations, orders, reservations, etc.
+  const location = useLocation();
   const { conversations, loading } = useConversations();
   const [filteredConversations, setFilteredConversations] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [showNewConversation, setShowNewConversation] = useState(false);
 
-  // Filter conversations based on search and tab
+  // Déterminer la vue actuelle
+  const isHomePage = !section || section === 'home';
+  const isConversationsPage = section === 'conversations';
+
+  // Filter conversations based on search and tab (only for conversations section)
   useEffect(() => {
+    if (!isConversationsPage) return;
+    
     let filtered = conversations;
     
     // Filter by tab
@@ -68,7 +78,7 @@ export const MessagingPage = () => {
     }
     
     setFilteredConversations(filtered);
-  }, [conversations, searchQuery, activeTab]);
+  }, [conversations, searchQuery, activeTab, isConversationsPage]);
 
   const getTabIcon = (tab: string) => {
     switch (tab) {
@@ -175,18 +185,158 @@ export const MessagingPage = () => {
     return groups;
   };
 
-  if (loading) {
+  // Afficher la page d'accueil si on n'est pas dans une section spécifique
+  if (isHomePage) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
-        <GabonLoading 
-          size="lg" 
-          text="Chargement des conversations..."
-          className="scale-110"
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5 pb-20">
+        {/* Header */}
+        <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border/50">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate("/")}
+                className="p-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="text-xl font-bold text-gaboma-gradient">Messagerie</h1>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4">
+          {loading ? (
+            <MessageHomePageSkeleton />
+          ) : (
+            <MessageHomePage />
+          )}
+        </div>
+
+        <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+          if (tab === "home") navigate("/");
+          else if (tab === "map") navigate("/?tab=map");
+          else if (tab === "profile") navigate("/?tab=profile");
+        }} />
+      </div>
+    );
+  }
+
+  if (loading && isConversationsPage) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5 pb-20">
+        {/* Header skeleton */}
+        <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border/50">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate("/messaging")}
+                className="p-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="text-xl font-bold text-gaboma-gradient">Conversations</h1>
+            </div>
+            <Button size="sm" className="gap-2">
+              <Plus className="w-4 h-4" />
+              Nouveau
+            </Button>
+          </div>
+          
+          {/* Search Bar skeleton */}
+          <div className="px-4 pb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher dans les conversations..."
+                className="pl-10"
+                disabled
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4">
+          <ConversationSkeleton />
+        </div>
+
+        <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+          if (tab === "home") navigate("/");
+          else if (tab === "map") navigate("/?tab=map");
+          else if (tab === "profile") navigate("/?tab=profile");
+        }} />
+      </div>
+    );
+  }
+
+  // Retour à la page précédente si pas de conversations dans cette section
+  if (isConversationsPage && !loading && filteredConversations.length === 0 && conversations.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5 pb-20">
+        {/* Header */}
+        <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border/50">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate("/messaging")}
+                className="p-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="text-xl font-bold text-gaboma-gradient">Conversations</h1>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 text-center space-y-4 mt-20">
+          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-muted to-accent/20 flex items-center justify-center">
+            <MessageSquare className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">Aucune conversation</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Commencez une nouvelle conversation pour démarrer
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowNewConversation(true)}
+            className="mt-4"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nouvelle conversation
+          </Button>
+        </div>
+
+        <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+          if (tab === "home") navigate("/");
+          else if (tab === "map") navigate("/?tab=map");
+          else if (tab === "profile") navigate("/?tab=profile");
+        }} />
+
+        <NewConversationModal 
+          open={showNewConversation}
+          onOpenChange={setShowNewConversation}
         />
       </div>
     );
   }
 
+  // Page des conversations
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5 pb-20">
       {/* Header */}
@@ -196,7 +346,7 @@ export const MessagingPage = () => {
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/messaging")}
               className="p-2"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -204,7 +354,13 @@ export const MessagingPage = () => {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-gaboma-gradient">Messagerie</h1>
+            <h1 className="text-xl font-bold text-gaboma-gradient">
+              {section === 'conversations' ? 'Conversations' : 
+               section === 'orders' ? 'Commandes' :
+               section === 'reservations' ? 'Réservations' :
+               section === 'appointments' ? 'Rendez-vous' :
+               section === 'support' ? 'Support' : 'Messagerie'}
+            </h1>
           </div>
           
           <Button size="sm" className="gap-2" onClick={() => setShowNewConversation(true)}>
