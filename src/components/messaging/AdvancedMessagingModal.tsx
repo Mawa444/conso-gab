@@ -33,6 +33,7 @@ import {
   Truck,
   MapPin as Location
 } from "lucide-react";
+import { LocationRequestButton } from "@/components/messaging/LocationRequestButton";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -310,10 +311,13 @@ export const AdvancedMessagingModal = ({ open, onClose, catalog }: AdvancedMessa
                       <Mic className="w-4 h-4 mr-2" />
                       Audio
                     </Button>
-                    <Button variant="ghost" size="sm">
-                      <Location className="w-4 h-4 mr-2" />
-                      Position
-                    </Button>
+                    <LocationRequestButton
+                      targetUserId="business-user-id" // À remplacer par l'ID réel
+                      conversationId={catalog.id}
+                      targetUserName={catalog.businessName}
+                      size="sm"
+                      variant="ghost"
+                    />
                   </div>
                 </CardContent>
               </Card>

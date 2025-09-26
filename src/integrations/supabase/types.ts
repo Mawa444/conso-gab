@@ -1768,6 +1768,10 @@ export type Database = {
         Args: { business_profile_id: string; sleep_mode: boolean }
         Returns: undefined
       }
+      user_can_view_business_contacts: {
+        Args: { business_id_param: string }
+        Returns: boolean
+      }
     }
     Enums: {
       account_type: "individual" | "business"
