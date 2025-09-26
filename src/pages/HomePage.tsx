@@ -9,7 +9,7 @@ import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
 import { OperatorDashboardModal } from "@/components/business/OperatorDashboardModal";
 import { useBusinessList } from "@/hooks/use-business-list";
 import { useNavigate } from "react-router-dom";
-import { Loader2, RefreshCw, Grid3X3 } from "lucide-react";
+import { Loader2, RefreshCw, Grid3X3, Building2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -215,6 +215,28 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
             showFilters={false}
             showResults={false}
           />
+        </div>
+
+        {/* Actions rapides pour les entreprises */}
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/business/create')}
+            className="flex-1 gap-2 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:from-primary/10 hover:to-accent/10"
+          >
+            <Building2 className="w-4 h-4" />
+            Créer mon entreprise
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/messaging')}
+            className="flex-1 gap-2 bg-gradient-to-r from-secondary/5 to-primary/5 border-secondary/20 hover:from-secondary/10 hover:to-primary/10"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Messagerie
+          </Button>
         </div>
 
         {/* Catégories rapides comme dans l'image */}
