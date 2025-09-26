@@ -255,7 +255,7 @@ export const CategoryPage = () => {
                   </CardContent>
                 </Card> : <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-4"}>
                   {filteredEstablishments.map(business => <Card key={business.id} className="group hover:shadow-lg transition-all cursor-pointer" onClick={() => handleCommerceSelect(business)}>
-                      <CardContent className="p-4">
+                      <CardContent className="p-4 bg-white">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
