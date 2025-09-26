@@ -425,10 +425,10 @@ export const ProfilePage = ({
                   <Button variant="outline" className="w-full justify-start my-[12px] rounded-3xl">
                     Centre d'aide
                   </Button>
-                  <Button variant="outline" className="w-full justify-start my-0 rounded-3xl">
+                  <Button variant="outline" className="w-full justify-start rounded-3xl my-0">
                     Nous contacter
                   </Button>
-                  <Button variant="outline" className="w-full justify-start my-[12px] rounded-3xl">
+                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[12px]">
                     À propos de ConsoGab
                   </Button>
                 </CardContent>
