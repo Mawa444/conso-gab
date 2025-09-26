@@ -444,7 +444,7 @@ export const ProfilePage = ({
                     <Trash2 className="w-4 h-4 mr-2" />
                     Supprimer mon compte
                   </Button>
-                  <Button variant="destructive" onClick={handleLogout} className="w-full justify-start rounded-3xl my-0 bg-black">
+                  <Button variant="destructive" onClick={handleLogout} className="w-full justify-start rounded-3xl bg-black my-0">
                     <LogOut className="w-4 h-4 mr-2" />
                     Se déconnecter
                   </Button>
