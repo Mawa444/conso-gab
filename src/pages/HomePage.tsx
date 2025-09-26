@@ -251,7 +251,7 @@ export const HomePage = ({
         {/* Contenu principal */}
         <div className="space-y-6 p-4">
         {/* Barre de recherche unifiée */}
-        <div className="p-4 shadow-sm border border-gray-100 rounded-3xl bg-gray-600">
+        <div className="p-4 shadow-sm border border-gray-100 rounded-3xl bg-gray-600 bg-[009e60]">
           <UnifiedSearchBar onSelect={result => {
             if (result.type === 'business') {
               navigate(`/business/${result.businessId}`);
