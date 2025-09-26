@@ -113,10 +113,10 @@ export const FavoritesSection = ({
       </div>
 
       <Tabs defaultValue="businesses" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="businesses">Entreprises</TabsTrigger>
-          <TabsTrigger value="products">Produits/Services</TabsTrigger>
-          <TabsTrigger value="subscriptions">Abonnements</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-white rounded-3xl">
+          <TabsTrigger value="businesses" className="rounded-3xl">Entreprises</TabsTrigger>
+          <TabsTrigger value="products" className="rounded-3xl">Produits/Services</TabsTrigger>
+          <TabsTrigger value="subscriptions" className="rounded-3xl">Abonnements</TabsTrigger>
         </TabsList>
 
         {/* Entreprises favorites */}
@@ -180,7 +180,7 @@ export const FavoritesSection = ({
           
           <div className={viewMode === "grid" ? "grid grid-cols-2 gap-4" : "space-y-4"}>
             {favoriteProducts.map(product => <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-4">
+                <CardContent className="p-4 bg-white">
                   <div className="flex items-start gap-3">
                     <div className="w-16 h-16 rounded-lg flex-shrink-0 overflow-hidden bg-white">
                       <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
