@@ -38,14 +38,23 @@ export const CategoryPage = () => {
   const categories = getAllBusinessCategories();
   const category = categories.find(cat => cat.id === categoryId);
 
-  // Mapping temporaire des anciennes catégories vers les nouvelles
+  // Mapping des catégories de la base de données vers les nouvelles catégories
   const categoryMapping: Record<string, string> = {
     'restaurant': 'restauration_hotellerie',
     'technology': 'technologie_numerique', 
-    'automotive': 'artisanat_services',
+    'automotive': 'transport_logistique',
     'education': 'education_formation',
     'entertainment': 'culture_loisirs',
-    'healthcare': 'sante_bienetre'
+    'healthcare': 'sante_bienetre',
+    'retail': 'commerce_distribution',
+    'services': 'artisanat_services',
+    'finance': 'finance_banque',
+    'real_estate': 'btp_immobilier',
+    'beauty': 'sante_bienetre',
+    'fitness': 'sante_bienetre',
+    'agriculture': 'agriculture_peche',
+    'manufacturing': 'btp_immobilier',
+    'other': 'professions_liberales'
   };
 
   if (!category) {

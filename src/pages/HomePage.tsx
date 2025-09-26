@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { HomePageSkeleton, CommerceCardSkeleton } from "@/components/ui/skeleton-screens";
+import { getAllBusinessCategories } from "@/data/businessCategories";
 const sponsoredCommerces = [{
   id: "sponsored_001",
   name: "Restaurant Chez Tonton",
@@ -167,98 +168,34 @@ export const HomePage = ({
       console.error("Erreur lors du parsing du QR code:", error);
     }
   };
-  const quickCategories = [{
-    name: "Commerce & Distribution",
-    icon: "🛍️",
-    color: "bg-gradient-to-r from-blue-500 to-indigo-600",
-    id: "commerce"
-  }, {
-    name: "Restauration & Agroalimentaire",
-    icon: "🍽️",
-    color: "bg-gradient-to-r from-orange-500 to-red-600",
-    id: "restauration"
-  }, {
-    name: "Hôtellerie & Tourisme",
-    icon: "🏨",
-    color: "bg-gradient-to-r from-purple-500 to-pink-600",
-    id: "hotellerie"
-  }, {
-    name: "Automobile & Transport",
-    icon: "🚗",
-    color: "bg-gradient-to-r from-green-500 to-emerald-700",
-    id: "automobile"
-  }, {
-    name: "Immobilier & Habitat",
-    icon: "🏠",
-    color: "bg-gradient-to-r from-gray-400 to-gray-700",
-    id: "immobilier"
-  }, {
-    name: "Artisanat & Services Techniques",
-    icon: "🛠️",
-    color: "bg-gradient-to-r from-yellow-500 to-orange-600",
-    id: "artisanat"
-  }, {
-    name: "Services Professionnels",
-    icon: "📑",
-    color: "bg-gradient-to-r from-cyan-500 to-blue-700",
-    id: "services"
-  }, {
-    name: "Éducation & Formation",
-    icon: "📚",
-    color: "bg-gradient-to-r from-indigo-400 to-blue-600",
-    id: "education"
-  }, {
-    name: "Santé & Bien-être",
-    icon: "💊",
-    color: "bg-gradient-to-r from-red-400 to-pink-600",
-    id: "sante"
-  }, {
-    name: "Culture, Divertissement & Sport",
-    icon: "🎭",
-    color: "bg-gradient-to-r from-pink-500 to-purple-700",
-    id: "culture"
-  }, {
-    name: "Technologie & Numérique",
-    icon: "💻",
-    color: "bg-gradient-to-r from-cyan-400 to-blue-500",
-    id: "technologie"
-  }, {
-    name: "Banques, Finance & Assurances",
-    icon: "💳",
-    color: "bg-gradient-to-r from-yellow-400 to-orange-500",
-    id: "finance"
-  }, {
-    name: "Agriculture & Environnement",
-    icon: "🌱",
-    color: "bg-gradient-to-r from-green-400 to-lime-600",
-    id: "agriculture"
-  }, {
-    name: "Institutions & Vie Publique",
-    icon: "🏛️",
-    color: "bg-gradient-to-r from-gray-500 to-gray-800",
-    id: "institutions"
-  }, {
-    name: "Logistique & Services",
-    icon: "📦",
-    color: "bg-gradient-to-r from-amber-500 to-yellow-600",
-    id: "logistique"
-  }];
+  
+  // Utiliser les vraies catégories du système
+  const categories = getAllBusinessCategories();
+  
   const handleCategoryClick = (category: any) => {
     navigate(`/category/${category.id}`);
   };
   return <PageWithSkeleton isLoading={loading} skeleton={<HomePageSkeleton />}>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         {/* Contenu principal */}
-        <div className="space-y-6 p-4 bg-[ededed] bg-slate-50">
+        <div className="space-y-6 p-4 bg-background">
         {/* Barre de recherche unifiée */}
-        <div className="p-4 shadow-sm border border-gray-100 rounded-3xl bg-[3a75c4] bg-[#3a75c4]/[0.96]">
-          <UnifiedSearchBar onSelect={result => {
-            if (result.type === 'business') {
-              navigate(`/business/${result.businessId}`);
-            } else if (result.type === 'product') {
-              navigate(`/product/${result.id}`);
-            }
-          }} placeholder="Que recherchez-vous ?" variant="minimal" size="lg" currentLocation={userLocation} showFilters={false} showResults={false} />
+        <div className="p-4 shadow-sm border-border rounded-3xl bg-primary">
+          <UnifiedSearchBar 
+            onSelect={(result) => {
+              if (result.type === 'business') {
+                navigate(`/business/${result.businessId}`);
+              } else if (result.type === 'product') {
+                navigate(`/product/${result.id}`);
+              }
+            }} 
+            placeholder="Que recherchez-vous ?" 
+            variant="minimal" 
+            size="lg" 
+            currentLocation={userLocation} 
+            showFilters={false} 
+            showResults={false} 
+          />
         </div>
 
         {/* Actions rapides pour les entreprises */}
@@ -273,12 +210,18 @@ export const HomePage = ({
           </Button>
         </div>
 
-        {/* Catégories rapides comme dans l'image */}
-        <div className="flex gap-3 overflow-x-auto pb-2 rounded-full">
-          {quickCategories.map((category, index) => <button key={index} onClick={() => handleCategoryClick(category)} className={`flex-shrink-0 px-6 py-4 rounded-2xl text-white font-semibold flex items-center gap-2 shadow-sm ${category.color}`}>
+        {/* Catégories rapides */}
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          {categories.slice(0, 6).map((category) => (
+            <button 
+              key={category.id} 
+              onClick={() => handleCategoryClick(category)} 
+              className={`flex-shrink-0 px-6 py-4 rounded-2xl text-white font-semibold flex items-center gap-2 shadow-sm bg-gradient-to-br ${category.color}`}
+            >
               <span className="text-lg">{category.icon}</span>
-              <span>{category.name}</span>
-            </button>)}
+              <span className="whitespace-nowrap">{category.nom}</span>
+            </button>
+          ))}
         </div>
 
         {/* Section Catalogues publics */}
