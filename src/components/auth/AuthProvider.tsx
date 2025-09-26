@@ -142,7 +142,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
 
           // Si c'est un créateur (merchant), créer aussi le profil business
-          if (userData.role === 'merchant' && userData.businessName) {
+          if (userData.role === 'merchant' && userData.businessName?.trim()) {
             const { error: businessError } = await supabase
               .from('business_profiles')
               .insert({

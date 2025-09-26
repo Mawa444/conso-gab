@@ -19,7 +19,7 @@ interface SignupData {
   fullName: string;
   phone: string;
   avatarUrl?: string;
-  country?: string;
+  country: string;
   province: string;
   department: string;
   arrondissement: string;
@@ -56,17 +56,26 @@ const isLocationValid = (data: Partial<SignupData>): boolean => {
 
 const validateRequiredFields = (data: Partial<SignupData>): data is SignupData => {
   return Boolean(
-    data.fullName &&
-    data.phone &&
+    data.fullName?.trim() &&
+    data.phone?.trim() &&
     isValidPhone(data.phone) &&
-    isLocationValid(data) &&
-    data.patrioteEcoPledge !== undefined
+    data.country &&
+    data.province &&
+    data.department &&
+    data.arrondissement &&
+    data.quartier &&
+    data.patrioteEcoPledge === true &&
+    (data.userType === "explorateur" || (data.userType === "createur" && data.businessName?.trim()))
   );
 };
 
 export const SignupWizard = ({ email, password, onComplete, onClose }: SignupWizardProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [data, setData] = useState<Partial<SignupData>>({ userType: "explorateur" });
+  const [data, setData] = useState<Partial<SignupData>>({ 
+    userType: "explorateur", 
+    country: "Gabon",
+    patrioteEcoPledge: false 
+  });
   const [points, setPoints] = useState(0);
   const { toast } = useToast();
 
@@ -109,13 +118,13 @@ export const SignupWizard = ({ email, password, onComplete, onClose }: SignupWiz
   const isStepValid = (): boolean => {
     switch (currentStep) {
       case 2: // Informations personnelles
-        return Boolean(data.fullName && data.phone && isValidPhone(data.phone));
+        return Boolean(data.fullName?.trim() && data.phone?.trim() && isValidPhone(data.phone));
       case 3: // Localisation
-        return isLocationValid(data);
+        return Boolean(data.country && data.province && data.department && data.arrondissement && data.quartier);
       case 4: // Business (si créateur)
-        return data.userType === "explorateur" || Boolean(data.businessName);
+        return data.userType === "explorateur" || Boolean(data.businessName?.trim());
       case 5: // Engagement
-        return Boolean(data.patrioteEcoPledge);
+        return Boolean(data.patrioteEcoPledge === true);
       default:
         return true;
     }
@@ -474,17 +483,26 @@ export const SignupWizard = ({ email, password, onComplete, onClose }: SignupWiz
                   if (validateRequiredFields(data)) {
                     onComplete(data);
                   } else {
+                    const missingFields = [];
+                    if (!data.fullName?.trim()) missingFields.push("Nom complet");
+                    if (!data.phone?.trim() || !isValidPhone(data.phone)) missingFields.push("Téléphone valide");
+                    if (!data.province || !data.department || !data.arrondissement || !data.quartier) missingFields.push("Localisation complète");
+                    if (data.patrioteEcoPledge !== true) missingFields.push("Engagement patriote éco");
+                    if (data.userType === "createur" && !data.businessName?.trim()) missingFields.push("Nom de l'entreprise");
+                    
                     toast({
-                      title: "Erreur",
-                      description: "Veuillez compléter tous les champs requis",
+                      title: "Champs manquants",
+                      description: `Veuillez compléter : ${missingFields.join(", ")}`,
                       variant: "destructive",
                     });
                   }
                 }}
                 className="flex-1 bg-gradient-to-r from-primary to-accent text-white"
                 size="lg"
+                disabled={!validateRequiredFields(data)}
               >
-                Découvrir ma communauté
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Créer mon compte
               </Button>
             </div>
           </div>

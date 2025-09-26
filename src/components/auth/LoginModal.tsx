@@ -91,17 +91,21 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
           setLoading(true);
           try {
             const { data, error } = await signUp(email, password, {
-              role: 'consumer',
+              role: signupData.userType === "createur" ? 'merchant' : 'consumer',
               pseudo: signupData.fullName,
               phone: signupData.phone,
+              country: signupData.country,
               province: signupData.province,
               department: signupData.department,
               arrondissement: signupData.arrondissement,
               quartier: signupData.quartier,
-              business_name: signupData.businessName,
-              business_category: signupData.businessCategory,
-              business_description: signupData.businessDescription,
-              patriote_eco_pledge: signupData.patrioteEcoPledge,
+              address: signupData.address,
+              latitude: signupData.latitude,
+              longitude: signupData.longitude,
+              businessName: signupData.businessName,
+              businessCategory: signupData.businessCategory,
+              businessDescription: signupData.businessDescription,
+              patrioteEcoPledge: signupData.patrioteEcoPledge,
             });
 
             if (error) throw error;
