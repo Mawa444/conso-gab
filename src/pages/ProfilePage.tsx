@@ -174,7 +174,7 @@ export const ProfilePage = ({
       <div className="min-h-screen animate-fade-in">
       {/* Header Profile moderne */}
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
+        <div className="absolute inset-0 backdrop-blur-sm bg-black"></div>
         <div className="relative z-10">
             <div className="flex items-center gap-4">
             <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
@@ -240,7 +240,7 @@ export const ProfilePage = ({
       <div className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="overview" className="text-xs rounded-3xl">Aperçu</TabsTrigger>
+            <TabsTrigger value="overview" className="rounded-3xl bg-[3a75c4] bg-[#3a75c4]/[0.96] text-[#fcd116]/[0.96] font-bold text-center text-[[fcd116]]">Aperçu</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs rounded-3xl">Activité</TabsTrigger>
             <TabsTrigger value="favorites" className="text-xs rounded-3xl">Favoris</TabsTrigger>
             <TabsTrigger value="businesses" className="text-xs rounded-3xl">Entreprises</TabsTrigger>
@@ -292,7 +292,7 @@ export const ProfilePage = ({
                 </Button>}
               
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="h-20 flex-col gap-2">
+                <Button variant="outline" className="h-20 flex-col gap-2 bg-white">
                   <QrCode className="w-6 h-6 text-primary" />
                   <span className="text-sm">Scanner commerce</span>
                 </Button>
