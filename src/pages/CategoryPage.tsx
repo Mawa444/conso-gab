@@ -13,6 +13,8 @@ import { GeolocalizedAdCarousel } from "@/components/advertising/GeolocalizedAdC
 import { useRealBusinesses } from "@/hooks/use-real-businesses";
 import { getAllBusinessCategories } from "@/data/businessCategories";
 import { toast } from "sonner";
+import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
+import { CommerceListSkeleton } from "@/components/ui/skeleton-screens";
 
 // Filtres et options de tri
 const sortOptions = [{
@@ -138,28 +140,6 @@ export const CategoryPage = () => {
   const handleGetDirections = () => {
     toast.info("Ouverture de Google Maps...");
   };
-  if (loading) {
-    return <div className="min-h-screen bg-background">
-        <div className="sticky top-0 bg-background/95 backdrop-blur-sm z-20 border-b border-border">
-          <div className="p-4">
-            <div className="flex items-center gap-3 mb-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div className="flex-1">
-                <div className="h-6 bg-muted rounded animate-pulse mb-2"></div>
-                <div className="h-4 bg-muted rounded w-32 animate-pulse"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="p-4">
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </div>
-      </div>;
-  }
   if (error) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -171,8 +151,8 @@ export const CategoryPage = () => {
         </div>
       </div>;
   }
-  return <>
-      <div className="min-h-screen bg-background">
+  return <PageWithSkeleton isLoading={loading} skeleton={<CommerceListSkeleton />}>
+    <div className="min-h-screen bg-background">
         {/* Header avec navigation et info catégorie */}
         <div className="sticky top-0 bg-background/95 backdrop-blur-sm z-20 border-b border-border">
           <div className="p-4 bg-white rounded-3xl">
@@ -333,12 +313,12 @@ export const CategoryPage = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
+    </div>
 
-      {/* Popup de détails du commerce */}
-      {showCommerceDetails && selectedCommerce && <EnhancedCommerceDetailsPopup commerce={selectedCommerce} open={showCommerceDetails} onClose={() => {
+    {/* Popup de détails du commerce */}
+    {showCommerceDetails && selectedCommerce && <EnhancedCommerceDetailsPopup commerce={selectedCommerce} open={showCommerceDetails} onClose={() => {
       setShowCommerceDetails(false);
       setSelectedCommerce(null);
     }} />}
-    </>;
+  </PageWithSkeleton>;
 };

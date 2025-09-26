@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CommerceListTab } from "@/components/map/CommerceListTab";
 import { MapTab } from "@/components/map/MapTab";
+import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
+import { MapPageSkeleton } from "@/components/ui/skeleton-screens";
+import { useOptimizedBusinesses } from "@/hooks/use-optimized-businesses";
 interface MapPageProps {
   onBack?: () => void;
 }
@@ -11,7 +14,9 @@ export const MapPage = ({
   onBack
 }: MapPageProps) => {
   const [activeTab, setActiveTab] = useState("list");
-  return <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex flex-col">
+  const { loading } = useOptimizedBusinesses();
+  return <PageWithSkeleton isLoading={loading} skeleton={<MapPageSkeleton />}>
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex flex-col">
       {/* Header simplifié */}
       <div className="bg-card/95 backdrop-blur-sm border-b border-border/50 p-4 rounded-3xl">
         <div className="flex items-center justify-between">
@@ -57,5 +62,6 @@ export const MapPage = ({
           </div>
         </Tabs>
       </div>
-      </div>;
+    </div>
+  </PageWithSkeleton>;
 };

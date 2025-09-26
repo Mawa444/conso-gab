@@ -18,6 +18,8 @@ import { CatalogInventoryIntegration } from "@/components/business/CatalogInvent
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
+import { CommerceListSkeleton } from "@/components/ui/skeleton-screens";
 
 interface BusinessStats {
   total_orders: number;
@@ -197,19 +199,10 @@ export const BusinessDashboardPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <BarChart3 className="w-8 h-8 animate-pulse mx-auto text-primary" />
-          <p className="text-muted-foreground">Chargement du tableau de bord...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
+    <PageWithSkeleton isLoading={loading} skeleton={<CommerceListSkeleton />}>
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between p-4">
@@ -492,8 +485,9 @@ export const BusinessDashboardPage = () => {
             </div>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
-    </div>
+    </PageWithSkeleton>
   );
 };
 

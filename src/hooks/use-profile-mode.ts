@@ -72,7 +72,10 @@ export const useProfileMode = () => {
   }, [user]);
 
   const fetchUserMode = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const { data, error } = await supabase
@@ -83,6 +86,7 @@ export const useProfileMode = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Erreur récupération mode:', error);
+        setLoading(false);
         return;
       }
 

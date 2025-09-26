@@ -22,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ProfileModeSwitch } from "@/components/profile/ProfileModeSwitch";
+import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
+import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
 
 interface BusinessDetail {
   id: string;
@@ -100,6 +102,7 @@ export const BusinessDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
   const { secureSignOut } = useAuthCleanup();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -193,7 +196,8 @@ export const BusinessDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
+      <div className="min-h-screen bg-background">
       {/* Header avec image */}
       <div className="relative h-64 bg-gradient-to-br from-primary/20 to-accent/20">
         <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
@@ -677,6 +681,7 @@ export const BusinessDetailPage = () => {
           }
         }} 
       />
-    </div>
+      </div>
+    </PageWithSkeleton>
   );
 };
