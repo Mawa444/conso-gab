@@ -401,7 +401,7 @@ export const ProfilePage = ({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 bg-gray-200 px-[14px] my-[2px]">
-                  <Button variant="outline" onClick={onSettings} className="w-full justify-start rounded-3xl my-[10px]">
+                  <Button variant="outline" onClick={onSettings} className="w-full justify-start rounded-3xl my-[9px]">
                     <Settings className="w-4 h-4 mr-2" />
                     Modifier mon profil
                   </Button>
@@ -436,15 +436,15 @@ export const ProfilePage = ({
 
               {/* Section Danger */}
               <Card className="border-red-200">
-                <CardHeader>
-                  <CardTitle className="text-red-600">Zone dangereuse</CardTitle>
+                <CardHeader className="bg-black">
+                  <CardTitle className="text-red-600 font-bold text-lg">Zone dangereuse</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button variant="outline" className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50" onClick={handleDeleteAccount}>
+                <CardContent className="space-y-4 bg-white my-0">
+                  <Button variant="outline" onClick={handleDeleteAccount} className="w-full justify-start border-red-200 my-[12px] rounded-3xl bg-orange-300 hover:bg-orange-200 text-black">
                     <Trash2 className="w-4 h-4 mr-2" />
                     Supprimer mon compte
                   </Button>
-                  <Button variant="destructive" className="w-full justify-start" onClick={handleLogout}>
+                  <Button variant="destructive" onClick={handleLogout} className="w-full justify-start rounded-3xl my-0">
                     <LogOut className="w-4 h-4 mr-2" />
                     Se déconnecter
                   </Button>
