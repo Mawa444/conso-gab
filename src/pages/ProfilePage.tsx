@@ -359,7 +359,7 @@ export const ProfilePage = ({
               </div>
             </div>
             
-            {recentActivity.map(activity => <div key={activity.id} className="border border-border/50 p-4 bg-white rounded-3xl">
+            {recentActivity.map(activity => <div key={activity.id} className="border border-border/50 p-4 rounded-3xl bg-gray-50">
                 <div className="flex items-center gap-3">
                   {getActivityIcon(activity.type)}
                   <div className="flex-1">
