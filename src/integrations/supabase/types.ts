@@ -2141,6 +2141,10 @@ export type Database = {
         Args: { business_id_param: string }
         Returns: boolean
       }
+      user_is_conversation_member: {
+        Args: { conversation_id_param: string }
+        Returns: boolean
+      }
     }
     Enums: {
       account_type: "individual" | "business"
