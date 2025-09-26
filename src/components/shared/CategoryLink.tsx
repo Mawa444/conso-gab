@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
-import { useNearestCommerce } from "@/hooks/use-nearest-commerce";
-import { MapPin, Star } from "lucide-react";
+import { useRealBusinesses } from "@/hooks/use-real-businesses";
+import { MapPin } from "lucide-react";
 
 interface CategoryLinkProps {
   category: {
@@ -26,9 +26,12 @@ export const CategoryLink = ({
   onClick,
   className 
 }: CategoryLinkProps) => {
-  const { findNearestByCategory } = useNearestCommerce();
+  const { businesses } = useRealBusinesses();
   
-  const nearestCommerce = showNearestInfo ? findNearestByCategory(category.id) : null;
+  // Trouver la première entreprise de cette catégorie
+  const nearestBusiness = showNearestInfo 
+    ? businesses.find(b => b.category === category.id) 
+    : null;
 
   const handleClick = () => {
     onClick?.();
@@ -47,10 +50,10 @@ export const CategoryLink = ({
           <div className="flex-1 text-left">
             <div className="font-medium">{category.name}</div>
             <div className="text-xs text-muted-foreground">{category.count} établissements</div>
-            {nearestCommerce && (
+            {nearestBusiness && (
               <div className="flex items-center gap-1 text-xs text-primary mt-1">
                 <MapPin className="w-3 h-3" />
-                <span>{nearestCommerce.name} à {nearestCommerce.distance}</span>
+                <span>{nearestBusiness.name} • {nearestBusiness.city || 'Localisation inconnue'}</span>
               </div>
             )}
           </div>
@@ -106,16 +109,17 @@ export const CategoryLink = ({
       <h3 className="font-semibold text-lg mb-2">{category.name}</h3>
       <p className="text-white/80 text-sm">{category.count} établissements</p>
       
-      {nearestCommerce && (
+      {nearestBusiness && (
         <div className="mt-3 pt-3 border-t border-white/20">
           <div className="flex items-center gap-1 text-xs">
             <MapPin className="w-3 h-3" />
-            <span>Plus proche: {nearestCommerce.name}</span>
+            <span>Plus proche: {nearestBusiness.name}</span>
           </div>
-          <div className="flex items-center gap-1 text-xs mt-1">
-            <Star className="w-3 h-3 fill-current" />
-            <span>{nearestCommerce.rating} • {nearestCommerce.distance}</span>
-          </div>
+          {nearestBusiness.city && (
+            <div className="flex items-center gap-1 text-xs mt-1">
+              <span>📍 {nearestBusiness.city}</span>
+            </div>
+          )}
         </div>
       )}
     </Link>

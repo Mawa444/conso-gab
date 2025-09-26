@@ -1,241 +1,170 @@
 import { useState } from "react";
-import { Search, Filter, Navigation, Grid, List, SlidersHorizontal, MapPin, Clock, Star, TrendingUp, Users } from "lucide-react";
+import { Filter, MapPin, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { businessCategories } from "@/data/businessCategories";
 
 interface MapControlsProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
-  viewMode: "map" | "list";
-  setViewMode: (mode: "map" | "list") => void;
-  sortBy: string;
-  setSortBy: (sort: string) => void;
-  showFilters: boolean;
-  setShowFilters: (show: boolean) => void;
-  distanceRange: number[];
-  setDistanceRange: (range: number[]) => void;
-  priceRange: string[];
-  setPriceRange: (range: string[]) => void;
-  openNow: boolean;
-  setOpenNow: (open: boolean) => void;
-  verifiedOnly: boolean;
-  setVerifiedOnly: (verified: boolean) => void;
-  resultsCount: number;
+  selectedCategory?: string;
+  onCategorySelect?: (category: string) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  showVerifiedOnly?: boolean;
+  onVerifiedToggle?: (verified: boolean) => void;
+  className?: string;
 }
 
-const sortOptions = [
-  { id: "rating", name: "Mieux notés", icon: Star },
-  { id: "distance", name: "Plus proches", icon: MapPin },
-  { id: "popular", name: "Plus populaires", icon: TrendingUp },
-  { id: "recent", name: "Récents", icon: Clock }
-];
-
 export const MapControls = ({
-  searchQuery,
-  setSearchQuery,
-  selectedCategory,
-  setSelectedCategory,
-  viewMode,
-  setViewMode,
-  sortBy,
-  setSortBy,
-  showFilters,
-  setShowFilters,
-  distanceRange,
-  setDistanceRange,
-  priceRange,
-  setPriceRange,
-  openNow,
-  setOpenNow,
-  verifiedOnly,
-  setVerifiedOnly,
-  resultsCount
+  selectedCategory = "all",
+  onCategorySelect,
+  searchQuery = "",
+  onSearchChange,
+  showVerifiedOnly = false,
+  onVerifiedToggle,
+  className = ""
 }: MapControlsProps) => {
+  const [showFilters, setShowFilters] = useState(false);
+
+  const clearFilters = () => {
+    onCategorySelect?.("all");
+    onSearchChange?.("");
+    onVerifiedToggle?.(false);
+  };
+
+  const hasActiveFilters = selectedCategory !== "all" || searchQuery || showVerifiedOnly;
+
   return (
-    <div className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-24 z-40">
-      <div className="p-6 space-y-4">
-        {/* Barre de recherche principale */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+    <div className={`space-y-4 ${className}`}>
+      {/* Barre de recherche principale */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Rechercher par nom, type, quartier..."
+            placeholder="Rechercher une entreprise..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 pr-24 py-3 text-base bg-background/80 border-border/50 focus:border-primary/50"
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            className="pl-10"
           />
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+          {searchQuery && (
             <Button
-              variant="ghost"
               size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`h-8 px-3 ${showFilters ? 'bg-primary/10 text-primary' : ''}`}
+              variant="ghost"
+              onClick={() => onSearchChange?.("")}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
             >
-              <SlidersHorizontal className="w-4 h-4 mr-1" />
-              Filtres
+              <X className="w-3 h-3" />
             </Button>
-          </div>
+          )}
         </div>
+        
+        <Button
+          variant={showFilters ? "default" : "outline"}
+          onClick={() => setShowFilters(!showFilters)}
+          className="px-3"
+        >
+          <Filter className="w-4 h-4" />
+        </Button>
+      </div>
 
-        {/* Filtres avancés (collapsible) */}
-        {showFilters && (
-          <div className="bg-muted/30 rounded-lg p-4 space-y-4 animate-fade-in">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Distance */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  Distance: {distanceRange[0]} km
-                </label>
-                <Slider
-                  value={distanceRange}
-                  onValueChange={setDistanceRange}
-                  max={10}
-                  min={1}
-                  step={0.5}
-                  className="w-full"
-                />
+      {/* Filtres avancés */}
+      {showFilters && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-sm">Filtres</h3>
+              {hasActiveFilters && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={clearFilters}
+                  className="text-xs h-6"
+                >
+                  Effacer tout
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            {/* Toggle pour les entreprises vérifiées */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Entreprises vérifiées uniquement</span>
               </div>
+              <Switch
+                checked={showVerifiedOnly}
+                onCheckedChange={onVerifiedToggle}
+              />
+            </div>
 
-              {/* Prix */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Gamme de prix</label>
-                <div className="flex gap-2">
-                  {["€", "€€", "€€€"].map(price => (
-                    <Badge
-                      key={price}
-                      variant={priceRange.includes(price) ? "default" : "outline"}
-                      className="cursor-pointer"
-                        onClick={() => {
-                          const newRange = priceRange.includes(price) 
-                            ? priceRange.filter(p => p !== price)
-                            : [...priceRange, price];
-                          setPriceRange(newRange);
-                        }}
-                    >
-                      {price}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Ouvert maintenant */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Disponibilité
-                </label>
-                <div className="flex gap-2">
-                  <Badge
-                    variant={openNow ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setOpenNow(!openNow)}
+            {/* Catégories */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Catégories</h4>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  key="all"
+                  variant={selectedCategory === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onCategorySelect?.("all")}
+                  className="justify-start h-8"
+                >
+                  Toutes
+                </Button>
+                {businessCategories.slice(0, 5).map(category => (
+                  <Button
+                    key={category.id}
+                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => onCategorySelect?.(category.id)}
+                    className="justify-start h-8 text-xs"
                   >
-                    Ouvert maintenant
-                  </Badge>
-                  <Badge
-                    variant={verifiedOnly ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setVerifiedOnly(!verifiedOnly)}
-                  >
-                    Vérifiés ✓
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Stats en temps réel */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Résultats
-                </label>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold text-primary">{resultsCount}</span>
-                  <span className="text-sm text-muted-foreground">commerces</span>
-                </div>
+                    <span className="mr-1">{category.icon}</span>
+                    <span className="truncate">{category.nom}</span>
+                  </Button>
+                ))}
               </div>
             </div>
-          </div>
-        )}
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Catégories horizontal scroll */}
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {categories.map((category) => (
-            <Badge
-              key={category.id}
-              variant={selectedCategory === category.id ? "default" : "outline"}
-              className="whitespace-nowrap cursor-pointer transition-all hover:scale-105 px-4 py-2 text-sm font-medium flex items-center gap-2"
-              onClick={() => setSelectedCategory(category.id)}
-              style={{
-                background: selectedCategory === category.id 
-                  ? `linear-gradient(135deg, ${category.color.split(' ')[0].replace('from-', '')}, ${category.color.split(' ')[1].replace('to-', '')})`
-                  : undefined
-              }}
-            >
-              <span className="text-base">{category.icon}</span>
-              {category.name}
-              <span className="text-xs opacity-70">({category.count})</span>
+      {/* Badges des filtres actifs */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap gap-2">
+          {selectedCategory !== "all" && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              {businessCategories.find(c => c.id === selectedCategory)?.nom || selectedCategory}
+              <X 
+                className="w-3 h-3 cursor-pointer" 
+                onClick={() => onCategorySelect?.("all")}
+              />
             </Badge>
-          ))}
+          )}
+          
+          {showVerifiedOnly && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              Vérifiées uniquement
+              <X 
+                className="w-3 h-3 cursor-pointer" 
+                onClick={() => onVerifiedToggle?.(false)}
+              />
+            </Badge>
+          )}
+          
+          {searchQuery && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              "{searchQuery}"
+              <X 
+                className="w-3 h-3 cursor-pointer" 
+                onClick={() => onSearchChange?.("")}
+              />
+            </Badge>
+          )}
         </div>
-
-        {/* Contrôles de vue et tri */}
-        <div className="flex items-center justify-between gap-4">
-          {/* Vue toggle */}
-          <div className="flex bg-muted rounded-lg p-1">
-            <Button
-              variant={viewMode === "map" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("map")}
-              className="text-sm font-medium"
-            >
-              <Grid className="w-4 h-4 mr-2" />
-              Carte
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className="text-sm font-medium"
-            >
-              <List className="w-4 h-4 mr-2" />
-              Liste
-            </Button>
-          </div>
-
-          {/* Tri */}
-          <div className="flex items-center gap-2">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {sortOptions.map(option => {
-                  const Icon = option.icon;
-                  return (
-                    <SelectItem key={option.id} value={option.id}>
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4" />
-                        {option.name}
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" size="sm">
-              <Navigation className="w-4 h-4 mr-2" />
-              Ma position
-            </Button>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
