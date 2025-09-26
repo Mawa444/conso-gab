@@ -220,7 +220,7 @@ export const FavoritesSection = ({
           
           <div className="space-y-4">
             {subscriptions.map(subscription => <Card key={subscription.id}>
-                <CardContent className="p-4">
+                <CardContent className="p-4 bg-white">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
