@@ -21,10 +21,10 @@ export const TransitionWrapper = ({
     if (isChanging) {
       setShowTransition(true);
       
-      // Délai minimum pour éviter les flashs trop rapides
+      // Délai minimum pour la transition
       const timer = setTimeout(() => {
         setShowTransition(false);
-      }, 150);
+      }, 100);
 
       return () => clearTimeout(timer);
     }
@@ -33,11 +33,13 @@ export const TransitionWrapper = ({
   if (showTransition) {
     return (
       <div className={cn("relative min-h-screen", className)}>
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <GabonLoading 
-            size="md"
-            text={loadingText}
-          />
+        <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-[9999] flex items-center justify-center">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-card p-6 rounded-2xl shadow-xl border border-border/50">
+            <GabonLoading 
+              size="md"
+              text={loadingText}
+            />
+          </div>
         </div>
       </div>
     );

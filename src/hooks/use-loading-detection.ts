@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 interface UseLoadingDetectionOptions {
-  threshold?: number; // En millisecondes, défaut 250ms
+  threshold?: number; // En millisecondes, défaut 0ms (immédiat)
   onSlowLoading?: () => void;
   onFastLoading?: () => void;
 }
@@ -10,21 +10,26 @@ export const useLoadingDetection = (
   isLoading: boolean,
   options: UseLoadingDetectionOptions = {}
 ) => {
-  const { threshold = 250, onSlowLoading, onFastLoading } = options;
+  const { threshold = 0, onSlowLoading, onFastLoading } = options;
   const [showSlowLoadingUI, setShowSlowLoadingUI] = useState(false);
   const loadingStartTime = useRef<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isLoading) {
-      // Début du chargement
+      // Début du chargement - déclencher immédiatement
       loadingStartTime.current = Date.now();
       
-      // Déclencher l'UI de chargement lent après le seuil
-      timeoutRef.current = setTimeout(() => {
+      // Déclencher l'UI de chargement immédiatement
+      if (threshold === 0) {
         setShowSlowLoadingUI(true);
         onSlowLoading?.();
-      }, threshold);
+      } else {
+        timeoutRef.current = setTimeout(() => {
+          setShowSlowLoadingUI(true);
+          onSlowLoading?.();
+        }, threshold);
+      }
     } else {
       // Fin du chargement
       if (timeoutRef.current) {
