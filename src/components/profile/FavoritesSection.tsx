@@ -182,7 +182,7 @@ export const FavoritesSection = ({
             {favoriteProducts.map(product => <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-16 h-16 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
+                    <div className="w-16 h-16 rounded-lg flex-shrink-0 overflow-hidden bg-white">
                       <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
                         <span className="text-xs text-muted-foreground">Image</span>
                       </div>
