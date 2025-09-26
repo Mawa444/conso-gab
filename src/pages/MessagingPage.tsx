@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, MessageSquare, ShoppingCart, Calendar, Phone, Headphones, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
+import { useConversations } from "@/hooks/use-conversations";
+import { NewConversationModal } from "@/components/messaging/NewConversationModal";
 
 interface Conversation {
   id: string;
@@ -31,20 +32,12 @@ interface Conversation {
 
 export const MessagingPage = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
+  const { conversations, loading } = useConversations();
+  const [filteredConversations, setFilteredConversations] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [loading, setLoading] = useState(true);
-
-  // Fetch conversations
-  useEffect(() => {
-    if (user) {
-      fetchConversations();
-    }
-  }, [user]);
+  const [showNewConversation, setShowNewConversation] = useState(false);
 
   // Filter conversations based on search and tab
   useEffect(() => {
@@ -73,58 +66,6 @@ export const MessagingPage = () => {
     
     setFilteredConversations(filtered);
   }, [conversations, searchQuery, activeTab]);
-
-  const fetchConversations = async () => {
-    try {
-      const { data: participantData, error: participantError } = await supabase
-        .from('participants')
-        .select(`
-          conversation_id,
-          conversations!inner(
-            id,
-            title,
-            origin_type,
-            last_activity,
-            participants!inner(user_id, role, last_read)
-          )
-        `)
-        .eq('user_id', user?.id);
-
-      if (participantError) throw participantError;
-
-      // Get last messages for each conversation
-      const conversationIds = participantData?.map(p => p.conversation_id) || [];
-      
-      const { data: messagesData } = await supabase
-        .from('messages')
-        .select('conversation_id, content, sender_id, created_at')
-        .in('conversation_id', conversationIds)
-        .order('created_at', { ascending: false });
-
-      // Process conversations with last messages
-      const processedConversations = participantData?.map(p => {
-        const conv = p.conversations;
-        const lastMessage = messagesData?.find(m => m.conversation_id === conv.id);
-        
-        return {
-          ...conv,
-          lastMessage,
-          unread_count: 0 // TODO: Calculate based on last_read
-        };
-      }) || [];
-
-      setConversations(processedConversations);
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les conversations",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getTabIcon = (tab: string) => {
     switch (tab) {
@@ -291,11 +232,17 @@ export const MessagingPage = () => {
       </div>
 
       {/* Bottom Navigation */}
-        <BottomNavigation activeTab="messages" onTabChange={(tab) => {
-          if (tab === "home") navigate("/");
-          else if (tab === "map") navigate("/?tab=map");
-          else if (tab === "profile") navigate("/?tab=profile");
-        }} />
+      <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+        if (tab === "home") navigate("/");
+        else if (tab === "map") navigate("/?tab=map");
+        else if (tab === "profile") navigate("/?tab=profile");
+      }} />
+
+      {/* New Conversation Modal */}
+      <NewConversationModal 
+        open={showNewConversation}
+        onOpenChange={setShowNewConversation}
+      />
     </div>
   );
 };
