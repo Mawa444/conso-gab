@@ -38,11 +38,24 @@ export const CategoryPage = () => {
   const categories = getAllBusinessCategories();
   const category = categories.find(cat => cat.id === categoryId);
 
+  // Mapping temporaire des anciennes catégories vers les nouvelles
+  const categoryMapping: Record<string, string> = {
+    'restaurant': 'restauration_hotellerie',
+    'technology': 'technologie_numerique', 
+    'automotive': 'artisanat_services',
+    'education': 'education_formation',
+    'entertainment': 'culture_loisirs',
+    'healthcare': 'sante_bienetre'
+  };
+
   if (!category) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Catégorie non trouvée</h1>
+          <p className="text-muted-foreground mb-4">
+            Catégorie demandée : {categoryId}
+          </p>
           <Button onClick={() => navigate('/')}>
             Retour à l'accueil
           </Button>
@@ -51,10 +64,16 @@ export const CategoryPage = () => {
     );
   }
 
-  // Filtrer les entreprises par catégorie
-  const categoryBusinesses = businesses.filter(business => 
-    business.category === categoryId
-  );
+  // Filtrer les entreprises par catégorie (avec mapping)
+  const categoryBusinesses = businesses.filter(business => {
+    // Vérifier si la catégorie de l'entreprise correspond directement
+    if (business.category === category.id) {
+      return true;
+    }
+    // Vérifier avec le mapping inverse
+    const mappedCategory = categoryMapping[business.category];
+    return mappedCategory === category.id;
+  });
 
   // Filtrer et trier les établissements
   const filteredEstablishments = categoryBusinesses

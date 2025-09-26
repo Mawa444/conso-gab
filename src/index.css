@@ -11,14 +11,14 @@
     --gaboma-yellow: 48 100% 50%;
     --gaboma-blue: 217 91% 60%;
 
-    /* Mode clair - Style minimaliste blanc pur */
-    --background: 0 0% 100%;           /* #ffffff - Blanc pur */
+    /* Mode clair - Style minimaliste avec fond personnalisé */
+    --background: 210 13% 96%;         /* #f2f4f7 - Fond personnalisé */
     --foreground: 0 0% 5%;             /* #0d0d0d - Noir soft pour le texte */
     --card: 0 0% 98%;                  /* #fafafa - Cards très claires */
     --card-foreground: 0 0% 5%;        /* #0d0d0d - Texte sur cards */
     --popover: 0 0% 100%;              /* #ffffff - Popovers blancs */
     --popover-foreground: 0 0% 5%;     /* #0d0d0d - Texte sur popovers */
-    --primary: 0 0% 5%;                /* #0d0d0d - Boutons noirs */
+    --primary: 212 49% 49%;            /* #3a75c4 - Boutons bleus */
     --primary-foreground: 0 0% 100%;   /* #ffffff - Texte blanc sur boutons */
     --secondary: 0 0% 96%;             /* #f5f5f5 - Secondaire gris très clair */
     --secondary-foreground: 0 0% 5%;   /* #0d0d0d - Texte sur secondaire */
