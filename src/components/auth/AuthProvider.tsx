@@ -80,11 +80,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     if (signUpError) {
-      // Améliorer les messages d'erreur
+      // Améliorer les messages d'erreur pour les comptes existants
       if (signUpError.message.includes('already registered') || signUpError.message.includes('already been registered')) {
+        // Stocker l'email pour la redirection vers la connexion
+        try { localStorage.setItem('prefillEmail', email); } catch {}
         return { 
           data: signUpData, 
-          error: { message: "Un compte existe déjà avec cet email. Essayez de vous connecter." }
+          error: { message: "EXISTING_USER", email }
         };
       }
       return { data: signUpData, error: signUpError };

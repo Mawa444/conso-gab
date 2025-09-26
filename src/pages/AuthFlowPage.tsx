@@ -120,18 +120,18 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <Button 
-                onClick={() => setStep('signup')} 
+                onClick={() => setStep('login')} 
                 className="w-full h-12 text-base bg-primary hover:bg-primary/90"
               >
-                Créer un nouveau compte
+                Se connecter
               </Button>
               
               <Button 
-                onClick={() => setStep('login')} 
+                onClick={() => setStep('signup')} 
                 variant="outline"
                 className="w-full h-12 text-base"
               >
-                J'ai déjà un compte
+                Créer un nouveau compte
               </Button>
 
               <Separator />
@@ -170,10 +170,13 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   // Guided signup flow
   if (step === 'signup') {
     return (
-      <GuidedSignupFlow 
-        onComplete={() => setStep('login')}
-        onBack={() => setStep('welcome')}
-      />
+          <GuidedSignupFlow 
+            onComplete={() => {
+              toast.success('Compte créé ! Vous pouvez maintenant vous connecter.');
+              setStep('login');
+            }}
+            onBack={() => setStep('welcome')}
+          />
     );
   }
 

@@ -40,6 +40,7 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
   const [location, setLocation] = useState<LocationData>(initialLocation);
   const [locationMethod, setLocationMethod] = useState<'manual' | 'gps'>('manual');
   const [showDetails, setShowDetails] = useState(false);
+  const [skipLocation, setSkipLocation] = useState(false);
 
   const { data: provinces } = useProvinces();
   const { data: departments } = useDepartments(location.province);  
@@ -124,20 +125,33 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
         <p className="text-sm text-muted-foreground">
           Renseignez votre localisation pour découvrir les opérateurs près de chez vous
         </p>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setSkipLocation(true);
+            onLocationChange({ country: 'Gabon' }); // Valeur par défaut
+          }}
+          className="text-xs text-muted-foreground hover:text-primary"
+        >
+          Passer cette étape (configurer plus tard)
+        </Button>
       </div>
 
-      {/* GPS Option */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center space-x-2 text-base">
-            <Navigation className="h-5 w-5 text-primary" />
-            <span>Position GPS automatique</span>
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Obtenez automatiquement tous les détails de votre localisation précise
-          </p>
-        </CardHeader>
-        <CardContent>
+      {!skipLocation && (
+        <>
+          {/* GPS Option */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2 text-base">
+                <Navigation className="h-5 w-5 text-primary" />
+                <span>Position GPS automatique</span>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Obtenez automatiquement tous les détails de votre localisation précise
+              </p>
+            </CardHeader>
+            <CardContent>
           <Button
             onClick={getGPSLocation}
             disabled={isGettingLocation}
@@ -342,6 +356,22 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
           </div>
         </CardContent>
       </Card>
+      </>
+      )}
+      
+      {skipLocation && (
+        <div className="text-center p-6 border border-dashed rounded-lg bg-muted/30">
+          <div className="space-y-2">
+            <CheckCircle className="h-8 w-8 text-green-500 mx-auto" />
+            <p className="text-sm font-medium text-foreground">
+              Localisation configurée plus tard
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Vous pourrez configurer votre localisation dans vos paramètres après l'inscription.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

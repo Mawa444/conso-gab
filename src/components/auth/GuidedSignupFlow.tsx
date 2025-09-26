@@ -104,8 +104,19 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
         }
       );
 
-      if (error) throw error;
-
+      if (error) {
+        // Gérer le cas d'un utilisateur existant
+        if (error.message === "EXISTING_USER") {
+          toast.error('Un compte existe déjà avec cet email.');
+          // Rediriger vers la connexion automatiquement après un délai
+          setTimeout(() => {
+            toast.info('Redirection vers la connexion...');
+            onBack(); // Retour au choix
+          }, 1500);
+          return;
+        }
+        throw error;
+      }
 
       toast.success('Bienvenue dans la communauté ConsoGab ! 🇬🇦');
       onComplete();
