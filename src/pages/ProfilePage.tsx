@@ -237,7 +237,7 @@ export const ProfilePage = ({
       </div>
 
       {/* Tabs */}
-      <div className="p-6 bg-[f2f4f7] bg-[#f2f4f7]/[0.96]">
+      <div className="p-6 bg-[f2f4f7] bg-[#f2f4f7]/[0.97]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-6 bg-white rounded-3xl">
             <TabsTrigger value="overview" className="rounded-3xl bg-[3a75c4] text-center bg-inherit font-bold text-[#73767a]/[0.96] text-sm">Aperçu</TabsTrigger>
