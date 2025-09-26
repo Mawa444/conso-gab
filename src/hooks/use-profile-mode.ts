@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export type ProfileMode = 'consumer' | 'business';
 
@@ -150,10 +150,15 @@ export const useProfileMode = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase.rpc('switch_user_mode', {
-        new_mode: mode,
-        business_id_param: businessId || null
-      });
+      // Mise à jour directe de la table user_current_mode
+      const { error } = await supabase
+        .from('user_current_mode')
+        .upsert({
+          user_id: user.id,
+          current_mode: mode,
+          current_business_id: businessId || null,
+          updated_at: new Date().toISOString()
+        });
 
       if (error) {
         throw error;
@@ -180,20 +185,13 @@ export const useProfileMode = () => {
         }
       }
       
-      toast({
-        title: "Mode changé avec succès",
-        description: mode === 'business' 
-          ? `Vous êtes maintenant en mode professionnel` 
-          : `Vous êtes maintenant en mode consommateur`,
-      });
+      toast.success(mode === 'business' 
+        ? `Vous êtes maintenant en mode professionnel` 
+        : `Vous êtes maintenant en mode consommateur`);
 
     } catch (error: any) {
       console.error('Erreur changement mode:', error);
-      toast({
-        title: "Erreur de changement de mode",
-        description: error.message || "Une erreur est survenue",
-        variant: "destructive"
-      });
+      toast.error(error.message || "Une erreur est survenue");
     }
   };
 

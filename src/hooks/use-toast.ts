@@ -1,3 +1,4 @@
+// Direct import from components/ui without circular dependency
 import * as React from "react"
 
 import type {

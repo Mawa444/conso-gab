@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
-import { ModeGuard } from './ModeGuard';
-import { useProfileMode } from '@/hooks/use-profile-mode';
 
 interface UserProfile {
   role: 'consumer' | 'merchant' | null;
@@ -20,10 +18,9 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
   const location = useLocation();
   const [userProfile, setUserProfile] = useState<UserProfile>({ role: null, pseudo: null });
   const [profileLoading, setProfileLoading] = useState(false);
-  const { currentMode, currentBusinessId, loading: modeLoading } = useProfileMode();
 
   // Chargement global synchronisé
-  const globalLoading = authLoading || profileLoading || modeLoading;
+  const globalLoading = authLoading || profileLoading;
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -35,22 +32,26 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
           .from('user_profiles')
           .select('role, pseudo')
           .eq('user_id', user.id)
-          .maybeSingle(); // Utilisation de maybeSingle au lieu de single
+          .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
           console.error('Erreur récupération profil:', error);
+          setUserProfile({ role: 'consumer', pseudo: null });
           return;
         }
 
         // Gestion du cas où le profil n'existe pas encore (nouveau user)
         if (!data) {
-          setUserProfile({ role: 'consumer', pseudo: null }); // Rôle par défaut
+          setUserProfile({ role: 'consumer', pseudo: null });
         } else {
-          setUserProfile({ role: (data.role as 'consumer' | 'merchant') || 'consumer', pseudo: data.pseudo ?? null });
+          setUserProfile({ 
+            role: (data.role as 'consumer' | 'merchant') || 'consumer', 
+            pseudo: data.pseudo ?? null 
+          });
         }
       } catch (error) {
         console.error('Erreur:', error);
-        setUserProfile({ role: 'consumer', pseudo: null }); // Fallback sécurisé
+        setUserProfile({ role: 'consumer', pseudo: null });
       } finally {
         setProfileLoading(false);
       }
@@ -61,13 +62,12 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [user, authLoading]);
 
-  // Redirection vers auth si pas connecté - IMMÉDIATE
+  // Redirection vers auth si pas connecté
   useEffect(() => {
     if (!authLoading && !user) {
       const currentPath = location.pathname;
       
-      // Redirection IMMÉDIATE vers /auth si l'utilisateur n'est pas connecté
-      if (!currentPath.startsWith('/auth') && !currentPath.startsWith('/splash')) {
+      if (!currentPath.startsWith('/auth')) {
         console.log("Utilisateur non connecté, redirection vers /auth");
         navigate('/auth', { replace: true });
         return;
@@ -75,31 +75,21 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [authLoading, user, navigate, location.pathname]);
 
-  // Redirection automatique selon le rôle après connexion (uniquement initiale)
+  // Redirection initiale après connexion
   useEffect(() => {
     if (!globalLoading && user && userProfile.role) {
       const currentPath = location.pathname;
       
-      // Rediriger UNIQUEMENT depuis la racine ou auth vers l'espace approprié
+      // Rediriger uniquement depuis la racine ou auth
       if (currentPath === '/' || currentPath.startsWith('/auth')) {
-        let targetPath: string;
-        
-        if (currentMode === 'business' && currentBusinessId) {
-          targetPath = `/business/${currentBusinessId}`;
-        } else {
-          targetPath = '/consumer/home';
-        }
-        
-        // Éviter les redirections inutiles
-        if (currentPath !== targetPath) {
-          console.log(`Redirection initiale vers ${targetPath}`);
-          navigate(targetPath, { replace: true });
-        }
+        const targetPath = '/consumer/home';
+        console.log(`Redirection initiale vers ${targetPath}`);
+        navigate(targetPath, { replace: true });
       }
     }
-  }, [globalLoading, user, userProfile.role, currentMode, currentBusinessId, navigate, location.pathname]);
+  }, [globalLoading, user, userProfile.role, navigate, location.pathname]);
 
-  // Affichage du loading global pour éviter le flash de contenu
+  // Affichage du loading
   if (globalLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -111,7 +101,5 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     );
   }
 
-  // Plus de restrictions basées sur les rôles - tous les utilisateurs connectés ont accès à tout
-
-  return <ModeGuard>{children}</ModeGuard>;
-}
+  return <>{children}</>;
+};
