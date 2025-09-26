@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { useConversations } from "@/hooks/use-conversations";
 import { NewConversationModal } from "@/components/messaging/NewConversationModal";
+import { GabonLoading } from "@/components/ui/gabon-loading";
 
 interface Conversation {
   id: string;
@@ -176,11 +177,12 @@ export const MessagingPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <MessageSquare className="w-8 h-8 animate-pulse mx-auto text-primary" />
-          <p className="text-muted-foreground">Chargement des conversations...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
+        <GabonLoading 
+          size="lg" 
+          text="Chargement des conversations..."
+          className="scale-110"
+        />
       </div>
     );
   }

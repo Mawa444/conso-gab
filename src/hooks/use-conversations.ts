@@ -113,8 +113,8 @@ export const useConversations = () => {
       // Récupérer les profils des utilisateurs
       const memberUserIds = [...new Set(allMembersData?.map(m => m.user_id) || [])];
       const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, first_name, last_name, avatar_url')
+        .from('user_profiles')
+        .select('user_id, pseudo, profile_picture_url')
         .in('user_id', memberUserIds);
 
       if (profilesError) throw profilesError;
@@ -150,8 +150,8 @@ export const useConversations = () => {
               ...m,
               role: m.role as 'owner' | 'admin' | 'member',
               user_profile: profile ? {
-                pseudo: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
-                profile_picture_url: profile.avatar_url
+                pseudo: profile.pseudo || 'Utilisateur',
+                profile_picture_url: profile.profile_picture_url
               } : undefined
             };
           }),
