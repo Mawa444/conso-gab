@@ -292,19 +292,19 @@ export const ProfilePage = ({
                 </Button>}
               
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-gray-800 hover:bg-gray-700">
+                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-white">
                   <QrCode className="w-6 h-6 text-primary" />
                   <span className="text-sm">Scanner commerce</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl">
+                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-white">
                   <MapPin className="w-6 h-6 text-accent" />
                   <span className="text-sm">Commerces proches</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl">
+                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-white">
                   <Trophy className="w-6 h-6 text-secondary" />
                   <span className="text-sm rounded-full">Classements</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl">
+                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-white">
                   <Shield className="w-6 h-6 text-muted-foreground" />
                   <span className="text-sm">Sécurité</span>
                 </Button>
@@ -312,7 +312,7 @@ export const ProfilePage = ({
             </div>
 
             {/* Notifications */}
-            <div className="bg-card rounded-xl border border-border/50 p-4">
+            <div className="border border-border/50 p-4 bg-white rounded-3xl">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold">Notifications</h3>
                 <Button variant="ghost" size="sm">
