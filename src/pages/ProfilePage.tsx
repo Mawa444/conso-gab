@@ -302,7 +302,7 @@ export const ProfilePage = ({
                 </Button>
                 <Button variant="outline" className="h-20 flex-col gap-2">
                   <Trophy className="w-6 h-6 text-secondary" />
-                  <span className="text-sm">Classements</span>
+                  <span className="text-sm rounded-full">Classements</span>
                 </Button>
                 <Button variant="outline" className="h-20 flex-col gap-2">
                   <Shield className="w-6 h-6 text-muted-foreground" />
