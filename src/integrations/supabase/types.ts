@@ -224,6 +224,9 @@ export type Database = {
           latitude: number | null
           logo_url: string | null
           longitude: number | null
+          office_location: Json | null
+          office_location_type: string | null
+          office_location_updated_at: string | null
           phone: string | null
           province: string | null
           quartier: string | null
@@ -255,6 +258,9 @@ export type Database = {
           latitude?: number | null
           logo_url?: string | null
           longitude?: number | null
+          office_location?: Json | null
+          office_location_type?: string | null
+          office_location_updated_at?: string | null
           phone?: string | null
           province?: string | null
           quartier?: string | null
@@ -286,6 +292,9 @@ export type Database = {
           latitude?: number | null
           logo_url?: string | null
           longitude?: number | null
+          office_location?: Json | null
+          office_location_type?: string | null
+          office_location_updated_at?: string | null
           phone?: string | null
           province?: string | null
           quartier?: string | null
@@ -812,6 +821,103 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      location_requests: {
+        Row: {
+          conversation_id: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          purpose: string | null
+          requester_id: string
+          share_mode: string | null
+          shared_at: string | null
+          shared_location: Json | null
+          status: string | null
+          target_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          purpose?: string | null
+          requester_id: string
+          share_mode?: string | null
+          shared_at?: string | null
+          shared_location?: Json | null
+          status?: string | null
+          target_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          purpose?: string | null
+          requester_id?: string
+          share_mode?: string | null
+          shared_at?: string | null
+          shared_location?: Json | null
+          status?: string | null
+          target_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_requests_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      location_share_history: {
+        Row: {
+          expires_at: string
+          id: string
+          location_data: Json
+          purpose: string | null
+          request_id: string | null
+          share_mode: string
+          shared_at: string | null
+          shared_by: string
+          shared_to: string
+        }
+        Insert: {
+          expires_at: string
+          id?: string
+          location_data: Json
+          purpose?: string | null
+          request_id?: string | null
+          share_mode: string
+          shared_at?: string | null
+          shared_by: string
+          shared_to: string
+        }
+        Update: {
+          expires_at?: string
+          id?: string
+          location_data?: Json
+          purpose?: string | null
+          request_id?: string | null
+          share_mode?: string
+          shared_at?: string | null
+          shared_by?: string
+          shared_to?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_share_history_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "location_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -1546,8 +1652,11 @@ export type Database = {
           country: string | null
           created_at: string
           department: string | null
+          home_location: Json | null
+          home_location_type: string | null
           id: string
           latitude: number | null
+          location_updated_at: string | null
           longitude: number | null
           phone: string | null
           profile_picture_url: string | null
@@ -1565,8 +1674,11 @@ export type Database = {
           country?: string | null
           created_at?: string
           department?: string | null
+          home_location?: Json | null
+          home_location_type?: string | null
           id?: string
           latitude?: number | null
+          location_updated_at?: string | null
           longitude?: number | null
           phone?: string | null
           profile_picture_url?: string | null
@@ -1584,8 +1696,11 @@ export type Database = {
           country?: string | null
           created_at?: string
           department?: string | null
+          home_location?: Json | null
+          home_location_type?: string | null
           id?: string
           latitude?: number | null
+          location_updated_at?: string | null
           longitude?: number | null
           phone?: string | null
           profile_picture_url?: string | null
@@ -1606,6 +1721,10 @@ export type Database = {
     Functions: {
       cancel_business_deletion: {
         Args: { business_profile_id: string }
+        Returns: undefined
+      }
+      cleanup_expired_location_requests: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       generate_booking_number: {
