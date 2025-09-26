@@ -418,8 +418,8 @@ export const ProfilePage = ({
 
               {/* Section Support */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Support & Aide</CardTitle>
+                <CardHeader className="bg-[3a75c4] bg-[#3a75c4]/[0.96]">
+                  <CardTitle className="text-white text-left">Support & Aide</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 bg-gray-200 my-0">
                   <Button variant="outline" className="w-full justify-start my-[12px] rounded-3xl">
