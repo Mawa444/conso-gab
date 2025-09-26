@@ -29,77 +29,72 @@ export const RealTimeProvider = ({ children }: RealTimeProviderProps) => {
   const [conversationUpdates, setConversationUpdates] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setIsConnected(false);
+      return;
+    }
 
-    console.log('Setting up real-time subscriptions for user:', user.id);
+    // Debounce subscription setup to prevent rapid reconnections
+    const timeoutId = setTimeout(() => {
+      console.log('Setting up real-time subscriptions for user:', user.id);
 
-    // Subscribe to messages
-    const messagesChannel = supabase
-      .channel('messages-channel')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=in.(${getParticipantConversationIds().join(',')})`
-        },
-        (payload) => {
-          console.log('New message received:', payload);
-          setMessageUpdates(prev => [...prev, payload]);
-          
-          // Show notification for new messages from others
-          if (payload.new.sender_id !== user.id) {
-            toast({
-              title: "Nouveau message",
-              description: payload.new.content?.substring(0, 50) + "...",
-            });
+      // Subscribe to messages - simplified without complex filtering
+      const messagesChannel = supabase
+        .channel(`messages-${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages'
+          },
+          (payload) => {
+            setMessageUpdates(prev => [...prev.slice(-9), payload]); // Keep only last 10
+            
+            // Show notification for new messages from others only
+            if (payload.new.sender_id !== user.id) {
+              toast({
+                title: "Nouveau message",
+                description: payload.new.content?.substring(0, 50) + "...",
+              });
+            }
           }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'messages'
-        },
-        (payload) => {
-          console.log('Message updated:', payload);
-          setMessageUpdates(prev => [...prev, payload]);
-        }
-      )
-      .subscribe((status) => {
-        console.log('Messages subscription status:', status);
-        if (status === 'SUBSCRIBED') {
-          setIsConnected(true);
-        }
-      });
+        )
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            setIsConnected(true);
+          }
+        });
 
-    // Subscribe to conversations
-    const conversationsChannel = supabase
-      .channel('conversations-channel')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'conversations'
-        },
-        (payload) => {
-          console.log('Conversation updated:', payload);
-          setConversationUpdates(prev => [...prev, payload]);
-        }
-      )
-      .subscribe();
+      // Subscribe to conversations - only for updates
+      const conversationsChannel = supabase
+        .channel(`conversations-${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'conversations'
+          },
+          (payload) => {
+            setConversationUpdates(prev => [...prev.slice(-9), payload]); // Keep only last 10
+          }
+        )
+        .subscribe();
+
+      return () => {
+        console.log('Cleaning up real-time subscriptions');
+        messagesChannel.unsubscribe();
+        conversationsChannel.unsubscribe();
+        setIsConnected(false);
+      };
+    }, 500); // 500ms debounce
 
     return () => {
-      console.log('Cleaning up real-time subscriptions');
-      messagesChannel.unsubscribe();
-      conversationsChannel.unsubscribe();
+      clearTimeout(timeoutId);
       setIsConnected(false);
     };
-  }, [user]);
+  }, [user?.id]); // Only depend on user.id, not the whole user object
 
   // Helper function to get conversation IDs where user is participant
   const getParticipantConversationIds = () => {

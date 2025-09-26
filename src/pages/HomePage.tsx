@@ -7,7 +7,7 @@ import { CategoriesSection } from "@/components/blocks/CategoriesSection";
 import { CommerceDetailsPopup } from "@/components/commerce/CommerceDetailsPopup";
 import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
 import { OperatorDashboardModal } from "@/components/business/OperatorDashboardModal";
-import { useBusinessList } from "@/hooks/use-business-list";
+import { useOptimizedBusinesses } from "@/hooks/use-optimized-businesses";
 import { useNavigate } from "react-router-dom";
 import { Loader2, RefreshCw, Grid3X3, Building2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -159,8 +159,8 @@ export const HomePage = ({ onNavigate, onMessage, userLocation = "Libreville" }:
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
   const [showOperatorDashboard, setShowOperatorDashboard] = useState(false);
   
-  // Utiliser le hook pour récupérer les vraies données des entreprises
-  const { businesses, loading, error, refreshBusinesses } = useBusinessList();
+  // Utiliser le hook optimisé pour de meilleures performances
+  const { businesses, loading, error, refreshBusinesses } = useOptimizedBusinesses();
 
   const handleScanResult = (result: string) => {
     try {

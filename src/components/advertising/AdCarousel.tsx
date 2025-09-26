@@ -74,25 +74,11 @@ export const AdCarousel = ({ userLocation = "Libreville" }: AdCarouselProps) => 
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [scrollDirection, setScrollDirection] = useState<1 | -1>(1);
 
-  // Auto-play functionality with random direction
+  // Disable auto-play for better performance - user can navigate manually
   useEffect(() => {
-    if (!isAutoPlaying) return;
-    
-    // Set random direction on mount
-    const randomDirection = Math.random() > 0.5 ? 1 : -1;
-    setScrollDirection(randomDirection);
-    
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => {
-        const nextIndex = scrollDirection === 1 
-          ? (prev + 1) % filteredSlides.length
-          : (prev - 1 + filteredSlides.length) % filteredSlides.length;
-        return nextIndex;
-      });
-    }, 4000 + Math.random() * 2000); // Random interval between 4-6s
-
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, scrollDirection, filteredSlides.length]);
+    // Removed auto-play to improve performance
+    return;
+  }, []);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % filteredSlides.length);
@@ -176,16 +162,7 @@ export const AdCarousel = ({ userLocation = "Libreville" }: AdCarouselProps) => 
         ))}
       </div>
 
-      {/* Progress bar */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-black/20">
-        <div 
-          className="h-full bg-white transition-all duration-300 ease-linear"
-          style={{ 
-            width: isAutoPlaying ? '100%' : '0%',
-            animation: isAutoPlaying ? 'progress 5s linear infinite' : 'none'
-          }}
-        />
-      </div>
+      {/* Removed progress bar to improve performance */}
 
       <style>
         {`
