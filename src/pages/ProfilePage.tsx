@@ -327,7 +327,7 @@ export const ProfilePage = ({
                     <p className="text-xs text-white">Vous avez obtenu "Explorateur"</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-2 bg-accent/5 rounded-lg border-l-4 border-accent">
+                <div className="flex items-start gap-3 p-2 rounded-lg border-l-4 border-accent bg-[fcd116] bg-[#fcd116]/[0.96]">
                   <Star className="w-4 h-4 text-accent mt-1" />
                   <div className="flex-1">
                     <p className="text-sm font-medium">Nouveau commerce ajouté</p>
