@@ -320,11 +320,11 @@ export const ProfilePage = ({
                 </Button>
               </div>
               <div className="space-y-2">
-                <div className="flex items-start gap-3 p-2 bg-primary/5 rounded-lg border-l-4 border-primary">
+                <div className="flex items-start gap-3 p-2 border-l-4 border-primary px-[15px] py-[8px] mx-0 rounded-3xl bg-[009e60] bg-[#009e60]/[0.96]">
                   <Trophy className="w-4 h-4 text-primary mt-1" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium">Nouveau badge débloqué!</p>
-                    <p className="text-xs text-muted-foreground">Vous avez obtenu "Explorateur"</p>
+                    <p className="font-medium text-[fcd116] text-[#fcd116]/[0.97]">Nouveau badge débloqué!</p>
+                    <p className="text-xs text-white">Vous avez obtenu "Explorateur"</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-2 bg-accent/5 rounded-lg border-l-4 border-accent">
