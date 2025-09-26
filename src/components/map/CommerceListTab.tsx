@@ -26,25 +26,18 @@ export const CommerceListTab = () => {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Simuler une vraie requête de données
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  // Simuler le chargement des données au premier rendu
+  // TOUS les hooks DOIVENT être déclarés avant tout return conditionnel
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
       setDataLoaded(true);
       setIsLoading(false);
-    }, 800); // Simuler un délai de réseau
+    }, 800);
 
     return () => clearTimeout(timer);
   }, []);
-
-  // Afficher le skeleton pendant le chargement
-  if (isLoading || !dataLoaded) {
-    return <CommerceListSkeleton />;
-  }
 
   // Filtrage et tri ultra-avancé
   const filteredAndSortedCommerces = useMemo(() => {
@@ -164,6 +157,11 @@ export const CommerceListTab = () => {
         : [...prev, price]
     );
   };
+
+  // MAINTENANT le return conditionnel APRÈS tous les hooks
+  if (isLoading || !dataLoaded) {
+    return <CommerceListSkeleton />;
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -445,52 +443,26 @@ export const CommerceListTab = () => {
               </div>
             </div>
 
-            {/* Grille des commerces */}
-            <div className="space-y-4">
-              {filteredAndSortedCommerces.map((commerce, index) => (
-                <div
+            {/* Liste */}
+            <div className="grid gap-4">
+              {filteredAndSortedCommerces.map((commerce) => (
+                <CommerceCard
                   key={commerce.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <CommerceCard
-                    commerce={commerce}
-                    variant="default"
-                    onSelect={(commerce) => {
-                      navigate(`/business/${commerce.id}`);
-                    }}
-                    onFavorite={(id) => {
-                      console.log("Toggle favorite:", id);
-                    }}
-                  />
-                </div>
+                  commerce={commerce}
+                  onSelect={() => navigate(`/business/${commerce.id}`)}
+                  onMessage={() => console.log("Message to", commerce.name)}
+                  variant="default"
+                />
               ))}
-            </div>
-
-            {/* État vide */}
-            {filteredAndSortedCommerces.length === 0 && (
-              <div className="text-center py-20">
-                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full flex items-center justify-center">
-                  <MapPin className="w-12 h-12 text-muted-foreground" />
+              
+              {filteredAndSortedCommerces.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium mb-2">Aucun commerce trouvé</p>
+                  <p className="text-sm">Essayez de modifier vos filtres de recherche</p>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Aucun résultat trouvé</h3>
-                <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-                  Aucun commerce ne correspond à vos critères de recherche. 
-                  Essayez de modifier vos filtres ou d'élargir votre zone de recherche.
-                </p>
-                <Button onClick={() => {
-                  setSearchQuery("");
-                  setSelectedCategory("all");
-                  setSelectedDistrict("all");
-                  setDistanceRange([10]);
-                  setPriceFilter(["€", "€€", "€€€"]);
-                  setOpenOnly(false);
-                  setVerifiedOnly(false);
-                }}>
-                  Réinitialiser les filtres
-                </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
