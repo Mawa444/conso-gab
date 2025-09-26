@@ -237,14 +237,14 @@ export const ProfilePage = ({
       </div>
 
       {/* Tabs */}
-      <div className="p-6">
+      <div className="p-6 bg-[f2f4f7] bg-[#f2f4f7]/[0.96]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="overview" className="rounded-3xl bg-[3a75c4] bg-[#3a75c4]/[0.96] text-[#fcd116]/[0.96] font-bold text-center text-[[fcd116]]">Aperçu</TabsTrigger>
-            <TabsTrigger value="activity" className="text-xs rounded-3xl">Activité</TabsTrigger>
-            <TabsTrigger value="favorites" className="text-xs rounded-3xl">Favoris</TabsTrigger>
-            <TabsTrigger value="businesses" className="text-xs rounded-3xl">Entreprises</TabsTrigger>
-            <TabsTrigger value="settings" className="rounded-3xl text-xs">Paramètres</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 mb-6 bg-white rounded-3xl">
+            <TabsTrigger value="overview" className="rounded-3xl bg-[3a75c4] text-center bg-inherit font-bold text-[#73767a]/[0.96] text-sm">Aperçu</TabsTrigger>
+            <TabsTrigger value="activity" className="rounded-3xl font-bold text-[73767a] text-[#73767a]/[0.97]">Activité</TabsTrigger>
+            <TabsTrigger value="favorites" className="rounded-3xl font-bold text-[#73767a]/[0.96] text-sm">Favoris</TabsTrigger>
+            <TabsTrigger value="businesses" className="rounded-3xl font-bold text-[#73767a]/[0.97] text-sm">Entreprises</TabsTrigger>
+            <TabsTrigger value="settings" className="rounded-3xl font-bold text-[73767a] text-[#73767a]/[0.96]">Paramètres</TabsTrigger>
           </TabsList>
 
           {/* Aperçu */}
@@ -253,16 +253,16 @@ export const ProfilePage = ({
             <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
               <CardHeader className="rounded-none bg-[3a75c4] bg-[#3e78c6]">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-white text-[[fcd116]] font-bold">Progression  Points ConsoGab</CardTitle>
+                  <CardTitle className="font-bold text-white mx-0 py-0 px-0 my-[10px] text-lg">Progression  Points ConsoGab</CardTitle>
                   <Badge className="text-primary bg-[fcd116] bg-[#fcd116]/[0.96]">Niveau 4</Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 rounded-none bg-white my-0">
                 <div className="flex justify-between text-sm font-medium">
-                  <span>Ambassador ConsoGab</span>
-                  <span className="text-primary">{userProfile.points} / 5000 pts</span>
+                  <span className="my-[10px] font-bold text-[3a75c4] text-black/[0.97]">Ambassador ConsoGab</span>
+                  <span className="text-primary my-[10px]">{userProfile.points} / 5000 pts</span>
                 </div>
-                <div className="w-full rounded-full h-3 overflow-hidden shadow-inner bg-[fcd116] bg-[#fcd116]/[0.96]">
+                <div className="w-full rounded-full h-3 overflow-hidden shadow-inner bg-[fcd116] bg-[#fcd116]/[0.96] my-0">
                   <div className="bg-gradient-to-r from-primary via-accent to-secondary h-3 rounded-full transition-all duration-700 relative overflow-hidden" style={{
                     width: `${userProfile.points / 5000 * 100}%`
                   }}>
@@ -292,19 +292,19 @@ export const ProfilePage = ({
                 </Button>}
               
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="h-20 flex-col gap-2 bg-white">
+                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-gray-800 hover:bg-gray-700">
                   <QrCode className="w-6 h-6 text-primary" />
                   <span className="text-sm">Scanner commerce</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2">
+                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl">
                   <MapPin className="w-6 h-6 text-accent" />
                   <span className="text-sm">Commerces proches</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2">
+                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl">
                   <Trophy className="w-6 h-6 text-secondary" />
                   <span className="text-sm rounded-full">Classements</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2">
+                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl">
                   <Shield className="w-6 h-6 text-muted-foreground" />
                   <span className="text-sm">Sécurité</span>
                 </Button>
@@ -394,7 +394,7 @@ export const ProfilePage = ({
               
               {/* Section Compte */}
               <Card>
-                <CardHeader>
+                <CardHeader className="bg-white">
                   <CardTitle className="flex items-center gap-2">
                     <User className="w-5 h-5" />
                     Informations du compte
