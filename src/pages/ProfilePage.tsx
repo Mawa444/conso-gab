@@ -14,7 +14,6 @@ import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { toast } from "sonner";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
-
 interface UserProfileData {
   name: string;
   email: string;
@@ -29,68 +28,63 @@ interface UserProfileData {
   pseudo: string;
   role: string;
 }
-
-const recentActivity = [
-  {
-    id: "act_001",
-    type: "scan",
-    commerce: "Boulangerie Chez Mama Nzé",
-    date: "Il y a 2h",
-    points: "+10 pts"
-  },
-  {
-    id: "act_002", 
-    type: "review",
-    commerce: "Restaurant Chez Tonton",
-    date: "Hier",
-    points: "+25 pts"
-  },
-  {
-    id: "act_003",
-    type: "badge",
-    badge: "Explorateur",
-    date: "Il y a 3 jours",
-    points: "+50 pts"
-  }
-];
-
-const favoriteCommerces = [
-  {
-    id: "fav_001",
-    name: "Restaurant Chez Tonton",
-    type: "Restaurant",
-    rating: 4.9,
-    lastVisit: "Il y a 2 jours"
-  },
-  {
-    id: "fav_002",
-    name: "Salon Afrique Beauté", 
-    type: "Salon de beauté",
-    rating: 4.7,
-    lastVisit: "La semaine dernière"
-  },
-  {
-    id: "fav_003",
-    name: "Pharmacie du Centre",
-    type: "Pharmacie", 
-    rating: 4.8,
-    lastVisit: "Il y a 5 jours"
-  }
-];
-
+const recentActivity = [{
+  id: "act_001",
+  type: "scan",
+  commerce: "Boulangerie Chez Mama Nzé",
+  date: "Il y a 2h",
+  points: "+10 pts"
+}, {
+  id: "act_002",
+  type: "review",
+  commerce: "Restaurant Chez Tonton",
+  date: "Hier",
+  points: "+25 pts"
+}, {
+  id: "act_003",
+  type: "badge",
+  badge: "Explorateur",
+  date: "Il y a 3 jours",
+  points: "+50 pts"
+}];
+const favoriteCommerces = [{
+  id: "fav_001",
+  name: "Restaurant Chez Tonton",
+  type: "Restaurant",
+  rating: 4.9,
+  lastVisit: "Il y a 2 jours"
+}, {
+  id: "fav_002",
+  name: "Salon Afrique Beauté",
+  type: "Salon de beauté",
+  rating: 4.7,
+  lastVisit: "La semaine dernière"
+}, {
+  id: "fav_003",
+  name: "Pharmacie du Centre",
+  type: "Pharmacie",
+  rating: 4.8,
+  lastVisit: "Il y a 5 jours"
+}];
 interface ProfilePageProps {
   onBack?: () => void;
   onSettings?: () => void;
 }
-
-export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
+export const ProfilePage = ({
+  onBack,
+  onSettings
+}: ProfilePageProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [activityFilter, setActivityFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const { signOut } = useAuth();
-  const { secureSignOut } = useAuthCleanup();
+  const {
+    signOut
+  } = useAuth();
+  const {
+    secureSignOut
+  } = useAuthCleanup();
   const [userProfile, setUserProfile] = useState<UserProfileData>({
     name: "Chargement...",
     email: "",
@@ -105,41 +99,38 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
     pseudo: "",
     role: ""
   });
-  
-  const { user } = useAuth();
-
+  const {
+    user
+  } = useAuth();
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!user) {
         setIsLoading(false);
         return;
       }
-      
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-
+        const {
+          data,
+          error
+        } = await supabase.from('user_profiles').select('*').eq('user_id', user.id).single();
         if (error) {
           console.error('Erreur récupération profil:', error);
           setIsLoading(false);
           return;
         }
-
         if (data) {
           setUserProfile({
             name: data.pseudo || user.email?.split('@')[0] || "Utilisateur",
             email: user.email || "",
             phone: data.phone || "",
-            joinDate: new Date(data.created_at || user.created_at).toLocaleDateString('fr-FR', { 
-              month: 'long', 
-              year: 'numeric' 
+            joinDate: new Date(data.created_at || user.created_at).toLocaleDateString('fr-FR', {
+              month: 'long',
+              year: 'numeric'
             }),
             userType: data.role === 'merchant' ? 'commerçant' : 'client',
-            points: Math.floor(Math.random() * 3000) + 1000, // TODO: Implémenter système de points
+            points: Math.floor(Math.random() * 3000) + 1000,
+            // TODO: Implémenter système de points
             level: data.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
             scansCount: Math.floor(Math.random() * 50) + 10,
             reviewsCount: Math.floor(Math.random() * 30) + 5,
@@ -154,19 +145,20 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
         setIsLoading(false);
       }
     };
-
     fetchUserProfile();
   }, [user]);
-
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case "scan": return <QrCode className="w-4 h-4 text-primary" />;
-      case "review": return <Star className="w-4 h-4 text-yellow-500" />;
-      case "badge": return <Award className="w-4 h-4 text-accent" />;
-      default: return <History className="w-4 h-4 text-muted-foreground" />;
+      case "scan":
+        return <QrCode className="w-4 h-4 text-primary" />;
+      case "review":
+        return <Star className="w-4 h-4 text-yellow-500" />;
+      case "badge":
+        return <Award className="w-4 h-4 text-accent" />;
+      default:
+        return <History className="w-4 h-4 text-muted-foreground" />;
     }
   };
-
   const handleLogout = async () => {
     try {
       await secureSignOut();
@@ -175,16 +167,10 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
       toast.error("Erreur lors de la déconnexion");
     }
   };
-
   const handleDeleteAccount = () => {
     toast.error("Fonctionnalité à venir - Suppression de compte");
   };
-
-  return (
-    <PageWithSkeleton
-      isLoading={isLoading}
-      skeleton={<ProfilePageSkeleton />}
-    >
+  return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
       <div className="min-h-screen animate-fade-in">
       {/* Header Profile moderne */}
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
@@ -207,38 +193,20 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
                 </Badge>
               </div>
               {/* Bouton S'abonner */}
-              <Button 
-                className="mt-3 bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm"
-                size="sm"
-              >
+              <Button className="mt-3 bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm" size="sm">
                 <Bell className="w-4 h-4 mr-2" />
                 S'abonner aux notifications
               </Button>
             </div>
             
             <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={onSettings}
-                className="text-white hover:bg-white/20 backdrop-blur-sm"
-              >
+              <Button variant="ghost" size="icon" onClick={onSettings} className="text-white hover:bg-white/20 backdrop-blur-sm">
                 <Settings className="w-6 h-6" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleDeleteAccount}
-                className="text-white hover:bg-white/20 backdrop-blur-sm"
-              >
+              <Button variant="ghost" size="icon" onClick={handleDeleteAccount} className="text-white hover:bg-white/20 backdrop-blur-sm">
                 <Trash2 className="w-6 h-6" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleLogout}
-                className="text-white hover:bg-red-500/30 backdrop-blur-sm"
-              >
+              <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white hover:bg-red-500/30 backdrop-blur-sm">
                 <LogOut className="w-6 h-6" />
               </Button>
             </div>
@@ -272,11 +240,11 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
       <div className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="overview" className="text-xs">Aperçu</TabsTrigger>
-            <TabsTrigger value="activity" className="text-xs">Activité</TabsTrigger>
-            <TabsTrigger value="favorites" className="text-xs">Favoris</TabsTrigger>
-            <TabsTrigger value="businesses" className="text-xs">Entreprises</TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs">Paramètres</TabsTrigger>
+            <TabsTrigger value="overview" className="text-xs rounded-3xl">Aperçu</TabsTrigger>
+            <TabsTrigger value="activity" className="text-xs rounded-3xl">Activité</TabsTrigger>
+            <TabsTrigger value="favorites" className="text-xs rounded-3xl">Favoris</TabsTrigger>
+            <TabsTrigger value="businesses" className="text-xs rounded-3xl">Entreprises</TabsTrigger>
+            <TabsTrigger value="settings" className="rounded-3xl text-xs">Paramètres</TabsTrigger>
           </TabsList>
 
           {/* Aperçu */}
@@ -295,10 +263,9 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
                   <span className="text-primary">{userProfile.points} / 5000 pts</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-3 overflow-hidden shadow-inner">
-                  <div 
-                    className="bg-gradient-to-r from-primary via-accent to-secondary h-3 rounded-full transition-all duration-700 relative overflow-hidden"
-                    style={{ width: `${(userProfile.points / 5000) * 100}%` }}
-                  >
+                  <div className="bg-gradient-to-r from-primary via-accent to-secondary h-3 rounded-full transition-all duration-700 relative overflow-hidden" style={{
+                    width: `${userProfile.points / 5000 * 100}%`
+                  }}>
                     <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
                   </div>
                 </div>
@@ -316,18 +283,13 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
               <h3 className="font-semibold">Actions rapides</h3>
               
               {/* Bouton Dashboard Opérateur pour les marchands */}
-              {userProfile.role === 'merchant' && (
-                <Button 
-                  onClick={() => window.location.href = '/merchant/dashboard'}
-                  className="w-full h-16 bg-gradient-to-r from-primary to-accent text-white mb-4 flex items-center gap-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300"
-                >
+              {userProfile.role === 'merchant' && <Button onClick={() => window.location.href = '/merchant/dashboard'} className="w-full h-16 bg-gradient-to-r from-primary to-accent text-white mb-4 flex items-center gap-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300">
                   <Shield className="w-8 h-8" />
                   <div className="text-left">
                     <div className="text-lg font-bold">Dashboard Opérateur</div>
                     <div className="text-sm opacity-90">Gérer vos catalogues et commandes</div>
                   </div>
-                </Button>
-              )}
+                </Button>}
               
               <div className="grid grid-cols-2 gap-3">
                 <Button variant="outline" className="h-20 flex-col gap-2">
@@ -397,11 +359,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
               </div>
             </div>
             
-            {recentActivity.map((activity) => (
-              <div
-                key={activity.id}
-                className="bg-card rounded-xl border border-border/50 p-4"
-              >
+            {recentActivity.map(activity => <div key={activity.id} className="bg-card rounded-xl border border-border/50 p-4">
                 <div className="flex items-center gap-3">
                   {getActivityIcon(activity.type)}
                   <div className="flex-1">
@@ -416,8 +374,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
                     {activity.points}
                   </Badge>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </TabsContent>
 
           {/* Favoris */}
@@ -444,11 +401,7 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={onSettings}
-                  >
+                  <Button variant="outline" className="w-full justify-start" onClick={onSettings}>
                     <Settings className="w-4 h-4 mr-2" />
                     Modifier mon profil
                   </Button>
@@ -487,19 +440,11 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
                   <CardTitle className="text-red-600">Zone dangereuse</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
-                    onClick={handleDeleteAccount}
-                  >
+                  <Button variant="outline" className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50" onClick={handleDeleteAccount}>
                     <Trash2 className="w-4 h-4 mr-2" />
                     Supprimer mon compte
                   </Button>
-                  <Button 
-                    variant="destructive" 
-                    className="w-full justify-start"
-                    onClick={handleLogout}
-                  >
+                  <Button variant="destructive" className="w-full justify-start" onClick={handleLogout}>
                     <LogOut className="w-4 h-4 mr-2" />
                     Se déconnecter
                   </Button>
@@ -510,6 +455,5 @@ export const ProfilePage = ({ onBack, onSettings }: ProfilePageProps) => {
         </Tabs>
       </div>
       </div>
-    </PageWithSkeleton>
-  );
+    </PageWithSkeleton>;
 };
