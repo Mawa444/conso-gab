@@ -437,9 +437,9 @@ export const ProfilePage = ({
               {/* Section Danger */}
               <Card className="border-red-200">
                 <CardHeader className="bg-inherit">
-                  <CardTitle className="font-bold text-lg text-red-500">Zone dangereuse</CardTitle>
+                  <CardTitle className="font-bold text-red-500 text-2xl">Zone dangereuse</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 bg-white my-0">
+                <CardContent className="space-y-4 bg-white my-[3px]">
                   <Button variant="outline" onClick={handleDeleteAccount} className="w-full justify-start border-red-200 my-[12px] rounded-3xl bg-orange-300 hover:bg-orange-200 text-black">
                     <Trash2 className="w-4 h-4 mr-2" />
                     Supprimer mon compte
