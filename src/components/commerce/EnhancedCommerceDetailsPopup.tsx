@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfessionalCatalog } from "./ProfessionalCatalog";
-import { MessageModal } from "../messaging/MessageModal";
 
 interface Commerce {
   id: string;
@@ -422,13 +421,13 @@ export const EnhancedCommerceDetailsPopup = ({
                 >
                   👎 Pas pour moi
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowMessageModal(true)}
+                <Button 
+                  variant="outline" 
+                  disabled
                   className="flex items-center gap-2"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  Message
+                  Contacter (Bientôt)
                 </Button>
                 <Button
                   variant="outline"
@@ -513,14 +512,7 @@ export const EnhancedCommerceDetailsPopup = ({
         </div>
       </div>
 
-      {/* Modal de message */}
-      {showMessageModal && (
-        <MessageModal
-          commerce={enrichedCommerce}
-          open={showMessageModal}
-          onClose={() => setShowMessageModal(false)}
-        />
-      )}
+      {/* Messaging functionality will be re-implemented */}
     </>
   );
 };

@@ -5,7 +5,6 @@ import { HomePage } from "@/pages/HomePage";
 import { MapPage } from "@/pages/MapPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { QRScanner } from "@/components/scanner/QRScanner";
-import { MessageModal } from "@/components/messaging/MessageModal";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -22,7 +21,7 @@ const ConsumerApp = () => {
   
   const [activeTab, setActiveTab] = useState("home");
   const [showScanner, setShowScanner] = useState(false);
-  const [showMessageModal, setShowMessageModal] = useState(false);
+  // Messaging functionality will be re-implemented
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
@@ -169,16 +168,7 @@ const ConsumerApp = () => {
         />
       )}
 
-      {showMessageModal && (
-        <MessageModal
-          open={showMessageModal}
-          onClose={() => {
-            trackModalOpen("Messages - Fermeture");
-            setShowMessageModal(false);
-          }}
-          commerce={selectedCommerce}
-        />
-      )}
+      {/* Messaging functionality will be re-implemented */}
 
       {showProfileSettings && (
         <ProfileSettings

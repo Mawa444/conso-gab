@@ -230,6 +230,8 @@ export type Database = {
           phone: string | null
           province: string | null
           quartier: string | null
+          slug: string | null
+          status: string | null
           telegram: string | null
           updated_at: string
           user_id: string
@@ -264,6 +266,8 @@ export type Database = {
           phone?: string | null
           province?: string | null
           quartier?: string | null
+          slug?: string | null
+          status?: string | null
           telegram?: string | null
           updated_at?: string
           user_id: string
@@ -298,6 +302,8 @@ export type Database = {
           phone?: string | null
           province?: string | null
           quartier?: string | null
+          slug?: string | null
+          status?: string | null
           telegram?: string | null
           updated_at?: string
           user_id?: string
@@ -305,6 +311,47 @@ export type Database = {
           whatsapp?: string | null
         }
         Relationships: []
+      }
+      catalog: {
+        Row: {
+          business_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          seo_metadata: Json | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          seo_metadata?: Json | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          seo_metadata?: Json | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       catalog_booking_config: {
         Row: {
@@ -723,68 +770,33 @@ export type Database = {
       }
       conversations: {
         Row: {
-          assigned_agent_id: string | null
-          business_id: string | null
-          conversation_type: Database["public"]["Enums"]["conversation_type"]
-          created_at: string
-          customer_id: string
+          created_at: string | null
           id: string
-          is_archived: boolean | null
-          is_starred: boolean | null
-          last_message_at: string | null
-          metadata: Json | null
-          participants: string[] | null
-          priority: Database["public"]["Enums"]["support_priority"] | null
-          status: string | null
-          subject: string | null
-          tags: string[] | null
-          updated_at: string
+          last_activity: string | null
+          origin_id: string | null
+          origin_type: string | null
+          title: string | null
+          visibility: string | null
         }
         Insert: {
-          assigned_agent_id?: string | null
-          business_id?: string | null
-          conversation_type?: Database["public"]["Enums"]["conversation_type"]
-          created_at?: string
-          customer_id: string
+          created_at?: string | null
           id?: string
-          is_archived?: boolean | null
-          is_starred?: boolean | null
-          last_message_at?: string | null
-          metadata?: Json | null
-          participants?: string[] | null
-          priority?: Database["public"]["Enums"]["support_priority"] | null
-          status?: string | null
-          subject?: string | null
-          tags?: string[] | null
-          updated_at?: string
+          last_activity?: string | null
+          origin_id?: string | null
+          origin_type?: string | null
+          title?: string | null
+          visibility?: string | null
         }
         Update: {
-          assigned_agent_id?: string | null
-          business_id?: string | null
-          conversation_type?: Database["public"]["Enums"]["conversation_type"]
-          created_at?: string
-          customer_id?: string
+          created_at?: string | null
           id?: string
-          is_archived?: boolean | null
-          is_starred?: boolean | null
-          last_message_at?: string | null
-          metadata?: Json | null
-          participants?: string[] | null
-          priority?: Database["public"]["Enums"]["support_priority"] | null
-          status?: string | null
-          subject?: string | null
-          tags?: string[] | null
-          updated_at?: string
+          last_activity?: string | null
+          origin_id?: string | null
+          origin_type?: string | null
+          title?: string | null
+          visibility?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "conversations_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "business_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       favorites: {
         Row: {
@@ -868,15 +880,7 @@ export type Database = {
           target_id?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "location_requests_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       location_share_history: {
         Row: {
@@ -918,6 +922,86 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "location_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          format: string | null
+          height: number | null
+          id: string
+          is_cover: boolean | null
+          owner_id: string | null
+          size_bytes: number | null
+          storage_path: string
+          url: string
+          width: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          format?: string | null
+          height?: number | null
+          id?: string
+          is_cover?: boolean | null
+          owner_id?: string | null
+          size_bytes?: number | null
+          storage_path: string
+          url: string
+          width?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          format?: string | null
+          height?: number | null
+          id?: string
+          is_cover?: boolean | null
+          owner_id?: string | null
+          size_bytes?: number | null
+          storage_path?: string
+          url?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
+      message_actions: {
+        Row: {
+          action_type: string | null
+          created_at: string | null
+          id: string
+          message_id: string | null
+          payload: Json | null
+          status: string | null
+        }
+        Insert: {
+          action_type?: string | null
+          created_at?: string | null
+          id?: string
+          message_id?: string | null
+          payload?: Json | null
+          status?: string | null
+        }
+        Update: {
+          action_type?: string | null
+          created_at?: string | null
+          id?: string
+          message_id?: string | null
+          payload?: Json | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_actions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
@@ -974,70 +1058,37 @@ export type Database = {
       }
       messages: {
         Row: {
-          attachment_size: number | null
-          attachment_type: string | null
           attachment_url: string | null
-          content: string
+          content: string | null
+          content_json: Json | null
           conversation_id: string | null
-          created_at: string
-          edited_at: string | null
+          created_at: string | null
           id: string
-          is_deleted: boolean | null
-          is_edited: boolean | null
-          mentions: string[] | null
-          message_type: Database["public"]["Enums"]["message_type"] | null
-          metadata: Json | null
-          reactions: Json | null
-          read_by: Json | null
-          reply_to_id: string | null
-          scheduled_for: string | null
-          sender_id: string
-          status: Database["public"]["Enums"]["message_status"] | null
-          thread_id: string | null
+          message_type: string | null
+          sender_id: string | null
+          status: string | null
         }
         Insert: {
-          attachment_size?: number | null
-          attachment_type?: string | null
           attachment_url?: string | null
-          content: string
+          content?: string | null
+          content_json?: Json | null
           conversation_id?: string | null
-          created_at?: string
-          edited_at?: string | null
+          created_at?: string | null
           id?: string
-          is_deleted?: boolean | null
-          is_edited?: boolean | null
-          mentions?: string[] | null
-          message_type?: Database["public"]["Enums"]["message_type"] | null
-          metadata?: Json | null
-          reactions?: Json | null
-          read_by?: Json | null
-          reply_to_id?: string | null
-          scheduled_for?: string | null
-          sender_id: string
-          status?: Database["public"]["Enums"]["message_status"] | null
-          thread_id?: string | null
+          message_type?: string | null
+          sender_id?: string | null
+          status?: string | null
         }
         Update: {
-          attachment_size?: number | null
-          attachment_type?: string | null
           attachment_url?: string | null
-          content?: string
+          content?: string | null
+          content_json?: Json | null
           conversation_id?: string | null
-          created_at?: string
-          edited_at?: string | null
+          created_at?: string | null
           id?: string
-          is_deleted?: boolean | null
-          is_edited?: boolean | null
-          mentions?: string[] | null
-          message_type?: Database["public"]["Enums"]["message_type"] | null
-          metadata?: Json | null
-          reactions?: Json | null
-          read_by?: Json | null
-          reply_to_id?: string | null
-          scheduled_for?: string | null
-          sender_id?: string
-          status?: Database["public"]["Enums"]["message_status"] | null
-          thread_id?: string | null
+          message_type?: string | null
+          sender_id?: string | null
+          status?: string | null
         }
         Relationships: [
           {
@@ -1045,20 +1096,6 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_reply_to_id_fkey"
-            columns: ["reply_to_id"]
-            isOneToOne: false
-            referencedRelation: "messages"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_thread_id_fkey"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
@@ -1093,13 +1130,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "order_items_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -1110,47 +1140,174 @@ export type Database = {
       }
       orders: {
         Row: {
-          business_id: string
-          created_at: string
-          customer_id: string
-          delivery_address: string | null
+          buyer_id: string | null
+          created_at: string | null
+          currency: string | null
+          escrow_id: string | null
           id: string
-          notes: string | null
-          order_number: string
-          status: Database["public"]["Enums"]["order_status"] | null
-          total_amount: number
-          updated_at: string
+          items: Json
+          seller_id: string | null
+          status: string | null
+          total_cents: number | null
         }
         Insert: {
-          business_id: string
-          created_at?: string
-          customer_id: string
-          delivery_address?: string | null
+          buyer_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          escrow_id?: string | null
           id?: string
-          notes?: string | null
-          order_number: string
-          status?: Database["public"]["Enums"]["order_status"] | null
-          total_amount: number
-          updated_at?: string
+          items: Json
+          seller_id?: string | null
+          status?: string | null
+          total_cents?: number | null
         }
         Update: {
-          business_id?: string
-          created_at?: string
-          customer_id?: string
-          delivery_address?: string | null
+          buyer_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          escrow_id?: string | null
           id?: string
-          notes?: string | null
-          order_number?: string
-          status?: Database["public"]["Enums"]["order_status"] | null
-          total_amount?: number
-          updated_at?: string
+          items?: Json
+          seller_id?: string | null
+          status?: string | null
+          total_cents?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "orders_business_id_fkey"
+            foreignKeyName: "orders_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      participants: {
+        Row: {
+          conversation_id: string | null
+          created_at: string | null
+          id: string
+          last_read: string | null
+          role: string | null
+          user_id: string | null
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_read?: string | null
+          role?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_read?: string | null
+          role?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount_cents: number | null
+          created_at: string | null
+          id: string
+          method: string | null
+          order_id: string | null
+          receipt_qr: string | null
+          status: string | null
+        }
+        Insert: {
+          amount_cents?: number | null
+          created_at?: string | null
+          id?: string
+          method?: string | null
+          order_id?: string | null
+          receipt_qr?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount_cents?: number | null
+          created_at?: string | null
+          id?: string
+          method?: string | null
+          order_id?: string | null
+          receipt_qr?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product: {
+        Row: {
+          business_id: string | null
+          catalog_id: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          price_cents: number | null
+          stock: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          catalog_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          price_cents?: number | null
+          stock?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          catalog_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          price_cents?: number | null
+          stock?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalog"
             referencedColumns: ["id"]
           },
         ]
@@ -1229,10 +1386,15 @@ export type Database = {
           account_type: Database["public"]["Enums"]["account_type"]
           avatar_url: string | null
           created_at: string
+          display_name: string | null
+          email_verified: boolean | null
           first_name: string | null
+          home_location: Json | null
           id: string
           last_name: string | null
           phone: string | null
+          pin_enabled: boolean | null
+          pin_hash: string | null
           updated_at: string
           user_id: string
         }
@@ -1240,10 +1402,15 @@ export type Database = {
           account_type?: Database["public"]["Enums"]["account_type"]
           avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
+          email_verified?: boolean | null
           first_name?: string | null
+          home_location?: Json | null
           id?: string
           last_name?: string | null
           phone?: string | null
+          pin_enabled?: boolean | null
+          pin_hash?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1251,10 +1418,15 @@ export type Database = {
           account_type?: Database["public"]["Enums"]["account_type"]
           avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
+          email_verified?: boolean | null
           first_name?: string | null
+          home_location?: Json | null
           id?: string
           last_name?: string | null
           phone?: string | null
+          pin_enabled?: boolean | null
+          pin_hash?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1333,13 +1505,6 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "business_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -1433,13 +1598,6 @@ export type Database = {
             columns: ["catalog_id"]
             isOneToOne: false
             referencedRelation: "catalogs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reservations_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -1613,13 +1771,6 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "business_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "support_tickets_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]

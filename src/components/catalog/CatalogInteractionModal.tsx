@@ -28,7 +28,6 @@ import {
 } from 'lucide-react';
 import { BusinessVitrineTab } from '@/components/business/BusinessVitrineTab';
 import { MessageSheet } from '@/components/commerce/MessageSheet';
-import { AdvancedMessagingModal } from '@/components/messaging/AdvancedMessagingModal';
 import { RouteMapModal } from '@/components/map/RouteMapModal';
 import { useCatalogComments, useCatalogLikes, useCatalogImageComments, useCatalogImageLikes } from '@/hooks/use-catalog-interactions';
 import { useCatalogFavorites, useCatalogShares } from '@/hooks/use-catalog-favorites';
@@ -634,11 +633,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
           }}
         />
 
-        <AdvancedMessagingModal 
-          open={showAdvancedMessaging}
-          onClose={() => setShowAdvancedMessaging(false)}
-          catalog={catalog}
-        />
+        {/* Messaging functionality will be re-implemented */}
 
         <RouteMapModal
           open={showRouteModal}

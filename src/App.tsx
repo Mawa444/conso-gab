@@ -15,7 +15,10 @@ import { PromotionDetailPage } from "./pages/PromotionDetailPage";
 import { PersonalRankingsPage } from "./pages/PersonalRankingsPage";
 import { CategoryPage } from "./pages/CategoryPage";
 import { PublicCatalogsPage } from "./pages/PublicCatalogsPage";
-import { MessagingPage } from "./pages/MessagingPage";
+import MessagingPage from "./pages/MessagingPage";
+import ConversationDetailPage from "./pages/ConversationDetailPage";
+import { MerchantDashboard } from "./pages/MerchantDashboard";
+import { LocationSettingsPage } from "./pages/LocationSettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,7 +39,13 @@ const App = () => (
               <Route path="/consumer/home" element={<ConsumerApp />} />
               <Route path="/consumer/*" element={<ConsumerApp />} />
               
-              {/* Routes supprimées - les opérateurs utilisent leur profil business */}
+              {/* Routes business */}
+              <Route path="/business/:businessId" element={<MerchantDashboard onNavigate={() => {}} />} />
+              <Route path="/business/:businessId/catalog" element={<PublicCatalogsPage />} />
+              
+              {/* Routes messagerie */}
+              <Route path="/messaging" element={<MessagingPage />} />
+              <Route path="/conversation/:conversationId" element={<ConversationDetailPage />} />
               
               {/* Routes partagées */}
               <Route path="/business/:id" element={<BusinessDetailPage />} />
@@ -45,7 +54,7 @@ const App = () => (
               <Route path="/rankings/personal" element={<PersonalRankingsPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path="/catalogs" element={<PublicCatalogsPage />} />
-              <Route path="/messaging" element={<MessagingPage />} />
+              <Route path="/location-settings" element={<LocationSettingsPage />} />
               
               {/* Route par défaut : page d'authentification */}
               <Route path="/" element={<AuthFlowPage onComplete={() => {}} />} />

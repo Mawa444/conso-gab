@@ -7,7 +7,6 @@ import { MapPage } from "@/pages/MapPage";
 import { RankingsPage } from "@/pages/RankingsPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { QRScanner } from "@/components/scanner/QRScanner";
-import { MessageModal } from "@/components/messaging/MessageModal";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -17,7 +16,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("home");
   const [showScanner, setShowScanner] = useState(false);
-  const [showMessageModal, setShowMessageModal] = useState(false);
+  // Messaging functionality will be re-implemented
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
@@ -107,7 +106,7 @@ const Index = () => {
             return;
           }
           setSelectedCommerce(commerce);
-          setShowMessageModal(true);
+          // setShowMessageModal(true); // Will be re-implemented
         }} />;
     }
   };
@@ -139,13 +138,7 @@ const Index = () => {
         />
       )}
 
-      {showMessageModal && (
-        <MessageModal
-          open={showMessageModal}
-          onClose={() => setShowMessageModal(false)}
-          commerce={selectedCommerce}
-        />
-      )}
+      {/* Messaging functionality will be re-implemented */}
 
       {showProfileSettings && (
         <ProfileSettings
