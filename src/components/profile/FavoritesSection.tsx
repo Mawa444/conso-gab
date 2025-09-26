@@ -150,7 +150,7 @@ export const FavoritesSection = ({
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                           <span className="text-xs font-medium">{business.rating}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground">•</span>
+                        <span className="text-xs text-muted-foreground bg-white">•</span>
                         <span className="text-xs text-muted-foreground">{business.lastVisit}</span>
                       </div>
 
