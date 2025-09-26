@@ -2,107 +2,94 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Système de design minimaliste noir & blanc inspiré d'Animate UI */
 
 @layer base {
   :root {
-    /* Couleurs officielles du Gabon (conservées) */
+    /* Couleurs officielles du Gabon (conservées uniquement pour le logo) */
     --gaboma-green: 142 69% 49%;
     --gaboma-yellow: 48 100% 50%;
     --gaboma-blue: 217 91% 60%;
 
     /* Mode clair - Style minimaliste blanc pur */
-    --background: 0 0% 100%;           /* Blanc pur */
-    --foreground: 0 0% 0%;             /* Noir pur pour le texte */
-    --card: 0 0% 98%;                  /* Cards en gris très très clair */
-    --card-foreground: 0 0% 0%;        /* Texte noir sur cards */
-    --popover: 0 0% 100%;              /* Popovers blancs */
-    --popover-foreground: 0 0% 0%;     /* Texte noir sur popovers */
-    --primary: 0 0% 0%;                /* Primary en noir pour boutons */
-    --primary-foreground: 0 0% 100%;   /* Texte blanc sur primary */
-    --secondary: 0 0% 96%;             /* Secondaire en gris très clair */
-    --secondary-foreground: 0 0% 0%;   /* Texte noir sur secondaire */
-    --muted: 0 0% 95%;                 /* Muted en gris clair */
-    --muted-foreground: 0 0% 40%;      /* Texte gris sur muted */
-    --accent: 0 0% 94%;                /* Accent en gris très clair */
-    --accent-foreground: 0 0% 0%;      /* Texte noir sur accent */
+    --background: 0 0% 100%;           /* #ffffff - Blanc pur */
+    --foreground: 0 0% 5%;             /* #0d0d0d - Noir soft pour le texte */
+    --card: 0 0% 98%;                  /* #fafafa - Cards très claires */
+    --card-foreground: 0 0% 5%;        /* #0d0d0d - Texte sur cards */
+    --popover: 0 0% 100%;              /* #ffffff - Popovers blancs */
+    --popover-foreground: 0 0% 5%;     /* #0d0d0d - Texte sur popovers */
+    --primary: 0 0% 5%;                /* #0d0d0d - Boutons noirs */
+    --primary-foreground: 0 0% 100%;   /* #ffffff - Texte blanc sur boutons */
+    --secondary: 0 0% 96%;             /* #f5f5f5 - Secondaire gris très clair */
+    --secondary-foreground: 0 0% 5%;   /* #0d0d0d - Texte sur secondaire */
+    --muted: 0 0% 94%;                 /* #f0f0f0 - Muted gris clair */
+    --muted-foreground: 0 0% 40%;      /* #666666 - Texte gris sur muted */
+    --accent: 0 0% 92%;                /* #ebebeb - Accent gris clair */
+    --accent-foreground: 0 0% 5%;      /* #0d0d0d - Texte sur accent */
     --destructive: 0 84% 60%;          /* Rouge pour destructif */
     --destructive-foreground: 0 0% 98%; /* Texte clair sur destructif */
-    --border: 0 0% 90%;                /* Bordures grises claires */
-    --input: 0 0% 96%;                 /* Inputs en gris très clair */
-    --ring: 0 0% 0%;                   /* Focus ring en noir */
+    --border: 0 0% 90%;                /* #e6e6e6 - Bordures grises claires */
+    --input: 0 0% 96%;                 /* #f5f5f5 - Inputs gris très clair */
+    --ring: 0 0% 5%;                   /* #0d0d0d - Focus ring noir */
 
     /* Sidebar en mode clair */
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 0%;
-    --sidebar-primary: 0 0% 0%;
+    --sidebar-foreground: 0 0% 5%;
+    --sidebar-primary: 0 0% 5%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 94%;
-    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 92%;
+    --sidebar-accent-foreground: 0 0% 5%;
     --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 0 0% 0%;
+    --sidebar-ring: 0 0% 5%;
 
-    /* Dégradés conservés mais adaptés */
-    --gradient-gaboma: linear-gradient(135deg, hsl(var(--gaboma-green)), hsl(var(--gaboma-blue)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--gaboma-green)) 0%, hsl(var(--gaboma-blue)) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--primary)) 100%);
-
-    /* Ombres subtiles */
-    --shadow-gaboma: 0 2px 8px -1px hsla(0, 0%, 0%, 0.1);
+    /* Ombres subtiles pour mode clair */
     --shadow-soft: 0 1px 3px -1px hsla(0, 0%, 0%, 0.1);
-    --shadow-medium: 0 4px 6px -1px hsla(0, 0%, 0%, 0.1);
-    --shadow-strong: 0 8px 25px -5px hsla(0, 0%, 0%, 0.1);
-    --shadow-elevated: 0 20px 60px -20px hsla(0, 0%, 0%, 0.15);
+    --shadow-medium: 0 4px 8px -2px hsla(0, 0%, 0%, 0.1);
+    --shadow-strong: 0 8px 25px -5px hsla(0, 0%, 0%, 0.15);
+    --shadow-elevated: 0 20px 60px -20px hsla(0, 0%, 0%, 0.2);
 
-    /* Animations et transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    --radius: 0.5rem;
+    /* Variables communes */
+    --radius: 0.75rem;  /* 12px - coins plus arrondis comme Animate UI */
     --bottom-nav-height: 80px;
   }
 
-  /* Mode sombre - Style minimaliste noir pur */
+  /* Mode sombre - Style Animate UI total noir contrasté */
   .dark {
-    --background: 0 0% 0%;             /* Noir pur */
-    --foreground: 0 0% 100%;           /* Blanc pur pour le texte */
-    --card: 0 0% 8%;                   /* Cards en gris très foncé */
-    --card-foreground: 0 0% 100%;      /* Texte blanc sur cards */
-    --popover: 0 0% 4%;                /* Popovers noirs */
-    --popover-foreground: 0 0% 100%;   /* Texte blanc sur popovers */
-    --primary: 0 0% 100%;              /* Primary en blanc pour boutons */
-    --primary-foreground: 0 0% 0%;     /* Texte noir sur primary */
-    --secondary: 0 0% 10%;             /* Secondaire en gris foncé */
-    --secondary-foreground: 0 0% 100%; /* Texte blanc sur secondaire */
-    --muted: 0 0% 12%;                 /* Muted en gris foncé */
-    --muted-foreground: 0 0% 70%;      /* Texte gris clair sur muted */
-    --accent: 0 0% 14%;                /* Accent en gris foncé */
-    --accent-foreground: 0 0% 100%;    /* Texte blanc sur accent */
+    --background: 0 0% 5%;             /* #0d0d0d - Fond noir soft */
+    --foreground: 0 0% 100%;           /* #ffffff - Texte blanc pur */
+    --card: 0 0% 10%;                  /* #1a1a1a - Cards gris très foncé */
+    --card-foreground: 0 0% 100%;      /* #ffffff - Texte blanc sur cards */
+    --popover: 0 0% 8%;                /* #141414 - Popovers gris foncé */
+    --popover-foreground: 0 0% 100%;   /* #ffffff - Texte blanc sur popovers */
+    --primary: 0 0% 100%;              /* #ffffff - Boutons blancs */
+    --primary-foreground: 0 0% 0%;     /* #000000 - Texte noir sur boutons */
+    --secondary: 0 0% 12%;             /* #1e1e1e - Secondaire gris foncé */
+    --secondary-foreground: 0 0% 100%; /* #ffffff - Texte blanc sur secondaire */
+    --muted: 0 0% 14%;                 /* #242424 - Muted gris foncé */
+    --muted-foreground: 0 0% 70%;      /* #b3b3b3 - Texte gris clair sur muted */
+    --accent: 0 0% 16%;                /* #292929 - Accent gris foncé */
+    --accent-foreground: 0 0% 100%;    /* #ffffff - Texte blanc sur accent */
     --destructive: 0 84% 60%;          /* Rouge pour destructif */
     --destructive-foreground: 0 0% 98%; /* Texte clair sur destructif */
-    --border: 0 0% 15%;                /* Bordures grises foncées */
-    --input: 0 0% 10%;                 /* Inputs en gris foncé */
-    --ring: 0 0% 100%;                 /* Focus ring en blanc */
+    --border: 0 0% 16%;                /* #2a2a2a - Bordures grises foncées */
+    --input: 0 0% 12%;                 /* #1e1e1e - Inputs gris foncé */
+    --ring: 0 0% 100%;                 /* #ffffff - Focus ring blanc */
 
     /* Sidebar en mode sombre */
-    --sidebar-background: 0 0% 4%;
+    --sidebar-background: 0 0% 5%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
     --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent: 0 0% 16%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 15%;
+    --sidebar-border: 0 0% 16%;
     --sidebar-ring: 0 0% 100%;
 
     /* Ombres pour le mode sombre */
-    --shadow-gaboma: 0 2px 8px -1px hsla(0, 0%, 0%, 0.3);
-    --shadow-soft: 0 1px 3px -1px hsla(0, 0%, 0%, 0.2);
-    --shadow-medium: 0 4px 6px -1px hsla(0, 0%, 0%, 0.3);
-    --shadow-strong: 0 8px 25px -5px hsla(0, 0%, 0%, 0.4);
-    --shadow-elevated: 0 20px 60px -20px hsla(0, 0%, 0%, 0.5);
+    --shadow-soft: 0 1px 3px -1px hsla(0, 0%, 0%, 0.4);
+    --shadow-medium: 0 4px 8px -2px hsla(0, 0%, 0%, 0.5);
+    --shadow-strong: 0 8px 25px -5px hsla(0, 0%, 0%, 0.6);
+    --shadow-elevated: 0 20px 60px -20px hsla(0, 0%, 0%, 0.8);
   }
 }
 
@@ -112,28 +99,46 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    font-weight: 400;
   }
 
-  /* Custom animations - removed problematic infinite animations */
-
-  .animate-slide-up {
-    animation: slide-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  /* Classes utilitaires pour cartes Animate UI */
+  .card-animate {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-medium);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-
-  /* QR Scanner overlay */
-  .scanner-overlay {
-    background: linear-gradient(135deg, 
-      hsl(var(--gaboma-green) / 0.1), 
-      hsl(var(--gaboma-blue) / 0.1)
-    );
-    backdrop-filter: blur(10px);
-    border: 2px solid hsl(var(--gaboma-green));
-    box-shadow: 0 0 20px hsl(var(--gaboma-green) / 0.5);
+  .card-animate:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
   }
 
-  /* Gaboma gradient text */
+  /* Boutons style Animate UI */
+  .btn-animate {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: var(--radius);
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-animate:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-strong);
+  }
+
+  /* Focus states minimalistes */
+  .focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Texte dégradé pour le logo uniquement */
   .text-gaboma-gradient {
     background: linear-gradient(135deg, 
       hsl(var(--gaboma-green)), 
@@ -145,9 +150,7 @@ All colors MUST be HSL.
   }
 }
 
-/* Removed problematic infinite keyframes animations */
-
-/* Tab transition animations */
+/* Animations minimalistes */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -159,16 +162,26 @@ All colors MUST be HSL.
   }
 }
 
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
 
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+.animate-slide-up {
+  animation: slide-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Enhanced scrollbar styling */
+/* Scrollbar styling minimal */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -178,138 +191,9 @@ All colors MUST be HSL.
   display: none;
 }
 
-/* Progress animation for carousel */
-@keyframes progress {
-  from { width: 0%; }
-  to { width: 100%; }
-}
-
-/* Espacements et alignements uniformes pour tous les composants */
-.page-container {
-  padding: var(--content-padding);
-  min-height: calc(100vh - var(--header-height) - var(--footer-height));
-}
-
-.section-spacing {
-  margin-bottom: var(--spacing-2xl);
-}
-
-.card-spacing {
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
-}
-
-/* Harmonisation des z-index */
-.z-header { z-index: 100; }
-.z-navigation { z-index: 90; }
-.z-modal { z-index: 50; }
-.z-dropdown { z-index: 40; }
-.z-tooltip { z-index: 30; }
-
-/* Amélioration des transitions et animations */
-.transition-gaboma {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
-}
-
-/* Classes utilitaires pour les espacements */
-.space-section { margin-bottom: 2rem; }
-.space-block { margin-bottom: 1.5rem; }
-.space-item { margin-bottom: 1rem; }
-
-/* Optimisation des performances pour les animations */
-.will-change-transform {
-  will-change: transform;
-}
-
-/* Amélioration de l'accessibilité */
-.focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 2px;
-}
-
-/* Responsive design millimétré */
+/* Responsive design */
 @media (min-width: 768px) {
-  .page-container {
-    padding: calc(var(--content-padding) * 1.5);
+  .card-animate {
+    border-radius: calc(var(--radius) + 2px);
   }
-  
-  .section-spacing {
-    margin-bottom: calc(var(--spacing-2xl) * 1.5);
-  }
-}
-
-@media (min-width: 1024px) {
-  .page-container {
-    padding: calc(var(--content-padding) * 2);
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-}
-
-/* Dynamic Island animations */
-@keyframes dynamic-island-enter {
-  0% {
-    transform: translate(-50%, -100%) scale(0.1);
-    opacity: 0;
-    border-radius: 50%;
-    background: hsl(var(--primary));
-  }
-  30% {
-    transform: translate(-50%, -30px) scale(0.6);
-    opacity: 0.7;
-    border-radius: 50%;
-  }
-  70% {
-    transform: translate(-50%, 5px) scale(1.05);
-    opacity: 0.95;
-    border-radius: 2rem;
-  }
-  100% {
-    transform: translate(-50%, 0) scale(1);
-    opacity: 1;
-    border-radius: 2rem;
-  }
-}
-
-@keyframes pulse-soft {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
-}
-
-@keyframes island-in {
-  0% { transform: translate(-50%, -20px) scale(0.85); opacity: 0; }
-  60% { transform: translate(-50%, 4px) scale(1.02); opacity: 1; }
-  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
-}
-
-@keyframes island-out {
-  0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
-  40% { transform: translate(-50%, -6px) scale(0.98); opacity: 0.9; }
-  100% { transform: translate(-50%, -20px) scale(0.85); opacity: 0; }
-}
-
-.dynamic-island-enter { 
-  animation: dynamic-island-enter 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); 
-}
-.dynamic-island-exit { 
-  animation: island-out 0.3s ease-in forwards; 
-}
-
-.animate-pulse-soft {
-  animation: pulse-soft 2s infinite;
 }
