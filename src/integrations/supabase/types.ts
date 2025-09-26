@@ -94,6 +94,56 @@ export type Database = {
           },
         ]
       }
+      attachments: {
+        Row: {
+          created_at: string
+          duration: number | null
+          file_name: string | null
+          file_size: number | null
+          file_type: string
+          height: number | null
+          id: string
+          message_id: string | null
+          mime_type: string | null
+          url: string
+          width: number | null
+        }
+        Insert: {
+          created_at?: string
+          duration?: number | null
+          file_name?: string | null
+          file_size?: number | null
+          file_type: string
+          height?: number | null
+          id?: string
+          message_id?: string | null
+          mime_type?: string | null
+          url: string
+          width?: number | null
+        }
+        Update: {
+          created_at?: string
+          duration?: number | null
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string
+          height?: number | null
+          id?: string
+          message_id?: string | null
+          mime_type?: string | null
+          url?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_workflows: {
         Row: {
           actions: Json
@@ -149,6 +199,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      blocked_users: {
+        Row: {
+          blocked_at: string | null
+          blocked_id: string
+          blocker_id: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          blocked_at?: string | null
+          blocked_id: string
+          blocker_id: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          blocked_at?: string | null
+          blocked_id?: string
+          blocker_id?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: []
       }
       booking_time_slots: {
         Row: {
@@ -804,29 +878,76 @@ export type Database = {
           },
         ]
       }
+      conversation_members: {
+        Row: {
+          conversation_id: string | null
+          id: string
+          is_active: boolean | null
+          joined_at: string | null
+          last_read_at: string | null
+          notifications_enabled: boolean | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          last_read_at?: string | null
+          notifications_enabled?: boolean | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          last_read_at?: string | null
+          notifications_enabled?: boolean | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_members_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
+          conversation_type: string | null
           created_at: string | null
           id: string
           last_activity: string | null
+          metadata: Json | null
           origin_id: string | null
           origin_type: string | null
           title: string | null
           visibility: string | null
         }
         Insert: {
+          conversation_type?: string | null
           created_at?: string | null
           id?: string
           last_activity?: string | null
+          metadata?: Json | null
           origin_id?: string | null
           origin_type?: string | null
           title?: string | null
           visibility?: string | null
         }
         Update: {
+          conversation_type?: string | null
           created_at?: string | null
           id?: string
           last_activity?: string | null
+          metadata?: Json | null
           origin_id?: string | null
           origin_type?: string | null
           title?: string | null
@@ -1099,8 +1220,11 @@ export type Database = {
           content_json: Json | null
           conversation_id: string | null
           created_at: string | null
+          edited_at: string | null
           id: string
           message_type: string | null
+          reactions: Json | null
+          reply_to_message_id: string | null
           sender_id: string | null
           status: string | null
         }
@@ -1110,8 +1234,11 @@ export type Database = {
           content_json?: Json | null
           conversation_id?: string | null
           created_at?: string | null
+          edited_at?: string | null
           id?: string
           message_type?: string | null
+          reactions?: Json | null
+          reply_to_message_id?: string | null
           sender_id?: string | null
           status?: string | null
         }
@@ -1121,8 +1248,11 @@ export type Database = {
           content_json?: Json | null
           conversation_id?: string | null
           created_at?: string | null
+          edited_at?: string | null
           id?: string
           message_type?: string | null
+          reactions?: Json | null
+          reply_to_message_id?: string | null
           sender_id?: string | null
           status?: string | null
         }
@@ -1132,6 +1262,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_message_id_fkey"
+            columns: ["reply_to_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
@@ -1820,6 +1957,38 @@ export type Database = {
           },
         ]
       }
+      typing_indicators: {
+        Row: {
+          conversation_id: string | null
+          id: string
+          is_typing: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "typing_indicators_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_current_mode: {
         Row: {
           current_business_id: string | null
@@ -1920,6 +2089,10 @@ export type Database = {
         Returns: undefined
       }
       cleanup_expired_location_requests: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_typing_indicators: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
