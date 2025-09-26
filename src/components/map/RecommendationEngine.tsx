@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Commerce, getFeaturedCommerces, getTrendingCommerces } from "@/data/mockCommerces";
+import { useRealBusinesses, type RealBusiness } from "@/hooks/use-real-businesses";
 
 interface RecommendationEngineProps {
   commerces: Commerce[];

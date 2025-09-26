@@ -9,12 +9,14 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { CommerceCard } from "@/components/commerce/CommerceCard";
-import { allCommerces, categories, districts } from "@/data/mockCommerces";
+import { useRealBusinesses } from "@/hooks/use-real-businesses";
+import { businessCategories } from "@/data/businessCategories";
 import { useNavigate } from "react-router-dom";
 import { CommerceListSkeleton } from "@/components/ui/skeleton-screens";
 
 export const CommerceListTab = () => {
   const navigate = useNavigate();
+  const { businesses, loading, error } = useRealBusinesses();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedDistrict, setSelectedDistrict] = useState("all");
@@ -25,79 +27,46 @@ export const CommerceListTab = () => {
   const [openOnly, setOpenOnly] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
 
-  // TOUS les hooks DOIVENT être déclarés avant tout return conditionnel
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setDataLoaded(true);
-      setIsLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, []);
+  // Catégories et districts des vraies données
+  const categories = businessCategories.map(cat => ({ id: cat.id, name: cat.nom, icon: cat.icon }));
+  const districts = [...new Set(businesses.map(b => b.city).filter(Boolean))] as string[];
 
   // Filtrage et tri ultra-avancé
   const filteredAndSortedCommerces = useMemo(() => {
-    let filtered = allCommerces.filter(commerce => {
+    let filtered = businesses.filter(business => {
       // Recherche textuelle avancée
       const searchMatch = searchQuery === "" || 
-        commerce.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        commerce.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        commerce.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        commerce.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        commerce.specialties?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
+        business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        business.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        business.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        business.city?.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Filtres géographiques
-      const categoryMatch = selectedCategory === "all" || commerce.category === selectedCategory;
-      const districtMatch = selectedDistrict === "all" || commerce.district === selectedDistrict;
-      const distanceMatch = parseFloat(commerce.distance) <= distanceRange[0];
+      const categoryMatch = selectedCategory === "all" || business.category === selectedCategory;
+      const districtMatch = selectedDistrict === "all" || business.city === selectedDistrict;
+      
+      // Filtres qualité - adapté aux vraies données
+      const verifiedMatch = !verifiedOnly || business.is_verified;
 
-      // Filtres qualité
-      const ratingMatch = commerce.rating >= ratingRange[0];
-      const priceMatch = priceFilter.includes(commerce.priceRange);
-      const openMatch = !openOnly || commerce.openNow;
-      const verifiedMatch = !verifiedOnly || commerce.verified;
-
-      return searchMatch && categoryMatch && districtMatch && distanceMatch && 
-             ratingMatch && priceMatch && openMatch && verifiedMatch;
+      return searchMatch && categoryMatch && districtMatch && verifiedMatch;
     });
 
-    // Système de tri intelligent
+    // Système de tri intelligent adapté aux vraies données
     switch (sortBy) {
       case "relevance":
         filtered.sort((a, b) => {
           let scoreA = 0, scoreB = 0;
           
-          // Score de pertinence basé sur plusieurs critères
-          scoreA += a.rating * 2;
-          scoreB += b.rating * 2;
+          if (a.is_verified) scoreA += 3;
+          if (b.is_verified) scoreB += 3;
           
-          if (a.verified) scoreA += 3;
-          if (b.verified) scoreB += 3;
-          
-          if (a.openNow) scoreA += 2;
-          if (b.openNow) scoreB += 2;
-          
-          scoreA += Math.max(0, 5 - parseFloat(a.distance));
-          scoreB += Math.max(0, 5 - parseFloat(b.distance));
+          // Plus récent = plus pertinent
+          scoreA += new Date(a.created_at).getTime() / 1000000000;
+          scoreB += new Date(b.created_at).getTime() / 1000000000;
           
           return scoreB - scoreA;
         });
-        break;
-      
-      case "distance":
-        filtered.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
-        break;
-      
-      case "rating":
-        filtered.sort((a, b) => b.rating - a.rating);
-        break;
-      
-      case "reviews":
-        filtered.sort((a, b) => b.reviews - a.reviews);
         break;
       
       case "alphabetical":
@@ -105,50 +74,35 @@ export const CommerceListTab = () => {
         break;
       
       case "newest":
-        filtered.sort((a, b) => (b.established || 0) - (a.established || 0));
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         break;
       
-      case "price_low":
+      default:
+        // Tri par défaut : vérifiés d'abord, puis par ordre alphabétique
         filtered.sort((a, b) => {
-          const priceOrder = { "€": 1, "€€": 2, "€€€": 3 };
-          return (priceOrder[a.priceRange as keyof typeof priceOrder] || 2) - 
-                 (priceOrder[b.priceRange as keyof typeof priceOrder] || 2);
+          if (a.is_verified && !b.is_verified) return -1;
+          if (!a.is_verified && b.is_verified) return 1;
+          return a.name.localeCompare(b.name);
         });
-        break;
-      
-      case "price_high":
-        filtered.sort((a, b) => {
-          const priceOrder = { "€": 1, "€€": 2, "€€€": 3 };
-          return (priceOrder[b.priceRange as keyof typeof priceOrder] || 2) - 
-                 (priceOrder[a.priceRange as keyof typeof priceOrder] || 2);
-        });
-        break;
-      
-      case "employees":
-        filtered.sort((a, b) => b.employees.length - a.employees.length);
         break;
     }
 
     return filtered;
-  }, [searchQuery, selectedCategory, selectedDistrict, sortBy, distanceRange, ratingRange, priceFilter, openOnly, verifiedOnly]);
+  }, [businesses, searchQuery, selectedCategory, selectedDistrict, sortBy, verifiedOnly]);
 
   // Statistiques par quartier
   const districtStats = useMemo(() => {
     const stats = districts.map(district => {
-      const districtCommerces = filteredAndSortedCommerces.filter(c => c.district === district);
+      const districtBusinesses = filteredAndSortedCommerces.filter(b => b.city === district);
       return {
         name: district,
-        count: districtCommerces.length,
-        avgRating: districtCommerces.length > 0 
-          ? (districtCommerces.reduce((sum, c) => sum + c.rating, 0) / districtCommerces.length).toFixed(1)
-          : "0",
-        openCount: districtCommerces.filter(c => c.openNow).length,
-        verifiedCount: districtCommerces.filter(c => c.verified).length
+        count: districtBusinesses.length,
+        verifiedCount: districtBusinesses.filter(b => b.is_verified).length
       };
     }).sort((a, b) => b.count - a.count);
     
     return stats;
-  }, [filteredAndSortedCommerces]);
+  }, [filteredAndSortedCommerces, districts]);
 
   const togglePriceFilter = (price: string) => {
     setPriceFilter(prev => 
@@ -159,8 +113,26 @@ export const CommerceListTab = () => {
   };
 
   // MAINTENANT le return conditionnel APRÈS tous les hooks
-  if (isLoading || !dataLoaded) {
+  if (loading) {
     return <CommerceListSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <h3 className="text-lg font-semibold mb-2">Erreur de chargement</h3>
+        <p className="text-muted-foreground">{error}</p>
+      </div>
+    );
+  }
+
+  if (businesses.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <h3 className="text-lg font-semibold mb-2">Aucune entreprise</h3>
+        <p className="text-muted-foreground">Aucune entreprise n'est encore enregistrée.</p>
+      </div>
+    );
   }
 
   return (
@@ -372,8 +344,7 @@ export const CommerceListTab = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs font-medium">⭐ {stat.avgRating}</div>
-                          <div className="text-xs text-green-600">{stat.openCount} ouvert{stat.openCount > 1 ? 's' : ''}</div>
+                          <div className="text-xs text-green-600">{stat.verifiedCount} vérifié{stat.verifiedCount > 1 ? 's' : ''}</div>
                         </div>
                       </div>
                     </div>
@@ -396,24 +367,15 @@ export const CommerceListTab = () => {
                   </div>
                   <div className="p-3 bg-green-500/5 rounded-lg">
                     <div className="text-lg font-bold text-green-600">
-                      {filteredAndSortedCommerces.filter(c => c.openNow).length}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Ouverts</div>
-                  </div>
-                  <div className="p-3 bg-blue-500/5 rounded-lg">
-                    <div className="text-lg font-bold text-blue-600">
-                      {filteredAndSortedCommerces.filter(c => c.verified).length}
+                      {filteredAndSortedCommerces.filter(b => b.is_verified).length}
                     </div>
                     <div className="text-xs text-muted-foreground">Vérifiés</div>
                   </div>
-                  <div className="p-3 bg-orange-500/5 rounded-lg">
-                    <div className="text-lg font-bold text-orange-600">
-                      {filteredAndSortedCommerces.length > 0 
-                        ? (filteredAndSortedCommerces.reduce((acc, c) => acc + c.rating, 0) / filteredAndSortedCommerces.length).toFixed(1)
-                        : '0'
-                      }
+                  <div className="p-3 bg-blue-500/5 rounded-lg">
+                    <div className="text-lg font-bold text-blue-600">
+                      {filteredAndSortedCommerces.filter(b => b.is_active).length}
                     </div>
-                    <div className="text-xs text-muted-foreground">Note moy.</div>
+                    <div className="text-xs text-muted-foreground">Actifs</div>
                   </div>
                 </div>
               </CardContent>

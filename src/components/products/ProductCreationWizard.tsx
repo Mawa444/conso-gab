@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { categories } from "@/data/mockCommerces";
+import { businessCategories } from "@/data/businessCategories";
 
 interface ProductVariant {
   id: string;

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Star, Navigation, Phone } from "lucide-react";
 import { useNearestCommerce } from "@/hooks/use-nearest-commerce";
 import { Link } from "react-router-dom";
-import type { Commerce } from "@/data/mockCommerces";
+import { useRealBusinesses, type RealBusiness } from "@/hooks/use-real-businesses";
 
 interface NearestCommerceCardProps {
   title?: string;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { QRScanner } from "@/components/scanner/QRScanner";
 import { AdCarousel } from "@/components/advertising/AdCarousel";
 import { UnifiedSearchBar } from "@/components/search/UnifiedSearchBar";
-import { CommerceListBlock } from "@/components/blocks/CommerceListBlock";
+import { RealCommerceListBlock } from "@/components/blocks/RealCommerceListBlock";
 import { CategoriesSection } from "@/components/blocks/CategoriesSection";
 import { CommerceDetailsPopup } from "@/components/commerce/CommerceDetailsPopup";
 import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";

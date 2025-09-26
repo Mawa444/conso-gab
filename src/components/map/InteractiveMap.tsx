@@ -3,7 +3,8 @@ import { Star, MapPin, Phone, Clock, Navigation, Zap, TrendingUp, Users, Eye } f
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Commerce, categories } from "@/data/mockCommerces";
+import { useRealBusinesses } from "@/hooks/use-real-businesses";
+import { businessCategories } from "@/data/businessCategories";
 
 interface InteractiveMapProps {
   commerces: Commerce[];
