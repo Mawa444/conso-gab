@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Plus, MessageSquare, ShoppingCart, Calendar, Phone, Headphones, ArrowLeft } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Search, Plus, MessageSquare, ShoppingCart, Calendar, Phone, Headphones, ArrowLeft, CheckCheck, Check, Clock, User, Users, Mic, Image, FileText, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { useConversations } from "@/hooks/use-conversations";
@@ -94,6 +96,84 @@ export const MessagingPage = () => {
     }
   };
 
+  const getConversationAvatar = (conversation: any) => {
+    if (conversation.conversation_type === 'private' && conversation.members?.length > 0) {
+      const otherMember = conversation.members.find((m: any) => m.user_id !== user?.id);
+      return otherMember?.user_profile?.profile_picture_url;
+    }
+    return null;
+  };
+
+  const getConversationName = (conversation: any) => {
+    if (conversation.title && conversation.title !== 'Conversation privée') {
+      return conversation.title;
+    }
+    
+    if (conversation.conversation_type === 'private' && conversation.members?.length > 0) {
+      const otherMember = conversation.members.find((m: any) => m.user_id !== user?.id);
+      return otherMember?.user_profile?.pseudo || 'Utilisateur';
+    }
+    
+    return conversation.title || "Conversation";
+  };
+
+  const getConversationInitials = (conversation: any) => {
+    const name = getConversationName(conversation);
+    return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const getMessageTypeIcon = (messageType: string) => {
+    switch (messageType) {
+      case 'image': return <Image className="w-3 h-3" />;
+      case 'audio': return <Mic className="w-3 h-3" />;
+      case 'document': return <FileText className="w-3 h-3" />;
+      case 'location': return <MapPin className="w-3 h-3" />;
+      default: return null;
+    }
+  };
+
+  const getStatusIcon = (status: string, isOwnMessage: boolean) => {
+    if (!isOwnMessage) return null;
+    
+    switch (status) {
+      case 'sending': return <Clock className="w-3 h-3 text-muted-foreground" />;
+      case 'sent': return <Check className="w-3 h-3 text-muted-foreground" />;
+      case 'delivered': return <CheckCheck className="w-3 h-3 text-muted-foreground" />;
+      case 'read': return <CheckCheck className="w-3 h-3 text-primary" />;
+      default: return null;
+    }
+  };
+
+  const groupConversationsByDate = (conversations: any[]) => {
+    const groups: { [key: string]: any[] } = {};
+    
+    conversations.forEach(conv => {
+      const date = new Date(conv.last_activity);
+      const now = new Date();
+      const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+      
+      let groupKey = '';
+      if (diffDays === 0) {
+        groupKey = "Aujourd'hui";
+      } else if (diffDays === 1) {
+        groupKey = 'Hier';
+      } else if (diffDays < 7) {
+        groupKey = 'Cette semaine';
+      } else if (diffDays < 30) {
+        groupKey = 'Ce mois-ci';
+      } else {
+        groupKey = 'Plus ancien';
+      }
+      
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(conv);
+    });
+    
+    return groups;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -125,7 +205,7 @@ export const MessagingPage = () => {
             <h1 className="text-xl font-bold text-gaboma-gradient">Messagerie</h1>
           </div>
           
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2" onClick={() => setShowNewConversation(true)}>
             <Plus className="w-4 h-4" />
             Nouveau
           </Button>
@@ -175,53 +255,134 @@ export const MessagingPage = () => {
             <ScrollArea className="h-[calc(100vh-270px)]">
               {filteredConversations.length === 0 ? (
                 <div className="text-center py-12 space-y-4">
-                  <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground" />
+                  <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-muted to-accent/20 flex items-center justify-center">
+                    <MessageSquare className="w-8 h-8 text-muted-foreground" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-medium">Aucune conversation</h3>
-                    <p className="text-muted-foreground">
+                    <h3 className="text-lg font-semibold">Aucune conversation</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
                       {searchQuery ? "Aucun résultat pour votre recherche" : "Commencez une nouvelle conversation"}
                     </p>
                   </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowNewConversation(true)}
+                    className="mt-4"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nouvelle conversation
+                  </Button>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {filteredConversations.map((conversation) => (
-                    <div
-                      key={conversation.id}
-                      className="p-4 rounded-lg border bg-card hover:bg-accent/5 cursor-pointer transition-colors"
-                      onClick={() => navigate(`/messaging/conversation/${conversation.id}`)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium truncate">
-                              {conversation.title || "Conversation"}
-                            </h3>
-                            {conversation.origin_type && (
-                              <Badge variant="secondary" className="text-xs">
-                                {conversation.origin_type}
-                              </Badge>
-                            )}
+                <div className="space-y-1">
+                  {Object.entries(groupConversationsByDate(filteredConversations)).map(([dateGroup, groupConversations]) => (
+                    <div key={dateGroup} className="space-y-1">
+                      {activeTab === "all" && (
+                        <>
+                          <div className="px-4 py-2">
+                            <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              {dateGroup}
+                            </h4>
+                          </div>
+                          <Separator className="mx-4" />
+                        </>
+                      )}
+                      
+                      {groupConversations.map((conversation: any) => (
+                        <div
+                          key={conversation.id}
+                          className="group relative mx-2 rounded-lg hover:bg-accent/5 cursor-pointer transition-all duration-200 active:scale-[0.98]"
+                          onClick={() => navigate(`/messaging/conversation/${conversation.id}`)}
+                        >
+                          <div className="flex items-center gap-3 p-3">
+                            {/* Avatar */}
+                            <div className="relative flex-shrink-0">
+                              <Avatar className="w-12 h-12 ring-2 ring-transparent group-hover:ring-accent/20 transition-all">
+                                <AvatarImage 
+                                  src={getConversationAvatar(conversation)} 
+                                  alt={getConversationName(conversation)}
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-primary/10 to-accent/10 text-primary font-medium">
+                                  {conversation.conversation_type === 'group' ? (
+                                    <Users className="w-5 h-5" />
+                                  ) : (
+                                    getConversationInitials(conversation)
+                                  )}
+                                </AvatarFallback>
+                              </Avatar>
+                              
+                              {/* Online indicator (placeholder) */}
+                              {conversation.conversation_type === 'private' && (
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-background rounded-full"></div>
+                              )}
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <h3 className="font-semibold text-sm truncate pr-2">
+                                  {getConversationName(conversation)}
+                                </h3>
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
+                                  {conversation.lastMessage && getStatusIcon(
+                                    conversation.lastMessage.status, 
+                                    conversation.lastMessage.sender_id === user?.id
+                                  )}
+                                  <span>{formatTime(conversation.last_activity)}</span>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1 flex-1 min-w-0">
+                                  {conversation.lastMessage && (
+                                    <>
+                                      <div className="flex items-center gap-1 text-muted-foreground">
+                                        {getMessageTypeIcon(conversation.lastMessage.message_type)}
+                                      </div>
+                                      <p className="text-sm text-muted-foreground truncate">
+                                        {conversation.lastMessage.message_type === 'text' 
+                                          ? conversation.lastMessage.content 
+                                          : conversation.lastMessage.message_type === 'image' 
+                                            ? '📷 Image'
+                                            : conversation.lastMessage.message_type === 'audio'
+                                              ? '🎵 Audio'
+                                              : conversation.lastMessage.message_type === 'document'
+                                                ? '📄 Document'
+                                                : conversation.lastMessage.message_type === 'location'
+                                                  ? '📍 Position'
+                                                  : 'Message'
+                                        }
+                                      </p>
+                                    </>
+                                  )}
+                                </div>
+                                
+                                <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                                  {/* Origin type badge */}
+                                  {conversation.origin_type && (
+                                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5 h-5">
+                                      {conversation.origin_type === 'order' && '🛒'}
+                                      {conversation.origin_type === 'reservation' && '📅'}
+                                      {conversation.origin_type === 'appointment' && '📞'}
+                                      {conversation.origin_type === 'support' && '🎧'}
+                                    </Badge>
+                                  )}
+                                  
+                                  {/* Unread count */}
+                                  {conversation.unread_count && conversation.unread_count > 0 && (
+                                    <Badge className="bg-primary text-primary-foreground min-w-[20px] h-5 text-xs px-1.5 rounded-full">
+                                      {conversation.unread_count > 99 ? '99+' : conversation.unread_count}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </div>
                           
-                          {conversation.lastMessage && (
-                            <p className="text-sm text-muted-foreground truncate">
-                              {conversation.lastMessage.content}
-                            </p>
-                          )}
+                          {/* Subtle separator */}
+                          <div className="absolute bottom-0 left-16 right-4 h-px bg-border/30"></div>
                         </div>
-                        
-                        <div className="flex flex-col items-end gap-1 ml-2">
-                          <span className="text-xs text-muted-foreground">
-                            {formatTime(conversation.last_activity)}
-                          </span>
-                          {conversation.unread_count && conversation.unread_count > 0 && (
-                            <Badge className="bg-primary text-primary-foreground min-w-[20px] h-5 text-xs px-1">
-                              {conversation.unread_count}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   ))}
                 </div>
