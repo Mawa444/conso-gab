@@ -175,7 +175,7 @@ export const CategoryPage = () => {
       <div className="min-h-screen bg-background">
         {/* Header avec navigation et info catégorie */}
         <div className="sticky top-0 bg-background/95 backdrop-blur-sm z-20 border-b border-border">
-          <div className="p-4">
+          <div className="p-4 bg-white rounded-3xl">
             <div className="flex items-center gap-3 mb-4">
               <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
                 <ArrowLeft className="w-5 h-5" />
@@ -197,7 +197,7 @@ export const CategoryPage = () => {
             {/* Barre de recherche */}
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input placeholder="Rechercher dans cette catégorie..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
+              <Input placeholder="Rechercher dans cette catégorie..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 rounded-3xl" />
             </div>
 
             {/* Filtres et options d'affichage */}
@@ -244,7 +244,7 @@ export const CategoryPage = () => {
 
               {/* Liste des établissements */}
               {filteredEstablishments.length === 0 ? <Card>
-                  <CardContent className="p-12 text-center bg-white">
+                  <CardContent className="p-12 text-center bg-white rounded-3xl">
                     <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                       <Star className="w-8 h-8 text-muted-foreground" />
                     </div>
