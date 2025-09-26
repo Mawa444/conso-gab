@@ -440,11 +440,11 @@ export const ProfilePage = ({
                   <CardTitle className="font-bold text-red-500 text-2xl">Zone dangereuse</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 bg-white my-0">
-                  <Button variant="outline" onClick={handleDeleteAccount} className="w-full justify-start border-red-200 my-[12px] rounded-3xl bg-orange-300 hover:bg-orange-200 text-black">
+                  <Button variant="outline" onClick={handleDeleteAccount} className="w-full justify-start border-red-200 my-[12px] rounded-3xl text-center bg-red-600 hover:bg-red-500 text-white">
                     <Trash2 className="w-4 h-4 mr-2" />
                     Supprimer mon compte
                   </Button>
-                  <Button variant="destructive" onClick={handleLogout} className="w-full justify-start rounded-3xl my-0">
+                  <Button variant="destructive" onClick={handleLogout} className="w-full justify-start rounded-3xl my-0 bg-black">
                     <LogOut className="w-4 h-4 mr-2" />
                     Se déconnecter
                   </Button>
