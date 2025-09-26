@@ -421,14 +421,14 @@ export const ProfilePage = ({
                 <CardHeader>
                   <CardTitle>Support & Aide</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button variant="outline" className="w-full justify-start">
+                <CardContent className="space-y-4 bg-gray-200 my-0">
+                  <Button variant="outline" className="w-full justify-start my-[12px] rounded-3xl">
                     Centre d'aide
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start my-0 rounded-3xl">
                     Nous contacter
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start my-[12px] rounded-3xl">
                     À propos de ConsoGab
                   </Button>
                 </CardContent>
