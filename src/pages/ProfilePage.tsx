@@ -314,14 +314,14 @@ export const ProfilePage = ({
             {/* Notifications */}
             <div className="border border-border/50 p-4 bg-white rounded-3xl">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold">Notifications</h3>
+                <h3 className="font-semibold text-[009e60] text-[#009e60]/[0.97]">Notifications</h3>
                 <Button variant="ghost" size="sm">
                   <Bell className="w-4 h-4" />
                 </Button>
               </div>
               <div className="space-y-2">
                 <div className="flex items-start gap-3 p-2 border-l-4 border-primary px-[15px] py-[8px] mx-0 rounded-3xl bg-[009e60] bg-[#009e60]/[0.96]">
-                  <Trophy className="w-4 h-4 text-primary mt-1" />
+                  <Trophy className="w-4 h-4 text-primary mt-1 bg-inherit" />
                   <div className="flex-1">
                     <p className="font-medium text-[fcd116] text-[#fcd116]/[0.97]">Nouveau badge débloqué!</p>
                     <p className="text-xs text-white">Vous avez obtenu "Explorateur"</p>
