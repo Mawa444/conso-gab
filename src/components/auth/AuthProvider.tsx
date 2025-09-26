@@ -145,7 +145,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           // Si c'est un créateur (merchant), créer aussi le profil business
           if (userData.role === 'merchant' && userData.businessName?.trim()) {
-            const { error: businessError } = await supabase
+            const { data: businessData, error: businessError } = await supabase
               .from('business_profiles')
               .insert({
                 user_id: sessionUser.id,
@@ -162,10 +162,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 longitude: userData.longitude,
                 is_primary: true, // Premier business = principal
                 is_active: true
-              });
+              })
+              .select('id')
+              .single();
 
             if (businessError) {
               console.error('Erreur création profil business:', businessError);
+            } else if (businessData) {
+              // Initialiser le mode business pour les nouveaux marchands
+              await supabase
+                .from('user_current_mode')
+                .upsert({
+                  user_id: sessionUser.id,
+                  current_mode: 'business',
+                  current_business_id: businessData.id
+                });
             }
           }
         }

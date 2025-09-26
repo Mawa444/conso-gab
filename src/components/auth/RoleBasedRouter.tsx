@@ -75,19 +75,58 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [authLoading, user, navigate, location.pathname]);
 
-  // Redirection initiale après connexion
+  // Redirection intelligente après connexion
   useEffect(() => {
     if (!globalLoading && user && userProfile.role) {
       const currentPath = location.pathname;
       
       // Rediriger uniquement depuis la racine ou auth
       if (currentPath === '/' || currentPath.startsWith('/auth')) {
-        const targetPath = '/consumer/home';
-        console.log(`Redirection initiale vers ${targetPath}`);
-        navigate(targetPath, { replace: true });
+        redirectToLastUsedProfile();
       }
     }
   }, [globalLoading, user, userProfile.role, navigate, location.pathname]);
+
+  const redirectToLastUsedProfile = async () => {
+    if (!user) return;
+
+    try {
+      // 1. Vérifier si l'utilisateur a des business
+      const { data: collaborators } = await supabase
+        .from('business_collaborators')
+        .select('business_id')
+        .eq('user_id', user.id)
+        .eq('status', 'accepted')
+        .limit(1);
+
+      // Si pas de business, aller en mode consommateur
+      if (!collaborators || collaborators.length === 0) {
+        console.log('Pas de business, redirection vers /consumer/home');
+        navigate('/consumer/home', { replace: true });
+        return;
+      }
+
+      // 2. Récupérer le dernier mode utilisé
+      const { data: userMode } = await supabase
+        .from('user_current_mode')
+        .select('current_mode, current_business_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (userMode && userMode.current_mode === 'business' && userMode.current_business_id) {
+        console.log(`Redirection vers le dernier business: /business/${userMode.current_business_id}`);
+        navigate(`/business/${userMode.current_business_id}`, { replace: true });
+      } else {
+        console.log('Redirection par défaut vers /consumer/home');
+        navigate('/consumer/home', { replace: true });
+      }
+
+    } catch (error) {
+      console.error('Erreur lors de la redirection:', error);
+      // Fallback vers consommateur en cas d'erreur
+      navigate('/consumer/home', { replace: true });
+    }
+  };
 
   // Affichage du loading
   if (globalLoading) {

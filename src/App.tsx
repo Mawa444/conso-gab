@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { RoleBasedRouter } from "@/components/auth/RoleBasedRouter";
+import { ModeGuard } from "@/components/auth/ModeGuard";
 import { DynamicIslandToaster } from "@/components/ui/DynamicIslandToaster";
 import { SplashScreenOverlay } from "@/components/layout/SplashScreenOverlay";
 
@@ -27,7 +28,8 @@ const App = () => (
         <DynamicIslandToaster />
         <BrowserRouter>
           <RoleBasedRouter>
-            <Routes>
+            <ModeGuard>
+              <Routes>
               <Route path="/auth" element={<AuthFlowPage onComplete={() => {}} />} />
               
               {/* Routes consommateur */}
@@ -48,7 +50,8 @@ const App = () => (
               {/* Route par défaut : page d'authentification */}
               <Route path="/" element={<AuthFlowPage onComplete={() => {}} />} />
               <Route path="*" element={<NotFound />} />
-            </Routes>
+              </Routes>
+            </ModeGuard>
           </RoleBasedRouter>
         </BrowserRouter>
       </TooltipProvider>
