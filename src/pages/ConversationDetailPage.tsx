@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import QuickActions from "@/components/messaging/QuickActions";
 import { useToast } from "@/hooks/use-toast";
+import { BottomNavigation } from "@/components/layout/BottomNavigation";
 
 interface Message {
   id: string;
@@ -309,6 +310,13 @@ export const ConversationDetailPage = () => {
           </Button>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+        if (tab === "home") navigate("/");
+        else if (tab === "map") navigate("/?tab=map");
+        else if (tab === "profile") navigate("/?tab=profile");
+      }} />
     </div>
   );
 };

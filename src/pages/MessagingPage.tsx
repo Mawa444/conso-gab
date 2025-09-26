@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Plus, MessageSquare, ShoppingCart, Calendar, Phone, Headphones } from "lucide-react";
+import { Search, Plus, MessageSquare, ShoppingCart, Calendar, Phone, Headphones, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { MessagingBottomNav } from "@/components/messaging/MessagingBottomNav";
+import { BottomNavigation } from "@/components/layout/BottomNavigation";
 
 interface Conversation {
   id: string;
@@ -170,6 +170,14 @@ export const MessagingPage = () => {
       <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/")}
+              className="p-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-white" />
             </div>
@@ -283,7 +291,11 @@ export const MessagingPage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <MessagingBottomNav activeTab="messages" />
+        <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+          if (tab === "home") navigate("/");
+          else if (tab === "map") navigate("/?tab=map");
+          else if (tab === "profile") navigate("/?tab=profile");
+        }} />
     </div>
   );
 };
