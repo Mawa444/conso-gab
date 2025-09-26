@@ -174,7 +174,7 @@ export const ProfilePage = ({
       <div className="min-h-screen animate-fade-in">
       {/* Header Profile moderne */}
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
-        <div className="absolute inset-0 backdrop-blur-sm bg-black"></div>
+        <div className="absolute inset-0 backdrop-blur-sm bg-gray-700"></div>
         <div className="relative z-10">
             <div className="flex items-center gap-4">
             <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
