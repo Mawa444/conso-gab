@@ -259,10 +259,10 @@ export const ProfilePage = ({
               </CardHeader>
               <CardContent className="space-y-4 rounded-none bg-white my-0">
                 <div className="flex justify-between text-sm font-medium">
-                  <span className="my-[10px] font-bold text-[3a75c4] text-black/[0.97]">Ambassador ConsoGab</span>
-                  <span className="text-primary my-[10px]">{userProfile.points} / 5000 pts</span>
+                  <span className="my-[10px] font-bold text-black/[0.97] text-base">Ambassador ConsoGab</span>
+                  <span className="text-primary font-bold my-[9px]">{userProfile.points} / 5000 pts</span>
                 </div>
-                <div className="w-full rounded-full h-3 overflow-hidden shadow-inner bg-[fcd116] bg-[#fcd116]/[0.96] my-0">
+                <div className="w-full rounded-full h-3 overflow-hidden shadow-inner bg-[fcd116] bg-[#fcd116]/[0.96] my-[6px]">
                   <div className="bg-gradient-to-r from-primary via-accent to-secondary h-3 rounded-full transition-all duration-700 relative overflow-hidden" style={{
                     width: `${userProfile.points / 5000 * 100}%`
                   }}>
