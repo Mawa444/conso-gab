@@ -4,239 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { GeolocalizedAdCarousel } from "@/components/advertising/GeolocalizedAdCarousel";
 import { useNavigate } from "react-router-dom";
-
-// Catégories avec couleurs cohérentes dans toute l'application
-const categories = [
-  {
-    id: "commerce",
-    title: "Commerce & Distribution",
-    icon: "🛍️",
-    color: "from-blue-500 to-indigo-600",
-    subcategories: [
-      "Supermarchés & hypermarchés",
-      "Boutiques de quartier", 
-      "E-commerce & ventes en ligne",
-      "Vêtements & mode",
-      "Chaussures & accessoires",
-      "Cosmétiques & beauté",
-      "Téléphones & électronique",
-      "Alimentation générale",
-      "Boissons & alcools",
-      "Pharmacies & parapharmacie",
-      "Librairies & papeteries"
-    ]
-  },
-  {
-    id: "restauration",
-    title: "Restauration & Agroalimentaire",
-    icon: "🍴",
-    color: "from-orange-500 to-red-600",
-    subcategories: [
-      "Restaurants traditionnels",
-      "Fast-foods & snacks",
-      "Cafés & salons de thé",
-      "Boulangeries & pâtisseries",
-      "Traiteurs & services événementiels",
-      "Vente de fruits & légumes",
-      "Boucheries & charcuteries",
-      "Poissonneries",
-      "Produits locaux (manioc, banane, etc.)",
-      "Livraison de repas"
-    ]
-  },
-  {
-    id: "hotellerie",
-    title: "Hôtellerie & Tourisme",
-    icon: "🏨",
-    color: "from-purple-500 to-pink-600",
-    subcategories: [
-      "Hôtels",
-      "Auberges & guest houses",
-      "Agences de voyage",
-      "Sites touristiques",
-      "Parcs & loisirs",
-      "Location saisonnière",
-      "Transport touristique (bus, minibus, bateaux)"
-    ]
-  },
-  {
-    id: "automobile",
-    title: "Automobile & Transport",
-    icon: "🚗",
-    color: "from-green-500 to-teal-600",
-    subcategories: [
-      "Taxi & VTC",
-      "Bus & minibus",
-      "Bateaux & pirogues motorisées",
-      "Location de véhicules",
-      "Vente de voitures & motos",
-      "Réparation mécanique & garages",
-      "Stations-service",
-      "Vente de pièces détachées"
-    ]
-  },
-  {
-    id: "immobilier",
-    title: "Immobilier & Habitat",
-    icon: "🏠",
-    color: "from-emerald-500 to-cyan-600",
-    subcategories: [
-      "Agences immobilières",
-      "Vente de terrains & maisons",
-      "Location de logements",
-      "Cités universitaires",
-      "Résidences meublées",
-      "Services de déménagement",
-      "Décoration & ameublement"
-    ]
-  },
-  {
-    id: "artisanat",
-    title: "Artisanat & Services Techniques",
-    icon: "🛠️",
-    color: "from-amber-500 to-yellow-600",
-    subcategories: [
-      "Menuiserie",
-      "Couture & stylisme",
-      "Mécanique de précision",
-      "Électricité & plomberie",
-      "Maçonnerie & BTP",
-      "Bijouterie & artisanat local",
-      "Cordonnerie",
-      "Sérigraphie & impression"
-    ]
-  },
-  {
-    id: "services",
-    title: "Services Professionnels",
-    icon: "💼",
-    color: "from-slate-500 to-gray-600",
-    subcategories: [
-      "Cabinets d'avocats",
-      "Comptables & fiscalistes",
-      "Agences de communication",
-      "Agences marketing & publicité",
-      "Bureaux d'étude & ingénierie",
-      "Conseils & formations professionnelles",
-      "Consultants indépendants"
-    ]
-  },
-  {
-    id: "education",
-    title: "Éducation & Formation",
-    icon: "🎓",
-    color: "from-indigo-500 to-blue-600",
-    subcategories: [
-      "Écoles maternelles, primaires, secondaires",
-      "Universités & grandes écoles",
-      "Centres de formation professionnelle",
-      "Cours particuliers & tutorat",
-      "Cours en ligne & e-learning",
-      "Bibliothèques",
-      "Centres linguistiques"
-    ]
-  },
-  {
-    id: "sante",
-    title: "Santé & Bien-être",
-    icon: "👩‍⚕️",
-    color: "from-red-500 to-pink-600",
-    subcategories: [
-      "Hôpitaux & cliniques",
-      "Cabinets médicaux",
-      "Laboratoires d'analyses",
-      "Pharmacies",
-      "Centres de kinésithérapie",
-      "Salles de sport & fitness",
-      "Spas & instituts de beauté",
-      "Médecine traditionnelle & phytothérapie"
-    ]
-  },
-  {
-    id: "culture",
-    title: "Culture, Divertissement & Sport",
-    icon: "🎤",
-    color: "from-violet-500 to-purple-600",
-    subcategories: [
-      "Cinémas",
-      "Salles de spectacle",
-      "Festivals & événements",
-      "Bars & discothèques",
-      "Associations sportives",
-      "Clubs de football, basketball, etc.",
-      "Centres de loisirs & jeux pour enfants"
-    ]
-  },
-  {
-    id: "technologie",
-    title: "Technologie & Numérique",
-    icon: "💻",
-    color: "from-cyan-500 to-blue-600",
-    subcategories: [
-      "Vente de matériel informatique",
-      "Développeurs & freelances IT",
-      "Agences digitales",
-      "Fournisseurs d'accès internet",
-      "Réparateurs de téléphones et PC",
-      "Startups tech",
-      "Cybers cafés"
-    ]
-  },
-  {
-    id: "finance",
-    title: "Banques, Finance & Assurances",
-    icon: "💳",
-    color: "from-teal-500 to-green-600",
-    subcategories: [
-      "Banques commerciales",
-      "Microfinances",
-      "Assurances",
-      "Mobile Money (Airtel Money, Moov Money, etc.)",
-      "Change de devises",
-      "Services financiers alternatifs (fintech)"
-    ]
-  },
-  {
-    id: "agriculture",
-    title: "Agriculture & Environnement",
-    icon: "🌱",
-    color: "from-lime-500 to-green-600",
-    subcategories: [
-      "Exploitations agricoles",
-      "Coopératives agricoles",
-      "Pêche & aquaculture",
-      "Élevage (volaille, bovins, porcs, etc.)",
-      "Produits bio & naturels",
-      "Services environnementaux (recyclage, collecte déchets, énergies vertes)"
-    ]
-  },
-  {
-    id: "institutions",
-    title: "Institutions & Vie Publique",
-    icon: "🏛️",
-    color: "from-stone-500 to-slate-600",
-    subcategories: [
-      "Administrations (mairies, préfectures, etc.)",
-      "Ministères & organismes publics",
-      "ONG & associations",
-      "Services communautaires",
-      "Églises & lieux de culte"
-    ]
-  },
-  {
-    id: "logistique",
-    title: "Logistique & Services",
-    icon: "📦",
-    color: "from-gray-500 to-zinc-600",
-    subcategories: [
-      "Transport de marchandises",
-      "Livraison express",
-      "Coursiers indépendants",
-      "Entreposage & stockage",
-      "Douanes & transit"
-    ]
-  }
-];
+import { getAllBusinessCategories } from "@/data/businessCategories";
 
 interface CategoriesSectionProps {
   userLocation?: string;
@@ -244,6 +12,7 @@ interface CategoriesSectionProps {
 
 export const CategoriesSection = ({ userLocation = "Libreville" }: CategoriesSectionProps) => {
   const navigate = useNavigate();
+  const categories = getAllBusinessCategories();
   
   const handleCategoryClick = (categoryId: string) => {
     navigate(`/category/${categoryId}`);
@@ -268,7 +37,7 @@ export const CategoriesSection = ({ userLocation = "Libreville" }: CategoriesSec
                   </div>
                   <div className="flex-1">
                     <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                      {category.title}
+                      {category.nom}
                     </CardTitle>
                     <Badge variant="secondary" className="mt-1 text-xs">
                       {category.subcategories.length} sous-catégories
@@ -283,7 +52,7 @@ export const CategoriesSection = ({ userLocation = "Libreville" }: CategoriesSec
                   {category.subcategories.slice(0, 4).map((subcategory, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary/60"></div>
-                      <span className="truncate">{subcategory}</span>
+                      <span className="truncate">{subcategory.nom}</span>
                     </div>
                   ))}
                   {category.subcategories.length > 4 && (

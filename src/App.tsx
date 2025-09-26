@@ -12,6 +12,8 @@ import BusinessDashboardPage from "@/pages/BusinessDashboardPage";
 import BusinessCreationPage from "@/pages/BusinessCreationPage";
 import { BusinessDetailPage } from "@/pages/BusinessDetailPage";
 import CreateCatalogPage from "@/pages/CreateCatalogPage";
+import { CategoryPage } from "@/pages/CategoryPage";
+import { PublicCatalogsPage } from "@/pages/PublicCatalogsPage";
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -33,6 +35,8 @@ const App = () => {
                 <Route path="/business/dashboard" element={<BusinessDashboardPage />} />
                 <Route path="/business/create-catalog" element={<CreateCatalogPage />} />
                 <Route path="/business/:businessId" element={<BusinessDetailPage />} />
+                <Route path="/category/:categoryId" element={<CategoryPage />} />
+                <Route path="/catalogs" element={<PublicCatalogsPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>
