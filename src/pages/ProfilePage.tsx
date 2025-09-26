@@ -405,11 +405,11 @@ export const ProfilePage = ({
                     <Settings className="w-4 h-4 mr-2" />
                     Modifier mon profil
                   </Button>
-                  <Button variant="outline" className="w-full justify-start my-0 rounded-3xl">
+                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[5px]">
                     <Shield className="w-4 h-4 mr-2" />
                     Sécurité et confidentialité
                   </Button>
-                  <Button variant="outline" className="w-full justify-start my-[10px] rounded-3xl">
+                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[10px]">
                     <Bell className="w-4 h-4 mr-2" />
                     Notifications
                   </Button>
