@@ -1,22 +1,21 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   BarChart3, 
-  Package, 
   MessageSquare, 
-  ShoppingCart, 
-  Calendar,
+  Package, 
   TrendingUp,
   Users,
-  Eye,
+  ShoppingCart,
+  Calendar,
   Plus
 } from "lucide-react";
+import { CatalogInventoryIntegration } from "@/components/business/CatalogInventoryIntegration";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -292,28 +291,33 @@ export const BusinessDashboardPage = () => {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="orders" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="orders">Commandes récentes</TabsTrigger>
-            <TabsTrigger value="conversations">Conversations</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+            <TabsTrigger value="catalogs">Catalogues</TabsTrigger>
+            <TabsTrigger value="conversations">Messages</TabsTrigger>
             <TabsTrigger value="analytics">Statistiques</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="orders">
-            <Card>
-              <CardHeader>
-                <CardTitle>Commandes récentes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px]">
+          <TabsContent value="overview">
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Recent Orders Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5" />
+                    Commandes récentes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   {recentOrders.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <ShoppingCart className="w-8 h-8 mx-auto mb-2" />
                       <p>Aucune commande pour le moment</p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      {recentOrders.map((order) => (
+                    <div className="space-y-3 max-h-80 overflow-y-auto">
+                      {recentOrders.slice(0, 5).map((order) => (
                         <div
                           key={order.id}
                           className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 cursor-pointer transition-colors"
@@ -343,30 +347,30 @@ export const BusinessDashboardPage = () => {
                       ))}
                     </div>
                   )}
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                </CardContent>
+              </Card>
 
-          <TabsContent value="conversations">
-            <Card>
-              <CardHeader>
-                <CardTitle>Conversations actives</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px]">
+              {/* Active Conversations Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5" />
+                    Conversations actives
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   {activeConversations.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <MessageSquare className="w-8 h-8 mx-auto mb-2" />
                       <p>Aucune conversation active</p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      {activeConversations.map((conversation) => (
+                    <div className="space-y-3 max-h-80 overflow-y-auto">
+                      {activeConversations.slice(0, 5).map((conversation) => (
                         <div
                           key={conversation.id}
                           className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 cursor-pointer transition-colors"
-                          onClick={() => navigate(`/conversation/${conversation.id}`)}
+                          onClick={() => navigate(`/messaging/conversation/${conversation.id}`)}
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
@@ -394,7 +398,56 @@ export const BusinessDashboardPage = () => {
                       ))}
                     </div>
                   )}
-                </ScrollArea>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="catalogs" className="space-y-6">
+            <CatalogInventoryIntegration 
+              businessId={businessProfile?.id || ''}
+              showConversationLinks={true}
+            />
+          </TabsContent>
+
+          <TabsContent value="conversations">
+            <Card>
+              <CardHeader>
+                <CardTitle>Toutes les conversations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {activeConversations.map((conversation) => (
+                    <div
+                      key={conversation.id}
+                      className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 cursor-pointer transition-colors"
+                      onClick={() => navigate(`/messaging/conversation/${conversation.id}`)}
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium">
+                            {conversation.title || 'Conversation'}
+                          </span>
+                          {conversation.origin_type && (
+                            <Badge variant="outline" className="text-xs">
+                              {conversation.origin_type}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">
+                          {formatTime(conversation.last_activity)}
+                        </p>
+                        {conversation.unread_count > 0 && (
+                          <Badge className="bg-primary text-primary-foreground min-w-[20px] h-5 text-xs px-1 mt-1">
+                            {conversation.unread_count}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

@@ -11,12 +11,9 @@ import {
   ArrowLeft, 
   Send, 
   Paperclip, 
-  ShoppingCart, 
-  Calendar, 
-  MapPin, 
-  CreditCard,
   MoreVertical
 } from "lucide-react";
+import QuickActions from "@/components/messaging/QuickActions";
 import { useToast } from "@/hooks/use-toast";
 
 interface Message {
@@ -158,37 +155,23 @@ export const ConversationDetailPage = () => {
   };
 
   const getMessageTypeIcon = (type: string) => {
-    switch (type) {
-      case 'action':
-        return <ShoppingCart className="w-4 h-4" />;
-      case 'location':
-        return <MapPin className="w-4 h-4" />;
-      case 'qr':
-        return <CreditCard className="w-4 h-4" />;
-      default:
-        return null;
-    }
+    const icons = {
+      action: "🛒",
+      location: "📍", 
+      qr: "💳",
+      system: "ℹ️"
+    };
+    return icons[type as keyof typeof icons] || null;
   };
 
   const renderQuickActions = () => (
-    <div className="flex gap-2 p-4 border-t bg-muted/5">
-      <Button variant="outline" size="sm" className="gap-2">
-        <ShoppingCart className="w-4 h-4" />
-        Commander
-      </Button>
-      <Button variant="outline" size="sm" className="gap-2">
-        <Calendar className="w-4 h-4" />
-        Réserver
-      </Button>
-      <Button variant="outline" size="sm" className="gap-2">
-        <MapPin className="w-4 h-4" />
-        Position
-      </Button>
-      <Button variant="outline" size="sm" className="gap-2">
-        <CreditCard className="w-4 h-4" />
-        Payer
-      </Button>
-    </div>
+    <QuickActions 
+      conversationId={conversationId!} 
+      onActionSent={() => {
+        // Refresh messages when an action is sent
+        fetchMessages();
+      }}
+    />
   );
 
   if (loading) {
@@ -269,11 +252,12 @@ export const ConversationDetailPage = () => {
                   >
                     {getMessageTypeIcon(message.message_type) && (
                       <div className="flex items-center gap-2 mb-2">
-                        {getMessageTypeIcon(message.message_type)}
+                        <span className="text-sm">{getMessageTypeIcon(message.message_type)}</span>
                         <span className="text-xs font-medium">
                           {message.message_type === 'action' && 'Action'}
                           {message.message_type === 'location' && 'Position'}
                           {message.message_type === 'qr' && 'QR Code'}
+                          {message.message_type === 'system' && 'Système'}
                         </span>
                       </div>
                     )}

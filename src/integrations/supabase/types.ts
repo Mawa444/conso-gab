@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_tracking: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          source_entity_id: string | null
+          source_entity_type: string | null
+          target_entity_id: string | null
+          target_entity_type: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          source_entity_id?: string | null
+          source_entity_type?: string | null
+          target_entity_id?: string | null
+          target_entity_type?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          source_entity_id?: string | null
+          source_entity_type?: string | null
+          target_entity_id?: string | null
+          target_entity_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       activity_log: {
         Row: {
           action_description: string
@@ -1393,8 +1429,11 @@ export type Database = {
           id: string
           last_name: string | null
           phone: string | null
+          pin_attempts_count: number | null
+          pin_blocked_until: string | null
           pin_enabled: boolean | null
           pin_hash: string | null
+          pin_last_attempt: string | null
           updated_at: string
           user_id: string
         }
@@ -1409,8 +1448,11 @@ export type Database = {
           id?: string
           last_name?: string | null
           phone?: string | null
+          pin_attempts_count?: number | null
+          pin_blocked_until?: string | null
           pin_enabled?: boolean | null
           pin_hash?: string | null
+          pin_last_attempt?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1425,8 +1467,11 @@ export type Database = {
           id?: string
           last_name?: string | null
           phone?: string | null
+          pin_attempts_count?: number | null
+          pin_blocked_until?: string | null
           pin_enabled?: boolean | null
           pin_hash?: string | null
+          pin_last_attempt?: string | null
           updated_at?: string
           user_id?: string
         }
