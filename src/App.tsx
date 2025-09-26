@@ -17,6 +17,8 @@ import { CategoryPage } from "./pages/CategoryPage";
 import { PublicCatalogsPage } from "./pages/PublicCatalogsPage";
 import MessagingPage from "./pages/MessagingPage";
 import ConversationDetailPage from "./pages/ConversationDetailPage";
+import CreateCatalogPage from "./pages/CreateCatalogPage";
+import BusinessDashboardPage from "./pages/BusinessDashboardPage";
 import { MerchantDashboard } from "./pages/MerchantDashboard";
 import { LocationSettingsPage } from "./pages/LocationSettingsPage";
 import NotFound from "./pages/NotFound";
@@ -44,8 +46,10 @@ const App = () => (
               <Route path="/business/:businessId/catalog" element={<PublicCatalogsPage />} />
               
               {/* Routes messagerie */}
-              <Route path="/messaging" element={<MessagingPage />} />
-              <Route path="/conversation/:conversationId" element={<ConversationDetailPage />} />
+          <Route path="/messaging" element={<MessagingPage />} />
+          <Route path="/conversation/:conversationId" element={<ConversationDetailPage />} />
+          <Route path="/create-catalog" element={<CreateCatalogPage />} />
+          <Route path="/business-dashboard" element={<BusinessDashboardPage />} />
               
               {/* Routes partagées */}
               <Route path="/business/:id" element={<BusinessDetailPage />} />
