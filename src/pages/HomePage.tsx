@@ -168,10 +168,9 @@ export const HomePage = ({
       console.error("Erreur lors du parsing du QR code:", error);
     }
   };
-  
+
   // Utiliser les vraies catégories du système
   const categories = getAllBusinessCategories();
-  
   const handleCategoryClick = (category: any) => {
     navigate(`/category/${category.id}`);
   };
@@ -180,22 +179,14 @@ export const HomePage = ({
         {/* Contenu principal */}
         <div className="space-y-6 p-4 bg-background">
         {/* Barre de recherche unifiée */}
-        <div className="p-4 shadow-sm border-border rounded-3xl bg-primary">
-          <UnifiedSearchBar 
-            onSelect={(result) => {
-              if (result.type === 'business') {
-                navigate(`/business/${result.businessId}`);
-              } else if (result.type === 'product') {
-                navigate(`/product/${result.id}`);
-              }
-            }} 
-            placeholder="Que recherchez-vous ?" 
-            variant="minimal" 
-            size="lg" 
-            currentLocation={userLocation} 
-            showFilters={false} 
-            showResults={false} 
-          />
+        <div className="p-4 shadow-sm border-border rounded-3xl bg-inherit">
+          <UnifiedSearchBar onSelect={result => {
+            if (result.type === 'business') {
+              navigate(`/business/${result.businessId}`);
+            } else if (result.type === 'product') {
+              navigate(`/product/${result.id}`);
+            }
+          }} placeholder="Que recherchez-vous ?" variant="minimal" size="lg" currentLocation={userLocation} showFilters={false} showResults={false} />
         </div>
 
         {/* Actions rapides pour les entreprises */}
@@ -212,16 +203,10 @@ export const HomePage = ({
 
         {/* Catégories rapides */}
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {categories.slice(0, 6).map((category) => (
-            <button 
-              key={category.id} 
-              onClick={() => handleCategoryClick(category)} 
-              className={`flex-shrink-0 px-6 py-4 rounded-2xl text-white font-semibold flex items-center gap-2 shadow-sm bg-gradient-to-br ${category.color}`}
-            >
+          {categories.slice(0, 6).map(category => <button key={category.id} onClick={() => handleCategoryClick(category)} className={`flex-shrink-0 px-6 py-4 rounded-2xl text-white font-semibold flex items-center gap-2 shadow-sm bg-gradient-to-br ${category.color}`}>
               <span className="text-lg">{category.icon}</span>
               <span className="whitespace-nowrap">{category.nom}</span>
-            </button>
-          ))}
+            </button>)}
         </div>
 
         {/* Section Catalogues publics */}
@@ -234,7 +219,7 @@ export const HomePage = ({
                   Découvrez tous les catalogues des commerces
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/catalogs')} className="gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate('/catalogs')} className="gap-2 text-white bg-[3a75c4] bg-[#3a75c4]/[0.97]">
                 <Grid3X3 className="w-4 h-4" />
                 Voir tout
               </Button>
@@ -256,7 +241,7 @@ export const HomePage = ({
                 {businesses.length}
               </span>
             </h2>
-            <Button variant="ghost" size="sm" onClick={refreshBusinesses} disabled={loading} className="gap-2">
+            <Button variant="ghost" size="sm" onClick={refreshBusinesses} disabled={loading} className="gap-2 text-[3a75c4] text-[#3a75c4]/[0.97]">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Actualiser
             </Button>
