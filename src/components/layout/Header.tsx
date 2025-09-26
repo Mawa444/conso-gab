@@ -1,6 +1,7 @@
 import { ArrowLeft, MapPin, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import gabomaLogo from "@/assets/gaboma-logo.png";
 
 interface HeaderProps {
@@ -51,6 +52,9 @@ export const Header = ({ title, showBack, onBack, showNotifications = true, onLo
 
         {/* Côté droit - Actions */}
         <div className="flex items-center gap-2">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+          
           {/* Bouton localisation */}
           <Button
             variant="ghost"

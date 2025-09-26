@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { RealTimeProvider } from "@/components/messaging/RealTimeProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import MessagingPage from "@/pages/MessagingPage";
@@ -18,9 +19,10 @@ const queryClient = new QueryClient();
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RealTimeProvider>
-          <Router>
+      <ThemeProvider>
+        <AuthProvider>
+          <RealTimeProvider>
+            <Router>
             <div className="min-h-screen bg-background">
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -35,9 +37,10 @@ const App = () => {
               </Routes>
             </div>
             <Toaster />
-          </Router>
-        </RealTimeProvider>
-      </AuthProvider>
+            </Router>
+          </RealTimeProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

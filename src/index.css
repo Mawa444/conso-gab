@@ -8,125 +8,101 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Couleurs officielles du Gabon - HSL correctement formatées */
-    --background: 130 15% 97%;
-    --foreground: 0 0% 9%;
+    /* Couleurs officielles du Gabon (conservées) */
+    --gaboma-green: 142 69% 49%;
+    --gaboma-yellow: 48 100% 50%;
+    --gaboma-blue: 217 91% 60%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    /* Mode clair - Style minimaliste blanc pur */
+    --background: 0 0% 100%;           /* Blanc pur */
+    --foreground: 0 0% 0%;             /* Noir pur pour le texte */
+    --card: 0 0% 98%;                  /* Cards en gris très très clair */
+    --card-foreground: 0 0% 0%;        /* Texte noir sur cards */
+    --popover: 0 0% 100%;              /* Popovers blancs */
+    --popover-foreground: 0 0% 0%;     /* Texte noir sur popovers */
+    --primary: 0 0% 0%;                /* Primary en noir pour boutons */
+    --primary-foreground: 0 0% 100%;   /* Texte blanc sur primary */
+    --secondary: 0 0% 96%;             /* Secondaire en gris très clair */
+    --secondary-foreground: 0 0% 0%;   /* Texte noir sur secondaire */
+    --muted: 0 0% 95%;                 /* Muted en gris clair */
+    --muted-foreground: 0 0% 40%;      /* Texte gris sur muted */
+    --accent: 0 0% 94%;                /* Accent en gris très clair */
+    --accent-foreground: 0 0% 0%;      /* Texte noir sur accent */
+    --destructive: 0 84% 60%;          /* Rouge pour destructif */
+    --destructive-foreground: 0 0% 98%; /* Texte clair sur destructif */
+    --border: 0 0% 90%;                /* Bordures grises claires */
+    --input: 0 0% 96%;                 /* Inputs en gris très clair */
+    --ring: 0 0% 0%;                   /* Focus ring en noir */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    /* Sidebar en mode clair */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 0 0% 0%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 94%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 0 0% 0%;
 
-    /* Palette Gaboma - Couleurs nationales */
-    --gaboma-green: 140 85% 35%;
-    --gaboma-green-light: 140 60% 50%;
-    --gaboma-green-dark: 140 90% 25%;
-    
-    --gaboma-yellow: 48 95% 55%;
-    --gaboma-yellow-light: 48 80% 65%;
-    --gaboma-yellow-dark: 48 100% 45%;
-    
-    --gaboma-blue: 215 60% 50%;
-    --gaboma-blue-light: 215 50% 65%;
-    --gaboma-blue-dark: 215 70% 35%;
-    
-    --primary: var(--gaboma-green);
-    --primary-foreground: 0 0% 100%;
+    /* Dégradés conservés mais adaptés */
+    --gradient-gaboma: linear-gradient(135deg, hsl(var(--gaboma-green)), hsl(var(--gaboma-blue)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--gaboma-green)) 0%, hsl(var(--gaboma-blue)) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--primary)) 100%);
 
-    --secondary: var(--gaboma-yellow);
-    --secondary-foreground: 0 0% 9%;
+    /* Ombres subtiles */
+    --shadow-gaboma: 0 2px 8px -1px hsla(0, 0%, 0%, 0.1);
+    --shadow-soft: 0 1px 3px -1px hsla(0, 0%, 0%, 0.1);
+    --shadow-medium: 0 4px 6px -1px hsla(0, 0%, 0%, 0.1);
+    --shadow-strong: 0 8px 25px -5px hsla(0, 0%, 0%, 0.1);
+    --shadow-elevated: 0 20px 60px -20px hsla(0, 0%, 0%, 0.15);
 
-    --accent: var(--gaboma-blue);
-    --accent-foreground: 0 0% 100%;
-
-    --muted: 130 20% 94%; /* Teinte verte très légère */
-    --muted-foreground: 130 10% 35%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 130 25% 85%; /* Bordures avec une teinte verte */
-    --input: 130 15% 92%;
-    --ring: var(--gaboma-green);
-
-    /* Gradients enrichis */
-    --gradient-gaboma: linear-gradient(135deg, hsl(var(--gaboma-green)), hsl(var(--gaboma-yellow)));
-    --gradient-hero: linear-gradient(180deg, hsl(var(--gaboma-blue)), hsl(var(--gaboma-green)));
-    --gradient-card: linear-gradient(145deg, hsl(var(--gaboma-green) / 0.05), hsl(var(--gaboma-blue) / 0.03));
-    --gradient-header: linear-gradient(90deg, hsl(var(--gaboma-green)), hsl(var(--gaboma-blue)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
-
-    /* Shadows améliorées */
-    --shadow-gaboma: 0 10px 30px -10px hsl(var(--gaboma-green) / 0.3);
-    --shadow-soft: 0 4px 20px -4px hsl(var(--gaboma-green) / 0.15);
-    --shadow-glow: 0 0 40px hsl(var(--gaboma-yellow) / 0.4);
-    --shadow-card: 0 8px 25px -8px hsl(var(--gaboma-green) / 0.2), 0 0 0 1px hsl(var(--border));
-    --shadow-elevated: 0 20px 60px -20px hsl(var(--gaboma-blue) / 0.3);
-
-    /* Animations */
+    /* Animations et transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
---sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Layout */
     --bottom-nav-height: 80px;
   }
 
+  /* Mode sombre - Style minimaliste noir pur */
   .dark {
-    --background: 130 15% 1%; /* Fond sombre avec teinte verte - assombri de 20% supplémentaire */
-    --foreground: 130 5% 95%;
+    --background: 0 0% 0%;             /* Noir pur */
+    --foreground: 0 0% 100%;           /* Blanc pur pour le texte */
+    --card: 0 0% 8%;                   /* Cards en gris très foncé */
+    --card-foreground: 0 0% 100%;      /* Texte blanc sur cards */
+    --popover: 0 0% 4%;                /* Popovers noirs */
+    --popover-foreground: 0 0% 100%;   /* Texte blanc sur popovers */
+    --primary: 0 0% 100%;              /* Primary en blanc pour boutons */
+    --primary-foreground: 0 0% 0%;     /* Texte noir sur primary */
+    --secondary: 0 0% 10%;             /* Secondaire en gris foncé */
+    --secondary-foreground: 0 0% 100%; /* Texte blanc sur secondaire */
+    --muted: 0 0% 12%;                 /* Muted en gris foncé */
+    --muted-foreground: 0 0% 70%;      /* Texte gris clair sur muted */
+    --accent: 0 0% 14%;                /* Accent en gris foncé */
+    --accent-foreground: 0 0% 100%;    /* Texte blanc sur accent */
+    --destructive: 0 84% 60%;          /* Rouge pour destructif */
+    --destructive-foreground: 0 0% 98%; /* Texte clair sur destructif */
+    --border: 0 0% 15%;                /* Bordures grises foncées */
+    --input: 0 0% 10%;                 /* Inputs en gris foncé */
+    --ring: 0 0% 100%;                 /* Focus ring en blanc */
 
-    --card: 130 10% 12%;
-    --card-foreground: 130 5% 95%;
+    /* Sidebar en mode sombre */
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 0 0% 100%;
 
-    --popover: 130 10% 12%;
-    --popover-foreground: 130 5% 95%;
-
-    --primary: var(--gaboma-green);
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: var(--gaboma-yellow);
-    --secondary-foreground: 0 0% 9%;
-
-    --accent: var(--gaboma-blue);
-    --accent-foreground: 0 0% 100%;
-
-    --muted: 130 15% 18%;
-    --muted-foreground: 130 10% 65%;
-
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 130 20% 25%;
-    --input: 130 15% 20%;
-    --ring: var(--gaboma-green);
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Ombres pour le mode sombre */
+    --shadow-gaboma: 0 2px 8px -1px hsla(0, 0%, 0%, 0.3);
+    --shadow-soft: 0 1px 3px -1px hsla(0, 0%, 0%, 0.2);
+    --shadow-medium: 0 4px 6px -1px hsla(0, 0%, 0%, 0.3);
+    --shadow-strong: 0 8px 25px -5px hsla(0, 0%, 0%, 0.4);
+    --shadow-elevated: 0 20px 60px -20px hsla(0, 0%, 0%, 0.5);
   }
 }
 
