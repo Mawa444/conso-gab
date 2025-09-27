@@ -506,6 +506,7 @@ export const ProfilePage = ({
         </Tabs>
       </div>
     </div>
-  </PageWithSkeleton>
+  </div>
+</PageWithSkeleton>
 );
 };
