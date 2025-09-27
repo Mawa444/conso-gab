@@ -147,7 +147,7 @@ export const CommerceListTab = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-4 px-0">
           {/* Panneau latéral - Statistiques par catégorie */}
           <div className="lg:col-span-1 space-y-4">
             <Card>

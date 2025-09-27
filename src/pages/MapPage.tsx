@@ -14,18 +14,20 @@ export const MapPage = ({
   onBack
 }: MapPageProps) => {
   const [activeTab, setActiveTab] = useState("list");
-  const { loading } = useOptimizedBusinesses();
+  const {
+    loading
+  } = useOptimizedBusinesses();
   return <PageWithSkeleton isLoading={loading} skeleton={<MapPageSkeleton />}>
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex flex-col">
       {/* Header simplifié */}
-      <div className="bg-card/95 backdrop-blur-sm border-b border-border/50 p-4 rounded-3xl">
+      <div className="backdrop-blur-sm border-b border-border/50 p-4 rounded-3xl bg-[3a75c4] bg-[#3a75c4]/[0.96]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {onBack && <Button variant="ghost" size="sm" onClick={onBack} className="p-2">
                 <ArrowLeft className="w-4 h-4" />
               </Button>}
             <div>
-              <h1 className="text-2xl font-bold">Découvrir</h1>
+              <h1 className="text-2xl font-bold text-left text-white">Découvrir</h1>
               <p className="text-sm text-muted-foreground">
                 Explorez les commerces de votre région
               </p>
