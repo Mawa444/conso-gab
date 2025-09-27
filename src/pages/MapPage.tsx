@@ -39,7 +39,7 @@ export const MapPage = ({
       {/* Système d'onglets intelligent */}
       <div className="flex-1 flex flex-col">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <div className="bg-card/50 border-b border-border/30 rounded-3xl px-[34px]">
+          <div className="bg-card/50 border-b border-border/30 rounded-3xl px-[34px] my-[20px]">
             <TabsList className="bg-muted/50 p-1 h-12 px-[177px]">
               <TabsTrigger value="list" className="flex items-center gap-2 px-6 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-3xl text-black">
                 <List className="w-4 h-4" />
