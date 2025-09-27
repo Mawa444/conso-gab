@@ -131,24 +131,17 @@ export const AdvancedBusinessManager = ({
                 </Card>)}
               
               {/* Bouton unique pour créer une nouvelle entreprise */}
-              <CreateBusinessButton 
-                size="lg"
-                className="h-14 from-primary to-accent hover:scale-[1.02] transition-all duration-300 shadow-lg rounded-3xl my-[15px] bg-[fcd116] bg-[#fcd116]/[0.97] text-black"
-                fullWidth
-              >
+              <CreateBusinessButton size="lg" className="h-14 from-primary to-accent hover:scale-[1.02] transition-all duration-300 shadow-lg rounded-3xl my-[15px] bg-[fcd116] bg-[#fcd116]/[0.97] text-black" fullWidth>
                 <span className="text-lg font-bold">Créer un nouveau profil business</span>
               </CreateBusinessButton>
             </div> : <Card className="border-dashed border-2 border-muted-foreground/30">
-              <CardContent className="p-8 text-center">
+              <CardContent className="p-8 text-center bg-inherit rounded-3xl">
                 <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
                 <h3 className="font-semibold text-xl mb-3">Aucune entreprise</h3>
                 <p className="text-muted-foreground mb-6 text-base">
                   Créez votre première entreprise pour accéder aux fonctionnalités business
                 </p>
-                <CreateBusinessButton 
-                  className="bg-gradient-to-r from-primary to-accent text-white h-14 px-8 text-lg font-semibold hover:scale-105 transition-all duration-300 shadow-lg" 
-                  size="lg"
-                >
+                <CreateBusinessButton className="bg-gradient-to-r from-primary to-accent text-white h-14 px-8 text-lg font-semibold hover:scale-105 transition-all duration-300 shadow-lg" size="lg">
                   Créer mon entreprise
                 </CreateBusinessButton>
               </CardContent>
