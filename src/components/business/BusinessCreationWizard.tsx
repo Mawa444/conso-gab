@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { getAllBusinessCategories } from "@/data/businessCategories";
 interface BusinessCreationWizardProps {
   onCancel?: () => void;
   onCreated?: (businessId: string) => void;
@@ -51,40 +52,6 @@ interface BusinessCreationData {
   // Étape 5: Validation
   isVerified?: boolean;
 }
-const businessCategories = [{
-  value: "restaurant",
-  label: "Restauration"
-}, {
-  value: "retail",
-  label: "Commerce"
-}, {
-  value: "services",
-  label: "Services"
-}, {
-  value: "automotive",
-  label: "Automobile"
-}, {
-  value: "beauty",
-  label: "Beauté & Bien-être"
-}, {
-  value: "healthcare",
-  label: "Santé"
-}, {
-  value: "education",
-  label: "Éducation"
-}, {
-  value: "real_estate",
-  label: "Immobilier"
-}, {
-  value: "entertainment",
-  label: "Hôtellerie"
-}, {
-  value: "technology",
-  label: "Technologie"
-}, {
-  value: "other",
-  label: "Autres"
-}];
 export const BusinessCreationWizard = ({
   onCancel,
   onCreated
@@ -100,6 +67,9 @@ export const BusinessCreationWizard = ({
   const {
     user
   } = useAuth();
+  
+  // Utiliser les catégories du système principal pour cohérence
+  const businessCategories = getAllBusinessCategories();
   const steps = [{
     number: 1,
     title: "Informations de base",
@@ -235,8 +205,11 @@ export const BusinessCreationWizard = ({
                     <SelectValue placeholder="Sélectionner une catégorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    {businessCategories.map(cat => <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
+                    {businessCategories.map(cat => <SelectItem key={cat.id} value={cat.id}>
+                        <span className="flex items-center gap-2">
+                          <span>{cat.icon}</span>
+                          {cat.nom}
+                        </span>
                       </SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -440,7 +413,7 @@ export const BusinessCreationWizard = ({
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Catégorie:</span>
-                  <span>{businessCategories.find(c => c.value === data.businessCategory)?.label}</span>
+                  <span>{businessCategories.find(c => c.id === data.businessCategory)?.nom}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Localisation:</span>
