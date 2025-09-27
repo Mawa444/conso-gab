@@ -252,7 +252,7 @@ export const ProfilePage = ({
       {/* Tabs */}
       <div className="flex-1 p-6 bg-[f2f4f7] bg-[#f2f4f7]/[0.97] px-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6 bg-white rounded-3xl">
+          <TabsList className="grid w-full grid-cols-5 mb-6 bg-white px-0 rounded-none">
             <TabsTrigger value="overview" className="rounded-3xl bg-[3a75c4] text-center bg-inherit font-bold text-[#73767a]/[0.96] text-sm">Aperçu</TabsTrigger>
             <TabsTrigger value="activity" className="rounded-3xl font-bold text-[73767a] text-[#73767a]/[0.97]">Activité</TabsTrigger>
             <TabsTrigger value="favorites" className="rounded-3xl font-bold text-[#73767a]/[0.96] text-sm">Favoris</TabsTrigger>
