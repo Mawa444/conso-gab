@@ -183,7 +183,7 @@ export const ProfilePage = ({
   const handleDeleteAccount = () => {
     toast.error("Fonctionnalité à venir - Suppression de compte");
   };
-    return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
+  return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
       <div className="flex flex-col min-h-full">
       {/* Header Profile moderne */}
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-[23px]">
@@ -399,7 +399,7 @@ export const ProfilePage = ({
           <TabsContent value="businesses" className="space-y-4">
             <div className="min-h-96 p-4 bg-background">
               {/* Header avec basculement de mode */}
-              <div className="from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 mb-6 border border-primary/20 bg-[3a75c4] bg-[#3a75c4]/[0.97]">
+              <div className="from-primary/10 via-accent/5 to-secondary/10 p-6 mb-6 border border-primary/20 bg-[3a75c4] bg-[#3a75c4]/[0.97] rounded-3xl">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-white">

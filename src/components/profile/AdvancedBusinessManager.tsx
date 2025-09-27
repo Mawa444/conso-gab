@@ -31,8 +31,8 @@ export const AdvancedBusinessManager = ({
   }
   return <div className={`${className} min-h-96 p-4 bg-background`}>
       {/* Header with mode switch */}
-      <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 mb-6 border border-primary/20 bg-white">
-        <div className="flex items-center justify-between mb-4 bg-[3a75c4] bg-white">
+      <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 p-6 mb-6 border border-primary/20 bg-inherit rounded-3xl">
+        <div className="flex items-center justify-between mb-4 bg-[3a75c4] bg-transparent">
           <div>
             <h2 className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-[3a75c4] text-black">
               Gestion des Profils
@@ -45,7 +45,7 @@ export const AdvancedBusinessManager = ({
         </div>
 
         {/* Current Mode Display */}
-        <div className="bg-white/50 dark:bg-background/50 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+        <div className="bg-white/50 dark:bg-background/50 backdrop-blur-sm p-4 border border-border/50 rounded-3xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isBusinessMode ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30'}`}>
@@ -135,7 +135,7 @@ export const AdvancedBusinessManager = ({
                 <span className="text-lg font-bold">Créer un nouveau profil business</span>
               </CreateBusinessButton>
             </div> : <Card className="border-dashed border-2 border-muted-foreground/30">
-              <CardContent className="p-8 text-center bg-inherit rounded-3xl">
+              <CardContent className="p-8 text-center bg-inherit rounded-none">
                 <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
                 <h3 className="font-semibold text-xl mb-3">Aucune entreprise</h3>
                 <p className="text-muted-foreground mb-6 text-base">
