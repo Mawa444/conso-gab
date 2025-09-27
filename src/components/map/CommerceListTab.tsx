@@ -152,7 +152,7 @@ export const CommerceListTab = () => {
           <div className="lg:col-span-1 space-y-4">
             <Card>
               <CardContent className="p-4 rounded-3xl bg-[3a75c4] bg-white">
-                <h3 className="font-semibold mb-4 flex items-center gap-2 text-[3a75c4] text-[#3a75c4]/[0.96] text-left">
+                <h3 className="font-semibold mb-4 flex items-center gap-2 text-[3a75c4] text-[#3a75c4]/[0.96] text-center">
                   <Building className="w-4 h-4" />
                   Répartition par catégorie
                 </h3>
@@ -198,7 +198,7 @@ export const CommerceListTab = () => {
           </div>
 
           {/* Liste des entreprises */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 bg-inherit">
             {/* Header des résultats */}
             <div className="flex items-center justify-between mb-6">
               <div>
