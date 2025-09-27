@@ -87,7 +87,7 @@ export const AdvancedBusinessManager = ({
               
               <div className="flex items-center gap-2">
                 {currentMode === 'consumer' && <Badge variant="secondary" className="text-xs">ACTUEL</Badge>}
-                <Button variant="default" size="sm" onClick={() => switchMode('consumer', undefined, navigate)}>
+                <Button variant="default" size="sm" onClick={() => switchMode('consumer', undefined, navigate)} className="text-[fcd116] text-[#fcd116]/[0.97]">
                   {currentMode === 'consumer' ? 'Actuel' : 'Basculer'}
                 </Button>
               </div>
