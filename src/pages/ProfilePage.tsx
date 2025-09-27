@@ -402,9 +402,7 @@ export const ProfilePage = ({
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-white">
                       Gestion des Profils
                     </h2>
-                    <p className="text-sm text-white">
-                      Gérez vos profils consommateur et business
-                    </p>
+                    <p className="text-sm text-white">Créez et gérez vos profils business</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Building2 className="w-6 h-6 text-accent animate-pulse" />
