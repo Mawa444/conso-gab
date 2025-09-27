@@ -525,7 +525,7 @@ export const BusinessCreationWizard = ({
 
         {/* Navigation buttons */}
         <div className="flex justify-between mt-8 pt-6 border-t">
-          <Button variant="outline" onClick={handleBack} disabled={step === 1} className="px-6">
+          <Button variant="outline" onClick={handleBack} disabled={step === 1} className="px-6 text-white bg-slate-600 hover:bg-slate-500">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
