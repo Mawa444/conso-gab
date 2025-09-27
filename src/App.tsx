@@ -28,6 +28,10 @@ const App = () => {
             <div className="min-h-screen bg-background">
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/home" element={<Index />} />
+                <Route path="/map" element={<Index />} />
+                <Route path="/rankings" element={<Index />} />
+                <Route path="/profile" element={<Index />} />
                 <Route path="/messaging" element={<MessagingPage />} />
                 <Route path="/messaging/:section" element={<MessagingPage />} />
                 <Route path="/messaging/conversation/:conversationId" element={<ConversationDetailPage />} />
@@ -37,7 +41,7 @@ const App = () => {
                 <Route path="/business/:businessId" element={<BusinessDetailPage />} />
                 <Route path="/category/:categoryId" element={<CategoryPage />} />
                 <Route path="/catalogs" element={<PublicCatalogsPage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/home" replace />} />
               </Routes>
             </div>
             <Toaster />

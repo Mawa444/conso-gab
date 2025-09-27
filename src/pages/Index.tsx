@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { Header } from "@/components/layout/Header";
 import { HomePage } from "@/pages/HomePage";
@@ -16,6 +16,7 @@ import { TransitionWrapper } from "@/components/layout/TransitionWrapper";
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("home");
   const [showScanner, setShowScanner] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
@@ -23,12 +24,19 @@ const Index = () => {
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Redirection temporairement désactivée
-  // useEffect(() => {
-  //   if (!loading && !user) {
-  //     navigate('/auth');
-  //   }
-  // }, [loading, user, navigate]);
+  // Déterminer l'onglet actif basé sur l'URL
+  useEffect(() => {
+    const currentPath = location.pathname;
+    if (currentPath === '/map') {
+      setActiveTab('map');
+    } else if (currentPath === '/rankings') {
+      setActiveTab('rankings');
+    } else if (currentPath === '/profile') {
+      setActiveTab('profile');
+    } else {
+      setActiveTab('home');
+    }
+  }, [location.pathname]);
 
   // Afficher un loader simple pendant la vérification
   if (loading) {
@@ -67,18 +75,13 @@ const Index = () => {
     
     if (tab === activeTab) return;
     
-    // Déclencher la transition pour les changements de page
-    setIsTransitioning(true);
-    
-    // Changer l'onglet après un petit délai pour la transition
-    setTimeout(() => {
-      setActiveTab(tab);
-      setIsTransitioning(false);
-    }, 150);
+    // Naviguer vers la bonne URL
+    const targetPath = tab === "home" ? "/" : `/${tab}`;
+    navigate(targetPath, { replace: true });
   };
 
   const handleLocationClick = () => {
-    setActiveTab("map");
+    navigate("/map", { replace: true });
   };
 
   const handleMessageClick = () => {
@@ -109,11 +112,11 @@ const Index = () => {
         {(() => {
           switch (activeTab) {
             case "map":
-              return <MapPage onBack={() => setActiveTab("home")} />;
+              return <MapPage onBack={() => navigate("/home", { replace: true })} />;
             case "rankings":
-              return <RankingsPage onBack={() => setActiveTab("home")} />;
+              return <RankingsPage onBack={() => navigate("/home", { replace: true })} />;
             case "profile":
-              return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
+              return <ProfilePage onBack={() => navigate("/home", { replace: true })} onSettings={handleProfileSettings} />;
             default:
               return <HomePage onNavigate={setActiveTab} onMessage={(commerce) => {
                 if (!user) {

@@ -392,9 +392,29 @@ export const ProfilePage = ({
             <FavoritesSection userType="consumer" />
           </TabsContent>
 
-          {/* Entreprises */}
+          {/* Entreprises - Système de Gestion des Profils */}
           <TabsContent value="businesses" className="space-y-4">
-            <AdvancedBusinessManager />
+            <div className="min-h-96 p-4 bg-background">
+              {/* Header avec basculement de mode */}
+              <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 mb-6 border border-primary/20">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      Gestion des Profils
+                    </h2>
+                    <p className="text-muted-foreground text-sm">
+                      Gérez vos profils consommateur et business
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-6 h-6 text-accent animate-pulse" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Gestionnaire de business avancé */}
+              <AdvancedBusinessManager />
+            </div>
           </TabsContent>
 
           {/* Paramètres */}
