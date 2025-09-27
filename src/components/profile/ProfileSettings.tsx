@@ -172,7 +172,7 @@ export const ProfileSettings = ({
                 {profile.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
-            <Button variant="default" size="sm">
+            <Button variant="default" size="sm" className="text-white">
               <Camera className="w-4 h-4 mr-2" />
               Changer la photo
             </Button>
