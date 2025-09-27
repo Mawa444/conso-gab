@@ -187,7 +187,7 @@ export const ProfilePage = ({
       <div className="flex flex-col min-h-full">
       {/* Header Profile moderne */}
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-0 mx-0 my-0 rounded-3xl px-[31px]">
-        <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl"></div>
+        <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl py-0"></div>
         <div className="relative z-10">
             <div className="flex items-center gap-4">
             <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30 my-0">
@@ -206,7 +206,7 @@ export const ProfilePage = ({
                 </Badge>
               </div>
               {/* Bouton S'abonner */}
-              <Button size="sm" className="mt-3 bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm rounded-3xl px-[22px] mx-px">
+              <Button size="sm" className="mt-3 bg-white/20 border-white/30 hover:bg-white/30 backdrop-blur-sm rounded-3xl px-[22px] mx-px text-[009e60] text-white">
                 <Bell className="w-4 h-4 mr-2" />
                 S'abonner aux notifications
               </Button>
@@ -219,14 +219,14 @@ export const ProfilePage = ({
               <Button variant="ghost" size="icon" onClick={handleDeleteAccount} className="text-white hover:bg-white/20 backdrop-blur-sm">
                 <Trash2 className="w-6 h-6" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white hover:bg-red-500/30 backdrop-blur-sm">
+              <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white backdrop-blur-sm bg-red-600 hover:bg-red-500">
                 <LogOut className="w-6 h-6" />
               </Button>
             </div>
           </div>
 
           {/* Stats rapides modernisées */}
-          <div className="grid grid-cols-3 gap-4 mt-8 rounded-3xl my-0">
+          <div className="grid grid-cols-3 gap-4 mt-8 rounded-3xl my-[22px]">
             <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
               <CardContent className="p-4 rounded-3xl my-0">
                 <div className="text-3xl font-bold text-white">{userProfile.points}</div>
