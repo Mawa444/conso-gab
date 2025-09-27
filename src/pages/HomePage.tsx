@@ -206,7 +206,7 @@ export const HomePage = ({
           <CardContent className="p-4 bg-white rounded-xl py-[4px] px-[10px]">
             <div className="flex items-center justify-between">
               <div className="py-0">
-                <h3 className="text-title-medium font-roboto mb-1 text-left">Catalogues publics</h3>
+                <h3 className="text-title-medium font-roboto mb-1 text-left font-bold">Catalogues publics</h3>
                 <p className="font-roboto text-left text-gray-400 text-body-small">
                   Découvrez tous les catalogues des commerces
                 </p>
