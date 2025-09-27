@@ -199,7 +199,7 @@ export const UnifiedSearchBar = ({
           <CardContent className="p-3">
             {searchBarContent}
           </CardContent>
-        </Card> : variant === "minimal" ? <div className="border p-3 rounded-3xl bg-white py-[10px]">
+        </Card> : variant === "minimal" ? <div className="border p-3 rounded-3xl bg-white py-[8px]">
           {searchBarContent}
         </div> : <div className="space-y-3">
           {searchBarContent}
