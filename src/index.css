@@ -166,7 +166,126 @@
   }
 }
 
-/* Skeleton screens seulement - pas d'autres animations */
+/* Classes utilitaires pour optimisation mobile */
+
+/* Débordement de texte sécurisé */
+.safe-text {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* Grilles responsives optimisées */
+.mobile-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.mobile-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .mobile-grid-3 {
+    gap: 0.375rem;
+  }
+}
+
+/* Espacement mobile optimisé */
+.mobile-padding {
+  padding: 1rem;
+}
+
+.mobile-padding-sm {
+  padding: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .mobile-padding {
+    padding: 0.75rem;
+  }
+  
+  .mobile-padding-sm {
+    padding: 0.5rem;
+  }
+}
+
+/* Flex responsive pour éviter les débordements */
+.flex-mobile-safe {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.flex-mobile-safe > * {
+  flex-shrink: 0;
+}
+
+.flex-mobile-safe .grow {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+/* Bottom navigation safe area */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Containers responsive */
+.mobile-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-container {
+    max-width: 768px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Boutons optimisés mobile */
+.mobile-button {
+  min-height: 44px; /* Taille minimale recommandée pour les touches */
+  padding: 0.75rem 1rem;
+}
+
+.mobile-icon-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem;
+}
+
+/* Cards optimisées mobile */
+.mobile-card {
+  border-radius: 1rem;
+  padding: 1rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 640px) {
+  .mobile-card {
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+  }
+}
 
 /* Scrollbar styling minimal */
 .scrollbar-hide {
