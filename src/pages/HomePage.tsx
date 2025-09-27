@@ -11,6 +11,7 @@ import { useOptimizedBusinesses } from "@/hooks/use-optimized-businesses";
 import { useNavigate } from "react-router-dom";
 import { Loader2, RefreshCw, Grid3X3, Building2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CreateBusinessButton } from "@/components/business/CreateBusinessButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { HomePageSkeleton, CommerceCardSkeleton } from "@/components/ui/skeleton-screens";
@@ -191,10 +192,14 @@ export const HomePage = ({
 
         {/* Actions rapides pour les entreprises */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigate('/business/create')} className="flex-1 gap-2 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:from-primary/10 hover:to-accent/10 rounded-3xl">
+          <CreateBusinessButton 
+            variant="outline" 
+            size="sm" 
+            className="flex-1 gap-2 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:from-primary/10 hover:to-accent/10 rounded-3xl"
+          >
             <Building2 className="w-4 h-4" />
             Créer mon entreprise
-          </Button>
+          </CreateBusinessButton>
           <Button variant="outline" size="sm" onClick={() => navigate('/messaging')} className="flex-1 gap-2 bg-gradient-to-r from-secondary/5 to-primary/5 border-secondary/20 hover:from-secondary/10 hover:to-primary/10 rounded-3xl">
             <MessageSquare className="w-4 h-4" />
             Messagerie

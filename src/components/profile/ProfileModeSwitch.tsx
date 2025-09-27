@@ -1,4 +1,4 @@
-import { User, Building2, ChevronDown } from "lucide-react";
+import { Building2, User, ChevronDown, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { CreateBusinessButton } from "@/components/business/CreateBusinessButton";
 
 interface ProfileModeSwitchProps {
   className?: string;
@@ -157,17 +158,18 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
 
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem 
-          onClick={() => navigate('/business/create')} 
-          disabled={loading}
-          className="text-center text-primary cursor-pointer"
-        >
-          <div className="flex items-center gap-2 w-full justify-center">
-            <Building2 className="w-4 h-4" />
-            <span className="text-sm">
-              {businessProfiles.length === 0 ? 'Créer ma première entreprise' : 'Créer une nouvelle entreprise'}
-            </span>
-          </div>
+        <DropdownMenuItem className="p-0">
+          <CreateBusinessButton 
+            variant="ghost" 
+            className="text-center text-primary cursor-pointer w-full p-3"
+          >
+            <div className="flex items-center gap-2 w-full justify-center">
+              <Building2 className="w-4 h-4" />
+              <span className="text-sm">
+                {businessProfiles.length === 0 ? 'Créer ma première entreprise' : 'Créer une nouvelle entreprise'}
+              </span>
+            </div>
+          </CreateBusinessButton>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

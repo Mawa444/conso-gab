@@ -128,11 +128,11 @@ const ConsumerApp = () => {
         {content}
       </PageTransition>;
   };
-    return <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    return <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <Routes>
         <Route path="/home" element={<>
             <Header title="Découvrir" showBack={false} onLocationClick={() => navigate('/consumer/map')} onMessageClick={() => navigate('/messaging')} />
-            <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen py-[57px]">
+            <main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto">
               <HomePage onNavigate={tab => navigate(`/consumer/${tab}`)} onMessage={commerce => {
             setSelectedCommerce(commerce);
             navigate('/messaging');
@@ -140,11 +140,11 @@ const ConsumerApp = () => {
             </main>
           </>} />
         
-        <Route path="/map" element={<main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen">
+        <Route path="/map" element={<main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto">
             <MapPage onBack={() => navigate('/consumer/home')} />
           </main>} />
         
-        <Route path="/profile" element={<main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen">
+        <Route path="/profile" element={<main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto">
             <ProfilePage onBack={() => navigate('/consumer/home')} onSettings={() => setShowProfileSettings(true)} />
           </main>} />
         

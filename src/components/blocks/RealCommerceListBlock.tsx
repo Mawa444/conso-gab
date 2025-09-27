@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRealBusinesses, type RealBusiness } from "@/hooks/use-real-businesses";
 import { businessCategories } from "@/data/businessCategories";
+import { CreateBusinessButton } from "@/components/business/CreateBusinessButton";
 import { useNavigate } from "react-router-dom";
 import { CommerceListSkeleton } from "@/components/ui/skeleton-screens";
 
@@ -88,9 +89,9 @@ export const RealCommerceListBlock = ({
           <p className="text-muted-foreground mb-6">
             Les entreprises apparaîtront ici une fois qu'elles seront inscrites sur la plateforme.
           </p>
-          <Button onClick={() => navigate('/business/create')}>
+          <CreateBusinessButton>
             Créer mon entreprise
-          </Button>
+          </CreateBusinessButton>
         </CardContent>
       </Card>
     );

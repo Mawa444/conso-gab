@@ -1,12 +1,10 @@
-import { useState } from "react";
-import { Building2, Plus, Crown, Settings, Users, BarChart3, Eye, ChevronRight, Sparkles, Shield } from "lucide-react";
+import { Building2, Crown, Settings, Users, BarChart3, Eye, Sparkles, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfileMode } from "@/hooks/use-profile-mode";
-import { toast } from "sonner";
-import { BusinessCreationWizard } from "@/components/business/BusinessCreationWizard";
+import { CreateBusinessButton } from "@/components/business/CreateBusinessButton";
 import { useNavigate } from "react-router-dom";
 interface AdvancedBusinessManagerProps {
   className?: string;
@@ -22,7 +20,6 @@ export const AdvancedBusinessManager = ({
     loading
   } = useProfileMode();
   const navigate = useNavigate();
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const currentBusiness = getCurrentBusiness();
   const isBusinessMode = currentMode === 'business';
   if (loading) {
@@ -134,10 +131,13 @@ export const AdvancedBusinessManager = ({
                 </Card>)}
               
               {/* Bouton unique pour créer une nouvelle entreprise */}
-              <Button onClick={() => setShowCreateForm(true)} size="lg" className="w-full h-14 from-primary to-accent hover:scale-[1.02] transition-all duration-300 shadow-lg rounded-3xl my-[15px] bg-[fcd116] bg-[#fcd116]/[0.97] text-black">
-                <Plus className="w-5 h-5 mr-3" />
+              <CreateBusinessButton 
+                size="lg"
+                className="h-14 from-primary to-accent hover:scale-[1.02] transition-all duration-300 shadow-lg rounded-3xl my-[15px] bg-[fcd116] bg-[#fcd116]/[0.97] text-black"
+                fullWidth
+              >
                 <span className="text-lg font-bold">Créer un nouveau profil business</span>
-              </Button>
+              </CreateBusinessButton>
             </div> : <Card className="border-dashed border-2 border-muted-foreground/30">
               <CardContent className="p-8 text-center">
                 <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
@@ -145,10 +145,12 @@ export const AdvancedBusinessManager = ({
                 <p className="text-muted-foreground mb-6 text-base">
                   Créez votre première entreprise pour accéder aux fonctionnalités business
                 </p>
-                <Button onClick={() => setShowCreateForm(true)} className="bg-gradient-to-r from-primary to-accent text-white h-14 px-8 text-lg font-semibold hover:scale-105 transition-all duration-300 shadow-lg" size="lg">
-                  <Plus className="w-5 h-5 mr-3" />
+                <CreateBusinessButton 
+                  className="bg-gradient-to-r from-primary to-accent text-white h-14 px-8 text-lg font-semibold hover:scale-105 transition-all duration-300 shadow-lg" 
+                  size="lg"
+                >
                   Créer mon entreprise
-                </Button>
+                </CreateBusinessButton>
               </CardContent>
             </Card>}
         </div>
@@ -181,18 +183,5 @@ export const AdvancedBusinessManager = ({
           </div>
         </div>}
 
-      {/* Create Business Form */}
-      {showCreateForm && <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] animate-fade-in">
-          <div className="w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <BusinessCreationWizard onCancel={() => setShowCreateForm(false)} onCreated={businessId => {
-          setShowCreateForm(false);
-          toast.success("Entreprise créée avec succès !");
-          // Redirection automatique vers le profil business
-          setTimeout(() => {
-            switchMode('business', businessId, navigate);
-          }, 1000);
-        }} />
-          </div>
-        </div>}
     </div>;
 };

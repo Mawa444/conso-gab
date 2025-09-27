@@ -184,7 +184,7 @@ export const ProfilePage = ({
     toast.error("Fonctionnalité à venir - Suppression de compte");
   };
     return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
-      <div className="min-h-screen">
+      <div className="flex flex-col min-h-full">
       {/* Header Profile moderne */}
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-[23px]">
         <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl"></div>
@@ -250,7 +250,7 @@ export const ProfilePage = ({
       </div>
 
       {/* Tabs */}
-      <div className="p-6 bg-[f2f4f7] bg-[#f2f4f7]/[0.97]">
+      <div className="flex-1 p-6 bg-[f2f4f7] bg-[#f2f4f7]/[0.97]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-6 bg-white rounded-3xl">
             <TabsTrigger value="overview" className="rounded-3xl bg-[3a75c4] text-center bg-inherit font-bold text-[#73767a]/[0.96] text-sm">Aperçu</TabsTrigger>

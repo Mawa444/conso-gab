@@ -3,6 +3,7 @@ import { useProfileMode } from '@/hooks/use-profile-mode';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CreateBusinessButton } from '@/components/business/CreateBusinessButton';
 
 interface BusinessPermissionsGuardProps {
   children: ReactNode;
@@ -35,9 +36,9 @@ export const BusinessPermissionsGuard = ({
         <AlertDescription className="text-orange-800">
           Vous devez créer un profil business pour accéder à cette fonctionnalité.
           <div className="mt-2">
-            <Button size="sm" variant="outline">
+            <CreateBusinessButton size="sm" variant="outline">
               Créer mon entreprise
-            </Button>
+            </CreateBusinessButton>
           </div>
         </AlertDescription>
       </Alert>

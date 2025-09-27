@@ -29,11 +29,11 @@ const App = () => {
       <ThemeProvider>
         <AuthProvider>
           <RealTimeProvider>
-            <Router>
-              <RoleBasedRouter>
-                <ModeGuard>
-                  <div className="min-h-screen bg-background">
-                    <Routes>
+                <Router>
+                  <RoleBasedRouter>
+                    <ModeGuard>
+                      <div className="flex flex-col min-h-screen bg-background">
+                        <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/home" element={<Index />} />
                       <Route path="/map" element={<Index />} />
