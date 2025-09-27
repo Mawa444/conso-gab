@@ -23,7 +23,7 @@ export const MapPage = ({
       <div className="backdrop-blur-sm border-b border-border/50 p-4 bg-[3a75c4] bg-[#3a75c4]/[0.96] rounded-none px-0 py-[12px]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {onBack && <Button variant="ghost" size="sm" onClick={onBack} className="p-2">
+            {onBack && <Button variant="ghost" size="sm" onClick={onBack} className="p-2 px-[21px] text-white font-bold text-xl">
                 <ArrowLeft className="w-4 h-4" />
               </Button>}
             <div>
