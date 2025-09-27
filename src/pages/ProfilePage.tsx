@@ -184,19 +184,19 @@ export const ProfilePage = ({
     toast.error("Fonctionnalité à venir - Suppression de compte");
   };
     return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col h-full min-h-full bg-background">
       {/* Header Profile moderne */}
-      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-[23px]">
+      <div className="bg-gradient-to-br from-primary via-accent to-secondary responsive-padding text-white relative overflow-hidden">
         <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl"></div>
         <div className="relative z-10">
             <div className="flex items-center gap-4">
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
-              <User className="w-12 h-12 text-white" />
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
+              <User className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
             </div>
             
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-white">{userProfile.name}</h1>
-              <p className="text-white/80 text-sm">{userProfile.email}</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-white">{userProfile.name}</h1>
+              <p className="text-white/80 text-xs sm:text-sm">{userProfile.email}</p>
               <div className="flex items-center gap-2 mt-3">
                 <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
                   {userProfile.level}
@@ -226,23 +226,23 @@ export const ProfilePage = ({
           </div>
 
           {/* Stats rapides modernisées */}
-          <div className="grid grid-cols-3 gap-4 mt-8">
+          <div className="grid grid-cols-3 responsive-gap mt-6 sm:mt-8">
             <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-              <CardContent className="p-4">
-                <div className="text-3xl font-bold text-white">{userProfile.points}</div>
-                <div className="text-sm text-white/70">Points ConsoGab</div>
+              <CardContent className="p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl font-bold text-white">{userProfile.points}</div>
+                <div className="text-xs sm:text-sm text-white/70">Points ConsoGab</div>
               </CardContent>
             </Card>
             <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-              <CardContent className="p-4">
-                <div className="text-3xl font-bold text-white">{userProfile.scansCount}</div>
-                <div className="text-sm text-white/70">Scans effectués</div>
+              <CardContent className="p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl font-bold text-white">{userProfile.scansCount}</div>
+                <div className="text-xs sm:text-sm text-white/70">Scans effectués</div>
               </CardContent>
             </Card>
             <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-              <CardContent className="p-4">
-                <div className="text-3xl font-bold text-white">{userProfile.reviewsCount}</div>
-                <div className="text-sm text-white/70">Avis publiés</div>
+              <CardContent className="p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl font-bold text-white">{userProfile.reviewsCount}</div>
+                <div className="text-xs sm:text-sm text-white/70">Avis publiés</div>
               </CardContent>
             </Card>
           </div>
@@ -250,9 +250,9 @@ export const ProfilePage = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex-1 p-6 bg-[f2f4f7] bg-[#f2f4f7]/[0.97]">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6 bg-white rounded-3xl">
+      <div className="flex-1 responsive-padding bg-[#f2f4f7]/[0.97] overflow-y-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
+          <TabsList className="grid w-full grid-cols-5 mb-4 sm:mb-6 bg-white rounded-3xl text-xs sm:text-sm">
             <TabsTrigger value="overview" className="rounded-3xl bg-[3a75c4] text-center bg-inherit font-bold text-[#73767a]/[0.96] text-sm">Aperçu</TabsTrigger>
             <TabsTrigger value="activity" className="rounded-3xl font-bold text-[73767a] text-[#73767a]/[0.97]">Activité</TabsTrigger>
             <TabsTrigger value="favorites" className="rounded-3xl font-bold text-[#73767a]/[0.96] text-sm">Favoris</TabsTrigger>
@@ -261,7 +261,7 @@ export const ProfilePage = ({
           </TabsList>
 
           {/* Aperçu */}
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="flex-1 space-y-4 sm:space-y-6 overflow-y-auto">
             {/* Progression niveau modernisée */}
             <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
               <CardHeader className="rounded-none bg-[3a75c4] bg-[#3e78c6]">
@@ -304,10 +304,10 @@ export const ProfilePage = ({
                   </div>
                 </Button>}
               
-              <div className="grid grid-cols-2 gap-3">
-                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 responsive-gap">
+                <Button variant="default" className="h-16 sm:h-20 flex-col gap-1 sm:gap-2 rounded-3xl text-xs sm:text-sm">
                   <QrCode className="w-6 h-6" />
-                  <span className="text-sm">Scanner commerce</span>
+                  <span className="text-xs sm:text-sm">Scanner commerce</span>
                 </Button>
                 <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
                   <MapPin className="w-6 h-6" />

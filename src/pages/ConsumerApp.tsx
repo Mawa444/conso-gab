@@ -128,24 +128,30 @@ const ConsumerApp = () => {
         {content}
       </PageTransition>;
   };
-    return <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+    return <div className="flex flex-col h-full min-h-screen bg-gradient-to-br from-background via-muted/30 to-background overflow-hidden">
       <Routes>
         <Route path="/home" element={<>
             <Header title="Découvrir" showBack={false} onLocationClick={() => navigate('/consumer/map')} onMessageClick={() => navigate('/messaging')} />
-            <main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto">
-              <HomePage onNavigate={tab => navigate(`/consumer/${tab}`)} onMessage={commerce => {
+            <main className="main-content responsive-container pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto bg-background">
+              <div className="content-wrapper h-full">
+                <HomePage onNavigate={tab => navigate(`/consumer/${tab}`)} onMessage={commerce => {
             setSelectedCommerce(commerce);
             navigate('/messaging');
           }} />
+              </div>
             </main>
           </>} />
         
-        <Route path="/map" element={<main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto">
-            <MapPage onBack={() => navigate('/consumer/home')} />
+        <Route path="/map" element={<main className="main-content responsive-container pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto bg-background">
+            <div className="content-wrapper h-full">
+              <MapPage onBack={() => navigate('/consumer/home')} />
+            </div>
           </main>} />
         
-        <Route path="/profile" element={<main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto">
-            <ProfilePage onBack={() => navigate('/consumer/home')} onSettings={() => setShowProfileSettings(true)} />
+        <Route path="/profile" element={<main className="main-content responsive-container pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto bg-background">
+            <div className="content-wrapper h-full">
+              <ProfilePage onBack={() => navigate('/consumer/home')} onSettings={() => setShowProfileSettings(true)} />
+            </div>
           </main>} />
         
         <Route path="/*" element={<Navigate to="/consumer/home" replace />} />

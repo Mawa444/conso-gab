@@ -32,7 +32,7 @@ const App = () => {
                 <Router>
                   <RoleBasedRouter>
                     <ModeGuard>
-                      <div className="flex flex-col min-h-screen bg-background">
+                      <div className="flex flex-col h-full min-h-screen bg-background overflow-hidden">
                         <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/home" element={<Index />} />

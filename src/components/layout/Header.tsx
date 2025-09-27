@@ -19,17 +19,17 @@ export const Header = ({
   onLocationClick,
   onMessageClick
 }: HeaderProps) => {
-  return <header className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary via-accent to-primary/90 text-white shadow-[var(--shadow-elevated)] backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6 py-4 rounded-none bg-[3a75c4] bg-[#3a75c4]/95">
+  return <header className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary via-accent to-primary/90 text-white shadow-[var(--shadow-elevated)] backdrop-blur-sm safe-top">
+        <div className="responsive-container flex items-center justify-between py-4 bg-[#3a75c4]/95 safe-horizontal min-h-[96px] sm:min-h-[80px]">
         {/* Côté gauche - Logo et titre */}
         <div className="flex items-center gap-3">
           {showBack ? <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20 transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Button> : <div className="flex items-center gap-2">
-               <img src={gabomaLogo} alt="ConsoGab" className="w-16 h-16 object-contain" />
+               <img src={gabomaLogo} alt="ConsoGab" className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
               <div className="rounded-none">
-                <h1 className="text-lg font-bold">ConsoGab</h1>
-                <p className="text-xs text-white/70">Découvrez le commerce gabonais</p>
+                <h1 className="text-base sm:text-lg font-bold">ConsoGab</h1>
+                <p className="text-xs sm:text-sm text-white/70 hidden sm:block">Découvrez le commerce gabonais</p>
                 {title}
               </div>
             </div>}
@@ -38,7 +38,7 @@ export const Header = ({
         </div>
 
         {/* Côté droit - Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Theme Toggle */}
           <ThemeToggle />
           
