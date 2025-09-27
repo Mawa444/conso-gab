@@ -39,7 +39,21 @@ export const useProfileMode = () => {
         user_id: user.id 
       });
       
-      const { data, error } = await supabase.rpc('get_my_business_profiles');
+      // Use direct query instead of RPC due to authentication timing issues
+      const { data, error } = await supabase
+        .from('business_profiles')
+        .select(`
+          id, 
+          business_name, 
+          logo_url, 
+          is_primary,
+          user_id,
+          owner_id,
+          business_collaborators!inner(role, status)
+        `)
+        .eq('business_collaborators.user_id', user.id)
+        .eq('business_collaborators.status', 'accepted')
+        .eq('is_active', true);
 
       if (error) {
         profileLogger.error('Failed to load business profiles', { 
@@ -56,7 +70,17 @@ export const useProfileMode = () => {
         status: 'success'
       }, { count: data?.length || 0 });
       
-      setBusinessProfiles(data || []);
+      // Transform the data to match expected interface
+      const transformedProfiles = (data || []).map(profile => ({
+        id: profile.id,
+        business_name: profile.business_name,
+        logo_url: profile.logo_url,
+        is_primary: profile.is_primary || false,
+        role: (profile.business_collaborators as any)[0]?.role || 'owner',
+        is_owner: profile.owner_id === user.id || profile.user_id === user.id
+      }));
+      
+      setBusinessProfiles(transformedProfiles);
       
     } catch (error) {
       profileLogger.error('Exception loading business profiles', { 
@@ -207,49 +231,6 @@ export const useProfileMode = () => {
   }, [user, initialized, loadBusinessProfiles, loadCurrentMode, currentMode]);
 
 
-  const fetchBusinessProfiles = async () => {
-    if (!user) return;
-
-    try {
-      // Récupérer TOUS les business profiles où l'utilisateur est propriétaire ou collaborateur
-      const { data: businessData, error } = await supabase
-        .from('business_profiles')
-        .select(`
-          id, 
-          business_name, 
-          logo_url, 
-          is_primary,
-          user_id,
-          business_collaborators!inner(role, status)
-        `)
-        .eq('business_collaborators.user_id', user.id)
-        .eq('business_collaborators.status', 'accepted')
-        .eq('is_active', true);
-
-      if (error) {
-        console.error('Erreur récupération business profiles:', error);
-        return;
-      }
-
-      if (businessData) {
-        const businesses = businessData.map(business => ({
-          id: business.id,
-          business_name: business.business_name,
-          logo_url: business.logo_url,
-          is_primary: business.is_primary || false,
-          role: (business.business_collaborators as any)[0]?.role || 'viewer',
-          is_owner: business.user_id === user.id
-        }));
-        
-        setBusinessProfiles(businesses);
-      } else {
-        setBusinessProfiles([]);
-      }
-    } catch (error) {
-      console.error('Erreur récupération business profiles:', error);
-      setBusinessProfiles([]);
-    }
-  };
 
   const switchMode = async (mode: ProfileMode, businessId?: string, navigate?: (path: string) => void) => {
     if (!user) {
