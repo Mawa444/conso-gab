@@ -111,18 +111,15 @@ export const ProfilePage = ({
     }
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-        
+      const {
+        data,
+        error
+      } = await supabase.from('user_profiles').select('*').eq('user_id', user.id).single();
       if (error) {
         console.error('Erreur récupération profil:', error);
         setIsLoading(false);
         return;
       }
-      
       if (data) {
         setUserProfile({
           name: data.pseudo || user.email?.split('@')[0] || "Utilisateur",
@@ -133,7 +130,8 @@ export const ProfilePage = ({
             year: 'numeric'
           }),
           userType: data.role === 'merchant' ? 'commerçant' : 'client',
-          points: Math.floor(Math.random() * 3000) + 1000, // TODO: Implémenter système de points
+          points: Math.floor(Math.random() * 3000) + 1000,
+          // TODO: Implémenter système de points
           level: data.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
           scansCount: Math.floor(Math.random() * 50) + 10,
           reviewsCount: Math.floor(Math.random() * 30) + 5,
@@ -148,7 +146,6 @@ export const ProfilePage = ({
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     fetchUserProfile();
   }, [user]);
@@ -160,7 +157,6 @@ export const ProfilePage = ({
       onProfileUpdated();
     }
   };
-
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "scan":
@@ -188,7 +184,7 @@ export const ProfilePage = ({
       <div className="min-h-screen animate-fade-in">
       {/* Header Profile moderne */}
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
-        <div className="absolute inset-0 backdrop-blur-sm bg-gray-700"></div>
+        <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl"></div>
         <div className="relative z-10">
             <div className="flex items-center gap-4">
             <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
