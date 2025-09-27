@@ -206,12 +206,12 @@ export const HomePage = ({
           <CardContent className="p-4 bg-white rounded-xl">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-title-medium font-roboto mb-1">Catalogues publics</h3>
-                <p className="text-body-medium font-roboto text-muted-foreground">
+                <h3 className="text-title-medium font-roboto mb-1 text-left">Catalogues publics</h3>
+                <p className="font-roboto text-body-medium text-left text-gray-400">
                   Découvrez tous les catalogues des commerces
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/catalogs')} className="gap-2 text-white bg-[3a75c4] bg-[#3a75c4]/[0.97]">
+              <Button variant="outline" size="sm" onClick={() => navigate('/catalogs')} className="gap-2 text-white bg-[009e60] bg-[#009e60]/[0.96]">
                 <Grid3X3 className="w-4 h-4" />
                 Voir tout
               </Button>
