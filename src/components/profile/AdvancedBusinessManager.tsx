@@ -37,12 +37,10 @@ export const AdvancedBusinessManager = ({
       <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 mb-6 border border-primary/20 bg-white">
         <div className="flex items-center justify-between mb-4 bg-[3a75c4] bg-white">
           <div>
-            <h2 className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-[3a75c4] text-[#3a75c4]/[0.96]">
+            <h2 className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-[3a75c4] text-black">
               Gestion des Profils
             </h2>
-            <p className="text-[3a75c4] text-[#3a75c4]/[0.96]">
-              Gérez vos profils consommateur et business
-            </p>
+            <p className="text-[3a75c4] text-black">Gérez vos profils business</p>
           </div>
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-accent animate-pulse" />
