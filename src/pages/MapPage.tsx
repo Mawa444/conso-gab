@@ -20,7 +20,7 @@ export const MapPage = ({
   return <PageWithSkeleton isLoading={loading} skeleton={<MapPageSkeleton />}>
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex flex-col">
       {/* Header simplifié */}
-      <div className="backdrop-blur-sm border-b border-border/50 p-4 rounded-3xl bg-[3a75c4] bg-[#3a75c4]/[0.96] py-[8px]">
+      <div className="backdrop-blur-sm border-b border-border/50 p-4 bg-[3a75c4] bg-[#3a75c4]/[0.96] rounded-none px-0 py-[12px]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {onBack && <Button variant="ghost" size="sm" onClick={onBack} className="p-2">
