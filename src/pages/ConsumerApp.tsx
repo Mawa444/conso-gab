@@ -132,7 +132,7 @@ const ConsumerApp = () => {
       <Routes>
         <Route path="/home" element={<>
             <Header title="Découvrir" showBack={false} onLocationClick={() => navigate('/consumer/map')} onMessageClick={() => navigate('/messaging')} />
-            <main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto rounded-none py-[33px]">
+            <main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto rounded-none py-[71px]">
               <HomePage onNavigate={tab => navigate(`/consumer/${tab}`)} onMessage={commerce => {
             setSelectedCommerce(commerce);
             navigate('/messaging');
