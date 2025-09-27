@@ -17,6 +17,7 @@ import { SleepModeToggle } from "@/components/business/SleepModeToggle";
 import { ReviewReplySection } from "@/components/reviews/ReviewReplySection";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useProfileMode } from "@/hooks/use-profile-mode";
 import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -102,6 +103,7 @@ export const BusinessDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
+  const { canAccessBusinessPro } = useProfileMode();
   const [isLoading, setIsLoading] = useState(true);
   const { secureSignOut } = useAuthCleanup();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -118,6 +120,9 @@ export const BusinessDetailPage = () => {
   });
 
   const [business, setBusiness] = useState<BusinessDetail>(mockBusiness);
+  
+  // Vérifier si l'utilisateur peut accéder à l'onglet Pro
+  const canAccessPro = id ? canAccessBusinessPro(id) : false;
 
   useEffect(() => {
     fetchBusinessData();
@@ -365,14 +370,16 @@ export const BusinessDetailPage = () => {
         {/* Tabs de contenu */}
         <div className="mt-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className={`grid w-full ${canAccessPro ? 'grid-cols-5' : 'grid-cols-4'}`}>
               <TabsTrigger value="catalog" className="text-xs">
                 Catalogues
               </TabsTrigger>
               <TabsTrigger value="info" className="text-xs">Infos</TabsTrigger>
               <TabsTrigger value="reviews" className="text-xs">Avis</TabsTrigger>
               <TabsTrigger value="favorites" className="text-xs">Favoris</TabsTrigger>
-              <TabsTrigger value="pro" className="text-xs">Pro</TabsTrigger>
+              {canAccessPro && (
+                <TabsTrigger value="pro" className="text-xs">Pro</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="info" className="space-y-6 mt-6">

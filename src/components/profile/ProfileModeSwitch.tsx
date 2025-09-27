@@ -82,7 +82,10 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
 
         {/* Mode Consommateur */}
         <DropdownMenuItem 
-          onClick={() => switchMode('consumer', undefined, navigate)}
+          onClick={() => {
+            console.log('Clic sur Mode Consommateur');
+            switchMode('consumer', undefined, navigate);
+          }}
           className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-green-50 ${
             currentMode === 'consumer' ? 'bg-green-50 text-green-700' : ''
           }`}
@@ -109,7 +112,10 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
         {businessProfiles.map((business) => (
           <DropdownMenuItem
             key={business.id}
-            onClick={() => switchMode('business', business.id, navigate)}
+            onClick={() => {
+              console.log('Clic sur profil business:', business.business_name, business.id);
+              switchMode('business', business.id, navigate);
+            }}
             className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-blue-50 ${
               currentMode === 'business' && currentBusiness?.id === business.id 
                 ? 'bg-blue-50 text-blue-700' 
