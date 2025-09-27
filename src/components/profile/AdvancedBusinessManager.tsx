@@ -31,7 +31,7 @@ export const AdvancedBusinessManager = ({
   }
   return <div className={`${className} min-h-96 p-4 bg-background`}>
       {/* Header with mode switch */}
-      <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 p-6 mb-6 border border-primary/20 bg-inherit rounded-3xl px-[26px]">
+      <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 p-6 mb-6 border border-primary/20 rounded-3xl px-[26px] bg-indigo-50">
         <div className="flex items-center justify-between mb-4 bg-[3a75c4] bg-transparent">
           <div>
             <h2 className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-[3a75c4] text-black">
