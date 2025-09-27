@@ -119,9 +119,7 @@ export const MessageSheet = ({
             </div>
 
             {/* Bouton d'envoi principal */}
-            <Button onClick={handleSend} disabled={!selectedTemplate && !customMessage.trim()} className="w-full h-12 bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 font-medium">
-              Envoyer le message
-            </Button>
+            <Button onClick={handleSend} disabled={!selectedTemplate && !customMessage.trim()} className="w-full h-12 bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 font-medium">Envoyer</Button>
 
             {/* Actions rapides */}
             <div className="flex items-center justify-center gap-6 pt-2">
