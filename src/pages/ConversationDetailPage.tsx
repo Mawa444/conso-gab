@@ -203,18 +203,18 @@ export const ConversationDetailPage = () => {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b bg-card/80 backdrop-blur-xl">
+      <div className="flex items-center gap-3 p-4 border-b bg-card/80 backdrop-blur-xl noselect">
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="font-semibold truncate">
+            <h1 className="font-semibold truncate noselect">
               {conversation.title || "Conversation"}
             </h1>
             {conversation.origin_type && (
-              <Badge variant="secondary">
+              <Badge variant="secondary" className="noselect">
                 {conversation.origin_type}
               </Badge>
             )}
@@ -243,39 +243,58 @@ export const ConversationDetailPage = () => {
                   </Avatar>
                 )}
                 
-                <div className={`max-w-[70%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
-                  <div
-                    className={`p-3 rounded-lg ${
-                      isOwn
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card border'
-                    }`}
-                  >
-                    {getMessageTypeIcon(message.message_type) && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm">{getMessageTypeIcon(message.message_type)}</span>
-                        <span className="text-xs font-medium">
-                          {message.message_type === 'action' && 'Action'}
-                          {message.message_type === 'location' && 'Position'}
-                          {message.message_type === 'qr' && 'QR Code'}
-                          {message.message_type === 'system' && 'Système'}
-                        </span>
-                      </div>
-                    )}
-                    
-                    <p className="text-sm">{message.content}</p>
-                    
-                    {message.attachment_url && (
-                      <div className="mt-2 p-2 bg-black/10 rounded border">
-                        <p className="text-xs">📎 Pièce jointe</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <span className="text-xs text-muted-foreground">
-                    {formatMessageTime(message.created_at)}
-                  </span>
-                </div>
+                 <div className={`max-w-[70%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
+                   <div
+                     className={`p-3 rounded-lg message-copyable ${
+                       isOwn
+                         ? 'bg-primary text-primary-foreground'
+                         : 'bg-card border'
+                     }`}
+                     onContextMenu={(e) => {
+                       e.preventDefault();
+                       if (navigator.clipboard) {
+                         navigator.clipboard.writeText(message.content);
+                         toast({
+                           title: "Message copié",
+                           description: "Le message a été copié dans le presse-papiers",
+                         });
+                       }
+                     }}
+                     onDoubleClick={() => {
+                       if (navigator.clipboard) {
+                         navigator.clipboard.writeText(message.content);
+                         toast({
+                           title: "Message copié",
+                           description: "Le message a été copié dans le presse-papiers",
+                         });
+                       }
+                     }}
+                   >
+                     {getMessageTypeIcon(message.message_type) && (
+                       <div className="flex items-center gap-2 mb-2 noselect">
+                         <span className="text-sm noselect">{getMessageTypeIcon(message.message_type)}</span>
+                         <span className="text-xs font-medium noselect">
+                           {message.message_type === 'action' && 'Action'}
+                           {message.message_type === 'location' && 'Position'}
+                           {message.message_type === 'qr' && 'QR Code'}
+                           {message.message_type === 'system' && 'Système'}
+                         </span>
+                       </div>
+                     )}
+                     
+                     <p className="text-sm copyable">{message.content}</p>
+                     
+                     {message.attachment_url && (
+                       <div className="mt-2 p-2 bg-black/10 rounded border noselect">
+                         <p className="text-xs noselect">📎 Pièce jointe</p>
+                       </div>
+                     )}
+                   </div>
+                   
+                   <span className="text-xs text-muted-foreground noselect">
+                     {formatMessageTime(message.created_at)}
+                   </span>
+                 </div>
               </div>
             );
           })}
@@ -287,7 +306,7 @@ export const ConversationDetailPage = () => {
       {renderQuickActions()}
 
       {/* Message Input */}
-      <div className="p-4 border-t bg-card/50">
+      <div className="p-4 border-t bg-card/50 noselect">
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
             <Paperclip className="w-4 h-4" />
@@ -298,7 +317,7 @@ export const ConversationDetailPage = () => {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="flex-1"
+            className="flex-1 copyable"
           />
           
           <Button 

@@ -19,7 +19,7 @@ export const Header = ({
   onLocationClick,
   onMessageClick
 }: HeaderProps) => {
-  return <header className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary via-accent to-primary/90 text-white shadow-[var(--shadow-elevated)] backdrop-blur-sm">
+  return <header className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary via-accent to-primary/90 text-white shadow-[var(--shadow-elevated)] backdrop-blur-sm noselect">
         <div className="flex items-center justify-between px-6 py-4 rounded-none bg-[3a75c4] bg-[#3a75c4]/95">
         {/* Côté gauche - Logo et titre */}
         <div className="flex items-center gap-3">
@@ -27,14 +27,14 @@ export const Header = ({
               <ArrowLeft className="w-5 h-5" />
             </Button> : <div className="flex items-center gap-2">
                <img src={gabomaLogo} alt="ConsoGab" className="w-16 h-16 object-contain" />
-              <div className="rounded-none">
-                <h1 className="text-lg font-bold">ConsoGab</h1>
-                <p className="text-xs text-white/70">Découvrez le commerce gabonais</p>
+               <div className="rounded-none noselect">
+                <h1 className="text-lg font-bold noselect">ConsoGab</h1>
+                <p className="text-xs text-white/70 noselect">Découvrez le commerce gabonais</p>
                 {title}
-              </div>
+               </div>
             </div>}
           
-          {showBack && title && <h1 className="text-lg font-semibold">{title}</h1>}
+          {showBack && title && <h1 className="text-lg font-semibold noselect">{title}</h1>}
         </div>
 
         {/* Côté droit - Actions */}
