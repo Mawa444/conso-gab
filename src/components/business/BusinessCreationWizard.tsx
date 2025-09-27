@@ -531,11 +531,11 @@ export const BusinessCreationWizard = ({
           </Button>
 
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={onCancel}>
+            <Button variant="ghost" onClick={onCancel} className="bg-red-600 hover:bg-red-500 text-white rounded-3xl">
               Annuler
             </Button>
 
-            {step < 5 ? <Button onClick={handleNext} disabled={!canNext()} className="px-6 bg-gradient-to-r from-primary to-accent text-white">
+            {step < 5 ? <Button onClick={handleNext} disabled={!canNext()} className="px-6 from-primary to-accent text-white bg-[3a75c4] bg-[#3a75c4]/[0.96] rounded-3xl">
                 Suivant
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button> : <Button onClick={handleCreate} disabled={loading || !canNext()} className="px-8 bg-gradient-to-r from-primary to-accent text-white" size="lg">
