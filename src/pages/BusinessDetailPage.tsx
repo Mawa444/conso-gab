@@ -56,41 +56,31 @@ interface BusinessDetail {
   };
 }
 
-// Données d'exemple - en réalité elles viendraient de l'API
-const mockBusiness: BusinessDetail = {  
-  id: "business_001",
-  name: "Restaurant Chez Tonton",
-  type: "Restaurant Gabonais",
-  owner: "Paul Mba",
-  address: "Quartier Nombakélé, Libreville",
-  rating: 4.8,
-  verified: true,
-  employees: ["Marie Nzé", "Jean Obiang", "Sophie Mbourou", "Alain Ekomi"],
-  reviewCount: 127,
-  phone: "+241 01 23 45 67",
-  whatsapp: "+241 01 23 45 67",
-  website: "https://restaurantcheztonton.ga",
-  email: "contact@cheztonton.ga",
-  description: "Restaurant familial proposant une cuisine gabonaise authentique depuis 15 ans. Spécialisé dans les plats traditionnels préparés avec des ingrédients locaux de qualité. Ambiance chaleureuse et service personnalisé pour vous faire découvrir les saveurs du Gabon.",
-  openingHours: "Lundi à Samedi : 8h00 - 22h00 • Dimanche : 10h00 - 20h00",
-  socialMedia: {
-    facebook: "https://facebook.com/cheztonton",
-    instagram: "@cheztonton_libreville",
-    telegram: "@CheZtontonRestaurant"
-  },
-  certifications: ["Certification Hygiène", "Label Qualité Gaboma", "Commerce Vérifié"],
+const defaultBusiness: BusinessDetail = {  
+  id: "",
+  name: "",
+  type: "",
+  owner: "",
+  address: "",
+  rating: 4.5,
+  verified: false,
+  employees: [],
+  reviewCount: 0,
+  phone: "",
+  whatsapp: "",
+  website: "",
+  email: "",
+  description: "",
+  openingHours: "Lundi à Vendredi : 8h00 - 18h00",
+  socialMedia: {},
+  certifications: [],
   coordinates: {
     lat: 0.4162,
     lng: 9.4673
   }
 };
 
-const reviews = [
-  { id: "1", user: "Marie K.", rating: 5, comment: "Excellent service, très professionnel ! Les plats sont délicieux et l'accueil est parfait.", date: "Il y a 2 jours", verified: true },
-  { id: "2", user: "Jean P.", rating: 4, comment: "Bonne qualité, je recommande. L'ambiance est agréable et les prix corrects.", date: "Il y a 1 semaine", verified: false },
-  { id: "3", user: "Sarah M.", rating: 5, comment: "Toujours satisfaite de mes visites ici. Le poulet au nyembwe est exceptionnel !", date: "Il y a 2 semaines", verified: true },
-  { id: "4", user: "Alain T.", rating: 4, comment: "Service rapide et personnel accueillant. Parfait pour un déjeuner d'affaires.", date: "Il y a 3 semaines", verified: false }
-];
+const reviews: any[] = [];
 
 const images = [
   "/placeholder.svg?height=300&width=400",
@@ -119,7 +109,7 @@ export const BusinessDetailPage = () => {
     deletionDate: null as string | null
   });
 
-  const [business, setBusiness] = useState<BusinessDetail>(mockBusiness);
+  const [business, setBusiness] = useState<BusinessDetail | null>(null);
   
   // Vérifier si l'utilisateur peut accéder à l'onglet Pro
   const canAccessPro = id ? canAccessBusinessPro(id) : false;
@@ -150,19 +140,19 @@ export const BusinessDetailPage = () => {
       }
 
       if (data) {
-        // Mettre à jour les infos affichées avec les données réelles de la DB
-        setBusiness((prev) => ({
-          ...prev,
+        // Créer l'objet business avec les vraies données de la DB
+        setBusiness({
+          ...defaultBusiness,
           id: data.id,
-          name: data.business_name || prev.name,
-          type: data.business_category || prev.type,
-          address: data.address || prev.address,
-          phone: data.phone || prev.phone,
+          name: data.business_name || 'Commerce sans nom',
+          type: data.business_category || 'Activité non spécifiée',
+          address: data.address || 'Adresse non renseignée',
+          phone: data.phone || '',
           whatsapp: data.whatsapp || undefined,
           website: data.website || undefined,
           email: data.email || undefined,
-          description: data.description || prev.description,
-        }));
+          description: data.description || 'Aucune description disponible',
+        });
 
         // Mettre à jour l'état d'activité
         setBusinessData({
@@ -213,6 +203,10 @@ export const BusinessDetailPage = () => {
       window.open(`https://wa.me/${business.whatsapp.replace(/\D/g, '')}`, '_blank');
     }
   };
+
+  if (!business) {
+    return <ProfilePageSkeleton />;
+  }
 
   return (
     <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
