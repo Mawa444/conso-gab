@@ -203,9 +203,9 @@ export const BusinessCreationWizard = ({
     switch (step) {
       case 1:
         return <div className="space-y-6">
-            <div className="text-center mb-6">
+            <div className="text-center mb-6 bg-white">
               <Building2 className="w-16 h-16 mx-auto mb-4 text-primary" />
-              <h3 className="text-2xl font-bold mb-2">Informations de base</h3>
+              <h3 className="font-bold mb-2 text-[3a75c4] text-[#3a75c4]/[0.97]">Informations de base</h3>
               <p className="text-muted-foreground">
                 Présentez votre entreprise de manière claire et attractive
               </p>
@@ -514,7 +514,7 @@ export const BusinessCreationWizard = ({
         </div>
 
         <div className="flex justify-center mt-3">
-          <Badge variant={step === 5 ? "default" : "secondary"} className="text-xs">
+          <Badge variant={step === 5 ? "default" : "secondary"} className="text-xs rounded-3xl bg-[fcd116] bg-[#fcd116]/[0.96]">
             Étape {step}/5: {steps[step - 1].title}
           </Badge>
         </div>

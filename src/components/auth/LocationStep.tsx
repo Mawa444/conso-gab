@@ -9,7 +9,6 @@ import { MapPin, Navigation, Loader2, CheckCircle, Globe, MapIcon } from "lucide
 import { toast } from "sonner";
 import { useProvinces, useDepartments, useArrondissements, useQuartiers } from "@/hooks/use-location-data";
 import { useGeocoding } from "@/hooks/use-geocoding";
-
 interface LocationData {
   country?: string;
   countryCode?: string;
@@ -30,31 +29,43 @@ interface LocationData {
   formattedAddress?: string;
   displayName?: string;
 }
-
 interface LocationStepProps {
   onLocationChange: (location: LocationData) => void;
   initialLocation?: LocationData;
 }
-
-export const LocationStep = ({ onLocationChange, initialLocation = {} }: LocationStepProps) => {
+export const LocationStep = ({
+  onLocationChange,
+  initialLocation = {}
+}: LocationStepProps) => {
   const [location, setLocation] = useState<LocationData>(initialLocation);
   const [locationMethod, setLocationMethod] = useState<'manual' | 'gps'>('manual');
   const [showDetails, setShowDetails] = useState(false);
   const [skipLocation, setSkipLocation] = useState(false);
-
-  const { data: provinces } = useProvinces();
-  const { data: departments } = useDepartments(location.province);  
-  const { data: arrondissements } = useArrondissements(location.department);
-  const { data: quartiers } = useQuartiers(location.arrondissement);
-  
-  const { location: detailedLocation, isLoading: isGettingLocation, getDetailedLocation } = useGeocoding();
-
+  const {
+    data: provinces
+  } = useProvinces();
+  const {
+    data: departments
+  } = useDepartments(location.province);
+  const {
+    data: arrondissements
+  } = useArrondissements(location.department);
+  const {
+    data: quartiers
+  } = useQuartiers(location.arrondissement);
+  const {
+    location: detailedLocation,
+    isLoading: isGettingLocation,
+    getDetailedLocation
+  } = useGeocoding();
   const updateLocation = (updates: Partial<LocationData>) => {
-    const newLocation = { ...location, ...updates };
+    const newLocation = {
+      ...location,
+      ...updates
+    };
     setLocation(newLocation);
     onLocationChange(newLocation);
   };
-
   const handleProvinceChange = (value: string) => {
     const provinceName = provinces?.find(p => p.id === value)?.name;
     updateLocation({
@@ -64,7 +75,6 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
       quartier: undefined
     });
   };
-
   const handleDepartmentChange = (value: string) => {
     const departmentName = departments?.find(d => d.id === value)?.name;
     updateLocation({
@@ -73,7 +83,6 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
       quartier: undefined
     });
   };
-
   const handleArrondissementChange = (value: string) => {
     const arrondissementName = arrondissements?.find(a => a.id === value)?.name;
     updateLocation({
@@ -81,15 +90,14 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
       quartier: undefined
     });
   };
-
   const handleQuartierChange = (value: string) => {
     const quartierName = quartiers?.find(q => q.id === value)?.name;
-    updateLocation({ quartier: quartierName });
+    updateLocation({
+      quartier: quartierName
+    });
   };
-
   const getGPSLocation = async () => {
     const result = await getDetailedLocation();
-    
     if (result) {
       // Remplir automatiquement tous les champs avec les données détaillées
       const newLocation: LocationData = {
@@ -109,40 +117,32 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
         formattedAddress: result.formattedAddress,
         displayName: result.displayName
       };
-      
       setLocation(newLocation);
       onLocationChange(newLocation);
       setLocationMethod('gps');
       setShowDetails(true);
-      
       toast.success("Position GPS détaillée récupérée avec succès ! 🌍");
     }
   };
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div className="text-center space-y-2">
         <p className="text-sm text-muted-foreground">
           Renseignez votre localisation pour découvrir les opérateurs près de chez vous
         </p>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            setSkipLocation(true);
-            onLocationChange({ country: 'Gabon' }); // Valeur par défaut
-          }}
-          className="text-xs text-muted-foreground hover:text-primary"
-        >
+        <Button variant="ghost" size="sm" onClick={() => {
+        setSkipLocation(true);
+        onLocationChange({
+          country: 'Gabon'
+        }); // Valeur par défaut
+      }} className="text-xs text-muted-foreground hover:text-primary">
           Passer cette étape (configurer plus tard)
         </Button>
       </div>
 
-      {!skipLocation && (
-        <>
+      {!skipLocation && <>
           {/* GPS Option */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 bg-white">
               <CardTitle className="flex items-center space-x-2 text-base">
                 <Navigation className="h-5 w-5 text-primary" />
                 <span>Position GPS automatique</span>
@@ -152,27 +152,17 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
               </p>
             </CardHeader>
             <CardContent>
-          <Button
-            onClick={getGPSLocation}
-            disabled={isGettingLocation}
-            variant={locationMethod === 'gps' ? 'default' : 'outline'}
-            className="w-full"
-          >
-            {isGettingLocation ? (
-              <>
+          <Button onClick={getGPSLocation} disabled={isGettingLocation} variant={locationMethod === 'gps' ? 'default' : 'outline'} className="w-full bg-[3a75c4] bg-[#3a75c4]/[0.97] text-white">
+            {isGettingLocation ? <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 Localisation en cours...
-              </>
-            ) : (
-              <>
+              </> : <>
                 <MapPin className="h-4 w-4 mr-2" />
                 Utiliser ma position GPS
-              </>
-            )}
+              </>}
           </Button>
           
-          {detailedLocation && showDetails && (
-            <div className="mt-4 space-y-3">
+          {detailedLocation && showDetails && <div className="mt-4 space-y-3">
               <div className="flex items-center space-x-2 text-green-600">
                 <CheckCircle className="h-4 w-4" />
                 <span className="text-sm font-medium">Position détaillée trouvée !</span>
@@ -180,53 +170,41 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
               
               <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  {detailedLocation.country && (
-                    <div className="flex items-center space-x-2">
+                  {detailedLocation.country && <div className="flex items-center space-x-2">
                       <Globe className="h-3 w-3 text-blue-500" />
                       <span className="font-medium">Pays:</span>
                       <span>{detailedLocation.country}</span>
-                    </div>
-                  )}
+                    </div>}
                   
-                  {detailedLocation.region && (
-                    <div className="flex items-center space-x-2">
+                  {detailedLocation.region && <div className="flex items-center space-x-2">
                       <MapIcon className="h-3 w-3 text-green-500" />
                       <span className="font-medium">Région:</span>
                       <span>{detailedLocation.region}</span>
-                    </div>
-                  )}
+                    </div>}
                   
-                  {detailedLocation.city && (
-                    <div className="flex items-center space-x-2">
+                  {detailedLocation.city && <div className="flex items-center space-x-2">
                       <MapPin className="h-3 w-3 text-orange-500" />
                       <span className="font-medium">Ville:</span>
                       <span>{detailedLocation.city}</span>
-                    </div>
-                  )}
+                    </div>}
                   
-                  {detailedLocation.neighborhood && (
-                    <div className="flex items-center space-x-2">
+                  {detailedLocation.neighborhood && <div className="flex items-center space-x-2">
                       <MapPin className="h-3 w-3 text-purple-500" />
                       <span className="font-medium">Quartier:</span>
                       <span>{detailedLocation.neighborhood}</span>
-                    </div>
-                  )}
+                    </div>}
                   
-                  {detailedLocation.road && (
-                    <div className="flex items-center space-x-2 col-span-2">
+                  {detailedLocation.road && <div className="flex items-center space-x-2 col-span-2">
                       <MapPin className="h-3 w-3 text-red-500" />
                       <span className="font-medium">Rue:</span>
                       <span>{detailedLocation.road}</span>
-                    </div>
-                  )}
+                    </div>}
                   
-                  {detailedLocation.postcode && (
-                    <div className="flex items-center space-x-2">
+                  {detailedLocation.postcode && <div className="flex items-center space-x-2">
                       <MapPin className="h-3 w-3 text-gray-500" />
                       <span className="font-medium">Code postal:</span>
                       <span>{detailedLocation.postcode}</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
                 
                 <div className="pt-2 border-t">
@@ -244,8 +222,7 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
                   </Badge>
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
         </CardContent>
       </Card>
 
@@ -264,103 +241,72 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
           <div className="grid gap-3">
             <div className="space-y-2">
               <Label htmlFor="province">Province</Label>
-              <Select
-                value={provinces?.find(p => p.name === location.province)?.id || ''}
-                onValueChange={handleProvinceChange}
-              >
+              <Select value={provinces?.find(p => p.name === location.province)?.id || ''} onValueChange={handleProvinceChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choisir une province" />
                 </SelectTrigger>
                 <SelectContent>
-                  {provinces?.map((province) => (
-                    <SelectItem key={province.id} value={province.id}>
+                  {provinces?.map(province => <SelectItem key={province.id} value={province.id}>
                       {province.name}
-                    </SelectItem>
-                  ))}
+                    </SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
 
-            {location.province && departments && departments.length > 0 && (
-              <div className="space-y-2">
+            {location.province && departments && departments.length > 0 && <div className="space-y-2">
                 <Label htmlFor="department">Département</Label>
-                <Select
-                  value={departments?.find(d => d.name === location.department)?.id || ''}
-                  onValueChange={handleDepartmentChange}
-                >
+                <Select value={departments?.find(d => d.name === location.department)?.id || ''} onValueChange={handleDepartmentChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choisir un département" />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments?.map((department) => (
-                      <SelectItem key={department.id} value={department.id}>
+                    {departments?.map(department => <SelectItem key={department.id} value={department.id}>
                         {department.name}
-                      </SelectItem>
-                    ))}
+                      </SelectItem>)}
                   </SelectContent>
                 </Select>
-              </div>
-            )}
+              </div>}
 
-            {location.department && arrondissements && arrondissements.length > 0 && (
-              <div className="space-y-2">
+            {location.department && arrondissements && arrondissements.length > 0 && <div className="space-y-2">
                 <Label htmlFor="arrondissement">Arrondissement</Label>
-                <Select
-                  value={arrondissements?.find(a => a.name === location.arrondissement)?.id || ''}
-                  onValueChange={handleArrondissementChange}
-                >
+                <Select value={arrondissements?.find(a => a.name === location.arrondissement)?.id || ''} onValueChange={handleArrondissementChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choisir un arrondissement" />
                   </SelectTrigger>
                   <SelectContent>
-                    {arrondissements?.map((arrondissement) => (
-                      <SelectItem key={arrondissement.id} value={arrondissement.id}>
+                    {arrondissements?.map(arrondissement => <SelectItem key={arrondissement.id} value={arrondissement.id}>
                         {arrondissement.name}
-                      </SelectItem>
-                    ))}
+                      </SelectItem>)}
                   </SelectContent>
                 </Select>
-              </div>
-            )}
+              </div>}
 
-            {location.arrondissement && quartiers && quartiers.length > 0 && (
-              <div className="space-y-2">
+            {location.arrondissement && quartiers && quartiers.length > 0 && <div className="space-y-2">
                 <Label htmlFor="quartier">Quartier</Label>
-                <Select
-                  value={quartiers?.find(q => q.name === location.quartier)?.id || ''}
-                  onValueChange={handleQuartierChange}
-                >
+                <Select value={quartiers?.find(q => q.name === location.quartier)?.id || ''} onValueChange={handleQuartierChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choisir un quartier" />
                   </SelectTrigger>
                   <SelectContent>
-                    {quartiers?.map((quartier) => (
-                      <SelectItem key={quartier.id} value={quartier.id}>
+                    {quartiers?.map(quartier => <SelectItem key={quartier.id} value={quartier.id}>
                         {quartier.name}
-                      </SelectItem>
-                    ))}
+                      </SelectItem>)}
                   </SelectContent>
                 </Select>
-              </div>
-            )}
+              </div>}
 
             <div className="space-y-2">
               <Label htmlFor="address">Adresse (optionnel)</Label>
-              <Input
-                id="address"
-                value={location.address || ''}
-                onChange={(e) => updateLocation({ address: e.target.value })}
-                placeholder="Précision d'adresse (rue, bâtiment...)"
-              />
+              <Input id="address" value={location.address || ''} onChange={e => updateLocation({
+                address: e.target.value
+              })} placeholder="Précision d'adresse (rue, bâtiment...)" />
             </div>
           </div>
         </CardContent>
       </Card>
-      </>
-      )}
+      </>}
       
-      {skipLocation && (
-        <div className="text-center p-6 border border-dashed rounded-lg bg-muted/30">
+      {skipLocation && <div className="text-center p-6 border border-dashed rounded-lg bg-muted/30">
           <div className="space-y-2">
             <CheckCircle className="h-8 w-8 text-green-500 mx-auto" />
             <p className="text-sm font-medium text-foreground">
@@ -370,8 +316,6 @@ export const LocationStep = ({ onLocationChange, initialLocation = {} }: Locatio
               Vous pourrez configurer votre localisation dans vos paramètres après l'inscription.
             </p>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
