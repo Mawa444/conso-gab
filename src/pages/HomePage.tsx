@@ -178,7 +178,7 @@ export const HomePage = ({
   return <PageWithSkeleton isLoading={loading} skeleton={<HomePageSkeleton />}>
       <div className="min-h-screen bg-background">
         {/* Contenu principal */}
-        <div className="space-y-6 p-4 bg-background py-0">
+        <div className="space-y-6 p-4 bg-background py-0 px-0">
         {/* Barre de recherche unifiée */}
         <div className="p-4 shadow-sm border-border rounded-3xl bg-inherit py-0">
           <UnifiedSearchBar onSelect={result => {
@@ -192,11 +192,7 @@ export const HomePage = ({
 
         {/* Actions rapides pour les entreprises */}
         <div className="flex gap-2">
-          <CreateBusinessButton 
-            variant="outline" 
-            size="sm" 
-            className="flex-1 gap-2 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:from-primary/10 hover:to-accent/10 rounded-3xl"
-          >
+          <CreateBusinessButton variant="outline" size="sm" className="flex-1 gap-2 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:from-primary/10 hover:to-accent/10 rounded-3xl">
             <Building2 className="w-4 h-4" />
             Créer mon entreprise
           </CreateBusinessButton>
@@ -207,7 +203,7 @@ export const HomePage = ({
         </div>
 
         {/* Catégories rapides */}
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide rounded-3xl">
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide rounded-3xl bg-inherit">
           {categories.slice(0, 6).map(category => <button key={category.id} onClick={() => handleCategoryClick(category)} className={`flex-shrink-0 px-6 py-4 rounded-2xl text-white font-semibold flex items-center gap-2 shadow-sm bg-gradient-to-br ${category.color}`}>
               <span className="text-lg">{category.icon}</span>
               <span className="whitespace-nowrap">{category.nom}</span>
