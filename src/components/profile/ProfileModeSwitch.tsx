@@ -75,17 +75,21 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
             <p className="text-xs leading-none text-muted-foreground">
               Mode actuel: {isBusinessMode ? 'Professionnel' : 'Consommateur'}
             </p>
+            {loading && (
+              <p className="text-xs text-blue-500">Chargement...</p>
+            )}
           </div>
         </DropdownMenuLabel>
         
         <DropdownMenuSeparator />
 
-        {/* Mode Consommateur */}
+        {/* Mode Consommateur - toujours visible */}
         <DropdownMenuItem 
           onClick={() => {
-            console.log('Clic sur Mode Consommateur');
+            console.log('🔄 Clic sur Mode Consommateur');
             switchMode('consumer', undefined, navigate);
           }}
+          disabled={loading}
           className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-green-50 ${
             currentMode === 'consumer' ? 'bg-green-50 text-green-700' : ''
           }`}
@@ -102,65 +106,67 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
           )}
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
-        
-        <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wide">
-          Mes Entreprises
-        </DropdownMenuLabel>
+        {businessProfiles.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            
+            <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wide">
+              Mes Entreprises ({businessProfiles.length})
+            </DropdownMenuLabel>
 
-        {/* Liste des profils business */}
-        {businessProfiles.map((business) => (
-          <DropdownMenuItem
-            key={business.id}
-            onClick={() => {
-              console.log('Clic sur profil business:', business.business_name, business.id);
-              switchMode('business', business.id, navigate);
-            }}
-            className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-blue-50 ${
-              currentMode === 'business' && currentBusiness?.id === business.id 
-                ? 'bg-blue-50 text-blue-700' 
-                : ''
-            }`}
-          >
-            <Avatar className="w-8 h-8">
-              <AvatarImage src={business.logo_url} />
-              <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
-                <Building2 className="w-4 h-4" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{business.business_name}</p>
-              <p className="text-xs text-muted-foreground">Mode Professionnel</p>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-              {business.is_primary && (
-                <Badge variant="outline" className="text-xs">Principal</Badge>
-              )}
-              {currentMode === 'business' && currentBusiness?.id === business.id && (
-                <Badge variant="secondary" className="text-xs">Actuel</Badge>
-              )}
-            </div>
-          </DropdownMenuItem>
-        ))}
-
-        {businessProfiles.length === 0 && (
-          <DropdownMenuItem disabled className="text-center text-muted-foreground">
-            <div className="flex flex-col items-center gap-2 p-2">
-              <Building2 className="w-6 h-6 text-muted-foreground" />
-              <p className="text-xs">Aucune entreprise</p>
-            </div>
-          </DropdownMenuItem>
+            {/* Liste des profils business */}
+            {businessProfiles.map((business) => (
+              <DropdownMenuItem
+                key={business.id}
+                onClick={() => {
+                  console.log('🔄 Clic sur profil business:', business.business_name, business.id);
+                  switchMode('business', business.id, navigate);
+                }}
+                disabled={loading}
+                className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-blue-50 ${
+                  currentMode === 'business' && currentBusiness?.id === business.id 
+                    ? 'bg-blue-50 text-blue-700' 
+                    : ''
+                }`}
+              >
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={business.logo_url} />
+                  <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+                    <Building2 className="w-4 h-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{business.business_name}</p>
+                  <p className="text-xs text-muted-foreground">Mode Professionnel</p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  {business.is_primary && (
+                    <Badge variant="outline" className="text-xs">Principal</Badge>
+                  )}
+                  {business.is_owner && (
+                    <Badge variant="secondary" className="text-xs">Propriétaire</Badge>
+                  )}
+                  {currentMode === 'business' && currentBusiness?.id === business.id && (
+                    <Badge variant="default" className="text-xs">Actuel</Badge>
+                  )}
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </>
         )}
 
         <DropdownMenuSeparator />
         
         <DropdownMenuItem 
           onClick={() => navigate('/business/create')} 
+          disabled={loading}
           className="text-center text-primary cursor-pointer"
         >
           <div className="flex items-center gap-2 w-full justify-center">
             <Building2 className="w-4 h-4" />
-            <span className="text-sm">Créer une nouvelle entreprise</span>
+            <span className="text-sm">
+              {businessProfiles.length === 0 ? 'Créer ma première entreprise' : 'Créer une nouvelle entreprise'}
+            </span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -337,6 +337,7 @@ export type Database = {
           office_location: Json | null
           office_location_type: string | null
           office_location_updated_at: string | null
+          owner_id: string | null
           phone: string | null
           province: string | null
           quartier: string | null
@@ -374,6 +375,7 @@ export type Database = {
           office_location?: Json | null
           office_location_type?: string | null
           office_location_updated_at?: string | null
+          owner_id?: string | null
           phone?: string | null
           province?: string | null
           quartier?: string | null
@@ -411,6 +413,7 @@ export type Database = {
           office_location?: Json | null
           office_location_type?: string | null
           office_location_updated_at?: string | null
+          owner_id?: string | null
           phone?: string | null
           province?: string | null
           quartier?: string | null
@@ -2151,6 +2154,32 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sessions: {
+        Row: {
+          active_profile: string | null
+          last_switched: string | null
+          user_id: string
+        }
+        Insert: {
+          active_profile?: string | null
+          last_switched?: string | null
+          user_id: string
+        }
+        Update: {
+          active_profile?: string | null
+          last_switched?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sessions_active_profile_fkey"
+            columns: ["active_profile"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -2188,6 +2217,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_my_business_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          business_name: string
+          id: string
+          is_owner: boolean
+          is_primary: boolean
+          logo_url: string
+          role: string
+        }[]
+      }
       log_user_activity: {
         Args: {
           action_description_param: string
@@ -2214,6 +2254,10 @@ export type Database = {
       switch_user_mode: {
         Args: { business_id_param?: string; new_mode: string }
         Returns: undefined
+      }
+      switch_user_profile: {
+        Args: { profile_id?: string }
+        Returns: Json
       }
       toggle_business_sleep_mode: {
         Args: { business_profile_id: string; sleep_mode: boolean }
