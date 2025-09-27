@@ -27,7 +27,7 @@ export const Header = ({
               <ArrowLeft className="w-5 h-5" />
             </Button> : <div className="flex items-center gap-2 my-0 mx-0">
                <img src={gabomaLogo} alt="ConsoGab" className="w-13 h-12 object-contain" />
-                
+               <span className="font-lalezar text-white text-xl font-normal">CONSOGAB</span>
             </div>}
           
           {showBack && title && <h1 className="text-title-large font-roboto noselect">{title}</h1>}

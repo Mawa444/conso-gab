@@ -20,6 +20,7 @@ export default {
 		extend: {
 			fontFamily: {
 				'roboto': ['Roboto', 'sans-serif'],
+				'lalezar': ['Lalezar', 'cursive'],
 				'sans': ['Roboto', 'system-ui', 'sans-serif'],
 			},
 			fontSize: {
