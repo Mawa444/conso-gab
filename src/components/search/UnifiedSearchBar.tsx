@@ -148,7 +148,7 @@ export const UnifiedSearchBar = ({
       <div className="flex items-center gap-2">
         <div className="relative flex-1 rounded-3xl">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input placeholder={placeholder} value={query} onChange={e => setQuery(e.target.value)} className={cn("pl-10 pr-10", sizeClasses[size])} />
+          <Input placeholder={placeholder} value={query} onChange={e => setQuery(e.target.value)} className={cn("pl-10 pr-10 bg-white h-11", sizeClasses[size])} />
           {query && <Button variant="ghost" size="sm" onClick={() => setQuery("")} className="absolute right-1 top-1/2 transform -translate-y-1/2 p-1 h-8 w-8">
               <X className="w-4 h-4" />
             </Button>}
