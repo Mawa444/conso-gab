@@ -75,17 +75,17 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [authLoading, user, navigate, location.pathname]);
 
-  // Redirection intelligente après connexion
+  // Redirection intelligente après connexion - uniquement depuis racine ou auth
   useEffect(() => {
     if (!globalLoading && user && userProfile.role) {
       const currentPath = location.pathname;
       
-      // Rediriger uniquement depuis la racine ou auth
+      // Rediriger SEULEMENT depuis la racine exacte ou auth (pas lors d'actualisations)
       if (currentPath === '/' || currentPath.startsWith('/auth')) {
         redirectToLastUsedProfile();
       }
     }
-  }, [globalLoading, user, userProfile.role, navigate, location.pathname]);
+  }, [globalLoading, user, userProfile.role, location.pathname]);
 
   const redirectToLastUsedProfile = async () => {
     if (!user) return;

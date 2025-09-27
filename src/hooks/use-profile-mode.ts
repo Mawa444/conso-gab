@@ -39,8 +39,19 @@ export const useProfileMode = () => {
   useEffect(() => {
     if (!user) return;
 
-    fetchUserMode();
-    fetchBusinessProfiles();
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchUserMode(),
+          fetchBusinessProfiles()
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
 
     // Abonnement temps réel au changement de mode
     const channel = supabase
@@ -86,7 +97,6 @@ export const useProfileMode = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Erreur récupération mode:', error);
-        setLoading(false);
         return;
       }
 
@@ -96,8 +106,6 @@ export const useProfileMode = () => {
       }
     } catch (error) {
       console.error('Erreur:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
