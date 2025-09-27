@@ -21,9 +21,9 @@ export const ModeGuard = ({ children }: ModeGuardProps) => {
 
     // Verrou de mode: pas d'accès simultané aux deux espaces
     if (currentMode === 'business') {
-      // Si l'utilisateur essaie d'accéder à une route consommateur, on le renvoie vers son dashboard business personnel
+      // Si l'utilisateur essaie d'accéder à une route consommateur, on le renvoie vers son profil business
       if (path.startsWith('/consumer')) {
-        target = '/business/dashboard';
+        target = '/business/profile?tab=catalog';
       }
     } else {
       // Mode consommateur: on évite l'accès à l'espace opérateur

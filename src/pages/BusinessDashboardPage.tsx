@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useProfileMode } from "@/hooks/use-profile-mode";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,7 @@ interface ConversationItem {
 
 export const BusinessDashboardPage = () => {
   const { user } = useAuth();
+  const { currentBusinessId } = useProfileMode();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -80,19 +82,38 @@ export const BusinessDashboardPage = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Get business profile
-      const { data: business } = await supabase
-        .from('business_profiles')
-        .select('*')
-        .eq('user_id', user?.id)
-        .eq('is_active', true)
-        .single();
+      // Récupérer le profil business spécifique si on est en mode business
+      if (!user) return;
+
+      let business = null;
+      
+      // Si on est en mode business et qu'on a un currentBusinessId, l'utiliser
+      if (currentBusinessId) {
+        const { data: specificBusiness } = await supabase
+          .from('business_profiles')
+          .select('*')
+          .eq('id', currentBusinessId)
+          .eq('user_id', user.id) // Sécurité: vérifier que c'est bien son business
+          .single();
+        business = specificBusiness;
+      } else {
+        // Sinon, prendre le premier business de l'utilisateur
+        const { data: firstBusiness } = await supabase
+          .from('business_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .limit(1)
+          .single();
+        business = firstBusiness;
+      }
 
       if (!business) {
         navigate('/merchant/register');
         return;
       }
 
+      console.log('📊 Dashboard business chargé:', business.business_name);
       setBusinessProfile(business);
 
       // Fetch orders
