@@ -1,10 +1,13 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useProfileMode } from "@/hooks/use-profile-mode";
+import { createDomainLogger } from "@/lib/logger";
 
 interface ModeGuardProps {
   children: React.ReactNode;
 }
+
+const guardLogger = createDomainLogger('mode-guard');
 
 export const ModeGuard = ({ children }: ModeGuardProps) => {
   const { currentMode, currentBusinessId, loading } = useProfileMode();
@@ -38,6 +41,14 @@ export const ModeGuard = ({ children }: ModeGuardProps) => {
 
     // Éviter les boucles et redirections redondantes
     if (target && target !== path && lastRedirectRef.current !== target) {
+      guardLogger.info('Mode guard redirect', { 
+        action: 'guard_redirect',
+        from: path,
+        to: target,
+        business_id: currentBusinessId,
+        status: 'success'
+      });
+      
       lastRedirectRef.current = target;
       navigate(target, { replace: true });
     }

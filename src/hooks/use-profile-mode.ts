@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { createDomainLogger } from '@/lib/logger';
 
 export type ProfileMode = 'consumer' | 'business';
 
@@ -19,39 +20,149 @@ interface UserCurrentMode {
   current_business_id?: string;
 }
 
+const profileLogger = createDomainLogger('profile-manager');
+
 export const useProfileMode = () => {
   const { user } = useAuth();
   const [currentMode, setCurrentMode] = useState<ProfileMode>('consumer');
   const [currentBusinessId, setCurrentBusinessId] = useState<string | null>(null);
   const [businessProfiles, setBusinessProfiles] = useState<BusinessProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
-  // Initialisation des données à la connexion
+  const loadBusinessProfiles = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      profileLogger.debug('Loading business profiles', { 
+        action: 'load_business_profiles',
+        user_id: user.id 
+      });
+      
+      const { data, error } = await supabase.rpc('get_my_business_profiles');
+
+      if (error) {
+        profileLogger.error('Failed to load business profiles', { 
+          action: 'load_business_profiles',
+          user_id: user.id 
+        }, error);
+        setBusinessProfiles([]);
+        return;
+      }
+
+      profileLogger.info('Business profiles loaded', { 
+        action: 'load_business_profiles',
+        user_id: user.id,
+        status: 'success'
+      }, { count: data?.length || 0 });
+      
+      setBusinessProfiles(data || []);
+      
+    } catch (error) {
+      profileLogger.error('Exception loading business profiles', { 
+        action: 'load_business_profiles',
+        user_id: user.id 
+      }, error);
+      setBusinessProfiles([]);
+    }
+  }, [user]);
+
+  const loadCurrentMode = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      profileLogger.debug('Loading current mode', { 
+        action: 'load_current_mode',
+        user_id: user.id 
+      });
+      
+      const { data, error } = await supabase
+        .from('user_current_mode')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        profileLogger.error('Failed to load current mode', { 
+          action: 'load_current_mode',
+          user_id: user.id 
+        }, error);
+        return;
+      }
+
+      if (data) {
+        profileLogger.info('Current mode loaded', { 
+          action: 'load_current_mode',
+          user_id: user.id,
+          status: 'success'
+        }, { mode: data.current_mode, business_id: data.current_business_id });
+        
+        setCurrentMode(data.current_mode as ProfileMode);
+        setCurrentBusinessId(data.current_business_id || null);
+      } else {
+        profileLogger.info('No mode defined, initializing consumer mode', { 
+          action: 'init_consumer_mode',
+          user_id: user.id,
+          status: 'success'
+        });
+        
+        setCurrentMode('consumer');
+        setCurrentBusinessId(null);
+        
+        await supabase
+          .from('user_current_mode')
+          .insert({
+            user_id: user.id,
+            current_mode: 'consumer',
+            current_business_id: null
+          });
+      }
+      
+    } catch (error) {
+      profileLogger.error('Exception loading current mode', { 
+        action: 'load_current_mode',
+        user_id: user.id 
+      }, error);
+      setCurrentMode('consumer');
+      setCurrentBusinessId(null);
+    }
+  }, [user]);
+
+  // Initialisation des données à la connexion - SEULEMENT UNE FOIS
   useEffect(() => {
     if (!user) {
-      // Pas d'utilisateur connecté, réinitialiser en mode consommateur
       setCurrentMode('consumer');
       setCurrentBusinessId(null);
       setBusinessProfiles([]);
       setLoading(false);
+      setInitialized(false);
       return;
     }
+
+    if (initialized) return; // Éviter les initialisations multiples
 
     const initializeUserProfile = async () => {
       try {
         setLoading(true);
+        profileLogger.info('Initializing user profile', { 
+          action: 'initialize_profile',
+          user_id: user.id 
+        });
         
-        // 1. Charger les profils business disponibles
-        await loadBusinessProfiles();
+        await Promise.all([
+          loadBusinessProfiles(),
+          loadCurrentMode()
+        ]);
         
-        // 2. Charger ou initialiser le mode actuel
-        await loadCurrentMode();
+        setInitialized(true);
         
       } catch (error) {
-        console.error('Erreur initialisation profil:', error);
+        profileLogger.error('Failed to initialize profile', { 
+          action: 'initialize_profile',
+          user_id: user.id 
+        }, error);
         toast.error("Erreur lors du chargement du profil");
         
-        // En cas d'erreur, revenir en mode consommateur
         setCurrentMode('consumer');
         setCurrentBusinessId(null);
       } finally {
@@ -70,16 +181,22 @@ export const useProfileMode = () => {
         table: 'user_current_mode',
         filter: `user_id=eq.${user.id}`
       }, (payload) => {
-        console.log('Changement de mode détecté:', payload);
         const data = payload.new || payload.old;
         if (data && typeof data === 'object') {
           const newMode = (data as any).current_mode as ProfileMode;
           const newBusinessId = (data as any).current_business_id || null;
           
+          profileLogger.info('Mode changed via realtime', { 
+            action: 'realtime_mode_change',
+            user_id: user.id,
+            from: currentMode,
+            to: newMode,
+            business_id: newBusinessId,
+            status: 'success'
+          });
+          
           setCurrentMode(newMode);
           setCurrentBusinessId(newBusinessId);
-          
-          console.log(`Mode mis à jour: ${newMode}, Business: ${newBusinessId}`);
         }
       })
       .subscribe();
@@ -87,77 +204,8 @@ export const useProfileMode = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, initialized, loadBusinessProfiles, loadCurrentMode, currentMode]);
 
-  const loadBusinessProfiles = async () => {
-    if (!user) return;
-
-    try {
-      console.log('Chargement des profils business...');
-      
-      // Utiliser la fonction RPC sécurisée
-      const { data, error } = await supabase.rpc('get_my_business_profiles');
-
-      if (error) {
-        console.error('Erreur chargement profils business:', error);
-        setBusinessProfiles([]);
-        return;
-      }
-
-      console.log('Profils business chargés:', data);
-      setBusinessProfiles(data || []);
-      
-    } catch (error) {
-      console.error('Erreur loadBusinessProfiles:', error);
-      setBusinessProfiles([]);
-    }
-  };
-
-  const loadCurrentMode = async () => {
-    if (!user) return;
-
-    try {
-      console.log('Chargement du mode actuel...');
-      
-      // Charger le mode depuis user_current_mode
-      const { data, error } = await supabase
-        .from('user_current_mode')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Erreur chargement mode:', error);
-        return;
-      }
-
-      if (data) {
-        console.log('Mode existant trouvé:', data);
-        setCurrentMode(data.current_mode as ProfileMode);
-        setCurrentBusinessId(data.current_business_id || null);
-      } else {
-        console.log('Aucun mode défini, initialisation en mode consommateur');
-        // Initialiser en mode consommateur si aucun mode n'est défini
-        setCurrentMode('consumer');
-        setCurrentBusinessId(null);
-        
-        // Créer l'entrée en base
-        await supabase
-          .from('user_current_mode')
-          .insert({
-            user_id: user.id,
-            current_mode: 'consumer',
-            current_business_id: null
-          });
-      }
-      
-    } catch (error) {
-      console.error('Erreur loadCurrentMode:', error);
-      // En cas d'erreur, mode consommateur par défaut
-      setCurrentMode('consumer');
-      setCurrentBusinessId(null);
-    }
-  };
 
   const fetchBusinessProfiles = async () => {
     if (!user) return;
@@ -210,17 +258,34 @@ export const useProfileMode = () => {
     }
 
     try {
-      console.log(`🔄 Tentative de basculement vers: ${mode}`, businessId ? `(${businessId})` : '');
+      profileLogger.info('Attempting mode switch', { 
+        action: 'switch_mode',
+        user_id: user.id,
+        from: currentMode,
+        to: mode,
+        business_id: businessId 
+      });
 
       // Validation du profil business si nécessaire
       if (mode === 'business' && businessId) {
         const business = businessProfiles.find(bp => bp.id === businessId);
         if (!business) {
+          profileLogger.error('Business profile not accessible', { 
+            action: 'switch_mode',
+            user_id: user.id,
+            business_id: businessId 
+          });
           toast.error("Profil business non accessible");
-          console.error('Profil business non trouvé:', businessId);
           return;
         }
-        console.log('✅ Profil business validé:', business.business_name);
+        
+        profileLogger.info('Business profile validated', { 
+          action: 'validate_business',
+          user_id: user.id,
+          business_id: businessId,
+          business_name: business.business_name,
+          status: 'success'
+        });
       }
 
       // Utiliser la fonction RPC sécurisée pour basculer
@@ -229,11 +294,22 @@ export const useProfileMode = () => {
       });
 
       if (error) {
-        console.error('❌ Erreur RPC switch_user_profile:', error);
+        profileLogger.error('RPC switch_user_profile failed', { 
+          action: 'switch_mode',
+          user_id: user.id,
+          business_id: businessId 
+        }, error);
         throw new Error(error.message || 'Impossible de basculer de profil');
       }
 
-      console.log('✅ Basculement réussi:', data);
+      profileLogger.info('Mode switch successful', { 
+        action: 'switch_mode',
+        user_id: user.id,
+        from: currentMode,
+        to: mode,
+        business_id: businessId,
+        status: 'success'
+      });
 
       // Mise à jour immédiate du state local pour la réactivité
       setCurrentMode(mode);
@@ -249,19 +325,29 @@ export const useProfileMode = () => {
 
       // Redirection immédiate et correcte vers le profil business avec onglet catalogue
       if (navigate) {
-        if (mode === 'business' && businessId) {
-          console.log(`🔄 Redirection vers profil business avec onglet catalogue`);
-          // Rediriger vers le profil business avec l'onglet catalogue
-          navigate('/business/profile?tab=catalog');
-        } else if (mode === 'consumer') {
-          console.log('🔄 Redirection vers /consumer/profile avec onglet businesses');
-          // Rediriger vers l'onglet "businesses" de la page profil consommateur
-          navigate('/consumer/profile?tab=businesses');
-        }
+        const navigationTarget = mode === 'business' && businessId 
+          ? '/business/profile?tab=catalog' 
+          : '/consumer/profile?tab=businesses';
+          
+        profileLogger.info('Redirecting after mode switch', { 
+          action: 'redirect',
+          user_id: user.id,
+          from: window.location.pathname,
+          to: navigationTarget,
+          status: 'success'
+        });
+        
+        navigate(navigationTarget);
       }
 
     } catch (error: any) {
-      console.error('❌ Erreur changement mode:', error);
+      profileLogger.error('Mode switch failed', { 
+        action: 'switch_mode',
+        user_id: user.id,
+        from: currentMode,
+        to: mode,
+        business_id: businessId 
+      }, error);
       toast.error(error.message || "Impossible de changer de mode");
     }
   };
