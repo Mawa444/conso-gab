@@ -101,7 +101,7 @@ export const AdvancedBusinessManager = ({
         </Card>
 
         {/* Business Profiles */}
-        <div className="space-y-3 rounded-3xl bg-[009e60] bg-[#086e47]/[0.96] mx-0">
+        <div className="space-y-3 rounded-3xl bg-[009e60] mx-0 bg-[#095c39]/[0.96]">
           <h3 className="font-bold text-[fcd116] text-[#fcd116]/[0.96] my-[6px]">Mes Entreprises</h3>
 
           {businessProfiles.length > 0 ? <div className="space-y-3">
