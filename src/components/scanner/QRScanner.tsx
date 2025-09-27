@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Camera, X, Flashlight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface QRScannerProps {
   onClose: () => void;
@@ -11,34 +12,10 @@ interface QRScannerProps {
 export const QRScanner = ({ onClose, onScan }: QRScannerProps) => {
   const [isFlashOn, setIsFlashOn] = useState(false);
 
-  // Simulation du scan - en production, vous utiliseriez une vraie librairie de scan QR
+  // Fonction temporaire de simulation - remplacez par une vraie implémentation de scan QR
   const handleMockScan = () => {
-    // Simule différents types de commerces
-    const mockData = [
-      {
-        id: "commerce_001",
-        name: "Boulangerie Chez Mama Nzé",
-        type: "Boulangerie",
-        owner: "Marie Nzé",
-        address: "Quartier Nombakélé, Libreville",
-        rating: 4.8,
-        verified: true,
-        employees: ["Jean-Claude", "Esperance", "David"]
-      },
-      {
-        id: "commerce_002", 
-        name: "Salon de Beauté Gaboma",
-        type: "Salon de beauté",
-        owner: "Grace Obiang",
-        address: "Boulevard Triomphal, Libreville",
-        rating: 4.6,
-        verified: true,
-        employees: ["Grace Obiang", "Sylvie", "Fatou"]
-      }
-    ];
-    
-    const randomCommerce = mockData[Math.floor(Math.random() * mockData.length)];
-    onScan(JSON.stringify(randomCommerce));
+    toast.info("Fonctionnalité de scan QR en cours d'implémentation");
+    onClose();
   };
 
   return (
@@ -99,20 +76,20 @@ export const QRScanner = ({ onClose, onScan }: QRScannerProps) => {
         {/* Instructions */}
         <div className="absolute bottom-32 left-4 right-4 text-center">
           <h3 className="text-white text-lg font-semibold mb-2">
-            Scanner un commerce 100% Gaboma
+            Scanner un QR code
           </h3>
           <p className="text-white/80 text-sm mb-6">
-            Positionnez le QR code dans le cadre pour découvrir le commerce
+            Positionnez le QR code dans le cadre pour le scanner
           </p>
           
-          {/* Mock scan button for demo */}
+          {/* Bouton temporaire - sera remplacé par le vrai scanner */}
           <Button
             onClick={handleMockScan}
-            variant="gaboma"
+            variant="outline"
             size="lg"
-            className="w-full"
+            className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
           >
-            Simuler un scan (Demo)
+            Scanner (Bientôt disponible)
           </Button>
         </div>
       </div>

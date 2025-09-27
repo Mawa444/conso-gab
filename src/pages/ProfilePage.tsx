@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FavoritesSection } from "@/components/profile/FavoritesSection";
+import FavoritesSection from "@/components/profile/FavoritesSection";
 import { AdvancedBusinessManager } from "@/components/profile/AdvancedBusinessManager";
 import { useNavigate } from "react-router-dom";
 import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
@@ -392,7 +392,7 @@ export const ProfilePage = ({
 
           {/* Favoris */}
           <TabsContent value="favorites" className="space-y-4">
-            <FavoritesSection userType="consumer" />
+            <FavoritesSection />
           </TabsContent>
 
           {/* Entreprises - Système de Gestion des Profils */}

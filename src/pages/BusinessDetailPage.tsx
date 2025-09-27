@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BusinessCatalogView } from "@/components/business/BusinessCatalogView";
 import { ProfessionalDashboard } from "@/components/professional/ProfessionalDashboard";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
-import { FavoritesSection } from "@/components/profile/FavoritesSection";
+import FavoritesSection from "@/components/profile/FavoritesSection";
 import { BusinessToolsSection } from "@/components/business/BusinessToolsSection";
 import { DeleteBusinessModal } from "@/components/business/DeleteBusinessModal";
 import { ActivityLog } from "@/components/business/ActivityLog";
@@ -483,7 +483,7 @@ export const BusinessDetailPage = () => {
 
 
             <TabsContent value="favorites" className="mt-6">
-              <FavoritesSection userType="business" />
+              <FavoritesSection />
             </TabsContent>
 
             <TabsContent value="pro" className="mt-6">
