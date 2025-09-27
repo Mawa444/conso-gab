@@ -237,7 +237,7 @@ export const RealCommerceListBlock = ({
       {limit && sortedBusinesses.length > limit && (
         <div className="text-center">
           <Button 
-            variant="outline" 
+            variant="default" 
             onClick={() => navigate('/businesses')}
             className="animate-ui-button"
           >

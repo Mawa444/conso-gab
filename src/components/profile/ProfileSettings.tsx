@@ -16,9 +16,10 @@ interface ProfileSettingsProps {
   open: boolean;
   onClose: () => void;
   userType?: "client" | "commerçant" | "employé";
+  onProfileUpdated?: () => void; // Nouveau callback pour notifier les changements
 }
 
-export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileSettingsProps) => {
+export const ProfileSettings = ({ open, onClose, userType = "client", onProfileUpdated }: ProfileSettingsProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -108,6 +109,11 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
         description: "Vos informations ont été sauvegardées avec succès."
       });
       
+      // Notifier le parent des changements
+      if (onProfileUpdated) {
+        onProfileUpdated();
+      }
+      
       onClose();
     } catch (error) {
       console.error('Erreur sauvegarde profil:', error);
@@ -165,7 +171,7 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
                 {profile.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
-            <Button variant="outline" size="sm">
+            <Button variant="default" size="sm">
               <Camera className="w-4 h-4 mr-2" />
               Changer la photo
             </Button>
@@ -379,7 +385,7 @@ export const ProfileSettings = ({ open, onClose, userType = "client" }: ProfileS
 
           {/* Actions */}
           <div className="flex gap-2 pt-4">
-            <Button variant="outline" onClick={onClose} className="flex-1">
+            <Button variant="secondary" onClick={onClose} className="flex-1">
               Annuler
             </Button>
             <Button onClick={handleSave} disabled={loading} className="flex-1">

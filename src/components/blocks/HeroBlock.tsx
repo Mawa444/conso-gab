@@ -53,14 +53,14 @@ export const HeroBlock = ({ onSearch, className }: HeroBlockProps) => {
         {/* Actions rapides */}
         <div className="flex justify-center gap-3 flex-wrap">
           <Button
-            variant="secondary"
+            variant="default"
             size="sm"
             className="bg-white/20 hover:bg-white/30 text-white border-white/30"
           >
             Autour de moi
           </Button>
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             className="border-white/30 text-white hover:bg-white/10"
           >

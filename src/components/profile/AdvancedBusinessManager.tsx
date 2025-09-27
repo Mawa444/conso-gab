@@ -117,7 +117,7 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
                   <Badge variant="secondary" className="text-xs">ACTUEL</Badge>
                 )}
                 <Button 
-                  variant={currentMode === 'consumer' ? "default" : "outline"}
+                  variant="default"
                   size="sm"
                   onClick={() => switchMode('consumer', undefined, navigate)}
                 >
@@ -166,11 +166,7 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
                           <Badge variant="default" className="text-xs">ACTUEL</Badge>
                         )}
                         <Button 
-                          variant={
-                            currentMode === 'business' && currentBusiness?.id === business.id 
-                              ? "default" 
-                              : "outline"
-                          }
+                          variant="default"
                           size="sm"
                           onClick={() => switchMode('business', business.id, navigate)}
                         >
@@ -226,20 +222,20 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
           </h3>
           
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="h-16 flex-col gap-2">
-              <Settings className="w-5 h-5 text-primary" />
+            <Button variant="default" className="h-16 flex-col gap-2">
+              <Settings className="w-5 h-5" />
               <span className="text-sm">Gérer Profil</span>
             </Button>
-            <Button variant="outline" className="h-16 flex-col gap-2">
-              <Users className="w-5 h-5 text-accent" />
+            <Button variant="default" className="h-16 flex-col gap-2">
+              <Users className="w-5 h-5" />
               <span className="text-sm">Collaborateurs</span>
             </Button>
-            <Button variant="outline" className="h-16 flex-col gap-2">
-              <BarChart3 className="w-5 h-5 text-secondary" />
+            <Button variant="default" className="h-16 flex-col gap-2">
+              <BarChart3 className="w-5 h-5" />
               <span className="text-sm">Statistiques</span>
             </Button>
-            <Button variant="outline" className="h-16 flex-col gap-2">
-              <Eye className="w-5 h-5 text-muted-foreground" />
+            <Button variant="default" className="h-16 flex-col gap-2">
+              <Eye className="w-5 h-5" />
               <span className="text-sm">Voir Profil</span>
             </Button>
           </div>

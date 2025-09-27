@@ -69,10 +69,12 @@ const favoriteCommerces = [{
 interface ProfilePageProps {
   onBack?: () => void;
   onSettings?: () => void;
+  onProfileUpdated?: () => void; // Nouveau callback pour refresh
 }
 export const ProfilePage = ({
   onBack,
-  onSettings
+  onSettings,
+  onProfileUpdated
 }: ProfilePageProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [activityFilter, setActivityFilter] = useState("all");
@@ -102,51 +104,63 @@ export const ProfilePage = ({
   const {
     user
   } = useAuth();
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user) {
+  const fetchUserProfile = async () => {
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+        
+      if (error) {
+        console.error('Erreur récupération profil:', error);
         setIsLoading(false);
         return;
       }
-      try {
-        setIsLoading(true);
-        const {
-          data,
-          error
-        } = await supabase.from('user_profiles').select('*').eq('user_id', user.id).single();
-        if (error) {
-          console.error('Erreur récupération profil:', error);
-          setIsLoading(false);
-          return;
-        }
-        if (data) {
-          setUserProfile({
-            name: data.pseudo || user.email?.split('@')[0] || "Utilisateur",
-            email: user.email || "",
-            phone: data.phone || "",
-            joinDate: new Date(data.created_at || user.created_at).toLocaleDateString('fr-FR', {
-              month: 'long',
-              year: 'numeric'
-            }),
-            userType: data.role === 'merchant' ? 'commerçant' : 'client',
-            points: Math.floor(Math.random() * 3000) + 1000,
-            // TODO: Implémenter système de points
-            level: data.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
-            scansCount: Math.floor(Math.random() * 50) + 10,
-            reviewsCount: Math.floor(Math.random() * 30) + 5,
-            favoritesCount: Math.floor(Math.random() * 20) + 3,
-            pseudo: data.pseudo || "",
-            role: data.role || ""
-          });
-        }
-      } catch (error) {
-        console.error('Erreur:', error);
-      } finally {
-        setIsLoading(false);
+      
+      if (data) {
+        setUserProfile({
+          name: data.pseudo || user.email?.split('@')[0] || "Utilisateur",
+          email: user.email || "",
+          phone: data.phone || "",
+          joinDate: new Date(data.created_at || user.created_at).toLocaleDateString('fr-FR', {
+            month: 'long',
+            year: 'numeric'
+          }),
+          userType: data.role === 'merchant' ? 'commerçant' : 'client',
+          points: Math.floor(Math.random() * 3000) + 1000, // TODO: Implémenter système de points
+          level: data.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
+          scansCount: Math.floor(Math.random() * 50) + 10,
+          reviewsCount: Math.floor(Math.random() * 30) + 5,
+          favoritesCount: Math.floor(Math.random() * 20) + 3,
+          pseudo: data.pseudo || "",
+          role: data.role || ""
+        });
       }
-    };
+    } catch (error) {
+      console.error('Erreur:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUserProfile();
   }, [user]);
+
+  // Fonction pour refresh les données du profil
+  const handleProfileUpdate = () => {
+    fetchUserProfile();
+    if (onProfileUpdated) {
+      onProfileUpdated();
+    }
+  };
+
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "scan":
@@ -292,20 +306,20 @@ export const ProfilePage = ({
                 </Button>}
               
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-white">
-                  <QrCode className="w-6 h-6 text-primary" />
+                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
+                  <QrCode className="w-6 h-6" />
                   <span className="text-sm">Scanner commerce</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-white">
-                  <MapPin className="w-6 h-6 text-accent" />
+                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
+                  <MapPin className="w-6 h-6" />
                   <span className="text-sm">Commerces proches</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-white">
-                  <Trophy className="w-6 h-6 text-secondary" />
+                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
+                  <Trophy className="w-6 h-6" />
                   <span className="text-sm rounded-full">Classements</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2 rounded-3xl bg-white">
-                  <Shield className="w-6 h-6 text-muted-foreground" />
+                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
+                  <Shield className="w-6 h-6" />
                   <span className="text-sm">Sécurité</span>
                 </Button>
               </div>
@@ -355,7 +369,7 @@ export const ProfilePage = ({
                     <SelectItem value="badge">Badges</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="sm">Exporter</Button>
+                <Button variant="default" size="sm">Exporter</Button>
               </div>
             </div>
             

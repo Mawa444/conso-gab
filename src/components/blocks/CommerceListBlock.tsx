@@ -142,7 +142,7 @@ export const CommerceListBlock = ({
       {!showAllCommerces && processedCommerces.length > 6 && (
         <div className="text-center">
           <Button
-            variant="outline"
+            variant="default"
             onClick={() => setShowAllCommerces(true)}
             className="border-2 border-primary/30 hover:bg-primary/5 hover:border-primary/50 transition-all duration-300"
           >
