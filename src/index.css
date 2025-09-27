@@ -104,32 +104,20 @@
     font-weight: 400;
   }
 
-  /* Classes utilitaires pour cartes Animate UI */
+  /* Classes utilitaires pour cartes sans animations */
   .card-animate {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
     box-shadow: var(--shadow-medium);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .card-animate:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-elevated);
-  }
-
-  /* Boutons style Animate UI */
+  /* Boutons sans animations */
   .btn-animate {
     background: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
     border-radius: var(--radius);
     font-weight: 500;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .btn-animate:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-strong);
   }
 
   /* Focus states minimalistes */
@@ -150,36 +138,7 @@
   }
 }
 
-/* Animations minimalistes */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
-}
-
-.animate-slide-up {
-  animation: slide-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+/* Skeleton screens seulement - pas d'autres animations */
 
 /* Scrollbar styling minimal */
 .scrollbar-hide {

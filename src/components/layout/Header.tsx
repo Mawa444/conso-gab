@@ -50,7 +50,7 @@ export const Header = ({
           {/* Bouton messages */}
           <Button variant="ghost" size="icon" onClick={onMessageClick} className="text-white hover:bg-white/20 transition-colors relative" title="Messages">
             <MessageCircle className="w-5 h-5" />
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-secondary rounded-full animate-pulse-soft" />
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-secondary rounded-full" />
           </Button>
 
           {/* Notifications */}

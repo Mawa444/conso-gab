@@ -247,17 +247,16 @@ export const useProfileMode = () => {
       
       toast.success(message);
 
-      // Redirection avec délai pour permettre la synchronisation
+      // Redirection immédiate et correcte
       if (navigate) {
-        setTimeout(() => {
-          if (mode === 'business' && businessId) {
-            console.log(`🔄 Redirection vers /business/${businessId}`);
-            navigate(`/business/${businessId}`);
-          } else if (mode === 'consumer') {
-            console.log('🔄 Redirection vers /consumer/home');
-            navigate('/consumer/home');
-          }
-        }, 200);
+        if (mode === 'business' && businessId) {
+          console.log(`🔄 Redirection vers /business/${businessId}`);
+          navigate(`/business/${businessId}`);
+        } else if (mode === 'consumer') {
+          console.log('🔄 Redirection vers /consumer/profile avec onglet businesses');
+          // Rediriger vers l'onglet "businesses" de la page profil consommateur
+          navigate('/consumer/profile?tab=businesses');
+        }
       }
 
     } catch (error: any) {

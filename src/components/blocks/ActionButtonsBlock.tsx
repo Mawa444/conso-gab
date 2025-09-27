@@ -111,7 +111,7 @@ export const ActionButtonsBlock = ({
 
               {/* Indicateur visuel pour l'action principale */}
               {index === 0 && (
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg animate-pulse-soft" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg" />
               )}
             </CardContent>
           </Card>

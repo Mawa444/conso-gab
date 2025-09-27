@@ -11,7 +11,7 @@ export const TransitionWrapper = ({
   className
 }: TransitionWrapperProps) => {
   return (
-    <div className={cn("animate-fade-in", className)}>
+    <div className={cn("", className)}>
       {children}
     </div>
   );

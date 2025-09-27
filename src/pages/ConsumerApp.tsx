@@ -128,7 +128,7 @@ const ConsumerApp = () => {
         {content}
       </PageTransition>;
   };
-  return <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background transition-all duration-300">
+    return <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <Routes>
         <Route path="/home" element={<>
             <Header title="Découvrir" showBack={false} onLocationClick={() => navigate('/consumer/map')} onMessageClick={() => navigate('/messaging')} />

@@ -76,7 +76,10 @@ export const ProfilePage = ({
   onSettings,
   onProfileUpdated
 }: ProfilePageProps) => {
-  const [activeTab, setActiveTab] = useState("overview");
+  // Récupérer l'onglet depuis l'URL ou utiliser "overview" par défaut
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabFromUrl = urlParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "overview");
   const [activityFilter, setActivityFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
@@ -180,8 +183,8 @@ export const ProfilePage = ({
   const handleDeleteAccount = () => {
     toast.error("Fonctionnalité à venir - Suppression de compte");
   };
-  return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
-      <div className="min-h-screen animate-fade-in">
+    return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
+      <div className="min-h-screen">
       {/* Header Profile moderne */}
       <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-[23px]">
         <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl"></div>

@@ -124,7 +124,7 @@ export const CommerceListBlock = ({
         {displayedCommerces.map((commerce, index) => (
           <div
             key={commerce.id}
-            className="animate-fade-in"
+            className=""
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <CommerceCard
