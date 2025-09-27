@@ -44,12 +44,22 @@ interface BusinessCreationData {
   website?: string;
   openingHours?: string;
 
-  // Étape 4: Paiements & gestion
+  // Étape 4: Réseaux sociaux
+  socialMedia?: {
+    facebook?: { enabled: boolean; url: string };
+    instagram?: { enabled: boolean; url: string };
+    linkedin?: { enabled: boolean; url: string };
+    twitter?: { enabled: boolean; url: string };
+    tiktok?: { enabled: boolean; url: string };
+    youtube?: { enabled: boolean; url: string };
+  };
+
+  // Étape 5: Paiements & gestion
   bankAccount?: string;
   mobileMoney?: string;
   associatedUsers?: string[];
 
-  // Étape 5: Validation
+  // Étape 6: Validation
   isVerified?: boolean;
 }
 export const BusinessCreationWizard = ({
