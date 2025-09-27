@@ -34,13 +34,13 @@ export const AdvancedBusinessManager = ({
   }
   return <div className={`${className} min-h-96 p-4 bg-background`}>
       {/* Header with mode switch */}
-      <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 mb-6 border border-primary/20">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 mb-6 border border-primary/20 bg-white">
+        <div className="flex items-center justify-between mb-4 bg-[3a75c4] bg-white">
           <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <h2 className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-[3a75c4] text-[#3a75c4]/[0.96]">
               Gestion des Profils
             </h2>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-[3a75c4] text-[#3a75c4]/[0.96]">
               Gérez vos profils consommateur et business
             </p>
           </div>
