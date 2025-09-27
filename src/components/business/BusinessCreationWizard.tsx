@@ -203,10 +203,10 @@ export const BusinessCreationWizard = ({
     switch (step) {
       case 1:
         return <div className="space-y-6">
-            <div className="text-center mb-6 bg-white">
+            <div className="text-center mb-6 bg-inherit">
               <Building2 className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h3 className="font-bold mb-2 text-[3a75c4] text-[#3a75c4]/[0.97]">Informations de base</h3>
-              <p className="text-muted-foreground">
+              <p className="text-black font-semibold">
                 Présentez votre entreprise de manière claire et attractive
               </p>
             </div>
@@ -219,7 +219,7 @@ export const BusinessCreationWizard = ({
                 <Input id="businessName" value={data.businessName || ''} onChange={e => updateData({
                 businessName: e.target.value
               })} placeholder="Ex: Le Snack Gabonais - Sandwichs et Livraisons" className="mt-1 bg-white rounded-3xl" />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs mt-1 text-black">
                   Choisissez un nom optimisé pour être trouvé facilement
                 </p>
               </div>
@@ -249,7 +249,7 @@ export const BusinessCreationWizard = ({
                 <Textarea id="description" value={data.description || ''} onChange={e => updateData({
                 description: e.target.value
               })} placeholder="Ex: Livraison rapide de sandwichs, burgers et plats africains à Libreville" maxLength={300} className="mt-1 min-h-[80px] bg-white rounded-3xl" />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs mt-1 text-black">
                   {data.description?.length || 0}/300 - Optimisée pour le référencement interne
                 </p>
               </div>
@@ -505,7 +505,7 @@ export const BusinessCreationWizard = ({
 
         {/* Progress indicator */}
         <div className="flex items-center justify-between mt-6">
-          {steps.map((s, index) => <div key={s.number} className="flex items-center">
+          {steps.map((s, index) => <div key={s.number} className="flex items-center bg-inherit">
               <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${step >= s.number ? 'bg-primary text-white border-primary' : 'bg-background text-muted-foreground border-muted-foreground/30'}`}>
                 {step > s.number ? <CheckCircle2 className="w-5 h-5" /> : <s.icon className="w-5 h-5" />}
               </div>
