@@ -279,7 +279,7 @@ export const ProfilePage = ({
                   <div className="bg-gradient-to-r from-primary via-accent to-secondary h-3 rounded-full transition-all duration-700 relative overflow-hidden" style={{
                     width: `${userProfile.points / 5000 * 100}%`
                   }}>
-                    <div className="absolute inset-0 animate-pulse bg-[3a75c4] bg-[#3a75c4]/[0.96] rounded-3xl"></div>
+                    <div className="absolute inset-0 animate-pulse rounded-3xl bg-[009e60] bg-[#009e60]/[0.96]"></div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
