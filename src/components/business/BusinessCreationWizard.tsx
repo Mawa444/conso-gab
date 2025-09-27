@@ -137,7 +137,20 @@ export const BusinessCreationWizard = ({
     }
   };
   const handleCreate = async () => {
-    if (!user || !canNext()) return;
+    console.log('handleCreate called - user:', user, 'canNext:', canNext());
+    
+    if (!user) {
+      console.error('No user found - authentication required');
+      toast.error("Vous devez être connecté pour créer une entreprise");
+      return;
+    }
+    
+    if (!canNext()) {
+      console.error('Cannot proceed - validation failed');
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+    
     setLoading(true);
     try {
       const businessData = {
@@ -184,9 +197,9 @@ export const BusinessCreationWizard = ({
       if (onCreated) {
         onCreated(businessProfile.id);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur création entreprise:', error);
-      toast.error("Erreur lors de la création de l'entreprise");
+      toast.error(error.message || "Erreur lors de la création de l'entreprise");
     } finally {
       setLoading(false);
     }
