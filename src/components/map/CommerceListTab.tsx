@@ -151,8 +151,8 @@ export const CommerceListTab = () => {
           {/* Panneau latéral - Statistiques par catégorie */}
           <div className="lg:col-span-1 space-y-4">
             <Card>
-              <CardContent className="p-4 rounded-3xl">
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <CardContent className="p-4 rounded-3xl bg-[3a75c4] bg-white">
+                <h3 className="font-semibold mb-4 flex items-center gap-2 text-[3a75c4] text-[#3a75c4]/[0.96] text-left">
                   <Building className="w-4 h-4" />
                   Répartition par catégorie
                 </h3>
@@ -160,7 +160,7 @@ export const CommerceListTab = () => {
                   {categoryStats.slice(0, 10).map(stat => <div key={stat.id} className={`p-2 rounded-lg cursor-pointer transition-colors border ${selectedCategory === stat.id ? 'bg-primary/10 border-primary/30' : 'hover:bg-muted/50 border-transparent'}`} onClick={() => setSelectedCategory(selectedCategory === stat.id ? "all" : stat.id)}>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="font-medium text-sm">{stat.nom}</div>
+                          <div className="font-medium text-sm bg-inherit">{stat.nom}</div>
                           <div className="text-xs text-muted-foreground">
                             {stat.count} entreprise{stat.count > 1 ? 's' : ''}
                           </div>
