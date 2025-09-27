@@ -26,16 +26,13 @@ export const AdvancedBusinessManager = ({
   const currentBusiness = getCurrentBusiness();
   const isBusinessMode = currentMode === 'business';
   if (loading) {
-    return (
-      <div className="space-y-4">
+    return <div className="space-y-4">
         <div className="h-32 animate-pulse rounded-xl bg-muted/30" />
         <div className="h-24 bg-muted/30 animate-pulse rounded-xl" />
         <p className="text-center text-sm text-muted-foreground">Chargement de vos entreprises...</p>
-      </div>
-    );
+      </div>;
   }
-  return (
-    <div className={`${className} min-h-96 p-4 bg-background`}>
+  return <div className={`${className} min-h-96 p-4 bg-background`}>
       {/* Header with mode switch */}
       <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 mb-6 border border-primary/20">
         <div className="flex items-center justify-between mb-4">
@@ -109,7 +106,7 @@ export const AdvancedBusinessManager = ({
 
           {businessProfiles.length > 0 ? <div className="space-y-3">
               {businessProfiles.map(business => <Card key={business.id} className={`transition-all duration-300 cursor-pointer hover:scale-[1.02] ${currentMode === 'business' && currentBusiness?.id === business.id ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' : 'hover:bg-muted/30'}`}>
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 rounded-3xl bg-white">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <Avatar className="w-10 h-10">
@@ -139,7 +136,7 @@ export const AdvancedBusinessManager = ({
                 </Card>)}
               
               {/* Bouton unique pour créer une nouvelle entreprise */}
-              <Button onClick={() => setShowCreateForm(true)} className="w-full h-14 bg-gradient-to-r from-primary to-accent text-white hover:scale-[1.02] transition-all duration-300 shadow-lg" size="lg">
+              <Button onClick={() => setShowCreateForm(true)} size="lg" className="w-full h-14 from-primary to-accent text-white hover:scale-[1.02] transition-all duration-300 shadow-lg rounded-3xl bg-[009e60] bg-[#009e60]/[0.96]">
                 <Plus className="w-5 h-5 mr-3" />
                 <span className="text-lg font-semibold">Créer mon entreprise</span>
               </Button>
@@ -199,6 +196,5 @@ export const AdvancedBusinessManager = ({
         }} />
           </div>
         </div>}
-    </div>
-  );
+    </div>;
 };
