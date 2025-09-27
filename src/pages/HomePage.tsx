@@ -178,7 +178,7 @@ export const HomePage = ({
   return <PageWithSkeleton isLoading={loading} skeleton={<HomePageSkeleton />}>
       <div className="min-h-screen bg-background">
         {/* Contenu principal */}
-        <div className="space-y-6 p-4 bg-background py-0 px-0">
+        <div className="space-y-6 p-4 bg-background px-0 py-[30px]">
         {/* Barre de recherche unifiée */}
         <div className="p-4 shadow-sm border-border rounded-3xl bg-inherit py-0 px-0">
           <UnifiedSearchBar onSelect={result => {
