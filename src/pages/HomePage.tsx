@@ -309,7 +309,7 @@ export const HomePage = ({
         {/* Section des commerces sponsorisés (optionnelle) */}
         {sponsoredCommerces.length > 0 && <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-headline-medium font-roboto text-gray-900 flex items-center gap-2">
+              <h2 className="text-headline-medium font-roboto flex items-center gap-2 font-bold text-black">
                 Partenaires recommandés
                 <span className="bg-yellow-100 text-yellow-800 text-label-medium font-roboto px-2 py-1 rounded-full">
                   {sponsoredCommerces.length}
