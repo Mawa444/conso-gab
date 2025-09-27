@@ -90,7 +90,7 @@ export const CommerceListTab = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Rechercher par nom, catégorie, description..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 h-11" />
           </div>
-          <Button variant={showFilters ? "default" : "outline"} onClick={() => setShowFilters(!showFilters)} className="px-4">
+          <Button variant={showFilters ? "default" : "outline"} onClick={() => setShowFilters(!showFilters)} className="px-4 bg-[3a75c4] bg-[#3a75c4]/[0.97] text-white">
             <Filter className="w-4 h-4 mr-2" />
             Filtres
           </Button>

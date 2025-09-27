@@ -20,7 +20,7 @@ export const MapPage = ({
   return <PageWithSkeleton isLoading={loading} skeleton={<MapPageSkeleton />}>
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex flex-col">
       {/* Header simplifié */}
-      <div className="backdrop-blur-sm border-b border-border/50 p-4 rounded-3xl bg-[3a75c4] bg-[#3a75c4]/[0.96]">
+      <div className="backdrop-blur-sm border-b border-border/50 p-4 rounded-3xl bg-[3a75c4] bg-[#3a75c4]/[0.96] py-[8px]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {onBack && <Button variant="ghost" size="sm" onClick={onBack} className="p-2">
@@ -28,7 +28,7 @@ export const MapPage = ({
               </Button>}
             <div>
               <h1 className="text-2xl font-bold text-left text-white">Découvrir</h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-white text-xs">
                 Explorez les commerces de votre région
               </p>
             </div>
@@ -39,13 +39,13 @@ export const MapPage = ({
       {/* Système d'onglets intelligent */}
       <div className="flex-1 flex flex-col">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <div className="bg-card/50 border-b border-border/30 px-4 rounded-3xl">
-            <TabsList className="bg-muted/50 p-1 h-12">
-              <TabsTrigger value="list" className="flex items-center gap-2 px-6 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-3xl">
+          <div className="bg-card/50 border-b border-border/30 rounded-3xl px-[34px]">
+            <TabsList className="bg-muted/50 p-1 h-12 px-[177px]">
+              <TabsTrigger value="list" className="flex items-center gap-2 px-6 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-3xl text-black">
                 <List className="w-4 h-4" />
                 <span className="font-medium">Liste détaillée</span>
               </TabsTrigger>
-              <TabsTrigger value="map" className="flex items-center gap-2 px-6 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-3xl">
+              <TabsTrigger value="map" className="flex items-center gap-2 px-6 py-2 data-[state=active]:shadow-sm rounded-3xl text-black bg-inherit">
                 <Map className="w-4 h-4" />
                 <span className="font-medium">Carte interactive</span>
               </TabsTrigger>
