@@ -102,7 +102,7 @@ export const AdvancedBusinessManager = ({
 
         {/* Business Profiles */}
         <div className="space-y-3 rounded-3xl bg-[009e60] mx-0 bg-[#095c39]/[0.96]">
-          <h3 className="font-bold text-[fcd116] text-[#fcd116]/[0.96] my-[6px]">Mes Entreprises</h3>
+          <h3 className="font-bold text-[#fcd116]/[0.96] my-[6px] text-base">Mes Entreprises</h3>
 
           {businessProfiles.length > 0 ? <div className="space-y-3">
               {businessProfiles.map(business => <Card key={business.id} className={`transition-all duration-300 cursor-pointer hover:scale-[1.02] ${currentMode === 'business' && currentBusiness?.id === business.id ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' : 'hover:bg-muted/30'}`}>
