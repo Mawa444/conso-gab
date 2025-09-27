@@ -341,6 +341,7 @@ export type Database = {
           province: string | null
           quartier: string | null
           slug: string | null
+          social_media: Json | null
           status: string | null
           telegram: string | null
           updated_at: string
@@ -377,6 +378,7 @@ export type Database = {
           province?: string | null
           quartier?: string | null
           slug?: string | null
+          social_media?: Json | null
           status?: string | null
           telegram?: string | null
           updated_at?: string
@@ -413,6 +415,7 @@ export type Database = {
           province?: string | null
           quartier?: string | null
           slug?: string | null
+          social_media?: Json | null
           status?: string | null
           telegram?: string | null
           updated_at?: string

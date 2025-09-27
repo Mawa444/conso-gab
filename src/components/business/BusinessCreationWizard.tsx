@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { LocationStep } from "@/components/auth/LocationStep";
-import { Loader2, Building2, ArrowLeft, ArrowRight, CheckCircle2, Upload, MapPin, Clock, Phone, CreditCard, Users, Rocket, Info, X } from "lucide-react";
+import { Loader2, Building2, ArrowLeft, ArrowRight, CheckCircle2, Upload, MapPin, Clock, Phone, CreditCard, Users, Rocket, Info, X, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";
@@ -66,7 +66,7 @@ export const BusinessCreationWizard = ({
   onCancel,
   onCreated
 }: BusinessCreationWizardProps) => {
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<Partial<BusinessCreationData>>({
     country: 'Gabon'
@@ -94,10 +94,14 @@ export const BusinessCreationWizard = ({
     icon: Clock
   }, {
     number: 4,
+    title: "Réseaux sociaux",
+    icon: Share2
+  }, {
+    number: 5,
     title: "Paiements & gestion",
     icon: CreditCard
   }, {
-    number: 5,
+    number: 6,
     title: "Validation & mise en ligne",
     icon: Rocket
   }];
@@ -112,15 +116,18 @@ export const BusinessCreationWizard = ({
       // Optionnel
       case 4:
         return true;
-      // Optionnel
+      // Optionnel - réseaux sociaux
       case 5:
+        return true;
+      // Optionnel - paiements
+      case 6:
         return true;
       default:
         return false;
     }
   };
   const handleNext = () => {
-    if (step < 5 && canNext()) {
+    if (step < 6 && canNext()) {
       setStep(step + 1 as typeof step);
     }
   };
@@ -153,14 +160,25 @@ export const BusinessCreationWizard = ({
         quartier: data.quartier,
         latitude: data.latitude,
         longitude: data.longitude,
+        social_media: data.socialMedia || {},
         is_active: true,
         is_verified: false
       };
+      
+      console.log('Creating business with data:', businessData);
+      
       const {
         data: businessProfile,
         error
       } = await supabase.from('business_profiles').insert(businessData).select().single();
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Business created successfully:', businessProfile);
+      
       await refreshBusinessProfiles();
       toast.success("🎉 Entreprise créée avec succès !");
       if (onCreated) {
@@ -361,6 +379,72 @@ export const BusinessCreationWizard = ({
       case 4:
         return <div className="space-y-6">
             <div className="text-center mb-6">
+              <Share2 className="w-16 h-16 mx-auto mb-4 text-primary" />
+              <h3 className="text-2xl font-bold mb-2">Réseaux sociaux</h3>
+              <p className="text-muted-foreground">
+                Connectez vos réseaux sociaux pour une meilleure visibilité
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { key: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/votre-page' },
+                { key: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/votre-compte' },
+                { key: 'linkedin', label: 'LinkedIn', placeholder: 'https://linkedin.com/company/votre-entreprise' },
+                { key: 'twitter', label: 'Twitter/X', placeholder: 'https://twitter.com/votre-compte' },
+                { key: 'tiktok', label: 'TikTok', placeholder: 'https://tiktok.com/@votre-compte' },
+                { key: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/c/votre-chaine' }
+              ].map(social => (
+                <div key={social.key} className="flex items-center space-x-3 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-2 min-w-[100px]">
+                    <input
+                      type="checkbox"
+                      id={`${social.key}-enabled`}
+                      checked={data.socialMedia?.[social.key]?.enabled || false}
+                      onChange={(e) => updateData({
+                        socialMedia: {
+                          ...data.socialMedia,
+                          [social.key]: {
+                            enabled: e.target.checked,
+                            url: data.socialMedia?.[social.key]?.url || ''
+                          }
+                        }
+                      })}
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor={`${social.key}-enabled`} className="text-sm font-semibold">
+                      {social.label}
+                    </Label>
+                  </div>
+                  <Input
+                    placeholder={social.placeholder}
+                    value={data.socialMedia?.[social.key]?.url || ''}
+                    disabled={!data.socialMedia?.[social.key]?.enabled}
+                    onChange={(e) => updateData({
+                      socialMedia: {
+                        ...data.socialMedia,
+                        [social.key]: {
+                          enabled: data.socialMedia?.[social.key]?.enabled || false,
+                          url: e.target.value
+                        }
+                      }
+                    })}
+                    className="flex-1"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-accent/10 border border-accent/20 rounded-lg p-4">
+              <h5 className="font-semibold mb-2">📱 Visibilité améliorée</h5>
+              <p className="text-sm text-muted-foreground">
+                Les réseaux sociaux activés apparaîtront sur votre profil business et permettront aux clients de vous suivre plus facilement.
+              </p>
+            </div>
+          </div>;
+      case 5:
+        return <div className="space-y-6">
+            <div className="text-center mb-6">
               <CreditCard className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h3 className="text-2xl font-bold mb-2">Paiements & gestion</h3>
               <p className="text-muted-foreground">
@@ -403,7 +487,7 @@ export const BusinessCreationWizard = ({
               </div>
             </div>
           </div>;
-      case 5:
+      case 6:
         return <div className="space-y-6">
             <div className="text-center mb-6">
               <Rocket className="w-16 h-16 mx-auto mb-4 text-primary" />
@@ -497,8 +581,8 @@ export const BusinessCreationWizard = ({
         </div>
 
         <div className="flex justify-center mt-3">
-          <Badge variant={step === 5 ? "default" : "secondary"} className="text-xs rounded-3xl bg-[fcd116] bg-[#fcd116]/[0.96]">
-            Étape {step}/5: {steps[step - 1].title}
+          <Badge variant={step === 6 ? "default" : "secondary"} className="text-xs rounded-3xl bg-[fcd116] bg-[#fcd116]/[0.96]">
+            Étape {step}/6: {steps[step - 1].title}
           </Badge>
         </div>
       </CardHeader>
@@ -518,7 +602,7 @@ export const BusinessCreationWizard = ({
               Annuler
             </Button>
 
-            {step < 5 ? <Button onClick={handleNext} disabled={!canNext()} className="px-6 from-primary to-accent text-white bg-[3a75c4] bg-[#3a75c4]/[0.96] rounded-3xl">
+            {step < 6 ? <Button onClick={handleNext} disabled={!canNext()} className="px-6 from-primary to-accent text-white bg-[3a75c4] bg-[#3a75c4]/[0.96] rounded-3xl">
                 Suivant
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button> : <Button onClick={handleCreate} disabled={loading || !canNext()} className="px-8 bg-gradient-to-r from-primary to-accent text-white" size="lg">

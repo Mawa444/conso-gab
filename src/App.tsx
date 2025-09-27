@@ -13,6 +13,7 @@ import MessagingPage from "@/pages/MessagingPage";
 import ConversationDetailPage from "@/pages/ConversationDetailPage";
 import BusinessDashboardPage from "@/pages/BusinessDashboardPage";
 import BusinessCreationPage from "@/pages/BusinessCreationPage";
+import BusinessProfileEditPage from "@/pages/BusinessProfileEditPage";
 import { BusinessDetailPage } from "@/pages/BusinessDetailPage";
 import CreateCatalogPage from "@/pages/CreateCatalogPage";
 import { CategoryPage } from "@/pages/CategoryPage";
@@ -50,6 +51,7 @@ const App = () => {
                       {/* Routes business */}
                       <Route path="/business/create" element={<BusinessCreationPage />} />
                       <Route path="/business/dashboard" element={<BusinessDashboardPage />} />
+                      <Route path="/business/profile/edit" element={<BusinessProfileEditPage />} />
                       <Route path="/business/create-catalog" element={<CreateCatalogPage />} />
                       <Route path="/business/:businessId" element={<BusinessDetailPage />} />
                       

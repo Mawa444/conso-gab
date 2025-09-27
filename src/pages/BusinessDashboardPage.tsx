@@ -12,7 +12,8 @@ import {
   Users,
   ShoppingCart,
   Calendar,
-  Plus
+  Plus,
+  Settings
 } from "lucide-react";
 import { CatalogInventoryIntegration } from "@/components/business/CatalogInventoryIntegration";
 import { supabase } from "@/integrations/supabase/client";
@@ -216,10 +217,20 @@ export const BusinessDashboardPage = () => {
             </div>
           </div>
           
-          <Button onClick={() => navigate('/create-catalog')} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Nouveau catalogue
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/business/profile/edit')} 
+              className="gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              Modifier profil
+            </Button>
+            <Button onClick={() => navigate('/create-catalog')} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Nouveau catalogue
+            </Button>
+          </div>
         </div>
       </div>
 
