@@ -38,9 +38,9 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <RoleBasedRouter>
-            <RealTimeProvider>
-              <Router>
+          <RealTimeProvider>
+            <Router>
+              <RoleBasedRouter>
                 <div className="min-h-screen bg-background">
                   <Routes>
                     {/* Consumer Routes */}
@@ -80,9 +80,9 @@ const App = () => {
                   </Routes>
                 </div>
                 <Toaster />
-              </Router>
-            </RealTimeProvider>
-          </RoleBasedRouter>
+              </RoleBasedRouter>
+            </Router>
+          </RealTimeProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
