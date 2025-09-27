@@ -89,7 +89,7 @@ export const MessageSheet = ({
   };
   return <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[50vh] rounded-t-3xl p-0">
-        <div className="p-4 px-[20px] my-0 py-[14px]">
+        <div className="p-4 px-[20px] my-0 py-[14px] rounded-3xl">
           <SheetHeader className="mb-4">
             <SheetTitle className="text-lg font-semibold">
               Message à {commerce.name}
@@ -112,7 +112,7 @@ export const MessageSheet = ({
 
           {/* Message personnalisé */}
           <div className="space-y-4">
-            <Textarea placeholder={activeTab === 'message' ? "Écrivez votre message..." : "Ou personnalisez votre message..."} value={customMessage} onChange={e => setCustomMessage(e.target.value)} className="min-h-[80px] resize-none" maxLength={140} />
+            <Textarea placeholder={activeTab === 'message' ? "Écrivez votre message..." : "Ou personnalisez votre message..."} value={customMessage} onChange={e => setCustomMessage(e.target.value)} maxLength={140} className="min-h-[80px] resize-none bg-white rounded-3xl" />
             
             <div className="text-xs text-muted-foreground text-right">
               {customMessage.length}/140
