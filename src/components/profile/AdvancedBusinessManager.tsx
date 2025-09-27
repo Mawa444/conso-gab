@@ -136,7 +136,7 @@ export const AdvancedBusinessManager = ({
               {/* Bouton unique pour créer une nouvelle entreprise */}
               <Button onClick={() => setShowCreateForm(true)} size="lg" className="w-full h-14 from-primary to-accent hover:scale-[1.02] transition-all duration-300 shadow-lg rounded-3xl my-[15px] bg-[fcd116] bg-[#fcd116]/[0.97] text-black">
                 <Plus className="w-5 h-5 mr-3" />
-                <span className="text-lg font-semibold">Créer mon entreprise</span>
+                <span className="text-lg font-bold">Créer un nouveau profil business</span>
               </Button>
             </div> : <Card className="border-dashed border-2 border-muted-foreground/30">
               <CardContent className="p-8 text-center">
