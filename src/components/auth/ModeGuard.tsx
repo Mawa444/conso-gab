@@ -25,6 +25,10 @@ export const ModeGuard = ({ children }: ModeGuardProps) => {
       if (path.startsWith('/consumer')) {
         target = '/business/profile?tab=catalog';
       }
+      // Rediriger automatiquement /business/dashboard vers le profil business
+      if (path === '/business/dashboard') {
+        target = '/business/profile?tab=catalog';
+      }
     } else {
       // Mode consommateur: on évite l'accès à l'espace opérateur
       if (path.startsWith('/business/')) {

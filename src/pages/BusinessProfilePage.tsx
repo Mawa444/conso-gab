@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Settings, Building2 } from "lucide-react";
 import { CatalogInventoryIntegration } from "@/components/business/CatalogInventoryIntegration";
 import { BusinessProfileEditor } from "@/components/business/BusinessProfileEditor";
-import { BusinessDashboardPage } from "@/pages/BusinessDashboardPage";
 import { toast } from "sonner";
 
 interface BusinessProfile {
@@ -42,7 +41,7 @@ export const BusinessProfilePage = () => {
     // Rediriger si pas en mode business ou pas de business ID
     if (currentMode !== 'business' || !currentBusinessId) {
       console.log('🚫 Redirection: mode invalide ou pas de business ID');
-      navigate('/business/dashboard');
+      navigate('/consumer/profile?tab=businesses');
       return;
     }
 
@@ -66,14 +65,14 @@ export const BusinessProfilePage = () => {
       if (error) {
         console.error('❌ Erreur récupération business profile:', error);
         toast.error("Impossible de charger le profil business");
-        navigate('/business/dashboard');
+        navigate('/consumer/profile?tab=businesses');
         return;
       }
 
       if (!business) {
         console.error('❌ Aucun profil business trouvé avec l\'ID:', currentBusinessId);
         toast.error("Profil business introuvable");
-        navigate('/business/dashboard');
+        navigate('/consumer/profile?tab=businesses');
         return;
       }
 
@@ -81,7 +80,7 @@ export const BusinessProfilePage = () => {
       if (business.user_id !== user?.id) {
         console.error('❌ Utilisateur non autorisé pour ce profil business');
         toast.error("Vous n'avez pas accès à ce profil business");
-        navigate('/business/dashboard');
+        navigate('/consumer/profile?tab=businesses');
         return;
       }
 
@@ -91,7 +90,7 @@ export const BusinessProfilePage = () => {
     } catch (error) {
       console.error('❌ Erreur fetchBusinessProfile:', error);
       toast.error("Erreur lors du chargement du profil");
-      navigate('/business/dashboard');
+      navigate('/consumer/profile?tab=businesses');
     } finally {
       setLoading(false);
     }
@@ -179,8 +178,16 @@ export const BusinessProfilePage = () => {
 
           <TabsContent value="pro" className="space-y-6">
             <div className="space-y-6">
-              {/* Tableau de bord intégré */}
-              <BusinessDashboardPage />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Tableau de Bord Professionnel</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Fonctionnalités du tableau de bord à implémenter...
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
