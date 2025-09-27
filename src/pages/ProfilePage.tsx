@@ -310,7 +310,7 @@ export const ProfilePage = ({
                   <MapPin className="w-6 h-6" />
                   <span className="text-sm">Commerces proches</span>
                 </Button>
-                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
+                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl bg-slate-300 hover:bg-slate-200 text-slate-300">
                   <Trophy className="w-6 h-6" />
                   <span className="text-sm rounded-full">Classements</span>
                 </Button>
