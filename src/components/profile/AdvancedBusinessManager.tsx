@@ -33,13 +33,24 @@ export const AdvancedBusinessManager = ({ className }: AdvancedBusinessManagerPr
       <div className="space-y-4">
         <div className="h-32 bg-muted/30 animate-pulse rounded-xl" />
         <div className="h-24 bg-muted/30 animate-pulse rounded-xl" />
+        <p className="text-center text-sm text-muted-foreground">Chargement de vos entreprises...</p>
       </div>
     );
   }
 
+  console.log('AdvancedBusinessManager render:', { 
+    currentMode, 
+    businessProfiles: businessProfiles.length, 
+    currentBusiness: currentBusiness?.business_name,
+    loading 
+  });
+
 
   return (
-    <div className={className}>
+    <div className={className + " min-h-96 p-4 bg-background"}>
+      <div className="text-center mb-4 p-2 bg-blue-100 rounded">
+        <p className="text-sm">Mode: {currentMode} | Entreprises: {businessProfiles.length}</p>
+      </div>
       {/* Header with mode switch */}
       <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 mb-6 border border-primary/20">
         <div className="flex items-center justify-between mb-4">
