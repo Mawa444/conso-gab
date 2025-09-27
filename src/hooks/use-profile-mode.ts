@@ -12,11 +12,6 @@ interface BusinessProfile {
   is_primary: boolean;
 }
 
-interface UserCurrentMode {
-  current_mode: ProfileMode;
-  current_business_id?: string;
-}
-
 export const useProfileMode = () => {
   const { user } = useAuth();
   const [currentMode, setCurrentMode] = useState<ProfileMode>('consumer');
@@ -24,145 +19,58 @@ export const useProfileMode = () => {
   const [businessProfiles, setBusinessProfiles] = useState<BusinessProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Charger les données utilisateur au démarrage
   useEffect(() => {
-    // Hydrate depuis le cache local immédiatement pour synchroniser toutes les instances
-    try {
-      const cached = localStorage.getItem('gaboma.profile_mode');
-      if (cached) {
-        const parsed = JSON.parse(cached) as { current_mode?: ProfileMode; current_business_id?: string | null };
-        if (parsed?.current_mode) setCurrentMode(parsed.current_mode);
-        if (parsed?.current_business_id !== undefined) setCurrentBusinessId(parsed.current_business_id || null);
-      }
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        await Promise.all([
-          fetchUserMode(),
-          fetchBusinessProfiles()
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-
-    // Abonnement temps réel au changement de mode
-    const channel = supabase
-      .channel('user-mode-' + user.id)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_current_mode', filter: `user_id=eq.${user.id}` }, (payload) => {
-        const row: any = payload.new || payload.old;
-        if (row) {
-          const newMode = (row.current_mode ?? currentMode) as ProfileMode;
-          const newBizId = row.current_business_id ?? null;
-          setCurrentMode(newMode);
-          setCurrentBusinessId(newBizId);
-
-          // Mettre en cache
-          try {
-            localStorage.setItem('gaboma.profile_mode', JSON.stringify({
-              current_mode: newMode,
-              current_business_id: newBizId,
-            }));
-          } catch {}
-        }
-      })
-      .subscribe();
-
-    return () => {
-      try {
-        supabase.removeChannel(channel);
-      } catch {}
-    };
-  }, [user]);
-
-  const fetchUserMode = async () => {
     if (!user) {
       setLoading(false);
       return;
     }
+    
+    loadUserData();
+  }, [user]);
 
+  const loadUserData = async () => {
+    if (!user) return;
+    
+    setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Charger le mode actuel
+      const { data: modeData } = await supabase
         .from('user_current_mode')
         .select('*')
         .eq('user_id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Erreur récupération mode:', error);
-        return;
+      if (modeData) {
+        setCurrentMode(modeData.current_mode as ProfileMode);
+        setCurrentBusinessId(modeData.current_business_id);
       }
 
-      if (data) {
-        setCurrentMode(data.current_mode as ProfileMode);
-        setCurrentBusinessId(data.current_business_id);
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-    }
-  };
-
-  const fetchBusinessProfiles = async () => {
-    if (!user) return;
-
-    try {
-      // Récupérer les business où l'utilisateur est collaborateur
-      const { data: collaborators, error: collabError } = await supabase
-        .from('business_collaborators')
-        .select('business_id, role')
+      // Charger les profils business de l'utilisateur
+      const { data: businessList } = await supabase
+        .from('business_profiles')
+        .select('id, business_name, logo_url, is_primary')
         .eq('user_id', user.id)
-        .eq('status', 'accepted');
+        .eq('is_active', true);
 
-      if (collabError) {
-        console.error('Erreur récupération business:', collabError);
-        return;
-      }
-
-      if (collaborators && collaborators.length > 0) {
-        // Récupérer les détails des business
-        const businessIds = collaborators.map(c => c.business_id);
-        const { data: businessData, error: businessError } = await supabase
-          .from('business_profiles')
-          .select('id, business_name, logo_url, is_primary')
-          .in('id', businessIds);
-
-        if (businessError) {
-          console.error('Erreur récupération business details:', businessError);
-          return;
-        }
-
-        if (businessData) {
-          const businesses = businessData.map(business => {
-            const collab = collaborators.find(c => c.business_id === business.id);
-            return {
-              id: business.id,
-              business_name: business.business_name,
-              logo_url: business.logo_url,
-              is_primary: business.is_primary,
-              role: collab?.role || 'viewer'
-            };
-          });
-          
-          setBusinessProfiles(businesses);
-        }
+      if (businessList) {
+        setBusinessProfiles(businessList);
       }
     } catch (error) {
-      console.error('Erreur récupération business profiles:', error);
+      console.error('Erreur chargement données utilisateur:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const switchMode = async (mode: ProfileMode, businessId?: string, navigate?: (path: string) => void) => {
-    if (!user) return;
+    if (!user) {
+      toast.error("Vous devez être connecté");
+      return;
+    }
 
     try {
-      // Mise à jour directe de la table user_current_mode
+      // Mise à jour du mode dans la base de données
       const { error } = await supabase
         .from('user_current_mode')
         .upsert({
@@ -172,38 +80,49 @@ export const useProfileMode = () => {
           updated_at: new Date().toISOString()
         });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
+      // Mise à jour locale
       setCurrentMode(mode);
       setCurrentBusinessId(businessId || null);
 
-      // Mettre en cache immédiatement pour synchroniser toutes les instances
-      try {
-        localStorage.setItem('gaboma.profile_mode', JSON.stringify({
-          current_mode: mode,
-          current_business_id: businessId || null,
-        }));
-      } catch {}
-      
-
-      // Redirection automatique selon le mode
+      // Navigation automatique
       if (navigate) {
         if (mode === 'business' && businessId) {
           navigate(`/business/${businessId}`);
-        } else if (mode === 'consumer') {
+        } else {
           navigate('/consumer/home');
         }
       }
-      
-      toast.success(mode === 'business' 
-        ? `Vous êtes maintenant en mode professionnel` 
-        : `Vous êtes maintenant en mode consommateur`);
+
+      const businessName = businessId ? businessProfiles.find(b => b.id === businessId)?.business_name : '';
+      toast.success(
+        mode === 'business' 
+          ? `Basculement vers ${businessName || 'votre entreprise'}` 
+          : 'Basculement vers le mode consommateur'
+      );
 
     } catch (error: any) {
-      console.error('Erreur changement mode:', error);
-      toast.error(error.message || "Une erreur est survenue");
+      console.error('Erreur basculement mode:', error);
+      toast.error("Erreur lors du basculement de mode");
+    }
+  };
+
+  const refreshBusinessProfiles = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: businessList } = await supabase
+        .from('business_profiles')
+        .select('id, business_name, logo_url, is_primary')
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+
+      if (businessList) {
+        setBusinessProfiles(businessList);
+      }
+    } catch (error) {
+      console.error('Erreur refresh business profiles:', error);
     }
   };
 
@@ -219,6 +138,6 @@ export const useProfileMode = () => {
     loading,
     switchMode,
     getCurrentBusiness,
-    refreshBusinessProfiles: fetchBusinessProfiles
+    refreshBusinessProfiles
   };
 };

@@ -63,7 +63,8 @@ export const useEnhancedImageUpload = () => {
     file: File,
     targetWidth: number = 1300,
     targetHeight: number = 1300,
-    quality: number = 0.95
+    quality: number = 0.95,
+    requireSquare: boolean = false
   ): Promise<{ blob: Blob; format: string }> => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
