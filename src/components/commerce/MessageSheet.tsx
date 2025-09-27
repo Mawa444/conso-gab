@@ -89,7 +89,7 @@ export const MessageSheet = ({
   };
   return <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[50vh] rounded-t-3xl p-0">
-        <div className="p-4 py-[8px] px-[20px] my-0">
+        <div className="p-4 px-[20px] my-0 py-[14px]">
           <SheetHeader className="mb-4">
             <SheetTitle className="text-lg font-semibold">
               Message à {commerce.name}
