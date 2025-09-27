@@ -27,14 +27,14 @@ export const Header = ({
               <ArrowLeft className="w-5 h-5" />
             </Button> : <div className="flex items-center gap-2">
                <img src={gabomaLogo} alt="ConsoGab" className="w-16 h-16 object-contain" />
-               <div className="rounded-none noselect">
-                <h1 className="text-lg font-bold noselect">ConsoGab</h1>
-                <p className="text-xs text-white/70 noselect">Découvrez le commerce gabonais</p>
-                {title}
-               </div>
+                <div className="rounded-none noselect">
+                 <h1 className="text-title-large font-roboto noselect">ConsoGab</h1>
+                 <p className="text-label-medium font-roboto text-white/70 noselect">Découvrez le commerce gabonais</p>
+                 {title}
+                </div>
             </div>}
           
-          {showBack && title && <h1 className="text-lg font-semibold noselect">{title}</h1>}
+          {showBack && title && <h1 className="text-title-large font-roboto noselect">{title}</h1>}
         </div>
 
         {/* Côté droit - Actions */}

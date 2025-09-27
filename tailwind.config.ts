@@ -18,6 +18,28 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'roboto': ['Roboto', 'sans-serif'],
+				'sans': ['Roboto', 'system-ui', 'sans-serif'],
+			},
+			fontSize: {
+				// Material Design 3 Typography Scale
+				'display-large': ['3.5625rem', { lineHeight: '4rem', fontWeight: '400' }], // 57sp -> 64sp
+				'display-medium': ['2.8125rem', { lineHeight: '3.25rem', fontWeight: '400' }], // 45sp -> 52sp
+				'display-small': ['2.25rem', { lineHeight: '2.75rem', fontWeight: '400' }], // 36sp -> 44sp
+				'headline-large': ['2rem', { lineHeight: '2.5rem', fontWeight: '400' }], // 32sp -> 40sp
+				'headline-medium': ['1.75rem', { lineHeight: '2.25rem', fontWeight: '400' }], // 28sp -> 36sp
+				'headline-small': ['1.5rem', { lineHeight: '2rem', fontWeight: '400' }], // 24sp -> 32sp
+				'title-large': ['1.375rem', { lineHeight: '1.75rem', fontWeight: '500' }], // 22sp -> 28sp
+				'title-medium': ['1rem', { lineHeight: '1.5rem', fontWeight: '500' }], // 16sp -> 24sp
+				'title-small': ['0.875rem', { lineHeight: '1.25rem', fontWeight: '500' }], // 14sp -> 20sp
+				'body-large': ['1rem', { lineHeight: '1.5rem', fontWeight: '400' }], // 16sp -> 24sp
+				'body-medium': ['0.875rem', { lineHeight: '1.25rem', fontWeight: '400' }], // 14sp -> 20sp
+				'body-small': ['0.75rem', { lineHeight: '1rem', fontWeight: '400' }], // 12sp -> 16sp
+				'label-large': ['0.875rem', { lineHeight: '1.25rem', fontWeight: '500' }], // 14sp -> 20sp
+				'label-medium': ['0.75rem', { lineHeight: '1rem', fontWeight: '500' }], // 12sp -> 16sp
+				'label-small': ['0.6875rem', { lineHeight: '1rem', fontWeight: '500' }], // 11sp -> 16sp
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
