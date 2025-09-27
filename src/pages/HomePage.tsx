@@ -64,7 +64,7 @@ export const HomePage = () => {
         <div className="space-y-6">
           <HeroBlock />
           <CategoriesSection />
-          <RealCommerceListBlock onMessage={handleMessage} />
+          <RealCommerceListBlock />
           <ActionButtonsBlock />
         </div>
       </main>

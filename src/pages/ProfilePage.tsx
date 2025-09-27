@@ -72,11 +72,18 @@ const favoriteCommerces = [{
 }];
 interface ProfilePageProps {}
 export const ProfilePage = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { secureSignOut } = useAuthCleanup();
+  
+  // State variables
   const [showScanner, setShowScanner] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [activityFilter, setActivityFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
   const handleBack = () => {
     navigate("/consumer/home");
   };
@@ -93,16 +100,7 @@ export const ProfilePage = () => {
     console.log("QR Code scanné:", result);
     setShowScanner(false);
   };
-  const [activeTab, setActiveTab] = useState("overview");
-  const [locationFilter, setLocationFilter] = useState("all");
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-  const {
-    signOut
-  } = useAuth();
-  const {
-    secureSignOut
-  } = useAuthCleanup();
+  
   const [userProfile, setUserProfile] = useState<UserProfileData>({
     name: "Chargement...",
     email: "",
@@ -117,9 +115,7 @@ export const ProfilePage = () => {
     pseudo: "",
     role: ""
   });
-  const {
-    user
-  } = useAuth();
+  
   const fetchUserProfile = async () => {
     if (!user) {
       setIsLoading(false);
@@ -468,7 +464,7 @@ export const ProfilePage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 bg-gray-200 px-[14px] my-0">
-                  <Button variant="outline" onClick={onSettings} className="w-full justify-start rounded-3xl my-[10px] bg-white">
+                  <Button variant="outline" onClick={handleSettings} className="w-full justify-start rounded-3xl my-[10px] bg-white">
                     <Settings className="w-4 h-4 mr-2" />
                     Modifier mon profil
                   </Button>
@@ -520,6 +516,7 @@ export const ProfilePage = () => {
             </div>
           </TabsContent>
         </Tabs>
+        </div>
         </main>
       </div>
     </PageWithSkeleton>

@@ -113,17 +113,11 @@ const ConsumerApp = () => {
     const content = (() => {
       switch (activeTab) {
         case "map":
-          return <MapPage onBack={() => setActiveTab("home")} />;
+          return <MapPage />;
         case "profile":
-          return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
+          return <ProfilePage />;
         default:
-          return <HomePage 
-            onNavigate={setActiveTab} 
-            onMessage={(commerce) => {
-              setSelectedCommerce(commerce);
-              handleMessageClick();
-            }} 
-          />;
+          return <HomePage />;
       }
     })();
 
@@ -155,7 +149,7 @@ const ConsumerApp = () => {
       
       <BottomNavigation 
         activeTab={activeTab} 
-        onTabChange={handleTabChange}
+        onScannerClick={() => setShowScanner(true)}
       />
 
       {showScanner && (
