@@ -7,7 +7,7 @@ import { ProfilePage } from "@/pages/ProfilePage";
 import { QRScanner } from "@/components/scanner/QRScanner";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { PageTransition } from "@/components/layout/PageTransition";
@@ -140,22 +140,63 @@ const ConsumerApp = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background transition-all duration-300">
-      {activeTab === "home" && (
-        <Header 
-          title={getPageTitle()}
-          showBack={false}
-          onLocationClick={handleLocationClick}
-          onMessageClick={handleMessageClick}
-        />
-      )}
-      
-      <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen">
-        {renderActiveTab()}
-      </main>
+      <Routes>
+        <Route path="/home" element={
+          <>
+            <Header 
+              title="Découvrir"
+              showBack={false}
+              onLocationClick={() => navigate('/consumer/map')}
+              onMessageClick={() => navigate('/messaging')}
+            />
+            <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen">
+              <HomePage 
+                onNavigate={(tab) => navigate(`/consumer/${tab}`)} 
+                onMessage={(commerce) => {
+                  setSelectedCommerce(commerce);
+                  navigate('/messaging');
+                }} 
+              />
+            </main>
+          </>
+        } />
+        
+        <Route path="/map" element={
+          <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen">
+            <MapPage onBack={() => navigate('/consumer/home')} />
+          </main>
+        } />
+        
+        <Route path="/profile" element={
+          <main className="pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] min-h-screen">
+            <ProfilePage onBack={() => navigate('/consumer/home')} onSettings={() => setShowProfileSettings(true)} />
+          </main>
+        } />
+        
+        <Route path="/*" element={<Navigate to="/consumer/home" replace />} />
+      </Routes>
       
       <BottomNavigation 
         activeTab={activeTab} 
-        onTabChange={handleTabChange}
+        onTabChange={(tab) => {
+          if (tab === "scanner") {
+            trackButtonClick("Scanner QR", "Navigation");
+            trackModalOpen("Scanner QR");
+            setShowScanner(true);
+            return;
+          }
+          
+          if (tab === "profile" && currentMode === "business" && currentBusinessId) {
+            trackNavigation(activeTab, "business-profile");
+            navigate(`/business/${currentBusinessId}`);
+            return;
+          }
+          
+          trackTabChange(activeTab, tab);
+          setActiveTab(tab);
+          const path = tab === "home" ? "/consumer/home" : `/consumer/${tab}`;
+          navigate(path);
+        }}
       />
 
       {showScanner && (
@@ -164,11 +205,13 @@ const ConsumerApp = () => {
             trackModalOpen("Scanner QR - Fermeture");
             setShowScanner(false);
           }}
-          onScan={handleScanResult}
+          onScan={(result) => {
+            console.log("QR Code scanné:", result);
+            trackButtonClick("QR Code Scanné", "Scanner");
+            setShowScanner(false);
+          }}
         />
       )}
-
-      {/* Messaging functionality will be re-implemented */}
 
       {showProfileSettings && (
         <ProfileSettings

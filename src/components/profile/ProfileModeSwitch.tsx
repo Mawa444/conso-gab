@@ -80,9 +80,10 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
         
         <DropdownMenuSeparator />
 
-        {/* Mode Consommateur - Lecture seule */}
+        {/* Mode Consommateur */}
         <DropdownMenuItem 
-          className={`flex items-center gap-3 p-3 cursor-not-allowed opacity-60 ${
+          onClick={() => switchMode('consumer', undefined, navigate)}
+          className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-green-50 ${
             currentMode === 'consumer' ? 'bg-green-50 text-green-700' : ''
           }`}
         >
@@ -104,11 +105,12 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
           Mes Entreprises
         </DropdownMenuLabel>
 
-        {/* Liste des profils business - Lecture seule */}
+        {/* Liste des profils business */}
         {businessProfiles.map((business) => (
           <DropdownMenuItem
             key={business.id}
-            className={`flex items-center gap-3 p-3 cursor-not-allowed opacity-60 ${
+            onClick={() => switchMode('business', business.id, navigate)}
+            className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-blue-50 ${
               currentMode === 'business' && currentBusiness?.id === business.id 
                 ? 'bg-blue-50 text-blue-700' 
                 : ''
