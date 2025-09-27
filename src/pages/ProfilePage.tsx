@@ -399,8 +399,8 @@ export const ProfilePage = ({
           <TabsContent value="businesses" className="space-y-4">
             <div className="min-h-96 p-4 bg-background py-0">
               {/* Header avec basculement de mode */}
-              <div className="from-primary/10 via-accent/5 to-secondary/10 p-6 mb-6 border border-primary/20 bg-[3a75c4] bg-[#3a75c4]/[0.97] rounded-3xl py-[20px]">
-                <div className="flex items-center justify-between mb-4">
+              <div className="from-primary/10 via-accent/5 to-secondary/10 p-6 mb-6 border border-primary/20 bg-[3a75c4] bg-[#3a75c4]/[0.97] rounded-3xl py-[20px] px-0">
+                <div className="flex items-center justify-between mb-4 px-[68px]">
                   <div>
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-white">
                       Gestion des Profils
