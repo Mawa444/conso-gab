@@ -25,11 +25,11 @@ export const Header = ({
         <div className="flex items-center gap-3">
           {showBack ? <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20 transition-colors">
               <ArrowLeft className="w-5 h-5" />
-            </Button> : <div className="flex items-center gap-2">
+            </Button> : <div className="flex items-center gap-2 my-0 mx-0">
                <img src={gabomaLogo} alt="ConsoGab" className="w-13 h-12 object-contain" />
                 <div className="rounded-none noselect">
                  <h1 className="font-roboto noselect text-title-large font-extrabold text-left my-0">CONSOGAB</h1>
-                 <p className="text-label-medium font-roboto text-white/70 noselect">Découvrez le commerce gabonais</p>
+                 <p className="text-label-medium font-roboto text-white/70 noselect">Consommons gabonais</p>
                  {title}
                 </div>
             </div>}
