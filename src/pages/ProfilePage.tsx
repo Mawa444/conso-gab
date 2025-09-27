@@ -183,7 +183,7 @@ export const ProfilePage = ({
   return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
       <div className="min-h-screen animate-fade-in">
       {/* Header Profile moderne */}
-      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-[23px]">
         <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl"></div>
         <div className="relative z-10">
             <div className="flex items-center gap-4">
