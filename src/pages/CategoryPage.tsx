@@ -184,7 +184,7 @@ export const CategoryPage = () => {
             <div className="flex items-center gap-3 overflow-x-auto pb-2 my-0">
               {/* Mode d'affichage */}
               <div className="flex items-center gap-2">
-                <Button variant={viewMode === "grid" ? "default" : "outline"} size="sm" onClick={() => setViewMode("grid")}>
+                <Button variant={viewMode === "grid" ? "default" : "outline"} size="sm" onClick={() => setViewMode("grid")} className="bg-inherit">
                   <Grid3X3 className="w-4 h-4" />
                 </Button>
                 <Button variant={viewMode === "list" ? "default" : "outline"} size="sm" onClick={() => setViewMode("list")}>
