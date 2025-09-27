@@ -26,9 +26,9 @@ export const Header = ({
           {showBack ? <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20 transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Button> : <div className="flex items-center gap-2">
-               <img src={gabomaLogo} alt="ConsoGab" className="w-16 h-16 object-contain" />
+               <img src={gabomaLogo} alt="ConsoGab" className="w-13 h-13 object-contain" />
                 <div className="rounded-none noselect">
-                 <h1 className="text-title-large font-roboto noselect">ConsoGab</h1>
+                 <h1 className="font-roboto noselect text-title-large font-extrabold text-left">CONSOGAB</h1>
                  <p className="text-label-medium font-roboto text-white/70 noselect">Découvrez le commerce gabonais</p>
                  {title}
                 </div>
