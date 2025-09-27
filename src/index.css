@@ -164,6 +164,40 @@
     -ms-text-size-adjust: none;
     text-size-adjust: none;
   }
+
+  /* Empêcher le téléchargement et glissement d'images */
+  img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    pointer-events: auto;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Page de connexion fixe - empêcher le scroll */
+  .auth-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* Permettre la sélection uniquement pour les champs de saisie */
+  input, textarea, [contenteditable="true"], .selectable {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+  }
 }
 
 /* Skeleton screens seulement - pas d'autres animations */

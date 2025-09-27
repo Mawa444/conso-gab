@@ -247,11 +247,12 @@ export const useProfileMode = () => {
       
       toast.success(message);
 
-      // Redirection immédiate et correcte
+      // Redirection immédiate et correcte vers le dashboard personnel
       if (navigate) {
         if (mode === 'business' && businessId) {
-          console.log(`🔄 Redirection vers /business/${businessId}`);
-          navigate(`/business/${businessId}`);
+          console.log(`🔄 Redirection vers dashboard business personnel`);
+          // Rediriger vers le dashboard business personnel de l'utilisateur
+          navigate('/business/dashboard');
         } else if (mode === 'consumer') {
           console.log('🔄 Redirection vers /consumer/profile avec onglet businesses');
           // Rediriger vers l'onglet "businesses" de la page profil consommateur
