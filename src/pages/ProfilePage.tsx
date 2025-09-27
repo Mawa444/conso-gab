@@ -183,231 +183,211 @@ export const ProfilePage = ({
   const handleDeleteAccount = () => {
     toast.error("Fonctionnalité à venir - Suppression de compte");
   };
-    return (
-      <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
-        <div className="flex flex-col min-h-screen bg-background">
-          {/* Header Profile optimisé mobile */}
-          <div className="bg-gradient-to-br from-primary via-accent to-secondary p-4 text-white relative overflow-hidden">
-            <div className="relative z-10 space-y-4">
-              {/* Première ligne: Avatar + Info + Actions */}
-              <div className="flex items-start gap-3">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30 flex-shrink-0">
-                  <User className="w-8 h-8 text-white" />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-title-large text-white font-roboto truncate">{userProfile.name}</h1>
-                  <p className="text-body-small text-white/80 font-roboto truncate">{userProfile.email}</p>
-                  <div className="flex items-center gap-1 mt-2 flex-wrap">
-                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm text-label-small font-roboto">
-                      {userProfile.level}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <Button variant="ghost" size="icon" onClick={onSettings} className="text-white hover:bg-white/20 backdrop-blur-sm w-8 h-8">
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white hover:bg-red-500/30 backdrop-blur-sm w-8 h-8">
-                    <LogOut className="w-4 h-4" />
-                  </Button>
-                </div>
+    return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
+      <div className="flex flex-col min-h-full">
+      {/* Header Profile moderne */}
+      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-[23px]">
+        <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl"></div>
+        <div className="relative z-10">
+            <div className="flex items-center gap-4">
+            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
+              <User className="w-12 h-12 text-white" />
+            </div>
+            
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-white">{userProfile.name}</h1>
+              <p className="text-white/80 text-sm">{userProfile.email}</p>
+              <div className="flex items-center gap-2 mt-3">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                  {userProfile.level}
+                </Badge>
+                <Badge variant="outline" className="border-white/30 text-white/80">
+                  Membre depuis {userProfile.joinDate}
+                </Badge>
               </div>
-
-              {/* Deuxième ligne: Membre depuis */}
-              <Badge variant="outline" className="border-white/30 text-white/80 text-label-small font-roboto w-fit">
-                Membre depuis {userProfile.joinDate}
-              </Badge>
-
-              {/* Troisième ligne: Bouton notifications */}
-              <Button className="w-full bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm text-label-large font-roboto" size="sm">
+              {/* Bouton S'abonner */}
+              <Button className="mt-3 bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm" size="sm">
                 <Bell className="w-4 h-4 mr-2" />
                 S'abonner aux notifications
               </Button>
-
-              {/* Stats en grille responsive */}
-              <div className="grid grid-cols-3 gap-2 mt-4">
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-                  <CardContent className="p-3">
-                    <div className="text-title-medium text-white font-roboto">{userProfile.points}</div>
-                    <div className="text-label-small text-white/70 font-roboto">Points</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-                  <CardContent className="p-3">
-                    <div className="text-title-medium text-white font-roboto">{userProfile.scansCount}</div>
-                    <div className="text-label-small text-white/70 font-roboto">Scans</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-                  <CardContent className="p-3">
-                    <div className="text-title-medium text-white font-roboto">{userProfile.reviewsCount}</div>
-                    <div className="text-label-small text-white/70 font-roboto">Avis</div>
-                  </CardContent>
-                </Card>
-              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={onSettings} className="text-white hover:bg-white/20 backdrop-blur-sm">
+                <Settings className="w-6 h-6" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleDeleteAccount} className="text-white hover:bg-white/20 backdrop-blur-sm">
+                <Trash2 className="w-6 h-6" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white hover:bg-red-500/30 backdrop-blur-sm">
+                <LogOut className="w-6 h-6" />
+              </Button>
             </div>
           </div>
 
-          {/* Tabs optimisés mobile */}
-          <div className="flex-1 pb-20">
-            <div className="p-4 bg-background">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-5 mb-4 bg-card rounded-xl p-1">
-                  <TabsTrigger value="overview" className="text-label-small font-roboto px-1 py-2 rounded-lg">Aperçu</TabsTrigger>
-                  <TabsTrigger value="activity" className="text-label-small font-roboto px-1 py-2 rounded-lg">Activité</TabsTrigger>
-                  <TabsTrigger value="favorites" className="text-label-small font-roboto px-1 py-2 rounded-lg">Favoris</TabsTrigger>
-                  <TabsTrigger value="businesses" className="text-label-small font-roboto px-1 py-2 rounded-lg">Business</TabsTrigger>
-                  <TabsTrigger value="settings" className="text-label-small font-roboto px-1 py-2 rounded-lg">Config</TabsTrigger>
-                </TabsList>
+          {/* Stats rapides modernisées */}
+          <div className="grid grid-cols-3 gap-4 mt-8">
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
+              <CardContent className="p-4">
+                <div className="text-3xl font-bold text-white">{userProfile.points}</div>
+                <div className="text-sm text-white/70">Points ConsoGab</div>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
+              <CardContent className="p-4">
+                <div className="text-3xl font-bold text-white">{userProfile.scansCount}</div>
+                <div className="text-sm text-white/70">Scans effectués</div>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
+              <CardContent className="p-4">
+                <div className="text-3xl font-bold text-white">{userProfile.reviewsCount}</div>
+                <div className="text-sm text-white/70">Avis publiés</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
 
-          {/* Aperçu optimisé mobile */}
-          <TabsContent value="overview" className="space-y-4">
-            {/* Progression niveau responsive */}
-            <Card className="border border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
-              <CardHeader className="bg-primary text-primary-foreground rounded-t-xl">
+      {/* Tabs */}
+      <div className="flex-1 p-6 bg-[f2f4f7] bg-[#f2f4f7]/[0.97]">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-5 mb-6 bg-white rounded-3xl">
+            <TabsTrigger value="overview" className="rounded-3xl bg-[3a75c4] text-center bg-inherit font-bold text-[#73767a]/[0.96] text-sm">Aperçu</TabsTrigger>
+            <TabsTrigger value="activity" className="rounded-3xl font-bold text-[73767a] text-[#73767a]/[0.97]">Activité</TabsTrigger>
+            <TabsTrigger value="favorites" className="rounded-3xl font-bold text-[#73767a]/[0.96] text-sm">Favoris</TabsTrigger>
+            <TabsTrigger value="businesses" className="rounded-3xl font-bold text-[#73767a]/[0.97] text-sm">Entreprises</TabsTrigger>
+            <TabsTrigger value="settings" className="rounded-3xl font-bold text-[73767a] text-[#73767a]/[0.96]">Paramètres</TabsTrigger>
+          </TabsList>
+
+          {/* Aperçu */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Progression niveau modernisée */}
+            <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
+              <CardHeader className="rounded-none bg-[3a75c4] bg-[#3e78c6]">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-title-medium font-roboto">Points ConsoGab</CardTitle>
-                  <Badge className="bg-accent text-accent-foreground text-label-small font-roboto">Niveau 4</Badge>
+                  <CardTitle className="font-bold text-white mx-0 py-0 px-0 my-[10px] text-lg">Progression  Points ConsoGab</CardTitle>
+                  <Badge className="text-primary bg-[fcd116] bg-[#fcd116]/[0.96]">Niveau 4</Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4 p-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-body-medium font-roboto">Ambassador ConsoGab</span>
-                  <span className="text-primary text-body-medium font-roboto font-medium">{userProfile.points} / 5000 pts</span>
+              <CardContent className="space-y-4 rounded-none bg-white my-0">
+                <div className="flex justify-between text-sm font-medium">
+                  <span className="my-[10px] font-bold text-black/[0.97] text-base">Ambassador ConsoGab</span>
+                  <span className="text-primary font-bold my-[9px]">{userProfile.points} / 5000 pts</span>
                 </div>
-                <div className="w-full rounded-full h-2 overflow-hidden bg-muted">
-                  <div 
-                    className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-700" 
-                    style={{ width: `${(userProfile.points / 5000) * 100}%` }}
-                  />
+                <div className="w-full rounded-full h-3 overflow-hidden shadow-inner bg-[fcd116] bg-[#fcd116]/[0.96] my-[6px]">
+                  <div className="bg-gradient-to-r from-primary via-accent to-secondary h-3 rounded-full transition-all duration-700 relative overflow-hidden" style={{
+                    width: `${userProfile.points / 5000 * 100}%`
+                  }}>
+                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  </div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <TrendingUp className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-body-small text-muted-foreground font-roboto">
-                    Plus que <span className="font-medium text-primary">2153 points</span> pour "Local Hero"
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                  <p className="text-sm text-muted-foreground">
+                    Plus que <span className="font-semibold text-primary">2153 points</span> pour atteindre "Local Hero"
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Actions rapides optimisées mobile */}
+            {/* Actions rapides */}
             <div className="space-y-3">
-              <h3 className="text-title-small font-roboto">Actions rapides</h3>
+              <h3 className="font-semibold">Actions rapides</h3>
               
               {/* Bouton Dashboard Opérateur pour les marchands */}
-              {userProfile.role === 'merchant' && (
-                <Button 
-                  onClick={() => window.location.href = '/merchant/dashboard'} 
-                  className="w-full h-14 bg-gradient-to-r from-primary to-accent text-primary-foreground flex items-center gap-3 rounded-xl shadow-lg"
-                >
-                  <Shield className="w-6 h-6 flex-shrink-0" />
-                  <div className="text-left min-w-0">
-                    <div className="text-label-large font-roboto truncate">Dashboard Opérateur</div>
-                    <div className="text-label-small opacity-90 font-roboto truncate">Gérer vos catalogues</div>
+              {userProfile.role === 'merchant' && <Button onClick={() => window.location.href = '/merchant/dashboard'} className="w-full h-16 bg-gradient-to-r from-primary to-accent text-white mb-4 flex items-center gap-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300">
+                  <Shield className="w-8 h-8" />
+                  <div className="text-left">
+                    <div className="text-lg font-bold">Dashboard Opérateur</div>
+                    <div className="text-sm opacity-90">Gérer vos catalogues et commandes</div>
                   </div>
-                </Button>
-              )}
+                </Button>}
               
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="default" className="h-16 flex-col gap-1 rounded-xl p-2">
-                  <QrCode className="w-5 h-5" />
-                  <span className="text-label-small font-roboto text-center leading-tight">Scanner commerce</span>
+                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
+                  <QrCode className="w-6 h-6" />
+                  <span className="text-sm">Scanner commerce</span>
                 </Button>
-                <Button variant="default" className="h-16 flex-col gap-1 rounded-xl p-2">
-                  <MapPin className="w-5 h-5" />
-                  <span className="text-label-small font-roboto text-center leading-tight">Commerces proches</span>
+                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
+                  <MapPin className="w-6 h-6" />
+                  <span className="text-sm">Commerces proches</span>
                 </Button>
-                <Button variant="secondary" className="h-16 flex-col gap-1 rounded-xl p-2" disabled>
-                  <Trophy className="w-5 h-5" />
-                  <span className="text-label-small font-roboto text-center leading-tight">Classements</span>
+                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl bg-slate-300 hover:bg-slate-200 text-slate-300">
+                  <Trophy className="w-6 h-6" />
+                  <span className="text-sm rounded-full">Classements</span>
                 </Button>
-                <Button variant="default" className="h-16 flex-col gap-1 rounded-xl p-2">
-                  <Shield className="w-5 h-5" />
-                  <span className="text-label-small font-roboto text-center leading-tight">Sécurité</span>
+                <Button variant="default" className="h-20 flex-col gap-2 rounded-3xl">
+                  <Shield className="w-6 h-6" />
+                  <span className="text-sm">Sécurité</span>
                 </Button>
               </div>
             </div>
 
-            {/* Notifications optimisées mobile */}
-            <Card className="border border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-title-small font-roboto text-primary">Notifications</CardTitle>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            {/* Notifications */}
+            <div className="border border-border/50 p-4 bg-white rounded-3xl">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-[009e60] text-[#009e60]/[0.97]">Notifications</h3>
+                <Button variant="ghost" size="sm">
                   <Bell className="w-4 h-4" />
                 </Button>
-              </CardHeader>
-              <CardContent className="space-y-3 p-4 pt-0">
-                <div className="flex items-start gap-3 p-3 border-l-4 border-primary rounded-lg bg-primary/5">
-                  <Trophy className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-body-medium font-roboto font-medium text-primary">Nouveau badge débloqué!</p>
-                    <p className="text-label-small text-muted-foreground font-roboto">Vous avez obtenu "Explorateur"</p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-start gap-3 p-2 border-l-4 border-primary px-[15px] py-[8px] mx-0 rounded-3xl bg-[009e60] bg-[#009e60]/[0.96]">
+                  <Trophy className="w-4 h-4 text-primary mt-1 bg-inherit" />
+                  <div className="flex-1">
+                    <p className="font-medium text-[fcd116] text-[#fcd116]/[0.97]">Nouveau badge débloqué!</p>
+                    <p className="text-xs text-white">Vous avez obtenu "Explorateur"</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-3 border-l-4 border-accent rounded-lg bg-accent/5">
-                  <Star className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-body-medium font-roboto font-medium">Nouveau commerce ajouté</p>
-                    <p className="text-label-small text-muted-foreground font-roboto">Près de chez vous</p>
+                <div className="flex items-start gap-3 p-2 rounded-lg border-l-4 border-accent bg-[fcd116] bg-[#fcd116]/[0.96]">
+                  <Star className="w-4 h-4 text-accent mt-1" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Nouveau commerce ajouté</p>
+                    <p className="text-xs text-muted-foreground">Près de chez vous</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </TabsContent>
 
-          {/* Activité optimisée mobile */}
+          {/* Activité */}
           <TabsContent value="activity" className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-title-medium font-roboto">Activité récente</h3>
-                <Button variant="outline" size="sm" className="text-label-small font-roboto">
-                  Exporter
-                </Button>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Activité récente</h3>
+              <div className="flex gap-2">
+                <Select value={activityFilter} onValueChange={setActivityFilter}>
+                  <SelectTrigger className="w-32">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes</SelectItem>
+                    <SelectItem value="scan">Scans</SelectItem>
+                    <SelectItem value="review">Avis</SelectItem>
+                    <SelectItem value="badge">Badges</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="default" size="sm">Exporter</Button>
               </div>
-              
-              <Select value={activityFilter} onValueChange={setActivityFilter}>
-                <SelectTrigger className="w-full">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les activités</SelectItem>
-                  <SelectItem value="scan">Scans uniquement</SelectItem>
-                  <SelectItem value="review">Avis uniquement</SelectItem>
-                  <SelectItem value="badge">Badges uniquement</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             
-            <div className="space-y-3">
-              {recentActivity.map(activity => (
-                <Card key={activity.id} className="border border-border/50">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      {getActivityIcon(activity.type)}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-body-medium font-roboto font-medium">
-                          {activity.type === "scan" && `Commerce scanné`}
-                          {activity.type === "review" && `Avis publié`}
-                          {activity.type === "badge" && `Badge obtenu`}
-                        </p>
-                        <p className="text-body-small font-roboto text-muted-foreground truncate">
-                          {activity.type === "scan" && activity.commerce}
-                          {activity.type === "review" && activity.commerce}
-                          {activity.type === "badge" && `"${activity.badge}"`}
-                        </p>
-                        <p className="text-label-small text-muted-foreground font-roboto">{activity.date}</p>
-                      </div>
-                      <Badge variant="outline" className="text-label-small font-roboto flex-shrink-0">
-                        {activity.points}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {recentActivity.map(activity => <div key={activity.id} className="border border-border/50 p-4 rounded-3xl bg-gray-50">
+                <div className="flex items-center gap-3">
+                  {getActivityIcon(activity.type)}
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {activity.type === "scan" && `Commerce scanné: ${activity.commerce}`}
+                      {activity.type === "review" && `Avis laissé pour ${activity.commerce}`}
+                      {activity.type === "badge" && `Badge "${activity.badge}" obtenu`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{activity.date}</p>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {activity.points}
+                  </Badge>
+                </div>
+              </div>)}
           </TabsContent>
 
           {/* Favoris */}
@@ -505,8 +485,6 @@ export const ProfilePage = ({
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  </div>
-</PageWithSkeleton>
-);
+      </div>
+    </PageWithSkeleton>;
 };

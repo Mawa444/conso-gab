@@ -30,74 +30,64 @@ export const AdvancedBusinessManager = ({
       </div>;
   }
   return <div className={`${className} min-h-96 p-4 bg-background`}>
-      {/* Header optimisé mobile */}
-      <Card className="mb-4">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="min-w-0 flex-1">
-              <CardTitle className="text-title-medium font-roboto text-primary">Gestion des Profils</CardTitle>
-              <p className="text-body-small font-roboto text-muted-foreground">Gérez vos profils business</p>
-            </div>
-            <Sparkles className="w-5 h-5 text-accent flex-shrink-0" />
+      {/* Header with mode switch */}
+      <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 mb-6 border border-primary/20 bg-white">
+        <div className="flex items-center justify-between mb-4 bg-[3a75c4] bg-white">
+          <div>
+            <h2 className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-[3a75c4] text-black">
+              Gestion des Profils
+            </h2>
+            <p className="text-[3a75c4] text-black">Gérez vos profils business</p>
           </div>
-        </CardHeader>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-accent animate-pulse" />
+          </div>
+        </div>
 
-        {/* Mode actuel optimisé mobile */}
-        <CardContent className="pt-0">
-          <div className="bg-muted/30 rounded-xl p-3">
+        {/* Current Mode Display */}
+        <div className="bg-white/50 dark:bg-background/50 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                isBusinessMode 
-                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white' 
-                  : 'bg-gradient-to-br from-green-500 to-green-600 text-white'
-              }`}>
-                {isBusinessMode ? <Building2 className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isBusinessMode ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30'}`}>
+                {isBusinessMode ? <Building2 className="w-6 h-6" /> : <Shield className="w-6 h-6" />}
               </div>
               
-              <div className="min-w-0 flex-1">
-                <h3 className="text-body-large font-roboto font-medium">
+              <div>
+                <h3 className="font-semibold text-lg">
                   {isBusinessMode ? 'Mode Professionnel' : 'Mode Consommateur'}
                 </h3>
-                <p className="text-label-small font-roboto text-muted-foreground truncate">
-                  {isBusinessMode ? `${currentBusiness?.business_name || 'Non défini'}` : 'Profil personnel actif'}
+                <p className="text-sm text-muted-foreground">
+                  {isBusinessMode ? `Entreprise: ${currentBusiness?.business_name || 'Non défini'}` : 'Profil personnel actif'}
                 </p>
               </div>
-              
-              <Badge variant={isBusinessMode ? "default" : "secondary"} className="text-label-small font-roboto flex-shrink-0">
-                {isBusinessMode ? 'BUSINESS' : 'CONSUMER'}
-              </Badge>
             </div>
+            
+            <Badge variant={isBusinessMode ? "default" : "secondary"} className="text-xs">
+              {isBusinessMode ? 'BUSINESS' : 'CONSUMER'}
+            </Badge>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Basculement de profils optimisé mobile */}
-      <div className="space-y-3 mb-4">
-        {/* Profil Consommateur */}
-        <Card className={`transition-all duration-200 ${
-          currentMode === 'consumer' 
-            ? 'ring-2 ring-green-500 bg-green-50/50 dark:bg-green-950/20' 
-            : 'hover:bg-muted/30'
-        }`}>
+      {/* Profile Switcher */}
+      <div className="grid gap-4 mb-6">
+        {/* Consumer Profile */}
+        <Card className={`transition-all duration-300 cursor-pointer hover:scale-[1.02] ${currentMode === 'consumer' ? 'ring-2 ring-green-500 bg-green-50/50 dark:bg-green-950/20' : 'hover:bg-muted/30'}`}>
           <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white flex-shrink-0">
-                <Shield className="w-5 h-5" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white">
+                  <Shield className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Profil Consommateur</h3>
+                  <p className="text-sm text-muted-foreground">Explorer et acheter</p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-body-large font-roboto font-medium">Profil Consommateur</h3>
-                <p className="text-label-small font-roboto text-muted-foreground">Explorer et acheter</p>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {currentMode === 'consumer' && (
-                  <Badge variant="secondary" className="text-label-small font-roboto">ACTUEL</Badge>
-                )}
-                <Button 
-                  variant={currentMode === 'consumer' ? 'secondary' : 'default'} 
-                  size="sm" 
-                  onClick={() => switchMode('consumer', undefined, navigate)}
-                  className="text-label-small font-roboto"
-                >
+              
+              <div className="flex items-center gap-2">
+                {currentMode === 'consumer' && <Badge variant="secondary" className="text-xs">ACTUEL</Badge>}
+                <Button variant="default" size="sm" onClick={() => switchMode('consumer', undefined, navigate)}>
                   {currentMode === 'consumer' ? 'Actuel' : 'Basculer'}
                 </Button>
               </div>
@@ -105,122 +95,93 @@ export const AdvancedBusinessManager = ({
           </CardContent>
         </Card>
 
-        {/* Profils Business optimisés mobile */}
-        <Card className="bg-primary/5 border-primary/20">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-title-small font-roboto text-primary">Mes Profils Business</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {businessProfiles.length > 0 ? (
-              <div className="space-y-3">
-                {businessProfiles.map(business => (
-                  <Card 
-                    key={business.id} 
-                    className={`transition-all duration-200 ${
-                      currentMode === 'business' && currentBusiness?.id === business.id 
-                        ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' 
-                        : 'hover:bg-muted/30'
-                    }`}
-                  >
-                    <CardContent className="p-4">
+        {/* Business Profiles */}
+        <div className="space-y-3 rounded-3xl bg-[009e60] mx-0 bg-[#095c39]/[0.96]">
+          <h3 className="font-bold text-[#fcd116]/[0.96] text-base my-[12px]">Mes Profils Business</h3>
+
+          {businessProfiles.length > 0 ? <div className="space-y-3 px-[26px] py-[12px]">
+              {businessProfiles.map(business => <Card key={business.id} className={`transition-all duration-300 cursor-pointer hover:scale-[1.02] ${currentMode === 'business' && currentBusiness?.id === business.id ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' : 'hover:bg-muted/30'}`}>
+                  <CardContent className="p-4 bg-white my-0 px-[37px] py-0 rounded-3xl">
+                    <div className="flex items-center justify-between my-[10px]">
                       <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10 flex-shrink-0">
+                        <Avatar className="w-10 h-10">
                           <AvatarImage src={business.logo_url} />
                           <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
                             <Building2 className="w-5 h-5" />
                           </AvatarFallback>
                         </Avatar>
-                        
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-body-large font-roboto font-medium truncate">{business.business_name}</h3>
-                            {business.is_primary && (
-                              <Badge variant="outline" className="text-label-small font-roboto flex-shrink-0">
-                                <Crown className="w-3 h-3 mr-1" />
-                                Principal
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-label-small font-roboto text-muted-foreground">Mode Professionnel</p>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {currentMode === 'business' && currentBusiness?.id === business.id && (
-                            <Badge variant="default" className="text-label-small font-roboto">ACTUEL</Badge>
-                          )}
-                          <Button 
-                            variant={currentMode === 'business' && currentBusiness?.id === business.id ? 'secondary' : 'default'} 
-                            size="sm" 
-                            onClick={() => switchMode('business', business.id, navigate)}
-                            className="text-label-small font-roboto"
-                          >
-                            {currentMode === 'business' && currentBusiness?.id === business.id ? 'Actuel' : 'Basculer'}
-                          </Button>
+                          <h3 className="font-semibold truncate">{business.business_name}</h3>
+                          <p className="text-sm text-muted-foreground">Mode Professionnel</p>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-                
-                {/* Bouton création nouvelle entreprise */}
-                <CreateBusinessButton 
-                  size="lg"
-                  className="w-full h-12 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium"
-                  fullWidth
-                >
-                  <span className="text-label-large font-roboto">Créer un nouveau profil business</span>
-                </CreateBusinessButton>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-title-small font-roboto font-medium mb-2">Aucune entreprise</h3>
-                <p className="text-body-small font-roboto text-muted-foreground mb-6">
+                      
+                      <div className="flex items-center gap-2">
+                        {business.is_primary && <Badge variant="outline" className="text-xs">
+                            <Crown className="w-3 h-3 mr-1" />
+                            Principal
+                          </Badge>}
+                        {currentMode === 'business' && currentBusiness?.id === business.id && <Badge variant="default" className="text-xs rounded-3xl">ACTUEL</Badge>}
+                        <Button variant="default" size="sm" onClick={() => switchMode('business', business.id, navigate)} className="rounded-3xl">
+                          {currentMode === 'business' && currentBusiness?.id === business.id ? 'Actuel' : 'Basculer'}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>)}
+              
+              {/* Bouton unique pour créer une nouvelle entreprise */}
+              <CreateBusinessButton 
+                size="lg"
+                className="h-14 from-primary to-accent hover:scale-[1.02] transition-all duration-300 shadow-lg rounded-3xl my-[15px] bg-[fcd116] bg-[#fcd116]/[0.97] text-black"
+                fullWidth
+              >
+                <span className="text-lg font-bold">Créer un nouveau profil business</span>
+              </CreateBusinessButton>
+            </div> : <Card className="border-dashed border-2 border-muted-foreground/30">
+              <CardContent className="p-8 text-center">
+                <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+                <h3 className="font-semibold text-xl mb-3">Aucune entreprise</h3>
+                <p className="text-muted-foreground mb-6 text-base">
                   Créez votre première entreprise pour accéder aux fonctionnalités business
                 </p>
                 <CreateBusinessButton 
-                  className="bg-gradient-to-r from-primary to-accent text-primary-foreground h-12 px-6" 
+                  className="bg-gradient-to-r from-primary to-accent text-white h-14 px-8 text-lg font-semibold hover:scale-105 transition-all duration-300 shadow-lg" 
                   size="lg"
                 >
-                  <span className="text-label-large font-roboto">Créer mon entreprise</span>
+                  Créer mon entreprise
                 </CreateBusinessButton>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>}
+        </div>
       </div>
 
-      {/* Actions rapides Business optimisées mobile */}
-      {currentMode === 'business' && currentBusiness && (
-        <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-title-small font-roboto text-blue-600 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Actions - {currentBusiness.business_name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="default" className="h-14 flex-col gap-1 p-2">
-                <Settings className="w-4 h-4" />
-                <span className="text-label-small font-roboto">Gérer Profil</span>
-              </Button>
-              <Button variant="default" className="h-14 flex-col gap-1 p-2">
-                <Users className="w-4 h-4" />
-                <span className="text-label-small font-roboto">Équipe</span>
-              </Button>
-              <Button variant="default" className="h-14 flex-col gap-1 p-2">
-                <BarChart3 className="w-4 h-4" />
-                <span className="text-label-small font-roboto">Statistiques</span>
-              </Button>
-              <Button variant="default" className="h-14 flex-col gap-1 p-2">
-                <Eye className="w-4 h-4" />
-                <span className="text-label-small font-roboto">Voir Profil</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Quick Actions for Business Mode */}
+      {currentMode === 'business' && currentBusiness && <div className="bg-gradient-to-br from-blue-50 to-accent-50 dark:from-blue-950/20 dark:to-accent-950/20 rounded-2xl p-6 border border-blue-200/50">
+          <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-blue-600" />
+            Actions Rapides - {currentBusiness.business_name}
+          </h3>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="default" className="h-16 flex-col gap-2">
+              <Settings className="w-5 h-5" />
+              <span className="text-sm">Gérer Profil</span>
+            </Button>
+            <Button variant="default" className="h-16 flex-col gap-2">
+              <Users className="w-5 h-5" />
+              <span className="text-sm">Collaborateurs</span>
+            </Button>
+            <Button variant="default" className="h-16 flex-col gap-2">
+              <BarChart3 className="w-5 h-5" />
+              <span className="text-sm">Statistiques</span>
+            </Button>
+            <Button variant="default" className="h-16 flex-col gap-2">
+              <Eye className="w-5 h-5" />
+              <span className="text-sm">Voir Profil</span>
+            </Button>
+          </div>
+        </div>}
 
     </div>;
 };
