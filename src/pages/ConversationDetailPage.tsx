@@ -312,7 +312,11 @@ export const ConversationDetailPage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <BottomNavigation activeTab="messages" onScannerClick={() => {}} />
+      <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+        if (tab === "home") navigate("/");
+        else if (tab === "map") navigate("/?tab=map");
+        else if (tab === "profile") navigate("/?tab=profile");
+      }} />
     </div>
   );
 };

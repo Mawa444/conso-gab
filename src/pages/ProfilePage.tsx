@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2, ArrowLeft } from "lucide-react";
+import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,10 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FavoritesSection } from "@/components/profile/FavoritesSection";
 import { AdvancedBusinessManager } from "@/components/profile/AdvancedBusinessManager";
-import { BottomNavigation } from "@/components/layout/BottomNavigation";
-import { QRScanner } from "@/components/scanner/QRScanner";
-import { ProfileSettings } from "@/components/profile/ProfileSettings";
-import { LoginModal } from "@/components/auth/LoginModal";
+import { useNavigate } from "react-router-dom";
 import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { toast } from "sonner";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
@@ -70,37 +66,27 @@ const favoriteCommerces = [{
   rating: 4.8,
   lastVisit: "Il y a 5 jours"
 }];
-interface ProfilePageProps {}
-export const ProfilePage = () => {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-  const { secureSignOut } = useAuthCleanup();
-  
-  // State variables
-  const [showScanner, setShowScanner] = useState(false);
-  const [showProfileSettings, setShowProfileSettings] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+interface ProfilePageProps {
+  onBack?: () => void;
+  onSettings?: () => void;
+  onProfileUpdated?: () => void; // Nouveau callback pour refresh
+}
+export const ProfilePage = ({
+  onBack,
+  onSettings,
+  onProfileUpdated
+}: ProfilePageProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [activityFilter, setActivityFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
-  const handleBack = () => {
-    navigate("/consumer/home");
-  };
-
-  const handleSettings = () => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-    setShowProfileSettings(true);
-  };
-
-  const handleScanResult = (result: string) => {
-    console.log("QR Code scanné:", result);
-    setShowScanner(false);
-  };
-  
+  const navigate = useNavigate();
+  const {
+    signOut
+  } = useAuth();
+  const {
+    secureSignOut
+  } = useAuthCleanup();
   const [userProfile, setUserProfile] = useState<UserProfileData>({
     name: "Chargement...",
     email: "",
@@ -115,7 +101,9 @@ export const ProfilePage = () => {
     pseudo: "",
     role: ""
   });
-  
+  const {
+    user
+  } = useAuth();
   const fetchUserProfile = async () => {
     if (!user) {
       setIsLoading(false);
@@ -165,6 +153,9 @@ export const ProfilePage = () => {
   // Fonction pour refresh les données du profil
   const handleProfileUpdate = () => {
     fetchUserProfile();
+    if (onProfileUpdated) {
+      onProfileUpdated();
+    }
   };
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -189,34 +180,10 @@ export const ProfilePage = () => {
   const handleDeleteAccount = () => {
     toast.error("Fonctionnalité à venir - Suppression de compte");
   };
-  return (
-    <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-        <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b">
-          <div className="flex items-center justify-between p-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBack}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Retour
-            </Button>
-            <h1 className="text-lg font-semibold">Profil</h1>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSettings}
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
-          </div>
-        </header>
-
-        <main className="pt-16 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)]">
-          {/* Header Profile moderne */}
-          <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
+  return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
+      <div className="min-h-screen animate-fade-in">
+      {/* Header Profile moderne */}
+      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden">
         <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl"></div>
         <div className="relative z-10">
             <div className="flex items-center gap-4">
@@ -243,7 +210,7 @@ export const ProfilePage = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={handleSettings} className="text-white hover:bg-white/20 backdrop-blur-sm">
+              <Button variant="ghost" size="icon" onClick={onSettings} className="text-white hover:bg-white/20 backdrop-blur-sm">
                 <Settings className="w-6 h-6" />
               </Button>
               <Button variant="ghost" size="icon" onClick={handleDeleteAccount} className="text-white hover:bg-white/20 backdrop-blur-sm">
@@ -464,7 +431,7 @@ export const ProfilePage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 bg-gray-200 px-[14px] my-0">
-                  <Button variant="outline" onClick={handleSettings} className="w-full justify-start rounded-3xl my-[10px] bg-white">
+                  <Button variant="outline" onClick={onSettings} className="w-full justify-start rounded-3xl my-[10px] bg-white">
                     <Settings className="w-4 h-4 mr-2" />
                     Modifier mon profil
                   </Button>
@@ -516,9 +483,7 @@ export const ProfilePage = () => {
             </div>
           </TabsContent>
         </Tabs>
-        </div>
-        </main>
       </div>
-    </PageWithSkeleton>
-  );
+      </div>
+    </PageWithSkeleton>;
 };

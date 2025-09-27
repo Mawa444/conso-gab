@@ -217,7 +217,11 @@ export const MessagingPage = () => {
           )}
         </div>
 
-        <BottomNavigation activeTab="messages" onScannerClick={() => {}} />
+        <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+          if (tab === "home") navigate("/");
+          else if (tab === "map") navigate("/?tab=map");
+          else if (tab === "profile") navigate("/?tab=profile");
+        }} />
       </div>
     );
   }
@@ -265,7 +269,11 @@ export const MessagingPage = () => {
           <ConversationSkeleton />
         </div>
 
-        <BottomNavigation activeTab="messages" onScannerClick={() => {}} />
+        <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+          if (tab === "home") navigate("/");
+          else if (tab === "map") navigate("/?tab=map");
+          else if (tab === "profile") navigate("/?tab=profile");
+        }} />
       </div>
     );
   }
@@ -314,7 +322,11 @@ export const MessagingPage = () => {
           </Button>
         </div>
 
-        <BottomNavigation activeTab="messages" onScannerClick={() => {}} />
+        <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+          if (tab === "home") navigate("/");
+          else if (tab === "map") navigate("/?tab=map");
+          else if (tab === "profile") navigate("/?tab=profile");
+        }} />
 
         <NewConversationModal 
           open={showNewConversation}
@@ -539,7 +551,11 @@ export const MessagingPage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <BottomNavigation activeTab="messages" onScannerClick={() => {}} />
+      <BottomNavigation activeTab="messages" onTabChange={(tab) => {
+        if (tab === "home") navigate("/");
+        else if (tab === "map") navigate("/?tab=map");
+        else if (tab === "profile") navigate("/?tab=profile");
+      }} />
 
       {/* New Conversation Modal */}
       <NewConversationModal 

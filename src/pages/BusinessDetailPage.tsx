@@ -671,8 +671,14 @@ export const BusinessDetailPage = () => {
       {/* Navigation en bas */}
       <BottomNavigation 
         activeTab="business" 
-        onScannerClick={() => {
-          // Scanner functionality - could open a global modal
+        onTabChange={(tab) => {
+          if (tab === "home") navigate("/consumer/home");
+          else if (tab === "map") navigate("/consumer/map");
+          else if (tab === "rankings") navigate("/consumer/rankings");
+          else if (tab === "profile") navigate("/consumer/profile");
+          else if (tab === "scanner") {
+            // Scanner functionality - could open a global modal
+          }
         }} 
       />
       </div>
