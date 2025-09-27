@@ -101,12 +101,12 @@ export const AdvancedBusinessManager = ({
         </Card>
 
         {/* Business Profiles */}
-        <div className="space-y-3 rounded-3xl bg-[009e60] bg-[#086e47]/[0.96]">
-          <h3 className="font-bold text-[fcd116] text-[#fcd116]/[0.96]">Mes Entreprises</h3>
+        <div className="space-y-3 rounded-3xl bg-[009e60] bg-[#086e47]/[0.96] mx-0">
+          <h3 className="font-bold text-[fcd116] text-[#fcd116]/[0.96] my-[6px]">Mes Entreprises</h3>
 
           {businessProfiles.length > 0 ? <div className="space-y-3">
               {businessProfiles.map(business => <Card key={business.id} className={`transition-all duration-300 cursor-pointer hover:scale-[1.02] ${currentMode === 'business' && currentBusiness?.id === business.id ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' : 'hover:bg-muted/30'}`}>
-                  <CardContent className="p-4 bg-white rounded-full py-[5px] my-0 px-[20px]">
+                  <CardContent className="p-4 bg-white rounded-full py-[5px] my-0 px-[10px]">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <Avatar className="w-10 h-10">
