@@ -128,11 +128,11 @@ const ConsumerApp = () => {
         {content}
       </PageTransition>;
   };
-    return <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+  return <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <Routes>
         <Route path="/home" element={<>
             <Header title="Découvrir" showBack={false} onLocationClick={() => navigate('/consumer/map')} onMessageClick={() => navigate('/messaging')} />
-            <main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto">
+            <main className="flex-1 pt-24 pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+1rem)] overflow-y-auto py-[57px]">
               <HomePage onNavigate={tab => navigate(`/consumer/${tab}`)} onMessage={commerce => {
             setSelectedCommerce(commerce);
             navigate('/messaging');
