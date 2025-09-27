@@ -124,39 +124,53 @@ export const BusinessDetailPage = () => {
   }, [id, user]);
 
   const fetchBusinessData = async () => {
-    if (!user || !id) return;
+    if (!user || !id) {
+      setIsLoading(false);
+      return;
+    }
     
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('business_profiles')
-        .select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated')
+        .select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url')
         .eq('id', id)
         .single();
 
-      if (error || !data) return;
+      if (error) {
+        console.error('Erreur lors du chargement du profil business:', error);
+        toast.error("Impossible de charger le profil business");
+        setIsLoading(false);
+        return;
+      }
 
-      // Mettre à jour les infos affichées (nom, catégorie, contacts...)
-      setBusiness((prev) => ({
-        ...prev,
-        id: data.id,
-        name: data.business_name || prev.name,
-        type: (data.business_category as any) || prev.type,
-        address: data.address || prev.address,
-        phone: data.phone || prev.phone,
-        whatsapp: data.whatsapp || undefined,
-        website: data.website || undefined,
-        email: data.email || undefined,
-        description: data.description || prev.description,
-      }));
+      if (data) {
+        // Mettre à jour les infos affichées avec les données réelles de la DB
+        setBusiness((prev) => ({
+          ...prev,
+          id: data.id,
+          name: data.business_name || prev.name,
+          type: data.business_category || prev.type,
+          address: data.address || prev.address,
+          phone: data.phone || prev.phone,
+          whatsapp: data.whatsapp || undefined,
+          website: data.website || undefined,
+          email: data.email || undefined,
+          description: data.description || prev.description,
+        }));
 
-      // Mettre à jour l'état d'activité
-      setBusinessData({
-        isSleeping: data.is_sleeping || false,
-        isScheduledForDeletion: !!data.deactivation_scheduled_at,
-        deletionDate: data.deactivation_scheduled_at
-      });
+        // Mettre à jour l'état d'activité
+        setBusinessData({
+          isSleeping: data.is_sleeping || false,
+          isScheduledForDeletion: !!data.deactivation_scheduled_at,
+          deletionDate: data.deactivation_scheduled_at
+        });
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
+      toast.error("Une erreur est survenue");
+    } finally {
+      setIsLoading(false);
     }
   };
 
