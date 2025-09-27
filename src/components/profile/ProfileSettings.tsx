@@ -336,7 +336,7 @@ export const ProfileSettings = ({
                 <Switch checked={profile.visibility} onCheckedChange={checked => setProfile({
                 ...profile,
                 visibility: checked
-              })} />
+              })} className="bg-red-600 hover:bg-red-500" />
               </div>
             </div>
           </div>
