@@ -31,7 +31,7 @@ export const AdvancedBusinessManager = ({
   }
   return <div className={`${className} min-h-96 p-4 bg-background`}>
       {/* Header with mode switch */}
-      <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 p-6 mb-6 border border-primary/20 bg-inherit rounded-3xl">
+      <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 p-6 mb-6 border border-primary/20 bg-inherit rounded-3xl px-[26px]">
         <div className="flex items-center justify-between mb-4 bg-[3a75c4] bg-transparent">
           <div>
             <h2 className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-[3a75c4] text-black">
@@ -135,7 +135,7 @@ export const AdvancedBusinessManager = ({
                 <span className="text-lg font-bold">Créer un nouveau profil business</span>
               </CreateBusinessButton>
             </div> : <Card className="border-dashed border-2 border-muted-foreground/30">
-              <CardContent className="p-8 text-center bg-inherit rounded-none">
+              <CardContent className="p-8 text-center bg-inherit rounded-3xl">
                 <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
                 <h3 className="font-semibold text-xl mb-3">Aucune entreprise</h3>
                 <p className="text-muted-foreground mb-6 text-base">
