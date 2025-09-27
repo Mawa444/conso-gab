@@ -28,7 +28,7 @@ export const Header = ({
             </Button> : <div className="flex items-center gap-2">
                <img src={gabomaLogo} alt="ConsoGab" className="w-13 h-12 object-contain" />
                 <div className="rounded-none noselect">
-                 <h1 className="font-roboto noselect text-title-large font-extrabold text-left">CONSOGAB</h1>
+                 <h1 className="font-roboto noselect text-title-large font-extrabold text-left my-0">CONSOGAB</h1>
                  <p className="text-label-medium font-roboto text-white/70 noselect">Découvrez le commerce gabonais</p>
                  {title}
                 </div>
