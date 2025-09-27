@@ -25,10 +25,18 @@ export const Header = ({
         <div className="flex items-center gap-3">
           {showBack ? <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20 transition-colors">
               <ArrowLeft className="w-5 h-5" />
-            </Button> : <div className="flex items-center my-0 mx-0" style={{ letterSpacing: '0.1em' }}>
-                <span className="font-lalezar text-white font-normal text-4xl" style={{ marginRight: '0.1em' }}>CONS</span>
-                <img src={gabomaLogo} alt="ConsoGab" className="w-10 h-10 object-contain" style={{ margin: '0 0.1em' }} />
-                <span className="font-lalezar text-white font-normal text-4xl" style={{ marginLeft: '0.1em' }}>GAB</span>
+            </Button> : <div style={{
+          letterSpacing: '0.1em'
+        }} className="flex items-center mx-0 py-0 my-[5px] px-0">
+                <span className="font-lalezar text-white font-normal text-4xl" style={{
+            marginRight: '0.1em'
+          }}>CONS</span>
+                <img src={gabomaLogo} alt="ConsoGab" style={{
+            margin: '0 0.1em'
+          }} className="w-15 h-15 object-contain" />
+                <span style={{
+            marginLeft: '0.1em'
+          }} className="font-lalezar text-white text-4xl font-normal">GAB</span>
              </div>}
           
           {showBack && title && <h1 className="text-title-large font-roboto noselect">{title}</h1>}
