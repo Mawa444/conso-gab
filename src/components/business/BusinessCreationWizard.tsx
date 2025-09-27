@@ -224,8 +224,8 @@ export const BusinessCreationWizard = ({
                 </p>
               </div>
 
-              <div>
-                <Label htmlFor="category" className="text-sm font-semibold">
+              <div className="rounded-3xl bg-[3a75c4] bg-[#3a75c4]/[0.96]">
+                <Label htmlFor="category" className="text-sm font-semibold bg-[fcd116] bg-inherit">
                   Catégorie *
                 </Label>
                 <Select value={data.businessCategory} onValueChange={value => updateData({
