@@ -186,17 +186,17 @@ export const ProfilePage = ({
   return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
       <div className="flex flex-col min-h-full">
       {/* Header Profile moderne */}
-      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-[23px]">
+      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-0 mx-0 my-0 rounded-3xl px-[31px]">
         <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl"></div>
         <div className="relative z-10">
             <div className="flex items-center gap-4">
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
-              <User className="w-12 h-12 text-white" />
+            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30 my-0">
+              <User className="w-12 h-12 text-white my-0" />
             </div>
             
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-white">{userProfile.name}</h1>
-              <p className="text-white/80 text-sm">{userProfile.email}</p>
+            <div className="flex-1 my-0">
+              <h1 className="text-2xl font-bold text-white text-left my-0">{userProfile.name}</h1>
+              <p className="text-white/80 text-sm text-left">{userProfile.email}</p>
               <div className="flex items-center gap-2 mt-3">
                 <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
                   {userProfile.level}
@@ -206,7 +206,7 @@ export const ProfilePage = ({
                 </Badge>
               </div>
               {/* Bouton S'abonner */}
-              <Button className="mt-3 bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm" size="sm">
+              <Button size="sm" className="mt-3 bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm rounded-3xl px-[22px] mx-px">
                 <Bell className="w-4 h-4 mr-2" />
                 S'abonner aux notifications
               </Button>
@@ -226,21 +226,21 @@ export const ProfilePage = ({
           </div>
 
           {/* Stats rapides modernisées */}
-          <div className="grid grid-cols-3 gap-4 mt-8">
+          <div className="grid grid-cols-3 gap-4 mt-8 rounded-3xl my-0">
             <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-              <CardContent className="p-4">
+              <CardContent className="p-4 rounded-3xl my-0">
                 <div className="text-3xl font-bold text-white">{userProfile.points}</div>
                 <div className="text-sm text-white/70">Points ConsoGab</div>
               </CardContent>
             </Card>
             <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-              <CardContent className="p-4">
+              <CardContent className="p-4 rounded-3xl">
                 <div className="text-3xl font-bold text-white">{userProfile.scansCount}</div>
                 <div className="text-sm text-white/70">Scans effectués</div>
               </CardContent>
             </Card>
             <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-              <CardContent className="p-4">
+              <CardContent className="p-4 py-[15px] rounded-3xl">
                 <div className="text-3xl font-bold text-white">{userProfile.reviewsCount}</div>
                 <div className="text-sm text-white/70">Avis publiés</div>
               </CardContent>
@@ -279,7 +279,7 @@ export const ProfilePage = ({
                   <div className="bg-gradient-to-r from-primary via-accent to-secondary h-3 rounded-full transition-all duration-700 relative overflow-hidden" style={{
                     width: `${userProfile.points / 5000 * 100}%`
                   }}>
-                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                    <div className="absolute inset-0 animate-pulse bg-[3a75c4] bg-[#3a75c4]/[0.96] rounded-3xl"></div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
