@@ -179,7 +179,7 @@ export const HomePage = ({
         {/* Contenu principal */}
         <div className="space-y-6 p-4 bg-background py-0">
         {/* Barre de recherche unifiée */}
-        <div className="p-4 shadow-sm border-border rounded-3xl bg-inherit">
+        <div className="p-4 shadow-sm border-border rounded-3xl bg-inherit py-0">
           <UnifiedSearchBar onSelect={result => {
             if (result.type === 'business') {
               navigate(`/business/${result.businessId}`);
