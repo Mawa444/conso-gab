@@ -191,16 +191,7 @@ export const HomePage = ({
         </div>
 
         {/* Actions rapides pour les entreprises */}
-        <div className="flex gap-2">
-          <CreateBusinessButton variant="outline" size="sm" className="flex-1 gap-2 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:from-primary/10 hover:to-accent/10 rounded-3xl">
-            <Building2 className="w-4 h-4" />
-            Créer mon entreprise
-          </CreateBusinessButton>
-          <Button variant="outline" size="sm" onClick={() => navigate('/messaging')} className="flex-1 gap-2 bg-gradient-to-r from-secondary/5 to-primary/5 border-secondary/20 hover:from-secondary/10 hover:to-primary/10 rounded-3xl">
-            <MessageSquare className="w-4 h-4" />
-            Messagerie
-          </Button>
-        </div>
+        
 
         {/* Catégories rapides */}
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide rounded-3xl bg-inherit">
