@@ -12,20 +12,10 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: {
-				DEFAULT: '1rem',
-				sm: '1.5rem',
-				lg: '2rem',
-				xl: '2.5rem',
-				'2xl': '3rem'
-			},
+			padding: '2rem',
 			screens: {
 				'2xl': '1400px'
 			}
-		},
-		screens: {
-			'xs': '375px',
-			// Désactivation des breakpoints plus grands - Mobile Only
 		},
 		extend: {
 			colors: {

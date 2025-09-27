@@ -98,18 +98,10 @@
     @apply border-border;
   }
 
-  html, body, #root {
-    height: 100%;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-  }
-
   body {
     @apply bg-background text-foreground;
     font-family: Inter, system-ui, -apple-system, sans-serif;
     font-weight: 400;
-    overscroll-behavior: none;
   }
 
   /* Classes utilitaires pour cartes sans animations */
@@ -158,61 +150,9 @@
   display: none;
 }
 
-/* Responsive utilities */
-.responsive-container {
-  @apply px-4;
-}
-
-.responsive-padding {
-  @apply p-4;
-}
-
-.responsive-margin {
-  @apply m-4;
-}
-
-.responsive-text {
-  @apply text-sm;
-}
-
-.responsive-grid {
-  @apply grid-cols-1;
-}
-
-.responsive-gap {
-  @apply gap-4;
-}
-
-/* Layout responsive */
-.main-content {
-  @apply flex-1 w-full max-w-full overflow-x-hidden;
-  min-height: calc(100vh - 96px - var(--bottom-nav-height));
-}
-
-.content-wrapper {
-  @apply w-full max-w-none mx-auto;
-}
-
-/* Safe area pour les appareils avec notch */
-.safe-top {
-  padding-top: max(1rem, env(safe-area-inset-top));
-}
-
-.safe-bottom {
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
-}
-
-.safe-horizontal {
-  padding-left: max(1rem, env(safe-area-inset-left));
-  padding-right: max(1rem, env(safe-area-inset-right));
-}
-
-/* Mobile Only - Pas de responsive design */
-/* Forcer l'affichage mobile sur tous les écrans */
-@media (min-width: 1px) {
-  body {
-    max-width: 430px; /* Largeur max iPhone 14 Pro Max */
-    margin: 0 auto;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+/* Responsive design */
+@media (min-width: 768px) {
+  .card-animate {
+    border-radius: calc(var(--radius) + 2px);
   }
 }
