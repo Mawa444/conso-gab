@@ -188,12 +188,12 @@ export const ProfileSettings = ({
             </h3>
             
             <div className="grid grid-cols-1 gap-3">
-              <div>
+              <div className="bg-inherit">
                 <label className="text-sm font-medium">Nom complet</label>
                 <Input value={profile.name} onChange={e => setProfile({
                 ...profile,
                 name: e.target.value
-              })} />
+              })} className="bg-white" />
               </div>
               
               <div>
@@ -263,7 +263,7 @@ export const ProfileSettings = ({
                 {profile.hasBio ? <Textarea placeholder="Parlez-nous de vous... (fonctionnalité à venir)" value={profile.bio} onChange={e => setProfile({
                 ...profile,
                 bio: e.target.value
-              })} rows={2} disabled className="bg-muted" /> : <div className="bg-muted rounded-md p-3 text-sm text-muted-foreground">
+              })} rows={2} disabled className="bg-muted" /> : <div className="rounded-md p-3 text-sm text-muted-foreground bg-white">
                     Aucune biographie ajoutée
                   </div>}
               </div>
