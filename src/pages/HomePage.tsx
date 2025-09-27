@@ -227,7 +227,7 @@ export const HomePage = ({
         {/* Section En tendance */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-headline-medium font-roboto text-gray-900 flex items-center gap-2">
+            <h2 className="text-headline-medium font-roboto flex items-center gap-2 font-bold text-black">
               Entreprises actives
               <span className="bg-green-100 text-green-800 text-label-medium font-roboto px-2 py-1 rounded-full">
                 {businesses.length}
