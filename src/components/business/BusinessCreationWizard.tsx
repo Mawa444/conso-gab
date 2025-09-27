@@ -8,32 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { LocationStep } from "@/components/auth/LocationStep";
-import { 
-  Loader2, 
-  Building2, 
-  ArrowLeft, 
-  ArrowRight, 
-  CheckCircle2, 
-  Upload, 
-  MapPin, 
-  Clock, 
-  Phone, 
-  CreditCard, 
-  Users, 
-  Rocket,
-  Info,
-  X
-} from "lucide-react";
+import { Loader2, Building2, ArrowLeft, ArrowRight, CheckCircle2, Upload, MapPin, Clock, Phone, CreditCard, Users, Rocket, Info, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { useAuth } from "@/components/auth/AuthProvider";
-
 interface BusinessCreationWizardProps {
   onCancel?: () => void;
   onCreated?: (businessId: string) => void;
 }
-
 interface BusinessCreationData {
   // Étape 1: Informations de base
   businessName: string;
@@ -41,7 +24,7 @@ interface BusinessCreationData {
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
-  
+
   // Étape 2: Localisation
   country?: string;
   province?: string;
@@ -52,86 +35,122 @@ interface BusinessCreationData {
   latitude?: number;
   longitude?: number;
   deliveryZones?: string[];
-  
+
   // Étape 3: Détails pratiques
   businessPhone?: string;
   whatsapp?: string;
   businessEmail?: string;
   website?: string;
   openingHours?: string;
-  
+
   // Étape 4: Paiements & gestion
   bankAccount?: string;
   mobileMoney?: string;
   associatedUsers?: string[];
-  
+
   // Étape 5: Validation
   isVerified?: boolean;
 }
-
-const businessCategories = [
-  { value: "restaurant", label: "Restauration" },
-  { value: "retail", label: "Commerce" },
-  { value: "services", label: "Services" },
-  { value: "automotive", label: "Automobile" },
-  { value: "beauty", label: "Beauté & Bien-être" },
-  { value: "healthcare", label: "Santé" },
-  { value: "education", label: "Éducation" },
-  { value: "real_estate", label: "Immobilier" },
-  { value: "entertainment", label: "Hôtellerie" },
-  { value: "technology", label: "Technologie" },
-  { value: "other", label: "Autres" }
-];
-
-export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreationWizardProps) => {
+const businessCategories = [{
+  value: "restaurant",
+  label: "Restauration"
+}, {
+  value: "retail",
+  label: "Commerce"
+}, {
+  value: "services",
+  label: "Services"
+}, {
+  value: "automotive",
+  label: "Automobile"
+}, {
+  value: "beauty",
+  label: "Beauté & Bien-être"
+}, {
+  value: "healthcare",
+  label: "Santé"
+}, {
+  value: "education",
+  label: "Éducation"
+}, {
+  value: "real_estate",
+  label: "Immobilier"
+}, {
+  value: "entertainment",
+  label: "Hôtellerie"
+}, {
+  value: "technology",
+  label: "Technologie"
+}, {
+  value: "other",
+  label: "Autres"
+}];
+export const BusinessCreationWizard = ({
+  onCancel,
+  onCreated
+}: BusinessCreationWizardProps) => {
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<Partial<BusinessCreationData>>({
     country: 'Gabon'
   });
-  const { refreshBusinessProfiles } = useProfileMode();
-  const { user } = useAuth();
-
-  const steps = [
-    { number: 1, title: "Informations de base", icon: Building2 },
-    { number: 2, title: "Localisation", icon: MapPin },
-    { number: 3, title: "Détails pratiques", icon: Clock },
-    { number: 4, title: "Paiements & gestion", icon: CreditCard },
-    { number: 5, title: "Validation & mise en ligne", icon: Rocket }
-  ];
-
+  const {
+    refreshBusinessProfiles
+  } = useProfileMode();
+  const {
+    user
+  } = useAuth();
+  const steps = [{
+    number: 1,
+    title: "Informations de base",
+    icon: Building2
+  }, {
+    number: 2,
+    title: "Localisation",
+    icon: MapPin
+  }, {
+    number: 3,
+    title: "Détails pratiques",
+    icon: Clock
+  }, {
+    number: 4,
+    title: "Paiements & gestion",
+    icon: CreditCard
+  }, {
+    number: 5,
+    title: "Validation & mise en ligne",
+    icon: Rocket
+  }];
   const canNext = () => {
-    switch(step) {
+    switch (step) {
       case 1:
         return !!(data.businessName?.trim() && data.businessCategory && data.description?.trim());
       case 2:
-        return !!(data.province || (data.latitude && data.longitude));
+        return !!(data.province || data.latitude && data.longitude);
       case 3:
-        return true; // Optionnel
+        return true;
+      // Optionnel
       case 4:
-        return true; // Optionnel
+        return true;
+      // Optionnel
       case 5:
         return true;
       default:
         return false;
     }
   };
-
   const handleNext = () => {
     if (step < 5 && canNext()) {
-      setStep((step + 1) as typeof step);
+      setStep(step + 1 as typeof step);
     }
   };
-
   const handleBack = () => {
     if (step > 1) {
-      setStep((step - 1) as typeof step);
+      setStep(step - 1 as typeof step);
     }
   };
-
   const handleCreate = async () => {
     if (!user || !canNext()) return;
-
     setLoading(true);
     try {
       const businessData = {
@@ -157,19 +176,13 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
         is_active: true,
         is_verified: false
       };
-
-      const { data: businessProfile, error } = await supabase
-        .from('business_profiles')
-        .insert(businessData)
-        .select()
-        .single();
-
+      const {
+        data: businessProfile,
+        error
+      } = await supabase.from('business_profiles').insert(businessData).select().single();
       if (error) throw error;
-
       await refreshBusinessProfiles();
-      
       toast.success("🎉 Entreprise créée avec succès !");
-      
       if (onCreated) {
         onCreated(businessProfile.id);
       }
@@ -180,16 +193,16 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
       setLoading(false);
     }
   };
-
   const updateData = (updates: Partial<BusinessCreationData>) => {
-    setData(prev => ({ ...prev, ...updates }));
+    setData(prev => ({
+      ...prev,
+      ...updates
+    }));
   };
-
   const renderStepContent = () => {
-    switch(step) {
+    switch (step) {
       case 1:
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="text-center mb-6">
               <Building2 className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h3 className="text-2xl font-bold mb-2">Informations de base</h3>
@@ -203,13 +216,9 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
                 <Label htmlFor="businessName" className="text-sm font-semibold">
                   Nom de l'entreprise *
                 </Label>
-                <Input
-                  id="businessName"
-                  value={data.businessName || ''}
-                  onChange={(e) => updateData({ businessName: e.target.value })}
-                  placeholder="Ex: Le Snack Gabonais - Sandwichs et Livraisons"
-                  className="mt-1"
-                />
+                <Input id="businessName" value={data.businessName || ''} onChange={e => updateData({
+                businessName: e.target.value
+              })} placeholder="Ex: Le Snack Gabonais - Sandwichs et Livraisons" className="mt-1 bg-white" />
                 <p className="text-xs text-muted-foreground mt-1">
                   Choisissez un nom optimisé pour être trouvé facilement
                 </p>
@@ -219,16 +228,16 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
                 <Label htmlFor="category" className="text-sm font-semibold">
                   Catégorie *
                 </Label>
-                <Select value={data.businessCategory} onValueChange={(value) => updateData({ businessCategory: value })}>
+                <Select value={data.businessCategory} onValueChange={value => updateData({
+                businessCategory: value
+              })}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Sélectionner une catégorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    {businessCategories.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
+                    {businessCategories.map(cat => <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
-                      </SelectItem>
-                    ))}
+                      </SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -237,14 +246,9 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
                 <Label htmlFor="description" className="text-sm font-semibold">
                   Description (150-300 caractères) *
                 </Label>
-                <Textarea
-                  id="description"
-                  value={data.description || ''}
-                  onChange={(e) => updateData({ description: e.target.value })}
-                  placeholder="Ex: Livraison rapide de sandwichs, burgers et plats africains à Libreville"
-                  className="mt-1 min-h-[80px]"
-                  maxLength={300}
-                />
+                <Textarea id="description" value={data.description || ''} onChange={e => updateData({
+                description: e.target.value
+              })} placeholder="Ex: Livraison rapide de sandwichs, burgers et plats africains à Libreville" className="mt-1 min-h-[80px]" maxLength={300} />
                 <p className="text-xs text-muted-foreground mt-1">
                   {data.description?.length || 0}/300 - Optimisée pour le référencement interne
                 </p>
@@ -267,12 +271,9 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
                 </div>
               </div>
             </div>
-          </div>
-        );
-
+          </div>;
       case 2:
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="text-center mb-6">
               <MapPin className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h3 className="text-2xl font-bold mb-2">Localisation</h3>
@@ -281,51 +282,43 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
               </p>
             </div>
 
-            <LocationStep
-              initialLocation={{
-                country: data.country || 'Gabon',
-                province: data.province,
-                department: data.department,
-                arrondissement: data.arrondissement,
-                quartier: data.quartier,
-                address: data.address,
-                latitude: data.latitude,
-                longitude: data.longitude
-              }}
-              onLocationChange={(location) => {
-                updateData({
-                  country: location.country,
-                  province: location.province,
-                  department: location.department,
-                  arrondissement: location.arrondissement,
-                  quartier: location.quartier,
-                  address: location.address,
-                  latitude: location.latitude,
-                  longitude: location.longitude
-                });
-              }}
-            />
+            <LocationStep initialLocation={{
+            country: data.country || 'Gabon',
+            province: data.province,
+            department: data.department,
+            arrondissement: data.arrondissement,
+            quartier: data.quartier,
+            address: data.address,
+            latitude: data.latitude,
+            longitude: data.longitude
+          }} onLocationChange={location => {
+            updateData({
+              country: location.country,
+              province: location.province,
+              department: location.department,
+              arrondissement: location.arrondissement,
+              quartier: location.quartier,
+              address: location.address,
+              latitude: location.latitude,
+              longitude: location.longitude
+            });
+          }} />
 
             <div className="bg-accent/10 border border-accent/20 rounded-lg p-4">
               <h4 className="font-semibold flex items-center gap-2 mb-2">
                 <Info className="w-4 h-4" />
                 Zones de livraison (optionnel)
               </h4>
-              <Input
-                placeholder="Ex: Libreville, Akanda, Owendo..."
-                className="mt-2"
-                onChange={(e) => updateData({ deliveryZones: e.target.value.split(',').map(z => z.trim()) })}
-              />
+              <Input placeholder="Ex: Libreville, Akanda, Owendo..." className="mt-2" onChange={e => updateData({
+              deliveryZones: e.target.value.split(',').map(z => z.trim())
+            })} />
               <p className="text-xs text-muted-foreground mt-1">
                 Séparez les zones par des virgules
               </p>
             </div>
-          </div>
-        );
-
+          </div>;
       case 3:
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="text-center mb-6">
               <Clock className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h3 className="text-2xl font-bold mb-2">Détails pratiques</h3>
@@ -340,53 +333,36 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
                   <Phone className="w-4 h-4 inline mr-1" />
                   Numéro de téléphone
                 </Label>
-                <Input
-                  id="phone"
-                  value={data.businessPhone || ''}
-                  onChange={(e) => updateData({ businessPhone: e.target.value })}
-                  placeholder="+241 xx xx xx xx"
-                  className="mt-1"
-                />
+                <Input id="phone" value={data.businessPhone || ''} onChange={e => updateData({
+                businessPhone: e.target.value
+              })} placeholder="+241 xx xx xx xx" className="mt-1" />
               </div>
 
               <div>
                 <Label htmlFor="whatsapp" className="text-sm font-semibold">
                   WhatsApp
                 </Label>
-                <Input
-                  id="whatsapp"
-                  value={data.whatsapp || ''}
-                  onChange={(e) => updateData({ whatsapp: e.target.value })}
-                  placeholder="+241 xx xx xx xx"
-                  className="mt-1"
-                />
+                <Input id="whatsapp" value={data.whatsapp || ''} onChange={e => updateData({
+                whatsapp: e.target.value
+              })} placeholder="+241 xx xx xx xx" className="mt-1" />
               </div>
 
               <div>
                 <Label htmlFor="email" className="text-sm font-semibold">
                   Email professionnel
                 </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={data.businessEmail || ''}
-                  onChange={(e) => updateData({ businessEmail: e.target.value })}
-                  placeholder="contact@monentreprise.ga"
-                  className="mt-1"
-                />
+                <Input id="email" type="email" value={data.businessEmail || ''} onChange={e => updateData({
+                businessEmail: e.target.value
+              })} placeholder="contact@monentreprise.ga" className="mt-1" />
               </div>
 
               <div>
                 <Label htmlFor="website" className="text-sm font-semibold">
                   Site web
                 </Label>
-                <Input
-                  id="website"
-                  value={data.website || ''}
-                  onChange={(e) => updateData({ website: e.target.value })}
-                  placeholder="https://monentreprise.ga"
-                  className="mt-1"
-                />
+                <Input id="website" value={data.website || ''} onChange={e => updateData({
+                website: e.target.value
+              })} placeholder="https://monentreprise.ga" className="mt-1" />
               </div>
             </div>
 
@@ -394,21 +370,13 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
               <Label htmlFor="hours" className="text-sm font-semibold">
                 Horaires d'ouverture
               </Label>
-              <Textarea
-                id="hours"
-                value={data.openingHours || ''}
-                onChange={(e) => updateData({ openingHours: e.target.value })}
-                placeholder="Lun-Ven: 8h-18h, Sam: 8h-14h, Dim: Fermé"
-                className="mt-1"
-                rows={3}
-              />
+              <Textarea id="hours" value={data.openingHours || ''} onChange={e => updateData({
+              openingHours: e.target.value
+            })} placeholder="Lun-Ven: 8h-18h, Sam: 8h-14h, Dim: Fermé" className="mt-1" rows={3} />
             </div>
-          </div>
-        );
-
+          </div>;
       case 4:
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="text-center mb-6">
               <CreditCard className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h3 className="text-2xl font-bold mb-2">Paiements & gestion</h3>
@@ -426,19 +394,11 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
               <div className="space-y-3">
                 <div>
                   <Label className="text-sm font-semibold">Compte bancaire</Label>
-                  <Input
-                    placeholder="À configurer prochainement"
-                    disabled
-                    className="mt-1"
-                  />
+                  <Input placeholder="À configurer prochainement" disabled className="mt-1" />
                 </div>
                 <div>
                   <Label className="text-sm font-semibold">Mobile Money</Label>
-                  <Input
-                    placeholder="À configurer prochainement"
-                    disabled
-                    className="mt-1"
-                  />
+                  <Input placeholder="À configurer prochainement" disabled className="mt-1" />
                 </div>
               </div>
             </div>
@@ -459,12 +419,9 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
                 </p>
               </div>
             </div>
-          </div>
-        );
-
+          </div>;
       case 5:
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="text-center mb-6">
               <Rocket className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h3 className="text-2xl font-bold mb-2">Validation & mise en ligne</h3>
@@ -493,12 +450,10 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
                     {data.province}
                   </span>
                 </div>
-                {data.businessPhone && (
-                  <div className="flex justify-between">
+                {data.businessPhone && <div className="flex justify-between">
                     <span className="font-medium">Téléphone:</span>
                     <span>{data.businessPhone}</span>
-                  </div>
-                )}
+                  </div>}
               </div>
               
               <Separator />
@@ -527,16 +482,12 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
                 <li>• Badge "vérifié" disponible avec justificatifs</li>
               </ul>
             </div>
-          </div>
-        );
-
+          </div>;
       default:
         return null;
     }
   };
-
-  return (
-    <Card className="w-full max-w-4xl mx-auto bg-background/95 backdrop-blur-sm shadow-2xl">
+  return <Card className="w-full max-w-4xl mx-auto bg-background/95 backdrop-blur-sm shadow-2xl">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
@@ -554,26 +505,12 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
 
         {/* Progress indicator */}
         <div className="flex items-center justify-between mt-6">
-          {steps.map((s, index) => (
-            <div key={s.number} className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
-                step >= s.number 
-                  ? 'bg-primary text-white border-primary' 
-                  : 'bg-background text-muted-foreground border-muted-foreground/30'
-              }`}>
-                {step > s.number ? (
-                  <CheckCircle2 className="w-5 h-5" />
-                ) : (
-                  <s.icon className="w-5 h-5" />
-                )}
+          {steps.map((s, index) => <div key={s.number} className="flex items-center">
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${step >= s.number ? 'bg-primary text-white border-primary' : 'bg-background text-muted-foreground border-muted-foreground/30'}`}>
+                {step > s.number ? <CheckCircle2 className="w-5 h-5" /> : <s.icon className="w-5 h-5" />}
               </div>
-              {index < steps.length - 1 && (
-                <div className={`w-16 h-0.5 mx-2 ${
-                  step > s.number ? 'bg-primary' : 'bg-muted-foreground/30'
-                }`} />
-              )}
-            </div>
-          ))}
+              {index < steps.length - 1 && <div className={`w-16 h-0.5 mx-2 ${step > s.number ? 'bg-primary' : 'bg-muted-foreground/30'}`} />}
+            </div>)}
         </div>
 
         <div className="flex justify-center mt-3">
@@ -588,12 +525,7 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
 
         {/* Navigation buttons */}
         <div className="flex justify-between mt-8 pt-6 border-t">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={step === 1}
-            className="px-6"
-          >
+          <Button variant="outline" onClick={handleBack} disabled={step === 1} className="px-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
@@ -603,38 +535,20 @@ export const BusinessCreationWizard = ({ onCancel, onCreated }: BusinessCreation
               Annuler
             </Button>
 
-            {step < 5 ? (
-              <Button
-                onClick={handleNext}
-                disabled={!canNext()}
-                className="px-6 bg-gradient-to-r from-primary to-accent text-white"
-              >
+            {step < 5 ? <Button onClick={handleNext} disabled={!canNext()} className="px-6 bg-gradient-to-r from-primary to-accent text-white">
                 Suivant
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            ) : (
-              <Button
-                onClick={handleCreate}
-                disabled={loading || !canNext()}
-                className="px-8 bg-gradient-to-r from-primary to-accent text-white"
-                size="lg"
-              >
-                {loading ? (
-                  <>
+              </Button> : <Button onClick={handleCreate} disabled={loading || !canNext()} className="px-8 bg-gradient-to-r from-primary to-accent text-white" size="lg">
+                {loading ? <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     Création en cours...
-                  </>
-                ) : (
-                  <>
+                  </> : <>
                     <Rocket className="w-5 h-5 mr-2" />
                     Lancer mon entreprise
-                  </>
-                )}
-              </Button>
-            )}
+                  </>}
+              </Button>}
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
