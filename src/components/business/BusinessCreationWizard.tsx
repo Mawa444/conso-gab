@@ -218,7 +218,7 @@ export const BusinessCreationWizard = ({
                 </Label>
                 <Input id="businessName" value={data.businessName || ''} onChange={e => updateData({
                 businessName: e.target.value
-              })} placeholder="Ex: Le Snack Gabonais - Sandwichs et Livraisons" className="mt-1 bg-white" />
+              })} placeholder="Ex: Le Snack Gabonais - Sandwichs et Livraisons" className="mt-1 bg-white rounded-3xl" />
                 <p className="text-xs text-muted-foreground mt-1">
                   Choisissez un nom optimisé pour être trouvé facilement
                 </p>
@@ -248,7 +248,7 @@ export const BusinessCreationWizard = ({
                 </Label>
                 <Textarea id="description" value={data.description || ''} onChange={e => updateData({
                 description: e.target.value
-              })} placeholder="Ex: Livraison rapide de sandwichs, burgers et plats africains à Libreville" className="mt-1 min-h-[80px]" maxLength={300} />
+              })} placeholder="Ex: Livraison rapide de sandwichs, burgers et plats africains à Libreville" maxLength={300} className="mt-1 min-h-[80px] bg-white rounded-3xl" />
                 <p className="text-xs text-muted-foreground mt-1">
                   {data.description?.length || 0}/300 - Optimisée pour le référencement interne
                 </p>
