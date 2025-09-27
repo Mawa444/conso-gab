@@ -491,7 +491,7 @@ export const BusinessCreationWizard = ({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <CardTitle className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-[3a75c4] text-[#3a75c4]/[0.96]">
               Créer mon entreprise
             </CardTitle>
             <p className="text-muted-foreground mt-1">
