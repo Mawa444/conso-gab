@@ -194,8 +194,7 @@ export const ProfilePageSkeleton = () => {
   );
 };
 
-// Messaging Page Skeleton (réutiliser les existants)
-export { ConversationSkeleton, MessageHomePageSkeleton } from "@/components/messaging/ConversationSkeleton";
+// Messaging Page Skeleton - MIMO Chat (sera créé prochainement)
 
 // Generic Grid Skeleton
 export const GridSkeleton = ({ items = 6, columns = 2 }: { items?: number; columns?: number }) => {

@@ -49,7 +49,12 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					50: 'hsl(var(--color-primary-50))',
+					100: 'hsl(var(--color-primary-100))',
+					500: 'hsl(var(--color-primary-500))',
+					600: 'hsl(var(--color-primary-600))',
+					900: 'hsl(var(--color-primary-900))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -84,12 +89,52 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// MIMO Chat colors
+				'mimo-gray': {
+					50: 'hsl(var(--color-gray-50))',
+					100: 'hsl(var(--color-gray-100))',
+					200: 'hsl(var(--color-gray-200))',
+					300: 'hsl(var(--color-gray-300))',
+					400: 'hsl(var(--color-gray-400))',
+					500: 'hsl(var(--color-gray-500))',
+					600: 'hsl(var(--color-gray-600))',
+					700: 'hsl(var(--color-gray-700))',
+					800: 'hsl(var(--color-gray-800))',
+					900: 'hsl(var(--color-gray-900))'
+				},
+				'mimo-success': 'hsl(var(--color-success-500))',
+				'mimo-warning': 'hsl(var(--color-warning-500))',
+				'mimo-error': 'hsl(var(--color-error-500))',
+				'mimo-green': 'hsl(var(--mimo-green))',
+				'mimo-blue': 'hsl(var(--mimo-blue))',
+				'mimo-incoming': 'hsl(var(--mimo-incoming))',
+				'mimo-outgoing': 'hsl(var(--mimo-outgoing))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				bubble: '18px',
+				'bubble-sm': '6px'
+			},
+			spacing: {
+				'18': '4.5rem',
+				'88': '22rem'
+			},
+			height: {
+				'top-bar': 'var(--top-bar-height)',
+				'bottom-nav': 'var(--bottom-nav-height)',
+				'fab': 'var(--fab-size)'
+			},
+			width: {
+				'fab': 'var(--fab-size)'
+			},
+			boxShadow: {
+				'mimo-1': 'var(--shadow-1)',
+				'mimo-4': 'var(--shadow-4)',
+				'mimo-8': 'var(--shadow-8)',
+				'mimo-16': 'var(--shadow-16)'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -107,11 +152,31 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'message-slide': {
+					'0%': { transform: 'translateY(10px)', opacity: '0' },
+					'100%': { transform: 'translateY(0)', opacity: '1' }
+				},
+				'fade-in': {
+					'0%': { opacity: '0' },
+					'100%': { opacity: '1' }
+				},
+				'shimmer': {
+					'0%': { backgroundPosition: '-200px 0' },
+					'100%': { backgroundPosition: '200px 0' }
+				},
+				'bounce-soft': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-2px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'message-slide': 'message-slide 0.2s ease-out',
+				'fade-in': 'fade-in 0.2s ease-out',
+				'shimmer': 'shimmer 2s infinite linear',
+				'bounce-soft': 'bounce-soft 0.6s ease-in-out'
 			}
 		}
 	},

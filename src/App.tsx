@@ -4,13 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { RoleBasedRouter } from "@/components/auth/RoleBasedRouter";
 import { ModeGuard } from "@/components/auth/ModeGuard";
-import { RealTimeProvider } from "@/components/messaging/RealTimeProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import ConsumerApp from "@/pages/ConsumerApp";
-import MessagingPage from "@/pages/MessagingPage";
-import ConversationDetailPage from "@/pages/ConversationDetailPage";
 
 import BusinessCreationPage from "@/pages/BusinessCreationPage";
 import BusinessProfilePage from "@/pages/BusinessProfilePage";
@@ -29,7 +26,6 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <RealTimeProvider>
                 <Router>
                   <RoleBasedRouter>
                     <ModeGuard>
@@ -43,12 +39,6 @@ const App = () => {
                       
                       {/* Routes consumer */}
                       <Route path="/consumer/*" element={<ConsumerApp />} />
-                      
-                      {/* Routes messaging */}
-                      <Route path="/messaging" element={<MessagingPage />} />
-                      <Route path="/messaging/:section" element={<MessagingPage />} />
-                      <Route path="/messaging/conversation/:conversationId" element={<ConversationDetailPage />} />
-                      
                       {/* Routes business */}
                       <Route path="/business/create" element={<BusinessCreationPage />} />
                       
@@ -69,7 +59,6 @@ const App = () => {
                 </ModeGuard>
               </RoleBasedRouter>
             </Router>
-          </RealTimeProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

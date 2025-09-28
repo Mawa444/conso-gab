@@ -2,6 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ================================ */
+/* MIMO CHAT DESIGN SYSTEM TOKENS */
+/* ================================ */
+
+:root {
+  /* Couleurs primaires */
+  --color-primary-50: 240 249 255;
+  --color-primary-100: 224 242 254;
+  --color-primary-500: 0 102 204;
+  --color-primary-600: 0 82 163;
+  --color-primary-900: 0 40 81;
+  
+  /* Couleurs grises */
+  --color-gray-50: 249 250 251;
+  --color-gray-100: 243 244 246;
+  --color-gray-200: 229 231 235;
+  --color-gray-300: 209 213 219;
+  --color-gray-400: 156 163 175;
+  --color-gray-500: 107 114 128;
+  --color-gray-600: 75 85 99;
+  --color-gray-700: 55 65 81;
+  --color-gray-800: 31 41 55;
+  --color-gray-900: 17 24 39;
+  
+  /* Couleurs système */
+  --color-success-500: 16 185 129;
+  --color-warning-500: 245 158 11;
+  --color-error-500: 239 68 68;
+  
+  /* Couleurs MIMO Chat spécifiques */
+  --mimo-green: 37 211 102;
+  --mimo-blue: 0 102 204;
+  --mimo-incoming: 241 243 244;
+  --mimo-outgoing: 0 102 204;
+  
+  /* Élévations */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-4: 0 4px 6px rgba(0,0,0,0.07);
+  --shadow-8: 0 8px 25px rgba(0,0,0,0.15);
+  --shadow-16: 0 16px 40px rgba(0,0,0,0.12);
+  
+  /* Spacing système */
+  --touch-target-min: 44px;
+  --top-bar-height: 56px;
+  --bottom-nav-height: 60px;
+  --fab-size: 56px;
+  
+  /* Breakpoints */
+  --breakpoint-mobile: 720px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1280px;
+}
+
 /* Système de design minimaliste noir & blanc inspiré d'Animate UI */
 
 @layer base {
