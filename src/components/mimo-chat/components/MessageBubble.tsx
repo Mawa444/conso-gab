@@ -135,7 +135,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         isOwn && 'order-first'
       )}>
         {/* Reply indicator */}
-        {message.reply_to && (
+        {message.reply_to_message_id && (
           <div className="mb-1 px-3 py-1 bg-mimo-gray-100 rounded-lg text-xs text-mimo-gray-600 border-l-2 border-primary-500">
             Réponse à un message
           </div>
@@ -169,11 +169,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             
             {isOwn && (
               <div className="flex">
-                {message.read_at ? (
-                  <CheckCheck className="w-4 h-4" />
-                ) : (
-                  <Check className="w-4 h-4" />
-                )}
+                <Check className="w-4 h-4" />
               </div>
             )}
           </div>

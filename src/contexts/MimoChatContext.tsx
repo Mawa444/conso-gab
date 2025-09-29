@@ -10,10 +10,9 @@ export interface MimoMessage {
   content: string;
   message_type: 'text' | 'image' | 'audio' | 'document' | 'location' | 'system';
   created_at: string;
-  read_at?: string;
   edited_at?: string;
-  reply_to?: string;
-  reactions?: string[];
+  reply_to_message_id?: string;
+  reactions?: any;
   attachment_url?: string;
   sender_profile?: {
     display_name?: string;
@@ -102,21 +101,13 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
         .select(`
           id,
           title,
-          type,
+          conversation_type,
           created_at,
           last_activity,
           participants!inner(
             user_id,
             role,
-            joined_at,
-            profiles(display_name, avatar_url)
-          ),
-          messages(
-            id,
-            content,
-            message_type,
             created_at,
-            sender_id,
             profiles(display_name, avatar_url)
           )
         `)
@@ -125,12 +116,40 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
 
       if (error) throw error;
 
+      // Get last messages separately
+      const conversationIds = data?.map(conv => conv.id) || [];
+      const { data: lastMessages } = await supabase
+        .from('messages')
+        .select(`
+          id,
+          conversation_id,
+          content,
+          message_type,
+          created_at,
+          sender_id,
+          profiles(display_name, avatar_url)
+        `)
+        .in('conversation_id', conversationIds)
+        .order('created_at', { ascending: false });
+
       // Transform and calculate unread counts
-      const transformedConversations = data?.map(conv => ({
-        ...conv,
-        unread_count: 0, // TODO: Calculate from read receipts
-        last_message: conv.messages?.[0] || null
-      })) || [];
+      const transformedConversations = data?.map(conv => {
+        const lastMessage = lastMessages?.find(msg => msg.conversation_id === conv.id);
+        return {
+          ...conv,
+          type: conv.conversation_type as 'private' | 'group' | 'business',
+          unread_count: 0, // TODO: Calculate from read receipts
+          last_message: lastMessage ? {
+            ...lastMessage,
+            sender_profile: lastMessage.profiles
+          } : null,
+          participants: conv.participants.map(p => ({
+            ...p,
+            joined_at: p.created_at,
+            profile: p.profiles
+          }))
+        };
+      }) || [];
 
       setConversations(transformedConversations as MimoConversation[]);
     } catch (err) {
@@ -155,9 +174,8 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
           content,
           message_type,
           created_at,
-          read_at,
           edited_at,
-          reply_to,
+          reply_to_message_id,
           attachment_url,
           profiles(display_name, avatar_url)
         `)
@@ -168,6 +186,7 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
 
       const transformedMessages = data?.map(msg => ({
         ...msg,
+        message_type: msg.message_type as 'text' | 'image' | 'audio' | 'document' | 'location' | 'system',
         sender_profile: msg.profiles
       })) || [];
 
@@ -216,7 +235,11 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
 
       // Replace temp message with real one
       setMessages(prev => 
-        prev.map(msg => msg.id === tempMessage.id ? { ...data, sender_profile: tempMessage.sender_profile } : msg)
+        prev.map(msg => msg.id === tempMessage.id ? { 
+          ...data, 
+          message_type: data.message_type as 'text' | 'image' | 'audio' | 'document' | 'location' | 'system',
+          sender_profile: tempMessage.sender_profile 
+        } : msg)
       );
 
       // Update conversation last_activity
@@ -264,7 +287,7 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
     try {
       await supabase
         .from('participants')
-        .update({ last_read_at: new Date().toISOString() })
+        .update({ last_read: new Date().toISOString() })
         .eq('conversation_id', conversationId)
         .eq('user_id', user.id);
 
