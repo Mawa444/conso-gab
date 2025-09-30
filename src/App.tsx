@@ -19,7 +19,6 @@ import { PublicCatalogsPage } from "@/pages/PublicCatalogsPage";
 import { AuthFlowPage } from "@/pages/AuthFlowPage";
 import { MimoChatPage } from "@/pages/MimoChatPage";
 import { MimoConversationPage } from "@/pages/MimoConversationPage";
-import { MimoChatProvider } from "@/contexts/MimoChatContext";
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -29,7 +28,6 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <MimoChatProvider>
             <Router>
               <RoleBasedRouter>
                 <ModeGuard>
@@ -67,7 +65,6 @@ const App = () => {
                 </ModeGuard>
               </RoleBasedRouter>
             </Router>
-          </MimoChatProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -8,6 +8,7 @@ import { SettingsTab } from '@/components/mimo-chat/tabs/SettingsTab';
 import { Plus } from 'lucide-react';
 
 export const MimoChatPage: React.FC = () => {
+  // Wrapping with provider at page level instead of app level
   const [activeTab, setActiveTab] = useState('chats');
 
   const renderActiveTab = () => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMimoChat } from '@/contexts/MimoChatContext';
+import { MimoChatProvider, useMimoChat } from '@/contexts/MimoChatContext';
 import { MimoChatLayout } from '@/components/mimo-chat/layout/MimoChatLayout';
 import { MessageBubble } from '@/components/mimo-chat/components/MessageBubble';
 import { MessageComposer } from '@/components/mimo-chat/components/MessageComposer';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Phone, Video, Info } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 
-export const MimoConversationPage: React.FC = () => {
+const MimoConversationPageContent: React.FC = () => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -228,5 +228,13 @@ export const MimoConversationPage: React.FC = () => {
         />
       </div>
     </MimoChatLayout>
+  );
+};
+
+export const MimoConversationPage: React.FC = () => {
+  return (
+    <MimoChatProvider>
+      <MimoConversationPageContent />
+    </MimoChatProvider>
   );
 };
