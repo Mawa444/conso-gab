@@ -33,8 +33,9 @@ export const ModeGuard = ({ children }: ModeGuardProps) => {
         target = '/business/profile?tab=catalog';
       }
     } else {
-      // Mode consommateur: on évite l'accès à l'espace opérateur
-      if (path.startsWith('/business/')) {
+      // Mode consommateur: autoriser l'accès aux détails publics des business et à la création
+      // Bloquer uniquement l'accès au profil business (/business/profile)
+      if (path === '/business/profile' || path === '/business/profile/edit' || path === '/business/create-catalog') {
         target = '/consumer/home';
       }
     }

@@ -17,6 +17,9 @@ import CreateCatalogPage from "@/pages/CreateCatalogPage";
 import { CategoryPage } from "@/pages/CategoryPage";
 import { PublicCatalogsPage } from "@/pages/PublicCatalogsPage";
 import { AuthFlowPage } from "@/pages/AuthFlowPage";
+import { MimoChatPage } from "@/pages/MimoChatPage";
+import { MimoConversationPage } from "@/pages/MimoConversationPage";
+import { MimoChatProvider } from "@/contexts/MimoChatContext";
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -26,11 +29,12 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-                <Router>
-                  <RoleBasedRouter>
-                    <ModeGuard>
-                      <div className="flex flex-col min-h-screen bg-background">
-                        <Routes>
+          <MimoChatProvider>
+            <Router>
+              <RoleBasedRouter>
+                <ModeGuard>
+                  <div className="flex flex-col min-h-screen bg-background">
+                    <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/home" element={<Index />} />
                       <Route path="/map" element={<Index />} />
@@ -52,6 +56,10 @@ const App = () => {
                       <Route path="/catalogs" element={<PublicCatalogsPage />} />
                       <Route path="/auth" element={<AuthFlowPage onComplete={() => {}} />} />
                       
+                      {/* Routes MIMO Chat */}
+                      <Route path="/mimo-chat" element={<MimoChatPage />} />
+                      <Route path="/mimo-chat/conversation/:conversationId" element={<MimoConversationPage />} />
+                      
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                   </div>
@@ -59,6 +67,7 @@ const App = () => {
                 </ModeGuard>
               </RoleBasedRouter>
             </Router>
+          </MimoChatProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

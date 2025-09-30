@@ -39,20 +39,11 @@ export const useProfileMode = () => {
         user_id: user.id 
       });
       
-      // Use direct query instead of RPC due to authentication timing issues
+      // Load business profiles owned by the user
       const { data, error } = await supabase
         .from('business_profiles')
-        .select(`
-          id, 
-          business_name, 
-          logo_url, 
-          is_primary,
-          user_id,
-          owner_id,
-          business_collaborators!inner(role, status)
-        `)
-        .eq('business_collaborators.user_id', user.id)
-        .eq('business_collaborators.status', 'accepted')
+        .select('id, business_name, logo_url, is_primary, user_id, owner_id')
+        .eq('user_id', user.id)
         .eq('is_active', true);
 
       if (error) {
@@ -76,8 +67,8 @@ export const useProfileMode = () => {
         business_name: profile.business_name,
         logo_url: profile.logo_url,
         is_primary: profile.is_primary || false,
-        role: (profile.business_collaborators as any)[0]?.role || 'owner',
-        is_owner: profile.owner_id === user.id || profile.user_id === user.id
+        role: 'owner',
+        is_owner: true
       }));
       
       setBusinessProfiles(transformedProfiles);
