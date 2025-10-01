@@ -1,22 +1,19 @@
-import { useNavigate } from "react-router-dom";
-import { BusinessCreationWizard } from "@/components/business/BusinessCreationWizard";
-import { useProfileMode } from "@/hooks/use-profile-mode";
+import { useNavigate } from 'react-router-dom';
+import { BusinessCreationWizard } from '@/components/business/BusinessCreationWizard';
+import { useProfileMode } from '@/hooks/use-profile-mode';
 
-export const BusinessCreationPage = () => {
+export default function BusinessCreationPage() {
   const navigate = useNavigate();
   const { switchMode } = useProfileMode();
 
   const handleCreated = (businessId: string) => {
-    // Redirection automatique vers la page entreprises puis switch vers le business
-    setTimeout(() => {
-      switchMode('business', businessId, (path) => {
-        navigate(path);
-      });
-    }, 1000);
+    switchMode('business', businessId).then(() => {
+      navigate(/business/${businessId}/profile);
+    });
   };
 
   const handleCancel = () => {
-    navigate("/entreprises");
+    navigate('/entreprises');
   };
 
   return (
@@ -29,6 +26,4 @@ export const BusinessCreationPage = () => {
       </div>
     </div>
   );
-};
-
-export default BusinessCreationPage;
+}
