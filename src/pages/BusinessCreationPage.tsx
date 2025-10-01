@@ -7,14 +7,16 @@ export const BusinessCreationPage = () => {
   const { switchMode } = useProfileMode();
 
   const handleCreated = (businessId: string) => {
-    // Redirection automatique vers le profil business nouvellement créé
+    // Redirection automatique vers la page entreprises puis switch vers le business
     setTimeout(() => {
-      switchMode('business', businessId, navigate);
+      switchMode('business', businessId, (path) => {
+        navigate(path);
+      });
     }, 1000);
   };
 
   const handleCancel = () => {
-    navigate("/");
+    navigate("/entreprises");
   };
 
   return (

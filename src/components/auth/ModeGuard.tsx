@@ -22,20 +22,27 @@ export const ModeGuard = ({ children }: ModeGuardProps) => {
     const path = location.pathname;
     let target: string | null = null;
 
-    // Verrou de mode: pas d'accès simultané aux deux espaces
+    // Règles de navigation strictes pour séparation Consumer ↔ Business
     if (currentMode === 'business') {
-      // Si l'utilisateur essaie d'accéder à une route consommateur, on le renvoie vers son profil business
-      if (path.startsWith('/consumer')) {
-        target = '/business/profile?tab=catalog';
+      // En mode Business: interdire l'accès aux routes consommateur
+      if (path.startsWith('/consumer') || path === '/home' || path === '/entreprises') {
+        // Exception: permettre la gestion des entreprises pour basculer de mode
+        if (!path.startsWith('/entreprises')) {
+          target = `/business/${currentBusinessId}/dashboard`;
+        }
       }
-      // Rediriger automatiquement /business/dashboard vers le profil business
-      if (path === '/business/dashboard') {
-        target = '/business/profile?tab=catalog';
+      
+      // Vérifier que l'utilisateur accède uniquement à SON business
+      const businessIdMatch = path.match(/^\/business\/([^/]+)/);
+      if (businessIdMatch && businessIdMatch[1] !== currentBusinessId) {
+        guardLogger.warn('Tentative d\'accès à un autre business');
+        target = `/business/${currentBusinessId}/dashboard`;
       }
     } else {
-      // Mode consommateur: autoriser l'accès aux détails publics des business et à la création
-      // Bloquer uniquement l'accès au profil business (/business/profile)
-      if (path === '/business/profile' || path === '/business/profile/edit' || path === '/business/create-catalog') {
+      // Mode Consommateur: autoriser l'accès public aux business mais pas aux zones pro
+      const businessSettingsMatch = path.match(/^\/business\/([^/]+)\/(dashboard|settings)/);
+      if (businessSettingsMatch) {
+        guardLogger.warn('Tentative d\'accès aux zones privées business en mode consommateur');
         target = '/consumer/home';
       }
     }
@@ -45,9 +52,7 @@ export const ModeGuard = ({ children }: ModeGuardProps) => {
       guardLogger.info('Mode guard redirect', { 
         action: 'guard_redirect',
         from: path,
-        to: target,
-        business_id: currentBusinessId,
-        status: 'success'
+        to: target
       });
       
       lastRedirectRef.current = target;

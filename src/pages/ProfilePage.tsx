@@ -153,12 +153,9 @@ export const ProfilePage = ({
     fetchUserProfile();
   }, [user]);
 
-  // Fonction pour refresh les données du profil
+  // Fonction de refresh après update du profil
   const handleProfileUpdate = () => {
     fetchUserProfile();
-    if (onProfileUpdated) {
-      onProfileUpdated();
-    }
   };
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -398,23 +395,24 @@ export const ProfilePage = ({
           {/* Entreprises - Système de Gestion des Profils */}
           <TabsContent value="businesses" className="space-y-4">
             <div className="min-h-96 p-4 bg-background py-0">
-              {/* Header avec basculement de mode */}
-              <div className="from-primary/10 via-accent/5 to-secondary/10 p-6 mb-6 border border-primary/20 bg-[3a75c4] bg-[#3a75c4]/[0.97] py-[20px] px-0 rounded-none">
-                <div className="flex items-center justify-between mb-4 px-[68px]">
-                  <div>
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-white">
-                      Gestion des Profils
-                    </h2>
-                    <p className="text-sm text-white">Créez et gérez vos profils business</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-6 h-6 text-accent animate-pulse" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Gestionnaire de business avancé */}
-              <AdvancedBusinessManager />
+              {/* Redirection vers la page dédiée */}
+              <Card className="border-2 border-primary/20">
+                <CardContent className="p-8 text-center">
+                  <Building2 className="w-16 h-16 mx-auto mb-4 text-primary" />
+                  <h3 className="text-xl font-bold mb-2">Gérer mes entreprises</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Accédez à la page de gestion de vos profils business
+                  </p>
+                  <Button 
+                    onClick={() => navigate('/entreprises')}
+                    size="lg"
+                    className="gap-2"
+                  >
+                    <Building2 className="w-5 h-5" />
+                    Accéder à mes entreprises
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
