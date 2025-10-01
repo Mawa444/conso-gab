@@ -8,29 +8,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase env vars');
 }
 
-// Client public (pour les données publiques)
-export const supabasePublic = createClient(supabaseUrl, supabaseAnonKey);
-
-// Client authentifié via cookies (sécurisé)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    // Désactive le stockage local → tout passe par les cookies
-    storage: {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
-    },
+    // Stockage en mémoire seulement (pas en localStorage)
+    storage: typeof window !== 'undefined' ? window.sessionStorage : undefined,
     autoRefreshToken: true,
-    persistSession: false,
+    persistSession: true,
     detectSessionInUrl: true,
   },
 });
-
-// Fonction pour appeler les endpoints sécurisés
-export async function secureFetch(input: RequestInfo, init?: RequestInit) {
-  const res = await fetch(input, {
-    ...init,
-    credentials: 'include', // Envoie les cookies httpOnly
-  });
-  return res;
-}
