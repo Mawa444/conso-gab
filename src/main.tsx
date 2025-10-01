@@ -32,7 +32,7 @@ const preloadIcons = () => {
     const link = document.createElement('link');
     link.rel = 'prefetch';
     link.as = 'image';
-    link.href = https://unpkg.com/lucide-static@latest/icons/${name}.svg;
+    link.href = `https://unpkg.com/lucide-static@latest/icons/${name}.svg`;
     document.head.appendChild(link);
   });
 };

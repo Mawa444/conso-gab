@@ -149,7 +149,7 @@ export const ProfileModeProvider = ({ children }: { children: React.ReactNode })
         : '';
       toast.success(
         mode === 'business'
-          ? Mode entreprise activé${name ? ` : ${name} : ''}`
+          ? `Mode entreprise activé${name ? ` : ${name}` : ''}`
           : 'Mode consommateur activé'
       );
     },

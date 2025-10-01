@@ -8,7 +8,7 @@ export default function BusinessCreationPage() {
 
   const handleCreated = (businessId: string) => {
     switchMode('business', businessId).then(() => {
-      navigate(/business/${businessId}/profile);
+      navigate(`/business/${businessId}/profile`);
     });
   };
 
