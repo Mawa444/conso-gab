@@ -1,5 +1,5 @@
 // src/routes/AppRoutes.tsx
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { ProfileModeProvider } from '@/hooks/use-profile-mode';
@@ -71,13 +71,14 @@ function EntreprisesRoutes() {
 
 export function AppRoutes() {
   return (
-    <AuthProvider>
-      <ProfileModeProvider>
-        <Suspense fallback={<ProfilePageSkeleton />}>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/auth" element={<AuthFlowPage />} />
+    <BrowserRouter>
+      <AuthProvider>
+        <ProfileModeProvider>
+          <Suspense fallback={<ProfilePageSkeleton />}>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/auth" element={<AuthFlowPage />} />
             
             {/* Protected consumer routes */}
             <Route 
@@ -113,5 +114,6 @@ export function AppRoutes() {
         </Suspense>
       </ProfileModeProvider>
     </AuthProvider>
+    </BrowserRouter>
   );
 }
