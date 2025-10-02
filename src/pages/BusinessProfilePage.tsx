@@ -1,9 +1,9 @@
-import { useParams, useNavigate, useEffect } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useProfileMode } from '@/hooks/use-profile-mode';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { PageWithSkeleton } from '@/components/layout/PageWithSkeleton';
 import { ProfilePageSkeleton } from '@/components/ui/skeleton-screens';
-import { BusinessProfileContent } from '@/components/business/BusinessProfileContent';
 
 export default function BusinessProfilePage() {
   const { businessId } = useParams<{ businessId: string }>();
@@ -36,13 +36,8 @@ export default function BusinessProfilePage() {
   }, [businessId, user, currentMode, currentBusinessId, isOwnerOfBusiness]);
 
   if (!businessId || modeLoading) {
-    return (
-      <PageWithSkeleton
-        isLoading={true}
-        skeleton={<ProfilePageSkeleton />}
-      />
-    );
+    return <ProfilePageSkeleton />;
   }
 
-  return <BusinessProfileContent businessId={businessId} />;
+  return <div>Business Profile Page - {businessId}</div>;
 }

@@ -87,7 +87,10 @@ export const AdvancedBusinessManager = ({
               
               <div className="flex items-center gap-2">
                 {currentMode === 'consumer' && <Badge variant="secondary" className="text-xs bg-[fcd116] bg-[#fcd116]/[0.96]">ACTUEL</Badge>}
-                <Button variant="default" size="sm" onClick={() => switchMode('consumer', undefined, navigate)} className="text-[fcd116] text-white">
+                <Button variant="default" size="sm" onClick={async () => {
+                  await switchMode('consumer');
+                  navigate('/consumer/home');
+                }} className="text-[fcd116] text-white">
                   {currentMode === 'consumer' ? 'Actuel' : 'Basculer'}
                 </Button>
               </div>
@@ -122,7 +125,10 @@ export const AdvancedBusinessManager = ({
                             Principal
                           </Badge>}
                         {currentMode === 'business' && currentBusiness?.id === business.id && <Badge variant="default" className="text-xs rounded-3xl">ACTUEL</Badge>}
-                        <Button variant="default" size="sm" onClick={() => switchMode('business', business.id, navigate)} className="rounded-3xl">
+                        <Button variant="default" size="sm" onClick={async () => {
+                          await switchMode('business', business.id);
+                          navigate(`/business/${business.id}/dashboard`);
+                        }} className="rounded-3xl">
                           {currentMode === 'business' && currentBusiness?.id === business.id ? 'Actuel' : 'Basculer'}
                         </Button>
                       </div>

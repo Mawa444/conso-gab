@@ -72,7 +72,7 @@ export const PublicCatalogsPage = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setCatalogs(data || []);
+      setCatalogs((data as any) || []);
     } catch (error) {
       console.error('Error fetching catalogs:', error);
       toast({

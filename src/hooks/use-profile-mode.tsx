@@ -22,6 +22,8 @@ interface ProfileModeContextValue {
   switchMode: (mode: ProfileMode, businessId?: string) => Promise<void>;
   getCurrentBusiness: () => BusinessProfile | null;
   isOwnerOfBusiness: (businessId: string) => boolean;
+  refreshBusinessProfiles: () => Promise<void>;
+  canAccessBusinessPro: (businessId: string) => boolean;
 }
 
 const ProfileModeContext = createContext<ProfileModeContextValue | undefined>(undefined);
@@ -106,7 +108,7 @@ export const ProfileModeProvider = ({ children }: { children: React.ReactNode })
       ]);
 
       setBusinessProfiles(profiles);
-      setCurrentMode(modeData.mode);
+      setCurrentMode(modeData.mode as ProfileMode);
       setCurrentBusinessId(modeData.businessId);
     } catch (err) {
       console.error('Profile mode init failed', err);
@@ -168,6 +170,27 @@ export const ProfileModeProvider = ({ children }: { children: React.ReactNode })
     [businessProfiles]
   );
 
+  const refreshBusinessProfiles = useCallback(async () => {
+    if (!user) return;
+    const profiles = await loadBusinessProfiles();
+    setBusinessProfiles(profiles);
+  }, [user, loadBusinessProfiles]);
+
+  const canAccessBusinessPro = useCallback(
+    (businessId: string) => {
+      // L'utilisateur peut accéder au Pro si:
+      // 1. Il est en mode business
+      // 2. Le businessId est le business actuel
+      // 3. Il est propriétaire de ce business
+      return (
+        currentMode === 'business' && 
+        currentBusinessId === businessId && 
+        isOwnerOfBusiness(businessId)
+      );
+    },
+    [currentMode, currentBusinessId, isOwnerOfBusiness]
+  );
+
   return (
     <ProfileModeContext.Provider
       value={{
@@ -178,6 +201,8 @@ export const ProfileModeProvider = ({ children }: { children: React.ReactNode })
         switchMode,
         getCurrentBusiness,
         isOwnerOfBusiness,
+        refreshBusinessProfiles,
+        canAccessBusinessPro,
       }}
     >
       {children}

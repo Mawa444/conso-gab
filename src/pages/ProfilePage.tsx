@@ -486,3 +486,5 @@ export const ProfilePage = ({
       </div>
     </PageWithSkeleton>;
 };
+
+export default ProfilePage;

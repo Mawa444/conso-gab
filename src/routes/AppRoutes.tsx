@@ -4,17 +4,17 @@ import { lazy, Suspense } from 'react';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { ProfileModeProvider } from '@/hooks/use-profile-mode';
 import { RoleBasedRouter } from '@/components/auth/RoleBasedRouter';
-import { PageWithSkeleton } from '@/components/layout/PageWithSkeleton';
-import { AppSkeleton } from '@/components/ui/skeleton-screens';
+import { ProfilePageSkeleton } from '@/components/ui/skeleton-screens';
 
-// Lazy load des pages critiques
+// Lazy load des pages critiques  
 const HomePage = lazy(() => import('@/pages/HomePage'));
-const LoginPage = lazy(() => import('@/pages/LoginPage'));
-const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
-const ProfilePage = lazy(() => import('@/pages/profile/ProfilePage'));
-const BusinessCreationPage = lazy(() => import('@/pages/business/BusinessCreationPage'));
-const BusinessListPage = lazy(() => import('@/pages/business/BusinessListPage'));
-const BusinessProfilePage = lazy(() => import('@/pages/business/BusinessProfilePage'));
+const AuthFlowPage = lazy(() => import('@/pages/AuthFlowPage'));
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
+const BusinessCreationPage = lazy(() => import('@/pages/BusinessCreationPage'));
+const EntreprisesPage = lazy(() => import('@/pages/EntreprisesPage'));
+const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage'));
+const BusinessDashboardPage = lazy(() => import('@/pages/BusinessDashboardPage'));
+const BusinessSettingsPage = lazy(() => import('@/pages/BusinessSettingsPage'));
 
 // Routes business protégées
 function BusinessRoutes() {
@@ -23,12 +23,47 @@ function BusinessRoutes() {
       <Route
         path=":businessId/profile"
         element={
-          <Suspense fallback={<PageWithSkeleton isLoading skeleton={<AppSkeleton />} />}>
+          <Suspense fallback={<ProfilePageSkeleton />}>
             <BusinessProfilePage />
           </Suspense>
         }
       />
-      {/* Ajoute d'autres routes business ici quand prêtes */}
+      <Route
+        path=":businessId/dashboard"
+        element={
+          <Suspense fallback={<ProfilePageSkeleton />}>
+            <BusinessDashboardPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path=":businessId/settings"
+        element={
+          <Suspense fallback={<ProfilePageSkeleton />}>
+            <BusinessSettingsPage />
+          </Suspense>
+        }
+      />
+      <Route path="*" element={<Navigate to="/entreprises" replace />} />
+    </Routes>
+  );
+}
+
+function ConsumerRoutes() {
+  return (
+    <Routes>
+      <Route path="home" element={<HomePage />} />
+      <Route path="profile" element={<ProfilePage />} />
+      <Route path="*" element={<Navigate to="/consumer/home" replace />} />
+    </Routes>
+  );
+}
+
+function EntreprisesRoutes() {
+  return (
+    <Routes>
+      <Route index element={<EntreprisesPage />} />
+      <Route path="create" element={<BusinessCreationPage />} />
       <Route path="*" element={<Navigate to="/entreprises" replace />} />
     </Routes>
   );
@@ -38,51 +73,40 @@ export function AppRoutes() {
   return (
     <AuthProvider>
       <ProfileModeProvider>
-        <Suspense fallback={<PageWithSkeleton isLoading skeleton={<AppSkeleton />} />}>
+        <Suspense fallback={<ProfilePageSkeleton />}>
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-
-            {/* Protected routes */}
-            <Route
-              path="/profile"
+            <Route path="/auth" element={<AuthFlowPage />} />
+            
+            {/* Protected consumer routes */}
+            <Route 
+              path="/consumer/*" 
               element={
                 <RoleBasedRouter>
-                  <ProfilePage />
+                  <ConsumerRoutes />
                 </RoleBasedRouter>
-              }
+              } 
             />
-
-            <Route
-              path="/entreprises"
+            
+            {/* Protected business routes */}
+            <Route 
+              path="/entreprises/*" 
               element={
                 <RoleBasedRouter>
-                  <BusinessListPage />
+                  <EntreprisesRoutes />
                 </RoleBasedRouter>
-              }
+              } 
             />
-
-            <Route
-              path="/business/create"
-              element={
-                <RoleBasedRouter>
-                  <BusinessCreationPage />
-                </RoleBasedRouter>
-              }
-            />
-
-            {/* Nested business routes */}
-            <Route
-              path="/business/*"
+            <Route 
+              path="/business/*" 
               element={
                 <RoleBasedRouter>
                   <BusinessRoutes />
                 </RoleBasedRouter>
-              }
+              } 
             />
-
+            
             {/* Catch-all */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -1,10 +1,8 @@
 // src/main.tsx
 import { createRoot } from 'react-dom/client';
-import { StrictMode, Suspense } from 'react';
+import { StrictMode } from 'react';
 import App from '@/App';
 import '@/integrations/supabase/client';
-import { PageWithSkeleton } from '@/components/layout/PageWithSkeleton';
-import { AppSkeleton } from '@/components/ui/skeleton-screens';
 
 // Précharge la police Roboto (Google Fonts)
 const preloadFonts = () => {
@@ -40,7 +38,7 @@ const preloadIcons = () => {
 // Mesure du temps de chargement (prod uniquement)
 if (import.meta.env.PROD) {
   window.addEventListener('load', () => {
-    const perfData = performance.getEntriesByType('navigation')[0];
+    const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     if (perfData?.loadEventEnd) {
       console.log('App loaded in:', Math.round(perfData.loadEventEnd - perfData.loadEventStart), 'ms');
     }
@@ -54,8 +52,6 @@ preloadIcons();
 // Démarrage de l'app
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Suspense fallback={<PageWithSkeleton isLoading skeleton={<AppSkeleton />} />}>
-      <App />
-    </Suspense>
+    <App />
   </StrictMode>
 );
