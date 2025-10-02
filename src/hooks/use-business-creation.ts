@@ -21,9 +21,8 @@ export const useBusinessCreation = () => {
     toast.success("Entreprise créée avec succès !");
     
     // Redirection automatique vers le profil business nouvellement créé
-    setTimeout(async () => {
-      await switchMode('business', businessId);
-      navigate(`/business/${businessId}/dashboard`);
+    setTimeout(() => {
+      switchMode('business', businessId, navigate);
     }, 1000);
   };
 

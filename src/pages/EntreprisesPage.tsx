@@ -16,8 +16,7 @@ export const EntreprisesPage = () => {
 
   const handleSwitchToBusiness = async (businessId: string) => {
     try {
-      await switchMode('business', businessId);
-      navigate(`/business/${businessId}/dashboard`);
+      await switchMode('business', businessId, navigate);
       toast.success("Basculé en mode Business");
     } catch (error) {
       toast.error("Erreur lors du changement de mode");

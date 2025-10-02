@@ -138,15 +138,15 @@ const sponsoredCommerces = [{
   sponsored: true
 }];
 interface HomePageProps {
-  onNavigate?: (tab: string) => void;
+  onNavigate: (tab: string) => void;
   onMessage?: (commerce: any) => void;
   userLocation?: string;
 }
 export const HomePage = ({
-  onNavigate = () => {},
+  onNavigate,
   onMessage,
   userLocation = "Libreville"
-}: HomePageProps = {}) => {
+}: HomePageProps) => {
   const navigate = useNavigate();
   const [showScanner, setShowScanner] = useState(false);
   const [scannedCommerce, setScannedCommerce] = useState<any>(null);
@@ -383,5 +383,3 @@ export const HomePage = ({
       </div>
     </PageWithSkeleton>;
 };
-
-export default HomePage;

@@ -86,10 +86,9 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
 
         {/* Mode Consommateur - toujours visible */}
         <DropdownMenuItem 
-          onClick={async () => {
+          onClick={() => {
             console.log('🔄 Clic sur Mode Consommateur');
-            await switchMode('consumer');
-            navigate('/consumer/home');
+            switchMode('consumer', undefined, navigate);
           }}
           disabled={loading}
           className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-green-50 ${
@@ -120,10 +119,9 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
             {businessProfiles.map((business) => (
               <DropdownMenuItem
                 key={business.id}
-                onClick={async () => {
+                onClick={() => {
                   console.log('🔄 Clic sur profil business:', business.business_name, business.id);
-                  await switchMode('business', business.id);
-                  navigate(`/business/${business.id}/dashboard`);
+                  switchMode('business', business.id, navigate);
                 }}
                 disabled={loading}
                 className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-blue-50 ${

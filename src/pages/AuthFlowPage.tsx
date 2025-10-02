@@ -16,10 +16,10 @@ import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 type AuthStep = 'welcome' | 'login' | 'signup';
 
 interface AuthFlowPageProps {
-  onComplete?: () => void;
+  onComplete: () => void;
 }
 
-export const AuthFlowPage = ({ onComplete = () => {} }: AuthFlowPageProps = {}) => {
+export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   const { user, loading, signIn } = useAuth();
   const navigate = useNavigate();
   const { cleanupAuthState } = useAuthCleanup();
@@ -309,5 +309,3 @@ export const AuthFlowPage = ({ onComplete = () => {} }: AuthFlowPageProps = {}) 
 
   return null;
 };
-
-export default AuthFlowPage;
