@@ -223,7 +223,7 @@ export const useProfileMode = () => {
 
 
 
-  const switchMode = async (mode: ProfileMode, businessId?: string, navigate?: (path: string) => void) => {
+  const switchMode = async (mode: ProfileMode, businessId?: string, callback?: () => void) => {
     if (!user) {
       toast.error("Vous devez être connecté pour changer de mode");
       return;
@@ -295,22 +295,8 @@ export const useProfileMode = () => {
       
       toast.success(message);
 
-      // Redirection immédiate et correcte vers le profil business avec onglet catalogue
-      if (navigate) {
-        const navigationTarget = mode === 'business' && businessId 
-          ? '/business/profile?tab=catalog' 
-          : '/consumer/profile?tab=businesses';
-          
-        profileLogger.info('Redirecting after mode switch', { 
-          action: 'redirect',
-          user_id: user.id,
-          from: window.location.pathname,
-          to: navigationTarget,
-          status: 'success'
-        });
-        
-        navigate(navigationTarget);
-      }
+      // Appeler le callback optionnel après succès
+      callback?.();
 
     } catch (error: any) {
       profileLogger.error('Mode switch failed', { 

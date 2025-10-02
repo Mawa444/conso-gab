@@ -45,27 +45,17 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
         <Button 
           variant={isBusinessMode ? "default" : "secondary"}
           size="icon" 
-          className={`${className} relative transition-all duration-500 transform hover:scale-110 ${
+          className={`${className} ${
             isBusinessMode 
-              ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 border-2 border-blue-400/30' 
-              : 'bg-gradient-to-br from-green-600 to-green-700 text-white shadow-lg shadow-green-500/25 border-2 border-green-400/30'
+              ? 'bg-blue-600 text-white' 
+              : 'bg-green-600 text-white'
           }`}
         >
           {isBusinessMode ? (
-            <Building2 className="w-6 h-6 drop-shadow-sm" />
+            <Building2 className="w-6 h-6" />
           ) : (
-            <User className="w-6 h-6 drop-shadow-sm" />
+            <User className="w-6 h-6" />
           )}
-          
-          {/* Indicateur visuel animé du mode actuel */}
-          <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white animate-pulse ${
-            isBusinessMode ? 'bg-blue-400' : 'bg-green-400'
-          }`} />
-          
-          {/* Effet de lueur en arrière-plan */}
-          <div className={`absolute inset-0 rounded-md blur-lg opacity-30 ${
-            isBusinessMode ? 'bg-blue-600' : 'bg-green-600'
-          }`} />
         </Button>
       </DropdownMenuTrigger>
 
@@ -87,11 +77,12 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
         {/* Mode Consommateur - toujours visible */}
         <DropdownMenuItem 
           onClick={() => {
-            console.log('🔄 Clic sur Mode Consommateur');
-            switchMode('consumer', undefined, navigate);
+            switchMode('consumer', undefined, () => {
+              navigate('/consumer/profile?tab=businesses');
+            });
           }}
           disabled={loading}
-          className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-green-50 ${
+          className={`flex items-center gap-3 p-3 cursor-pointer ${
             currentMode === 'consumer' ? 'bg-green-50 text-green-700' : ''
           }`}
         >
@@ -120,11 +111,12 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
               <DropdownMenuItem
                 key={business.id}
                 onClick={() => {
-                  console.log('🔄 Clic sur profil business:', business.business_name, business.id);
-                  switchMode('business', business.id, navigate);
+                  switchMode('business', business.id, () => {
+                    navigate(`/business/${business.id}/profile`);
+                  });
                 }}
                 disabled={loading}
-                className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-blue-50 ${
+                className={`flex items-center gap-3 p-3 cursor-pointer ${
                   currentMode === 'business' && currentBusiness?.id === business.id 
                     ? 'bg-blue-50 text-blue-700' 
                     : ''
