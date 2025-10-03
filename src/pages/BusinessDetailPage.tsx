@@ -91,7 +91,7 @@ const images = [
 
 export const BusinessDetailPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { businessId } = useParams<{ businessId: string }>();
   const { user } = useAuth();
   const { canAccessBusinessPro } = useProfileMode();
   const [isLoading, setIsLoading] = useState(true);
@@ -112,14 +112,14 @@ export const BusinessDetailPage = () => {
   const [business, setBusiness] = useState<BusinessDetail | null>(null);
   
   // Vérifier si l'utilisateur peut accéder à l'onglet Pro
-  const canAccessPro = id ? canAccessBusinessPro(id) : false;
+  const canAccessPro = businessId ? canAccessBusinessPro(businessId) : false;
 
   useEffect(() => {
     fetchBusinessData();
-  }, [id, user]);
+  }, [businessId, user]);
 
   const fetchBusinessData = async () => {
-    if (!user || !id) {
+    if (!user || !businessId) {
       setIsLoading(false);
       return;
     }
@@ -129,7 +129,7 @@ export const BusinessDetailPage = () => {
       const { data, error } = await supabase
         .from('business_profiles')
         .select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url')
-        .eq('id', id)
+        .eq('id', businessId)
         .single();
 
       if (error) {
@@ -459,7 +459,7 @@ export const BusinessDetailPage = () => {
 
             <TabsContent value="catalog" className="mt-6">
               <BusinessCatalogView
-                businessId={business.id}
+                businessId={businessId || business.id}
                 businessName={business.name}
               />
             </TabsContent>

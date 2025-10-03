@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,7 +30,8 @@ interface BusinessProfile {
 export const BusinessProfilePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { currentBusinessId, currentMode } = useProfileMode();
+  const { businessId } = useParams<{ businessId: string }>();
+  const { currentBusinessId, currentMode, switchMode, isOwnerOfBusiness } = useProfileMode();
   const [searchParams] = useSearchParams();
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,65 +39,63 @@ export const BusinessProfilePage = () => {
   const activeTab = searchParams.get('tab') || 'catalog';
 
   useEffect(() => {
-    // Rediriger si pas en mode business ou pas de business ID
-    if (currentMode !== 'business' || !currentBusinessId) {
-      console.log('🚫 Redirection: mode invalide ou pas de business ID');
-      navigate('/consumer/profile?tab=businesses');
+    // NOUVELLE LOGIQUE : Lire l'ID depuis l'URL en priorité
+    if (!businessId) {
+      console.error('❌ Aucun businessId dans l\'URL');
+      toast.error("ID d'entreprise manquant");
+      navigate('/entreprises');
       return;
     }
 
-    fetchBusinessProfile();
-  }, [currentMode, currentBusinessId, navigate]);
+    // Vérifier que l'utilisateur a accès à ce business
+    const checkAccessAndLoadProfile = async () => {
+      try {
+        setLoading(true);
+        
+        // Vérifier que l'utilisateur est propriétaire
+        if (!user) {
+          toast.error("Vous devez être connecté");
+          navigate('/auth');
+          return;
+        }
 
-  const fetchBusinessProfile = async () => {
-    if (!currentBusinessId) return;
+        // Vérifier l'accès au business
+        const { data: business, error } = await supabase
+          .from('business_profiles')
+          .select('*')
+          .eq('id', businessId)
+          .eq('user_id', user.id)
+          .single();
 
-    try {
-      setLoading(true);
-      console.log('📡 Récupération du profil business:', currentBusinessId);
+        if (error || !business) {
+          console.error('❌ Business non trouvé ou accès refusé:', error);
+          toast.error("Vous n'avez pas accès à cette entreprise");
+          navigate('/entreprises');
+          return;
+        }
 
-      // Récupérer EXACTEMENT le business sélectionné
-      const { data: business, error } = await supabase
-        .from('business_profiles')
-        .select('*')
-        .eq('id', currentBusinessId)
-        .single();
+        console.log('✅ Business trouvé:', business.business_name);
+        setBusinessProfile(business);
 
-      if (error) {
-        console.error('❌ Erreur récupération business profile:', error);
-        toast.error("Impossible de charger le profil business");
-        navigate('/consumer/profile?tab=businesses');
-        return;
+        // Synchroniser le contexte si nécessaire
+        if (currentMode !== 'business' || currentBusinessId !== businessId) {
+          console.log('🔄 Synchronisation du contexte avec l\'URL');
+          switchMode('business', businessId);
+        }
+
+      } catch (error) {
+        console.error('❌ Erreur lors de la vérification:', error);
+        toast.error("Erreur lors du chargement");
+        navigate('/entreprises');
+      } finally {
+        setLoading(false);
       }
+    };
 
-      if (!business) {
-        console.error('❌ Aucun profil business trouvé avec l\'ID:', currentBusinessId);
-        toast.error("Profil business introuvable");
-        navigate('/consumer/profile?tab=businesses');
-        return;
-      }
+    checkAccessAndLoadProfile();
+  }, [businessId, user, navigate]);
 
-      // Vérifier que l'utilisateur est propriétaire
-      if (business.user_id !== user?.id) {
-        console.error('❌ Utilisateur non autorisé pour ce profil business');
-        toast.error("Vous n'avez pas accès à ce profil business");
-        navigate('/consumer/profile?tab=businesses');
-        return;
-      }
-
-      console.log('✅ Profil business chargé:', business.business_name);
-      setBusinessProfile(business);
-      
-    } catch (error) {
-      console.error('❌ Erreur fetchBusinessProfile:', error);
-      toast.error("Erreur lors du chargement du profil");
-      navigate('/consumer/profile?tab=businesses');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!currentBusinessId) {
+  if (!businessId) {
     return null;
   }
 
@@ -120,7 +119,7 @@ export const BusinessProfilePage = () => {
             <Button
               variant="ghost" 
               size="sm"
-              onClick={() => navigate('/consumer/profile?tab=businesses')}
+              onClick={() => navigate('/entreprises')}
               className="gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -141,11 +140,11 @@ export const BusinessProfilePage = () => {
           
           <Button 
             variant="outline" 
-            onClick={() => navigate('/business/profile/edit')} 
+            onClick={() => navigate(`/business/${businessId}/settings`)} 
             className="gap-2"
           >
             <Settings className="w-4 h-4" />
-            Modifier profil
+            Paramètres
           </Button>
         </div>
       </div>
@@ -155,7 +154,7 @@ export const BusinessProfilePage = () => {
         <Tabs value={activeTab} onValueChange={(tab) => {
           const newParams = new URLSearchParams(searchParams);
           newParams.set('tab', tab);
-          navigate(`/business/profile?${newParams.toString()}`, { replace: true });
+          navigate(`/business/${businessId}/profile?${newParams.toString()}`, { replace: true });
         }}>
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="catalog">Catalogues</TabsTrigger>
@@ -169,7 +168,7 @@ export const BusinessProfilePage = () => {
               </CardHeader>
               <CardContent>
                 <CatalogInventoryIntegration 
-                  businessId={currentBusinessId}
+                  businessId={businessId}
                   showConversationLinks={true}
                 />
               </CardContent>

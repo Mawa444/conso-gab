@@ -7,14 +7,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Upload, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Upload } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 export const CreateCatalogPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { businessId } = useParams<{ businessId: string }>();
   
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -83,23 +84,29 @@ export const CreateCatalogPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !businessId) {
+      toast({
+        title: "Erreur",
+        description: "ID d'entreprise manquant",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setLoading(true);
     try {
-      // Get user's business profile
-      const { data: businessProfiles } = await supabase
+      // Vérifier que l'utilisateur a accès à ce business
+      const { data: business, error: businessError } = await supabase
         .from('business_profiles')
         .select('id')
+        .eq('id', businessId)
         .eq('user_id', user.id)
         .eq('is_active', true)
-        .limit(1);
+        .single();
 
-      if (!businessProfiles || businessProfiles.length === 0) {
-        throw new Error('Aucun profil business actif trouvé');
+      if (businessError || !business) {
+        throw new Error('Vous n\'avez pas accès à cette entreprise');
       }
-
-      const businessId = businessProfiles[0].id;
 
       // Create catalog
       const { data: catalog, error: catalogError } = await supabase
@@ -133,7 +140,7 @@ export const CreateCatalogPage = () => {
         description: "Catalogue créé avec succès"
       });
 
-      navigate(`/catalog/${catalog.id}`);
+      navigate(`/business/${businessId}/profile?tab=catalog`);
 
     } catch (error) {
       console.error('Error creating catalog:', error);
