@@ -7,10 +7,8 @@ export const BusinessCreationPage = () => {
   const { switchMode } = useProfileMode();
 
   const handleCreated = (businessId: string) => {
-    // Switch vers le business puis redirection vers son profil
-    switchMode('business', businessId, () => {
-      navigate(`/business/${businessId}/profile`);
-    });
+    // Redirection directe après création - l'utilisateur est forcément propriétaire
+    navigate(`/business/${businessId}/profile`);
   };
 
   const handleCancel = () => {

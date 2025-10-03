@@ -20,10 +20,8 @@ export const useBusinessCreation = () => {
     setShowCreateForm(false);
     toast.success("Entreprise créée avec succès !");
     
-    // Redirection automatique vers le profil business nouvellement créé
-    switchMode('business', businessId, () => {
-      navigate(`/business/${businessId}/profile`);
-    });
+    // Redirection directe - l'utilisateur vient de créer le business donc il en est propriétaire
+    navigate(`/business/${businessId}/profile`);
   };
 
   const handleBusinessCreationCancelled = () => {
