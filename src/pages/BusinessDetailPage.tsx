@@ -264,7 +264,7 @@ export const BusinessDetailPage = () => {
 
       <div className="px-4 pb-24">
         {/* Info principale */}
-        <div className="bg-card rounded-t-2xl -mt-6 relative z-10 p-6 shadow-lg rounded-3xl">
+        <div className="bg-card rounded-t-2xl -mt-6 relative z-10 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               {/* Logo cliquable */}
@@ -292,7 +292,7 @@ export const BusinessDetailPage = () => {
                 <h1 className="font-bold text-xl">{business.name}</h1>
                 <p className="text-muted-foreground">{business.type}</p>
                 {/* Bouton S'abonner */}
-                <Button size="sm" className="mt-2 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 rounded-3xl">
+                <Button className="mt-2 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20" size="sm">
                   <Bell className="w-4 h-4 mr-2" />
                   S'abonner à ce commerce
                 </Button>
@@ -307,15 +307,15 @@ export const BusinessDetailPage = () => {
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <Star className="w-5 h-5 fill-[hsl(var(--gaboma-yellow))] text-[hsl(var(--gaboma-yellow))]" />
-                <span className="font-semibold">{business.rating}</span>
-                <span className="text-sm text-muted-foreground">({business.reviewCount} avis)</span>
+                <span className="font-semibold bg-inherit">{business.rating}</span>
+                <span className="text-sm text-muted-foreground bg-[009e5e] bg-[#009e5e]/[0.97]">({business.reviewCount} avis)</span>
               </div>
               {business.verified && <Badge variant="outline" className="text-xs border-[hsl(var(--gaboma-green))] text-[hsl(var(--gaboma-green))]">
                   <Award className="w-3 h-3 mr-1" />
                   Vérifié
                 </Badge>}
             </div>
-            <Badge className="bg-gradient-to-r from-primary to-accent text-white rounded-3xl">
+            <Badge className="bg-gradient-to-r from-primary to-accent text-white">
               Top 3 de la semaine
             </Badge>
           </div>
@@ -364,7 +364,7 @@ export const BusinessDetailPage = () => {
               </TabsTrigger>
               <TabsTrigger value="info" className="text-xs">Infos</TabsTrigger>
               <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
-              <TabsTrigger value="reviews" className="text-xs text-inherit">Avis</TabsTrigger>
+              <TabsTrigger value="reviews" className="text-xs">Avis</TabsTrigger>
               <TabsTrigger value="favorites" className="text-xs">Favoris</TabsTrigger>
               {canAccessPro && <TabsTrigger value="pro" className="text-xs">Pro</TabsTrigger>}
             </TabsList>
