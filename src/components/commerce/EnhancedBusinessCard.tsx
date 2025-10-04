@@ -39,7 +39,7 @@ export const EnhancedBusinessCard = ({
   };
   return <>
       <Card className={cn("overflow-hidden hover:shadow-lg transition-shadow", className)}>
-        <CardContent className="p-4">
+        <CardContent className="p-4 rounded-3xl">
           <div className="flex gap-4">
             {/* Avatar */}
             <Avatar className="w-16 h-16 flex-shrink-0">
@@ -91,7 +91,7 @@ export const EnhancedBusinessCard = ({
 
               {/* Actions */}
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setShowQuickMessage(true)} className="flex-1 gap-1">
+                <Button variant="outline" size="sm" onClick={() => setShowQuickMessage(true)} className="flex-1 gap-1 rounded-3xl bg-black">
                   <MessageCircle className="w-3 h-3" />
                   <span className="hidden sm:inline">Message</span>
                 </Button>
@@ -101,7 +101,7 @@ export const EnhancedBusinessCard = ({
                     <span className="hidden sm:inline">WhatsApp</span>
                   </Button>}
 
-                <Button size="sm" onClick={handleVisit} className="gap-1 text-white">
+                <Button size="sm" onClick={handleVisit} className="gap-1 text-white rounded-3xl">
                   Visiter
                 </Button>
               </div>
