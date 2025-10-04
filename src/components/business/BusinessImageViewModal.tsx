@@ -42,7 +42,7 @@ export const BusinessImageViewModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[85vh] p-0 gap-0 bg-black/95 mb-20">
+      <DialogContent className="max-w-4xl w-[95vw] max-h-[85vh] p-0 gap-0 bg-black/95 mb-20 z-[100]">
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-white/10">
           <h3 className="text-white font-medium text-sm truncate">
