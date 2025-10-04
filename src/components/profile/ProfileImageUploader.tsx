@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2, X } from 'lucide-react';
 import { useEnhancedImageUpload } from '@/hooks/use-enhanced-image-upload';
+import { ImageCropperModal } from './ImageCropperModal';
 import { toast } from 'sonner';
 
 interface ProfileImageUploaderProps {
@@ -21,37 +21,41 @@ export const ProfileImageUploader = ({
   label = "Photo de profil"
 }: ProfileImageUploaderProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
+  const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
   const { uploadProcessedImage, isUploading, isProcessing } = useEnhancedImageUpload();
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const preview = URL.createObjectURL(file);
-    setPreviewUrl(preview);
+    setTempImageUrl(preview);
+    setShowCropper(true);
+  };
 
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], 'profile-image.jpg', { type: 'image/jpeg' });
+    
     try {
       const result = await uploadProcessedImage(file, {
         bucket,
         folder,
         exactDimensions: { width: 512, height: 512 },
-        maxSize: 2097152 // 2MB
+        maxSize: 2097152
       });
 
       if (result) {
         onImageUploaded(result.url, result.path);
         setPreviewUrl(result.url);
-        toast.success("Photo de profil mise à jour");
-      } else {
-        setPreviewUrl(currentImageUrl || null);
+        toast.success("Photo de profil mise à jour avec succès");
       }
     } catch (error) {
-      setPreviewUrl(currentImageUrl || null);
-      toast.error("Erreur lors de l'upload");
+      console.error('Upload error:', error);
+      toast.error("Erreur lors de l'upload de l'image");
     } finally {
-      if (preview !== currentImageUrl) {
-        URL.revokeObjectURL(preview);
-      }
+      if (tempImageUrl) URL.revokeObjectURL(tempImageUrl);
+      setTempImageUrl(null);
     }
   };
 
@@ -64,11 +68,12 @@ export const ProfileImageUploader = ({
   const isLoading = isUploading || isProcessing;
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium">{label}</label>
-      <p className="text-xs text-muted-foreground">Format carré 512x512px, max 2MB</p>
+    <>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">{label}</label>
+        <p className="text-xs text-muted-foreground">Format carré 512x512px, max 2MB</p>
 
-      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4">
         {/* Avatar preview */}
         <div className="relative">
           <div className="w-24 h-24 rounded-full overflow-hidden bg-muted flex items-center justify-center">
@@ -120,5 +125,20 @@ export const ProfileImageUploader = ({
         />
       </div>
     </div>
+
+      {tempImageUrl && (
+        <ImageCropperModal
+          open={showCropper}
+          onClose={() => {
+            setShowCropper(false);
+            if (tempImageUrl) URL.revokeObjectURL(tempImageUrl);
+            setTempImageUrl(null);
+          }}
+          imageUrl={tempImageUrl}
+          aspectRatio={1}
+          onCropComplete={handleCropComplete}
+        />
+      )}
+    </>
   );
 };

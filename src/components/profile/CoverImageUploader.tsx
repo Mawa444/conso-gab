@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Image as ImageIcon, Loader2, X } from 'lucide-react';
 import { useEnhancedImageUpload } from '@/hooks/use-enhanced-image-upload';
+import { ImageCropperModal } from './ImageCropperModal';
 import { toast } from 'sonner';
 
 interface CoverImageUploaderProps {
@@ -21,37 +22,41 @@ export const CoverImageUploader = ({
   label = "Image de couverture"
 }: CoverImageUploaderProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
+  const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
   const { uploadProcessedImage, isUploading, isProcessing } = useEnhancedImageUpload();
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const preview = URL.createObjectURL(file);
-    setPreviewUrl(preview);
+    setTempImageUrl(preview);
+    setShowCropper(true);
+  };
 
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], 'cover-image.jpg', { type: 'image/jpeg' });
+    
     try {
       const result = await uploadProcessedImage(file, {
         bucket,
         folder,
         exactDimensions: { width: 1920, height: 1080 },
-        maxSize: 5242880 // 5MB
+        maxSize: 5242880
       });
 
       if (result) {
         onImageUploaded(result.url, result.path);
         setPreviewUrl(result.url);
-        toast.success("Image de couverture mise à jour");
-      } else {
-        setPreviewUrl(currentImageUrl || null);
+        toast.success("Image de couverture mise à jour avec succès");
       }
     } catch (error) {
-      setPreviewUrl(currentImageUrl || null);
-      toast.error("Erreur lors de l'upload");
+      console.error('Upload error:', error);
+      toast.error("Erreur lors de l'upload de l'image");
     } finally {
-      if (preview !== currentImageUrl) {
-        URL.revokeObjectURL(preview);
-      }
+      if (tempImageUrl) URL.revokeObjectURL(tempImageUrl);
+      setTempImageUrl(null);
     }
   };
 
@@ -64,11 +69,12 @@ export const CoverImageUploader = ({
   const isLoading = isUploading || isProcessing;
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium">{label}</label>
-      <p className="text-xs text-muted-foreground">Format 1920x1080px (16:9), max 5MB</p>
+    <>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">{label}</label>
+        <p className="text-xs text-muted-foreground">Format 1920x1080px (16:9), max 5MB</p>
 
-      <Card className="overflow-hidden">
+        <Card className="overflow-hidden">
         <CardContent className="p-0">
           {/* Cover preview */}
           <div className="relative w-full h-48 bg-muted flex items-center justify-center">
@@ -124,5 +130,20 @@ export const CoverImageUploader = ({
         </CardContent>
       </Card>
     </div>
+
+      {tempImageUrl && (
+        <ImageCropperModal
+          open={showCropper}
+          onClose={() => {
+            setShowCropper(false);
+            if (tempImageUrl) URL.revokeObjectURL(tempImageUrl);
+            setTempImageUrl(null);
+          }}
+          imageUrl={tempImageUrl}
+          aspectRatio={16 / 9}
+          onCropComplete={handleCropComplete}
+        />
+      )}
+    </>
   );
 };
