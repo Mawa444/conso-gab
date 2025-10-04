@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { ProfileModeSwitch } from "@/components/profile/ProfileModeSwitch";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
+import { BusinessChatView } from "@/components/business-chat/BusinessChatView";
 
 interface BusinessDetail {
   id: string;
@@ -433,11 +434,12 @@ export const BusinessDetailPage = () => {
         {/* Tabs de contenu */}
         <div className="mt-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className={`grid w-full ${canAccessPro ? 'grid-cols-5' : 'grid-cols-4'}`}>
+            <TabsList className={`grid w-full ${canAccessPro ? 'grid-cols-6' : 'grid-cols-5'}`}>
               <TabsTrigger value="catalog" className="text-xs">
                 Catalogues
               </TabsTrigger>
               <TabsTrigger value="info" className="text-xs">Infos</TabsTrigger>
+              <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
               <TabsTrigger value="reviews" className="text-xs">Avis</TabsTrigger>
               <TabsTrigger value="favorites" className="text-xs">Favoris</TabsTrigger>
               {canAccessPro && (
@@ -531,6 +533,19 @@ export const BusinessDetailPage = () => {
                 businessId={businessId || business.id}
                 businessName={business.name}
               />
+            </TabsContent>
+
+            <TabsContent value="chat" className="mt-6">
+              <Card>
+                <CardContent className="p-0">
+                  <BusinessChatView
+                    businessId={businessId || business.id}
+                    businessName={business.name}
+                    businessLogoUrl={logoUrl || undefined}
+                    whatsappNumber={business.whatsapp}
+                  />
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="reviews" className="space-y-4 mt-6">

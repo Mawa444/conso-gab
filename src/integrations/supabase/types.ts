@@ -2545,6 +2545,10 @@ export type Database = {
         Args: { business_profile_id: string }
         Returns: undefined
       }
+      check_unique_business_conversation: {
+        Args: { p_business_id: string; p_user_id: string }
+        Returns: string
+      }
       cleanup_expired_location_requests: {
         Args: Record<PropertyKey, never>
         Returns: undefined

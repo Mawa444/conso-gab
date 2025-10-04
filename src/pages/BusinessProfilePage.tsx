@@ -10,6 +10,7 @@ import { ArrowLeft, Settings, Building2 } from "lucide-react";
 import { CatalogInventoryIntegration } from "@/components/business/CatalogInventoryIntegration";
 import { BusinessProfileEditor } from "@/components/business/BusinessProfileEditor";
 import { toast } from "sonner";
+import { BusinessChatView } from "@/components/business-chat/BusinessChatView";
 
 interface BusinessProfile {
   id: string;
@@ -21,6 +22,7 @@ interface BusinessProfile {
   phone?: string;
   email?: string;
   website?: string;
+  whatsapp?: string;
   address?: string;
   city?: string;
   province?: string;
@@ -156,8 +158,9 @@ export const BusinessProfilePage = () => {
           newParams.set('tab', tab);
           navigate(`/business/${businessId}/profile?${newParams.toString()}`, { replace: true });
         }}>
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="catalog">Catalogues</TabsTrigger>
+            <TabsTrigger value="chat">Chat</TabsTrigger>
             <TabsTrigger value="pro">Pro</TabsTrigger>
           </TabsList>
 
@@ -170,6 +173,19 @@ export const BusinessProfilePage = () => {
                 <CatalogInventoryIntegration 
                   businessId={businessId}
                   showConversationLinks={true}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="chat" className="space-y-6">
+            <Card>
+              <CardContent className="p-0">
+                <BusinessChatView
+                  businessId={businessId}
+                  businessName={businessProfile?.business_name}
+                  businessLogoUrl={businessProfile?.logo_url || undefined}
+                  whatsappNumber={businessProfile?.whatsapp || undefined}
                 />
               </CardContent>
             </Card>
