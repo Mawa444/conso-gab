@@ -28,7 +28,8 @@ import { toast } from "sonner";
 import { ProfileModeSwitch } from "@/components/profile/ProfileModeSwitch";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
-import { BusinessChatView } from "@/components/business-chat/BusinessChatView";
+import { ChatView } from "@/components/chat/ChatView";
+import { MessagingProvider } from "@/contexts/MessagingContext";
 
 interface BusinessDetail {
   id: string;
@@ -538,12 +539,13 @@ export const BusinessDetailPage = () => {
             <TabsContent value="chat" className="mt-6">
               <Card>
                 <CardContent className="p-0">
-                  <BusinessChatView
-                    businessId={businessId || business.id}
-                    businessName={business.name}
-                    businessLogoUrl={logoUrl || undefined}
-                    whatsappNumber={business.whatsapp}
-                  />
+                  <MessagingProvider>
+                    <ChatView
+                      conversationId={businessId || business.id}
+                      showActions={true}
+                      compact={true}
+                    />
+                  </MessagingProvider>
                 </CardContent>
               </Card>
             </TabsContent>

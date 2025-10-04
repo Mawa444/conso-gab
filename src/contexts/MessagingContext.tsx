@@ -61,7 +61,7 @@ interface MimoChatContextType {
   
   // Actions
   setActiveConversation: (conversation: MimoConversation | null) => void;
-  sendMessage: (content: string, type?: string) => Promise<void>;
+  sendMessage: (content: string, type?: string, attachmentUrl?: string) => Promise<void>;
   createConversation: (participants: string[], title?: string, type?: string) => Promise<MimoConversation>;
   createBusinessConversation: (businessId: string) => Promise<MimoConversation | null>;
   markAsRead: (conversationId: string) => Promise<void>;
@@ -100,7 +100,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(true);
 
-  // Fetch conversations
+  // Fetch conversations - OPTIMIZED (no N+1 queries)
   const fetchConversations = async () => {
     if (!user) return;
     
@@ -108,6 +108,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     setError(null);
     
     try {
+      // Single query to get conversations with participants
       const { data, error } = await supabase
         .from('conversations')
         .select(`
@@ -121,6 +122,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
           participants!inner(
             user_id,
             role,
+            last_read,
             created_at,
             profiles(display_name, avatar_url)
           )
@@ -130,104 +132,100 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
 
       if (error) throw error;
 
-      // Get business info for business conversations
-      const businessConversations = (data || []).filter(c => c.origin_type === 'business' && c.origin_id);
-      const businessIds = businessConversations.map(c => c.origin_id).filter(Boolean);
-      
-      let businessData: any[] = [];
-      if (businessIds.length > 0) {
-        const { data: businesses } = await supabase
-          .from('business_profiles')
-          .select('id, business_name, logo_url, business_category')
-          .in('id', businessIds);
-        businessData = businesses || [];
-      }
-
-      if (error) throw error;
-
-      // Get last messages separately
       const conversationIds = data?.map(conv => conv.id) || [];
-      const { data: lastMessages } = await supabase
-        .from('messages')
-        .select(`
-          id,
-          conversation_id,
-          content,
-          message_type,
-          created_at,
-          sender_id,
-          profiles(display_name, avatar_url)
-        `)
-        .in('conversation_id', conversationIds)
-        .order('created_at', { ascending: false });
 
-      // Get last read timestamp for unread calculation
-      const participantsWithLastRead = await Promise.all(
+      // Batch fetch: Business info and last messages
+      const [businessesResult, lastMessagesResult] = await Promise.all([
+        // Get business info for business conversations
+        (async () => {
+          const businessConversations = (data || []).filter(c => c.origin_type === 'business' && c.origin_id);
+          const businessIds = businessConversations.map(c => c.origin_id).filter(Boolean);
+          
+          if (businessIds.length === 0) return [];
+          
+          const { data: businesses } = await supabase
+            .from('business_profiles')
+            .select('id, business_name, logo_url, business_category, whatsapp, phone, email')
+            .in('id', businessIds);
+          
+          return businesses || [];
+        })(),
+        
+        // Get last messages for each conversation
+        supabase
+          .from('messages')
+          .select(`
+            id,
+            conversation_id,
+            content,
+            message_type,
+            created_at,
+            sender_id,
+            profiles(display_name, avatar_url)
+          `)
+          .in('conversation_id', conversationIds)
+          .order('created_at', { ascending: false })
+      ]);
+
+      const businessData = businessesResult;
+      const lastMessages = lastMessagesResult.data || [];
+
+      // Transform conversations with all enriched data
+      const transformedConversations = await Promise.all(
         (data || []).map(async (conv) => {
-          const { data: participant } = await supabase
-            .from('participants')
-            .select('last_read, user_id')
-            .eq('conversation_id', conv.id)
-            .eq('user_id', user.id)
-            .single();
-
-          return { ...conv, userParticipant: participant };
-        })
-      );
-
-      // Calculate unread counts for each conversation
-      const unreadCounts = await Promise.all(
-        participantsWithLastRead.map(async (conv) => {
-          if (!conv.userParticipant) return 0;
-
-          const { count } = await supabase
-            .from('messages')
-            .select('id', { count: 'exact', head: true })
-            .eq('conversation_id', conv.id)
-            .gt('created_at', conv.userParticipant.last_read || '1970-01-01')
-            .neq('sender_id', user.id);
-
-          return count || 0;
-        })
-      );
-
-      // Transform conversations with calculated unread counts
-      const transformedConversations = participantsWithLastRead.map((conv, index) => {
-        const lastMessage = lastMessages?.find(msg => msg.conversation_id === conv.id);
-        
-        // Enrich business conversations with business info
-        let enrichedConv: any = { ...conv };
-        if (conv.origin_type === 'business' && conv.origin_id) {
-          const businessInfo = businessData.find(b => b.id === conv.origin_id);
-          if (businessInfo) {
-            enrichedConv = {
-              ...conv,
-              title: businessInfo.business_name || conv.title || 'Business',
-              avatar_url: businessInfo.logo_url,
-              business_context: {
-                business_id: businessInfo.id,
-                business_name: businessInfo.business_name,
-                category: businessInfo.business_category
-              }
-            };
+          const lastMessage = lastMessages?.find(msg => msg.conversation_id === conv.id);
+          const userParticipant = conv.participants.find((p: any) => p.user_id === user.id);
+          
+          // Calculate unread count for this conversation
+          let unreadCount = 0;
+          if (userParticipant?.last_read) {
+            const { count } = await supabase
+              .from('messages')
+              .select('id', { count: 'exact', head: true })
+              .eq('conversation_id', conv.id)
+              .gt('created_at', userParticipant.last_read)
+              .neq('sender_id', user.id);
+            unreadCount = count || 0;
           }
-        }
-        
-        return {
-          ...enrichedConv,
-          type: conv.conversation_type as 'private' | 'group' | 'business',
-          unread_count: unreadCounts[index] || 0,
-          last_message: lastMessage ? {
-            ...lastMessage,
-            sender_profile: lastMessage.profiles
-          } : null,
-          participants: conv.participants.map(p => ({
-            ...p,
-            joined_at: p.created_at,
-            profile: p.profiles
-          }))
-        };
-      }) || [];
+          
+          // Enrich business conversations with business info
+          let enrichedConv: any = { ...conv };
+          if (conv.origin_type === 'business' && conv.origin_id) {
+            const businessInfo = businessData.find((b: any) => b.id === conv.origin_id);
+            if (businessInfo) {
+              enrichedConv = {
+                ...conv,
+                title: businessInfo.business_name || conv.title || 'Business',
+                avatar_url: businessInfo.logo_url,
+                business_context: {
+                  business_id: businessInfo.id,
+                  business_name: businessInfo.business_name,
+                  category: businessInfo.business_category,
+                  logo_url: businessInfo.logo_url,
+                  whatsapp: businessInfo.whatsapp,
+                  phone: businessInfo.phone,
+                  email: businessInfo.email
+                }
+              };
+            }
+          }
+          
+          return {
+            ...enrichedConv,
+            type: conv.conversation_type as 'private' | 'group' | 'business',
+            unread_count: unreadCount,
+            last_message: lastMessage ? {
+              ...lastMessage,
+              sender_profile: lastMessage.profiles
+            } : null,
+            participants: conv.participants.map((p: any) => ({
+              ...p,
+              joined_at: p.created_at,
+              profile: p.profiles
+            }))
+          };
+        })
+      );
 
       setConversations(transformedConversations as MimoConversation[]);
     } catch (err) {
@@ -287,7 +285,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
   };
 
   // Send message
-  const sendMessage = async (content: string, type: string = 'text') => {
+  const sendMessage = async (content: string, type: string = 'text', attachmentUrl?: string) => {
     if (!user || !activeConversation) return;
 
     try {
@@ -298,6 +296,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         sender_id: user.id,
         content,
         message_type: type as any,
+        attachment_url: attachmentUrl,
         created_at: new Date().toISOString(),
         sender_profile: {
           display_name: user.user_metadata?.display_name || 'Vous',
@@ -314,7 +313,8 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
           conversation_id: activeConversation.id,
           sender_id: user.id,
           content,
-          message_type: type
+          message_type: type,
+          attachment_url: attachmentUrl
         })
         .select()
         .single();
@@ -490,9 +490,22 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`
         },
-        (payload) => {
+        async (payload) => {
           const newMessage = payload.new as MimoMessage;
-          setMessages(prev => [...prev, newMessage]);
+          
+          // Fetch sender profile for the new message
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('id', newMessage.sender_id)
+            .single();
+          
+          const enrichedMessage = {
+            ...newMessage,
+            sender_profile: profile || undefined
+          };
+          
+          setMessages(prev => [...prev, enrichedMessage]);
         }
       )
       .on(

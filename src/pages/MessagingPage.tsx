@@ -10,10 +10,12 @@ import { ArrowLeft, Search, Edit, MoreVertical, Archive, MessageSquarePlus } fro
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useProfileMode } from '@/hooks/use-profile-mode';
 
 const MessagingPageContent: React.FC = () => {
   const navigate = useNavigate();
   const { conversations, loading } = useMessaging();
+  const { currentMode, currentBusinessId } = useProfileMode();
   const [searchQuery, setSearchQuery] = React.useState('');
 
   const filteredConversations = conversations.filter(conv => 
@@ -44,7 +46,13 @@ const MessagingPageContent: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              if (currentMode === 'business' && currentBusinessId) {
+                navigate(`/business/${currentBusinessId}/dashboard`);
+              } else {
+                navigate('/');
+              }
+            }}
             className="rounded-full"
           >
             <ArrowLeft className="w-5 h-5" />

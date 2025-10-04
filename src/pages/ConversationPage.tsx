@@ -19,6 +19,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useProfileMode } from '@/hooks/use-profile-mode';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +31,7 @@ const ConversationPageContent: React.FC = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { currentMode, currentBusinessId } = useProfileMode();
   const {
     activeConversation,
     messages,
@@ -88,6 +90,14 @@ const ConversationPageContent: React.FC = () => {
   const handleBack = () => {
     setActiveConversation(null);
     navigate('/messaging');
+  };
+
+  const handleBackToHome = () => {
+    if (currentMode === 'business' && currentBusinessId) {
+      navigate(`/business/${currentBusinessId}/dashboard`);
+    } else {
+      navigate('/');
+    }
   };
 
   if (!activeConversation) {
