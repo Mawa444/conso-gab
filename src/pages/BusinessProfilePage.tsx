@@ -156,15 +156,10 @@ export const BusinessProfilePage = () => {
           newParams.set('tab', tab);
           navigate(`/business/${businessId}/profile?${newParams.toString()}`, { replace: true });
         }}>
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="profile">Profil</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="catalog">Catalogues</TabsTrigger>
             <TabsTrigger value="pro">Pro</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="profile" className="space-y-6">
-            <BusinessProfileEditor businessId={businessId} />
-          </TabsContent>
 
           <TabsContent value="catalog" className="space-y-6">
             <Card>

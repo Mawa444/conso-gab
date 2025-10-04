@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Star, MapPin, Phone, Clock, Share, Heart, ThumbsUp, ThumbsDown, MessageCircle, Navigation, ExternalLink, Users, Award, Camera, Settings, Store, Bell, Shield, Headphones, FileText, HelpCircle, LogOut, Trash2, History, Moon, BarChart, Target, MessageSquare, AlertTriangle } from "lucide-react";
 import { BusinessImageViewModal } from "@/components/business/BusinessImageViewModal";
+import { BusinessProfileEditor } from "@/components/business/BusinessProfileEditor";
 import { useBusinessImageLikes } from "@/hooks/use-business-image-likes";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -660,33 +661,8 @@ export const BusinessDetailPage = () => {
                       }}
                     />
 
-                    {/* Paramètres Compte */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Store className="w-5 h-5" />
-                          Gestion du profil
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <Button variant="outline" className="w-full justify-start">
-                          <Settings className="w-4 h-4 mr-2" />
-                          Modifier les informations
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <Camera className="w-4 h-4 mr-2" />
-                          Gérer les photos
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <Shield className="w-4 h-4 mr-2" />
-                          Sécurité et accès
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <Bell className="w-4 h-4 mr-2" />
-                          Notifications business
-                        </Button>
-                      </CardContent>
-                    </Card>
+                    {/* Gestion du profil */}
+                    <BusinessProfileEditor businessId={business.id} />
 
                     {/* Support Business */}
                     <Card>
