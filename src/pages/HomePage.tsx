@@ -110,11 +110,11 @@ export const HomePage = ({
 
         {/* Section Catalogues publics */}
         <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
-          <CardContent className="p-4 py-[4px] px-[10px] bg-[ffd014] bg-[#ffd014]/[0.96] rounded-3xl">
+          <CardContent className="p-4 py-[4px] px-[10px] bg-[ffd014] bg-[#ffd014]/[0.96] rounded-bubble-sm">
             <div className="flex items-center justify-between">
               <div className="py-0">
                 <h3 className="text-title-medium font-roboto mb-1 text-left font-bold">Catalogues publics</h3>
-                <p className="font-roboto text-left text-gray-400 text-body-small">
+                <p className="font-roboto text-left text-body-small text-black">
                   Découvrez tous les catalogues des commerces
                 </p>
               </div>
