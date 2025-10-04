@@ -1,10 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const initiateUploadSchema = z.object({
+  file_name: z.string().min(1, 'File name required').max(255, 'File name too long'),
+  file_type: z.string().min(1, 'File type required').max(100, 'File type too long'),
+  entity_type: z.enum(['catalog', 'business', 'product', 'user']),
+  entity_id: z.string().uuid('Invalid entity ID')
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -26,8 +35,21 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { file_name, file_type, entity_type, entity_id } = await req.json();
+    const body = await req.json();
 
+    // Validate input
+    const validationResult = initiateUploadSchema.safeParse(body);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Validation failed', 
+          details: validationResult.error.errors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { file_name, file_type, entity_type, entity_id } = validationResult.data;
     console.log('Initiating upload:', { file_name, file_type, entity_type, entity_id, user_id: user.id });
 
     // Generate unique file path

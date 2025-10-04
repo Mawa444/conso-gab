@@ -37,7 +37,6 @@ export class BusinessService {
    * Récupère les profils business d'un utilisateur
    */
   static async fetchBusinessProfiles(userId: string): Promise<BusinessProfile[]> {
-    logger.debug('Fetching business profiles', { user_id: userId });
 
     const { data, error } = await supabase
       .from('business_profiles')
@@ -70,7 +69,6 @@ export class BusinessService {
    * Récupère le mode actuel d'un utilisateur
    */
   static async fetchCurrentMode(userId: string): Promise<UserCurrentMode> {
-    logger.debug('Fetching current mode', { user_id: userId });
 
     const { data, error } = await supabase
       .from('user_current_mode')
@@ -164,7 +162,6 @@ export class BusinessService {
    * Récupère un profil business par ID
    */
   static async fetchBusinessById(businessId: string) {
-    logger.debug('Fetching business by ID', { business_id: businessId });
 
     const { data, error } = await supabase
       .from('business_profiles')

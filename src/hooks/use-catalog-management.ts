@@ -40,7 +40,6 @@ export const useCatalogManagement = (businessId: string) => {
   // Create catalog mutation
   const createCatalogMutation = useMutation({
     mutationFn: async (catalogData: CatalogDataWithImages) => {
-      console.log('Creating catalog with data:', catalogData);
       const { images, title, ...catalogInsert } = catalogData;
       
       // Ensure RLS will work by including the authenticated user
@@ -49,17 +48,12 @@ export const useCatalogManagement = (businessId: string) => {
         throw new Error('Utilisateur non authentifié');
       }
       
-      console.log('Current user:', user.id);
-      console.log('Business ID:', businessId);
-      
       const insertData: CatalogInsert = { 
         ...catalogInsert, 
         business_id: businessId,
         images: images || null,
         name: title || catalogInsert.name || 'Catalogue sans nom'
       };
-      
-      console.log('Insert data:', insertData);
       
       const { data, error } = await supabase
         .from('catalogs')
@@ -68,7 +62,6 @@ export const useCatalogManagement = (businessId: string) => {
         .single();
       
       if (error) {
-        console.error('Catalog creation error:', error);
         throw new Error(`Impossible de créer le catalogue: ${error.message}`);
       }
       

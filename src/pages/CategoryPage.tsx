@@ -52,6 +52,17 @@ const CategoryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
   const [showCommerceDetails, setShowCommerceDetails] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  
+  useEffect(() => {
+    // Get user location from localStorage
+    const savedLocation = localStorage.getItem('user_location');
+    if (savedLocation) {
+      try {
+        setUserLocation(JSON.parse(savedLocation));
+      } catch {}
+    }
+  }, []);
 
   // Récupérer les données de la catégorie
   const categories = getAllBusinessCategories();
@@ -109,14 +120,21 @@ const CategoryPage = () => {
       case "name":
         return a.name.localeCompare(b.name);
       case "distance":
-        return 0;
-      // TODO: implement distance calculation
+        // Calculate distance from user location
+        if (!userLocation?.latitude || !userLocation?.longitude) return 0;
+        const distA = a.latitude && a.longitude
+          ? Math.sqrt(Math.pow(a.latitude - userLocation.latitude, 2) + Math.pow(a.longitude - userLocation.longitude, 2))
+          : Infinity;
+        const distB = b.latitude && b.longitude
+          ? Math.sqrt(Math.pow(b.latitude - userLocation.latitude, 2) + Math.pow(b.longitude - userLocation.longitude, 2))
+          : Infinity;
+        return distA - distB;
       case "popular":
-        return 0;
-      // TODO: implement popularity sorting
+        // Sort by name as fallback (popularity data not available yet)
+        return a.name.localeCompare(b.name);
       case "rating":
-        return 0;
-      // TODO: implement rating sorting
+        // Sort by name as fallback (rating data not available yet)
+        return a.name.localeCompare(b.name);
       default:
         return 0;
     }

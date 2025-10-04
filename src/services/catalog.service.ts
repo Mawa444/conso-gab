@@ -22,7 +22,6 @@ export class CatalogService {
     limit?: number;
     offset?: number;
   }) {
-    logger.debug('Fetching public catalogs');
 
     let query = supabase
       .from('catalogs')
@@ -70,7 +69,6 @@ export class CatalogService {
    * Récupère un catalogue par ID
    */
   static async fetchCatalogById(catalogId: string) {
-    logger.debug('Fetching catalog by ID');
 
     const { data, error } = await supabase
       .from('catalogs')

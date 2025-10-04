@@ -11,6 +11,8 @@ import { CatalogManagementPage } from "./CatalogManagementPage";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useProductManagement } from "@/hooks/use-product-management";
 import { CatalogCreateForm } from "./CatalogCreateForm";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CatalogDashboardProps {
   businessId: string;
@@ -39,8 +41,10 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
   // Stats calculation
   const totalProducts = allProducts.length;
   const publishedProducts = allProducts.filter(p => p.is_active).length;
-  const totalViews = 0; // TODO: Implement view tracking
-  const totalFavorites = 0; // TODO: Implement favorite counting
+  
+  // Approximate views and favorites (to be implemented with dedicated tables)
+  const totalViews = 0;
+  const totalFavorites = 0;
 
   const handleCreateCatalog = () => {
     setActiveView('create');

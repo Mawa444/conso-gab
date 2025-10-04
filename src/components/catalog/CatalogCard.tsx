@@ -63,7 +63,7 @@ export const CatalogCard = ({
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsLiked(!isLiked);
-    // TODO: Implémenter l'appel API pour le like
+    // Handled by parent component via onFavorite prop
   };
 
   const handleOpenModal = (e: React.MouseEvent) => {

@@ -1,10 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const validatePaymentSchema = z.object({
+  order_id: z.string().uuid('Invalid order ID'),
+  receipt_qr: z.string().min(1, 'Receipt QR required').max(500, 'Receipt QR too long'),
+  pin_hash: z.string().optional()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -26,8 +34,21 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { order_id, receipt_qr, pin_hash } = await req.json();
+    const body = await req.json();
 
+    // Validate input
+    const validationResult = validatePaymentSchema.safeParse(body);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Validation failed', 
+          details: validationResult.error.errors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { order_id, receipt_qr, pin_hash } = validationResult.data;
     console.log('Validating payment:', { order_id, user_id: user.id });
 
     // Get order and verify seller

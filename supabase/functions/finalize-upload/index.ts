@@ -1,10 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const finalizeUploadSchema = z.object({
+  storage_path: z.string().min(1, 'Storage path required').max(500, 'Path too long'),
+  entity_type: z.enum(['catalog', 'business', 'product', 'user']),
+  entity_id: z.string().uuid('Invalid entity ID'),
+  is_cover: z.boolean().optional()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -26,8 +35,21 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { storage_path, entity_type, entity_id, is_cover } = await req.json();
+    const body = await req.json();
 
+    // Validate input
+    const validationResult = finalizeUploadSchema.safeParse(body);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Validation failed', 
+          details: validationResult.error.errors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { storage_path, entity_type, entity_id, is_cover } = validationResult.data;
     console.log('Finalizing upload:', { storage_path, entity_type, entity_id, user_id: user.id });
 
     // Get file from staging

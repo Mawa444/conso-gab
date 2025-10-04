@@ -132,13 +132,43 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
         .in('conversation_id', conversationIds)
         .order('created_at', { ascending: false });
 
-      // Transform and calculate unread counts
-      const transformedConversations = data?.map(conv => {
+      // Get last read timestamp for unread calculation
+      const participantsWithLastRead = await Promise.all(
+        (data || []).map(async (conv) => {
+          const { data: participant } = await supabase
+            .from('participants')
+            .select('last_read, user_id')
+            .eq('conversation_id', conv.id)
+            .eq('user_id', user.id)
+            .single();
+
+          return { ...conv, userParticipant: participant };
+        })
+      );
+
+      // Calculate unread counts for each conversation
+      const unreadCounts = await Promise.all(
+        participantsWithLastRead.map(async (conv) => {
+          if (!conv.userParticipant) return 0;
+
+          const { count } = await supabase
+            .from('messages')
+            .select('id', { count: 'exact', head: true })
+            .eq('conversation_id', conv.id)
+            .gt('created_at', conv.userParticipant.last_read || '1970-01-01')
+            .neq('sender_id', user.id);
+
+          return count || 0;
+        })
+      );
+
+      // Transform conversations with calculated unread counts
+      const transformedConversations = participantsWithLastRead.map((conv, index) => {
         const lastMessage = lastMessages?.find(msg => msg.conversation_id === conv.id);
         return {
           ...conv,
           type: conv.conversation_type as 'private' | 'group' | 'business',
-          unread_count: 0, // TODO: Calculate from read receipts
+          unread_count: unreadCounts[index] || 0,
           last_message: lastMessage ? {
             ...lastMessage,
             sender_profile: lastMessage.profiles
@@ -159,12 +189,16 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
     }
   };
 
-  // Fetch messages for a conversation
-  const fetchMessages = async (conversationId: string) => {
+  // Fetch messages for a conversation with pagination
+  const fetchMessages = async (conversationId: string, page: number = 0) => {
     setLoading(true);
     setError(null);
 
     try {
+      const MESSAGES_PER_PAGE = 50;
+      const start = page * MESSAGES_PER_PAGE;
+      const end = start + MESSAGES_PER_PAGE - 1;
+
       const { data, error } = await supabase
         .from('messages')
         .select(`
@@ -180,7 +214,8 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
           profiles(display_name, avatar_url)
         `)
         .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true })
+        .range(start, end);
 
       if (error) throw error;
 
@@ -190,7 +225,12 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
         sender_profile: msg.profiles
       })) || [];
 
-      setMessages(transformedMessages as MimoMessage[]);
+      // If page > 0, append to existing messages, otherwise replace
+      if (page > 0) {
+        setMessages(prev => [...prev, ...transformedMessages as MimoMessage[]]);
+      } else {
+        setMessages(transformedMessages as MimoMessage[]);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des messages');
     } finally {
@@ -313,7 +353,7 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
     }
   };
 
-  // Real-time subscriptions
+  // Real-time subscriptions with error handling
   const subscribeToConversation = (conversationId: string) => {
     const channel = supabase
       .channel(`conversation-${conversationId}`)
@@ -342,7 +382,18 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
           fetchConversations();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setIsConnected(true);
+          setError(null);
+        } else if (status === 'CHANNEL_ERROR') {
+          setIsConnected(false);
+          setError('Connexion perdue. Tentative de reconnexion...');
+        } else if (status === 'TIMED_OUT') {
+          setIsConnected(false);
+          setError('Connexion expirée. Veuillez rafraîchir la page.');
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
