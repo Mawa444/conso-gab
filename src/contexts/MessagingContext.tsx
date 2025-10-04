@@ -75,7 +75,6 @@ interface MimoChatContextType {
 
 const MessagingContext = createContext<MimoChatContextType | undefined>(undefined);
 
-// New exports for MessagingContext
 export const useMessaging = () => {
   const context = useContext(MessagingContext);
   if (!context) {
@@ -100,7 +99,11 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(true);
 
-  // Fetch conversations - META-STYLE (unified identity)
+  // ============================================
+  // META-STYLE ARCHITECTURE: UNIFIED MESSAGING
+  // ============================================
+
+  // Fetch conversations with unified identity system
   const fetchConversations = async () => {
     if (!user) return;
     
@@ -108,7 +111,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     setError(null);
     
     try {
-      // Fetch conversations with participants
+      // 1. Fetch conversations with participants
       const { data, error } = await supabase
         .from('conversations')
         .select(`
@@ -136,23 +139,58 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         return;
       }
 
-      const conversationIds = data.map(conv => conv.id);
+      const conversationIds = data?.map(conv => conv.id) || [];
 
-      // Extract all unique participant user_ids for unified profile fetch
-      const allParticipantIds = Array.from(
-        new Set(
-          data.flatMap((conv: any) => 
-            conv.participants?.map((p: any) => p.user_id) || []
-          )
-        )
-      );
+      // 2. Extract all unique participant user_ids
+      const allParticipantIds = new Set<string>();
+      data.forEach((conv: any) => {
+        conv.participants?.forEach((p: any) => {
+          allParticipantIds.add(p.user_id);
+        });
+      });
 
-      // META-STYLE: Batch fetch unified profiles + business contexts + last messages
-      const [profilesResult, lastMessagesResult] = await Promise.all([
-        // Unified profiles batch fetch (like Facebook User Graph)
-        supabase.rpc('get_unified_profiles_batch', { 
-          p_user_ids: allParticipantIds 
-        }),
+      // 3. UNIFIED IDENTITY FETCH (Meta-style) - Batch fetch all profiles at once
+      const { data: unifiedProfilesData, error: profilesError } = await supabase
+        .rpc('get_unified_profiles_batch', {
+          p_user_ids: Array.from(allParticipantIds)
+        });
+
+      if (profilesError) {
+        console.error('Error fetching unified profiles:', profilesError);
+      }
+
+      // Parse unified profiles response
+      const profilesMap = new Map();
+      if (unifiedProfilesData) {
+        Object.entries(unifiedProfilesData).forEach(([userId, profileData]: [string, any]) => {
+          profilesMap.set(userId, {
+            display_name: profileData.display_name,
+            avatar_url: profileData.avatar_url,
+            type: profileData.type
+          });
+        });
+      }
+
+      // 4. Batch fetch: Business context and last messages
+      const [businessContexts, lastMessagesResult] = await Promise.all([
+        // Get business context for business conversations (Meta-style)
+        (async () => {
+          const businessConversationIds = (data || [])
+            .filter((c: any) => c.origin_type === 'business')
+            .map(c => c.id);
+          
+          if (businessConversationIds.length === 0) return [];
+          
+          const contexts = await Promise.all(
+            businessConversationIds.map(async (convId) => {
+              const { data: contextData } = await supabase
+                .rpc('get_conversation_context', { p_conversation_id: convId });
+              return { convId, context: contextData };
+            })
+          );
+          
+          return contexts;
+        })(),
         
         // Get last messages for each conversation
         supabase
@@ -162,54 +200,27 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
           .order('created_at', { ascending: false })
       ]);
 
-      const profilesMap = new Map(
-        Object.entries(profilesResult.data || {}).map(([userId, profile]: [string, any]) => [
-          userId,
-          {
-            display_name: profile.display_name,
-            avatar_url: profile.avatar_url,
-            type: profile.type
-          }
-        ])
+      const businessContextMap = new Map(
+        businessContexts.map((bc: any) => [bc.convId, bc.context])
       );
-
       const lastMessages = lastMessagesResult.data || [];
 
-      // Fetch business contexts for business conversations
-      const businessConvIds = data
-        .filter((c: any) => c.origin_type === 'business' && c.origin_id)
-        .map((c: any) => c.id);
-      
-      const businessContextsMap = new Map();
-      if (businessConvIds.length > 0) {
-        const contextResults = await Promise.all(
-          businessConvIds.map(async (convId: string) => {
-            const { data: ctx } = await supabase.rpc('get_conversation_context', {
-              p_conversation_id: convId
-            });
-            return [convId, ctx];
-          })
-        );
-        contextResults.forEach(([convId, ctx]) => {
-          if (ctx && Object.keys(ctx).length > 0) {
-            businessContextsMap.set(convId, ctx);
-          }
-        });
-      }
-
-      // Transform conversations with unified data
+      // 5. Transform conversations with unified data
       const transformedConversations = await Promise.all(
-        data.map(async (conv: any) => {
-          const lastMessage = lastMessages.find((msg: any) => msg.conversation_id === conv.id);
+        (data || []).map(async (conv: any) => {
+          const lastMessage = lastMessages?.find((msg: any) => msg.conversation_id === conv.id);
           const userParticipant = conv.participants.find((p: any) => p.user_id === user.id);
           
-          // Enrich participants with unified profiles
+          // Enrich participants with unified profile data
           const enrichedParticipants = conv.participants.map((p: any) => {
             const profile = profilesMap.get(p.user_id);
             return {
               ...p,
               joined_at: p.created_at,
-              profile: profile || undefined
+              profile: profile ? {
+                display_name: profile.display_name,
+                avatar_url: profile.avatar_url
+              } : undefined
             };
           });
           
@@ -225,16 +236,18 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
             unreadCount = count || 0;
           }
           
-          // Enrich with business context if applicable
+          // Enrich business conversations with context (Meta-style)
           let enrichedConv: any = { ...conv };
-          const businessContext = businessContextsMap.get(conv.id);
-          if (businessContext) {
-            enrichedConv = {
-              ...conv,
-              title: businessContext.business_name || conv.title || 'Business',
-              avatar_url: businessContext.logo_url,
-              business_context: businessContext
-            };
+          if (conv.origin_type === 'business') {
+            const businessContext = businessContextMap.get(conv.id);
+            if (businessContext) {
+              enrichedConv = {
+                ...conv,
+                title: businessContext.business_name || conv.title || 'Business',
+                avatar_url: businessContext.logo_url,
+                business_context: businessContext
+              };
+            }
           }
           
           return {
@@ -252,14 +265,14 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
 
       setConversations(transformedConversations as MimoConversation[]);
     } catch (err) {
-      console.error('Fetch conversations error:', err);
+      console.error('Error fetching conversations:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des conversations');
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch messages - META-STYLE (unified identity)
+  // Fetch messages with unified profiles
   const fetchMessages = async (conversationId: string, page: number = 0) => {
     setLoading(true);
     setError(null);
@@ -281,8 +294,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
           created_at,
           edited_at,
           reply_to_message_id,
-          attachment_url,
-          status
+          attachment_url
         `)
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true })
@@ -290,31 +302,30 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
 
       if (error) throw error;
 
-      // META-STYLE: Batch fetch unified profiles for all senders
+      // Fetch sender profiles using unified identity (Meta-style)
       const senderIds = [...new Set(data?.map((m: any) => m.sender_id) || [])];
-      const { data: profilesData } = await supabase.rpc('get_unified_profiles_batch', {
-        p_user_ids: senderIds
-      });
+      const { data: unifiedProfilesData } = await supabase
+        .rpc('get_unified_profiles_batch', {
+          p_user_ids: senderIds
+        });
       
-      const profilesMap = new Map(
-        Object.entries(profilesData || {}).map(([userId, profile]: [string, any]) => [
-          userId,
-          {
-            display_name: profile.display_name,
-            avatar_url: profile.avatar_url,
-            type: profile.type
-          }
-        ])
-      );
+      const profilesMap = new Map();
+      if (unifiedProfilesData) {
+        Object.entries(unifiedProfilesData).forEach(([userId, profileData]: [string, any]) => {
+          profilesMap.set(userId, {
+            display_name: profileData.display_name,
+            avatar_url: profileData.avatar_url
+          });
+        });
+      }
 
-      // Enrich messages with unified sender profiles
+      // Enrich messages with sender profiles
       const transformedMessages = (data || []).map((msg: any) => {
         const profile = profilesMap.get(msg.sender_id);
         return {
           ...msg,
-          message_type: msg.message_type as 'text' | 'image' | 'audio' | 'document' | 'location' | 'system' | 'file' | 'video',
-          status: (msg.status || 'sent') as 'sent' | 'delivered' | 'read',
-          sender_profile: profile || undefined
+          message_type: msg.message_type as 'text' | 'image' | 'audio' | 'document' | 'location' | 'system',
+          sender_profile: profile
         };
       });
 
@@ -325,7 +336,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         setMessages(transformedMessages as MimoMessage[]);
       }
     } catch (err) {
-      console.error('Fetch messages error:', err);
+      console.error('Error fetching messages:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des messages');
     } finally {
       setLoading(false);
@@ -386,6 +397,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         .eq('id', activeConversation.id);
 
     } catch (err) {
+      console.error('Error sending message:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors de l\'envoi du message');
       // Remove failed message
       setMessages(prev => prev.filter(msg => !msg.id.startsWith('temp-')));
@@ -417,7 +429,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     return newConversation;
   };
 
-  // Create business conversation
+  // Create business conversation (Meta-style: seamless like Facebook->Messenger)
   const createBusinessConversation = async (businessId: string): Promise<MimoConversation | null> => {
     if (!user) {
       setError('Utilisateur non connecté');
@@ -526,7 +538,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     }
   };
 
-  // Real-time subscriptions with error handling
+  // Real-time subscriptions (Meta-style: instant sync)
   const subscribeToConversation = (conversationId: string) => {
     const channel = supabase
       .channel(`conversation-${conversationId}`)
@@ -541,13 +553,11 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         async (payload) => {
           const newMessage = payload.new as MimoMessage;
           
-          // META-STYLE: Fetch unified profile for the new message sender
-          const { data: profileData } = await supabase.rpc('get_unified_profile', {
-            p_user_id: newMessage.sender_id
-          });
+          // Fetch unified profile for the new message (Meta-style)
+          const { data: profileData } = await supabase
+            .rpc('get_unified_profile', { p_user_id: newMessage.sender_id });
           
           const profile = profileData as any;
-          
           const enrichedMessage = {
             ...newMessage,
             sender_profile: profile ? {
@@ -593,7 +603,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     // Will be handled by the component cleanup
   };
 
-  // Initialize
+  // Initialize (Meta-style: automatic sync on login)
   useEffect(() => {
     if (user) {
       fetchConversations();
