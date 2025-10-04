@@ -41,8 +41,12 @@ export const HomePage = ({
     error,
     refreshBusinesses
   } = useOptimizedBusinesses();
-  
-  const { location: userLocationData, error: locationError, permissionDenied, retryLocation } = useUserLocation();
+  const {
+    location: userLocationData,
+    error: locationError,
+    permissionDenied,
+    retryLocation
+  } = useUserLocation();
   const handleScanResult = (result: string) => {
     try {
       const commerce = JSON.parse(result);
@@ -64,8 +68,7 @@ export const HomePage = ({
         <div className="space-y-6 p-4 bg-background px-0 py-0">
         
         {/* Alerte de géolocalisation - moins intrusive */}
-        {permissionDenied && (
-          <Card className="bg-blue-50 border-blue-200 mx-4">
+        {permissionDenied && <Card className="bg-blue-50 border-blue-200 mx-4">
             <CardContent className="p-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 flex-1">
@@ -76,18 +79,12 @@ export const HomePage = ({
                     Activez la localisation pour des résultats personnalisés
                   </p>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={retryLocation}
-                  className="text-xs h-7 text-blue-600 hover:text-blue-700 hover:bg-blue-100"
-                >
+                <Button variant="ghost" size="sm" onClick={retryLocation} className="text-xs h-7 text-blue-600 hover:text-blue-700 hover:bg-blue-100">
                   Activer
                 </Button>
               </div>
             </CardContent>
-          </Card>
-        )}
+          </Card>}
         
         {/* Barre de recherche unifiée */}
         <div className="p-4 shadow-sm border-border rounded-3xl bg-inherit py-0 px-0">
@@ -113,7 +110,7 @@ export const HomePage = ({
 
         {/* Section Catalogues publics */}
         <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
-          <CardContent className="p-4 bg-white rounded-xl py-[4px] px-[10px]">
+          <CardContent className="p-4 py-[4px] px-[10px] bg-[ffd014] bg-[#ffd014]/[0.96] rounded-3xl">
             <div className="flex items-center justify-between">
               <div className="py-0">
                 <h3 className="text-title-medium font-roboto mb-1 text-left font-bold">Catalogues publics</h3>
@@ -149,45 +146,32 @@ export const HomePage = ({
             </Button>
           </div>
           
-          {loading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <CommerceCardSkeleton key={index} />
-              ))}
-            </div>
-          ) : error ? (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+          {loading ? <div className="space-y-4">
+              {Array.from({
+              length: 3
+            }).map((_, index) => <CommerceCardSkeleton key={index} />)}
+            </div> : error ? <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
               <p className="text-red-600 text-sm">{error}</p>
               <Button variant="outline" size="sm" onClick={refreshBusinesses} className="mt-2">
                 Réessayer
               </Button>
-            </div>
-          ) : businesses.length === 0 ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center">
+            </div> : businesses.length === 0 ? <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center">
               <p className="text-gray-500 mb-2">Aucune entreprise active pour le moment</p>
               <p className="text-sm text-gray-400">Les nouvelles entreprises apparaîtront ici</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {businesses.map(business => (
-                <EnhancedBusinessCard
-                  key={business.id}
-                  business={{
-                    id: business.id,
-                    name: business.name,
-                    logo_url: business.logo_url,
-                    business_category: business.type,
-                    description: business.description,
-                    distance: business.distance,
-                    rating: business.rating,
-                    verified: business.verified,
-                    city: business.address,
-                    whatsapp: business.whatsapp
-                  }}
-                />
-              ))}
-            </div>
-          )}
+            </div> : <div className="space-y-4">
+              {businesses.map(business => <EnhancedBusinessCard key={business.id} business={{
+              id: business.id,
+              name: business.name,
+              logo_url: business.logo_url,
+              business_category: business.type,
+              description: business.description,
+              distance: business.distance,
+              rating: business.rating,
+              verified: business.verified,
+              city: business.address,
+              whatsapp: business.whatsapp
+            }} />)}
+            </div>}
         </div>
 
         </div>
