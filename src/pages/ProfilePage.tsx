@@ -28,6 +28,8 @@ interface UserProfileData {
   favoritesCount: number;
   pseudo: string;
   role: string;
+  avatar_url?: string;
+  cover_image_url?: string;
 }
 const recentActivity = [{
   id: "act_001",
@@ -115,33 +117,65 @@ export const ProfilePage = ({
     }
     try {
       setIsLoading(true);
-      const {
-        data,
-        error
-      } = await supabase.from('user_profiles').select('*').eq('user_id', user.id).single();
-      if (error) {
-        console.error('Erreur récupération profil:', error);
+      
+      // Récupérer les données du profil depuis la table profiles
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      // Récupérer les données user_profiles pour compatibilité
+      const { data: userProfileData, error: userProfileError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError && userProfileError) {
+        console.error('Erreur récupération profil:', profileError, userProfileError);
         setIsLoading(false);
         return;
       }
-      if (data) {
+
+      // Priorité à profileData pour les images et noms
+      if (profileData) {
         setUserProfile({
-          name: data.pseudo || user.email?.split('@')[0] || "Utilisateur",
+          name: profileData.display_name || profileData.first_name || userProfileData?.pseudo || user.email?.split('@')[0] || "Utilisateur",
           email: user.email || "",
-          phone: data.phone || "",
-          joinDate: new Date(data.created_at || user.created_at).toLocaleDateString('fr-FR', {
+          phone: profileData.phone || userProfileData?.phone || "",
+          joinDate: new Date(profileData.created_at || user.created_at).toLocaleDateString('fr-FR', {
             month: 'long',
             year: 'numeric'
           }),
-          userType: data.role === 'merchant' ? 'commerçant' : 'client',
+          userType: userProfileData?.role === 'merchant' ? 'commerçant' : 'client',
           points: Math.floor(Math.random() * 3000) + 1000,
-          // TODO: Implémenter système de points
-          level: data.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
+          level: userProfileData?.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
           scansCount: Math.floor(Math.random() * 50) + 10,
           reviewsCount: Math.floor(Math.random() * 30) + 5,
           favoritesCount: Math.floor(Math.random() * 20) + 3,
-          pseudo: data.pseudo || "",
-          role: data.role || ""
+          pseudo: profileData.display_name || userProfileData?.pseudo || "",
+          role: userProfileData?.role || "",
+          avatar_url: profileData.avatar_url || undefined,
+          cover_image_url: profileData.cover_image_url || undefined
+        });
+      } else if (userProfileData) {
+        setUserProfile({
+          name: userProfileData.pseudo || user.email?.split('@')[0] || "Utilisateur",
+          email: user.email || "",
+          phone: userProfileData.phone || "",
+          joinDate: new Date(userProfileData.created_at || user.created_at).toLocaleDateString('fr-FR', {
+            month: 'long',
+            year: 'numeric'
+          }),
+          userType: userProfileData.role === 'merchant' ? 'commerçant' : 'client',
+          points: Math.floor(Math.random() * 3000) + 1000,
+          level: userProfileData.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
+          scansCount: Math.floor(Math.random() * 50) + 10,
+          reviewsCount: Math.floor(Math.random() * 30) + 5,
+          favoritesCount: Math.floor(Math.random() * 20) + 3,
+          pseudo: userProfileData.pseudo || "",
+          role: userProfileData.role || ""
         });
       }
     } catch (error) {
@@ -183,61 +217,84 @@ export const ProfilePage = ({
   };
   return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
       <div className="flex flex-col min-h-full">
-      {/* Header Profile moderne */}
-      <div className="bg-gradient-to-br from-primary via-accent to-secondary p-6 text-white relative overflow-hidden py-0 mx-0 my-0 rounded-3xl px-[31px]">
-        <div className="absolute inset-0 backdrop-blur-sm bg-gray-700 rounded-3xl py-0"></div>
-        <div className="relative z-10">
-            <div className="flex items-center gap-4">
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30 my-0">
-              <User className="w-12 h-12 text-white my-0" />
-            </div>
-            
-            <div className="flex-1 my-0">
-              <h1 className="text-2xl font-bold text-white text-left my-0">{userProfile.name}</h1>
-              <p className="text-white/80 text-sm text-left">{userProfile.email}</p>
-              <div className="flex items-center gap-2 mt-3">
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
-                  {userProfile.level}
-                </Badge>
-                <Badge variant="outline" className="border-white/30 text-white/80">
-                  Membre depuis {userProfile.joinDate}
-                </Badge>
+      {/* Header Profile style Facebook */}
+      <div className="relative">
+        {/* Image de couverture */}
+        <div className="h-48 md:h-64 bg-gradient-to-br from-primary via-accent to-secondary relative overflow-hidden">
+          {userProfile.cover_image_url ? (
+            <img 
+              src={userProfile.cover_image_url} 
+              alt="Couverture" 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-accent/80 to-secondary/80" />
+          )}
+        </div>
+
+        {/* Conteneur pour photo de profil et infos */}
+        <div className="px-6 pb-4">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16 md:-mt-20 gap-4">
+            {/* Photo de profil */}
+            <div className="flex items-end gap-4">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background bg-muted overflow-hidden shadow-xl">
+                {userProfile.avatar_url ? (
+                  <img 
+                    src={userProfile.avatar_url} 
+                    alt={userProfile.name} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+                    <User className="w-16 h-16 md:w-20 md:h-20 text-muted-foreground" />
+                  </div>
+                )}
               </div>
-              {/* Bouton S'abonner */}
-              <Button size="sm" className="mt-3 bg-white/20 border-white/30 hover:bg-white/30 backdrop-blur-sm rounded-3xl px-[22px] mx-px text-[009e60] text-white">
-                <Bell className="w-4 h-4 mr-2" />
-                S'abonner aux notifications
-              </Button>
+
+              {/* Infos utilisateur */}
+              <div className="flex-1 pb-2">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">{userProfile.name}</h1>
+                <p className="text-sm text-muted-foreground">{userProfile.email}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="secondary">{userProfile.level}</Badge>
+                  <Badge variant="outline">Membre depuis {userProfile.joinDate}</Badge>
+                </div>
+              </div>
             </div>
-            
+
+            {/* Actions rapides */}
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={handleDeleteAccount} className="text-white hover:bg-white/20 backdrop-blur-sm">
-                <Trash2 className="w-6 h-6" />
+              <Button size="sm" variant="default" className="gap-2">
+                <Bell className="w-4 h-4" />
+                S'abonner
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white backdrop-blur-sm bg-red-600 hover:bg-red-500">
-                <LogOut className="w-6 h-6" />
+              <Button variant="outline" size="icon" onClick={handleDeleteAccount}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+              <Button variant="destructive" size="icon" onClick={handleLogout}>
+                <LogOut className="w-4 h-4" />
               </Button>
             </div>
           </div>
 
-          {/* Stats rapides modernisées */}
-          <div className="grid grid-cols-3 gap-4 mt-8 rounded-3xl my-[22px]">
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-              <CardContent className="p-4 rounded-3xl my-0">
-                <div className="text-3xl font-bold text-white">{userProfile.points}</div>
-                <div className="text-sm text-white/70">Points ConsoGab</div>
+          {/* Stats rapides */}
+          <div className="grid grid-cols-3 gap-3 mt-6">
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl md:text-3xl font-bold text-primary">{userProfile.points}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Points ConsoGab</div>
               </CardContent>
             </Card>
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-              <CardContent className="p-4 rounded-3xl">
-                <div className="text-3xl font-bold text-white">{userProfile.scansCount}</div>
-                <div className="text-sm text-white/70">Scans effectués</div>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl md:text-3xl font-bold text-primary">{userProfile.scansCount}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Scans effectués</div>
               </CardContent>
             </Card>
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-center">
-              <CardContent className="p-4 py-[15px] rounded-3xl">
-                <div className="text-3xl font-bold text-white">{userProfile.reviewsCount}</div>
-                <div className="text-sm text-white/70">Avis publiés</div>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl md:text-3xl font-bold text-primary">{userProfile.reviewsCount}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Avis publiés</div>
               </CardContent>
             </Card>
           </div>
