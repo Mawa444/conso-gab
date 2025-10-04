@@ -41,8 +41,8 @@ export const ProfileImageUploader = ({
       const result = await uploadProcessedImage(file, {
         bucket,
         folder,
-        exactDimensions: { width: 512, height: 512 },
-        maxSize: 2097152
+        exactDimensions: { width: 1300, height: 1300 },
+        maxSize: 3145728
       });
 
       if (result) {
@@ -71,7 +71,7 @@ export const ProfileImageUploader = ({
     <>
       <div className="space-y-2">
         <label className="text-sm font-medium">{label}</label>
-        <p className="text-xs text-muted-foreground">Format carré 512x512px, max 2MB</p>
+        <p className="text-xs text-muted-foreground">Format carré 1300x1300px, max 3MB</p>
 
         <div className="flex items-center gap-4">
         {/* Avatar preview */}
