@@ -9,6 +9,7 @@ import { BusinessMarkersLayer } from "@/components/map/BusinessMarkersLayer";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { MapPageSkeleton } from "@/components/ui/skeleton-screens";
 import { useMapBusinesses, type MapBusiness } from "@/hooks/use-map-businesses";
+import { useUserLocation } from "@/hooks/use-user-location";
 import type maplibregl from "maplibre-gl";
 interface MapPageProps {
   onBack?: () => void;
@@ -19,18 +20,33 @@ export const MapPage = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("map");
   const [map, setMap] = useState<maplibregl.Map | null>(null);
+  const { location: userLocation, loading: locationLoading } = useUserLocation();
   
   const {
     businesses,
     loading,
     setCurrentBounds,
+    fetchNearestBusinesses
   } = useMapBusinesses({ autoFetch: false });
 
   const handleMapLoad = useCallback((loadedMap: maplibregl.Map) => {
     setMap(loadedMap);
-    // Charger les entreprises du viewport initial
-    setCurrentBounds(loadedMap.getBounds());
-  }, [setCurrentBounds]);
+    
+    // Centrer la carte sur la position de l'utilisateur
+    if (!locationLoading && userLocation) {
+      loadedMap.flyTo({
+        center: [userLocation.longitude, userLocation.latitude],
+        zoom: 13,
+        duration: 1000
+      });
+      
+      // Charger les entreprises proches (20km de rayon)
+      fetchNearestBusinesses(userLocation.latitude, userLocation.longitude, 20000);
+    } else {
+      // Charger les entreprises du viewport initial
+      setCurrentBounds(loadedMap.getBounds());
+    }
+  }, [setCurrentBounds, fetchNearestBusinesses, locationLoading, userLocation]);
 
   const handleMoveEnd = useCallback((bounds: maplibregl.LngLatBounds) => {
     setCurrentBounds(bounds);
@@ -82,8 +98,8 @@ export const MapPage = ({
             
             <TabsContent value="map" className="h-full m-0 relative">
               <MapLibreView
-                initialCenter={[9.4673, 0.4162]}
-                initialZoom={12}
+                initialCenter={[userLocation.longitude, userLocation.latitude]}
+                initialZoom={13}
                 onMapLoad={handleMapLoad}
                 onMoveEnd={handleMoveEnd}
                 className="h-full"

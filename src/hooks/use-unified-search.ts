@@ -1,5 +1,22 @@
 import { useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserLocation } from './use-user-location';
+
+// Fonction pour calculer la distance entre deux points (Haversine)
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371e3; // Rayon de la Terre en mètres
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Distance en mètres
+};
 
 export interface SearchResult {
   id: string;
@@ -15,6 +32,9 @@ export interface SearchResult {
   score: number;
   businessId?: string;
   catalogId?: string;
+  latitude?: number;
+  longitude?: number;
+  distance_meters?: number;
 }
 
 export interface UnifiedSearchFilters {
@@ -30,6 +50,7 @@ export const useUnifiedSearch = () => {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { location: userLocation } = useUserLocation();
 
   const searchBusinesses = useCallback(async (query: string, filters?: UnifiedSearchFilters): Promise<SearchResult[]> => {
     if (!query.trim()) return [];
@@ -176,7 +197,9 @@ export const useUnifiedSearch = () => {
             address: `${business.address || ''} ${business.quartier || ''} ${business.city || ''}`.trim(),
             verified: business.is_verified,
             score,
-            businessId: business.id
+            businessId: business.id,
+            latitude: business.latitude,
+            longitude: business.longitude
           });
         }
       });
@@ -230,7 +253,9 @@ export const useUnifiedSearch = () => {
             address: `${business.address || ''} ${business.quartier || ''} ${business.city || ''}`.trim(),
             verified: business.is_verified,
             score,
-            businessId: business.id
+            businessId: business.id,
+            latitude: business.latitude,
+            longitude: business.longitude
           });
         }
       });
@@ -257,7 +282,9 @@ export const useUnifiedSearch = () => {
             business_name,
             is_verified,
             city,
-            quartier
+            quartier,
+            latitude,
+            longitude
           )
         `)
         .eq('is_active', true)
@@ -304,7 +331,9 @@ export const useUnifiedSearch = () => {
           verified: catalog.business_profiles?.is_verified,
           score,
           businessId: catalog.business_id,
-          catalogId: catalog.id
+          catalogId: catalog.id,
+          latitude: catalog.business_profiles?.latitude,
+          longitude: catalog.business_profiles?.longitude
         } as SearchResult;
       }).filter(item => item.score > 0) || [];
       
@@ -330,7 +359,9 @@ export const useUnifiedSearch = () => {
             business_id,
             business_profiles!inner(
               business_name,
-              is_verified
+              is_verified,
+              latitude,
+              longitude
             )
           )
         `)
@@ -371,7 +402,9 @@ export const useUnifiedSearch = () => {
           verified: product.catalogs?.business_profiles?.is_verified,
           score,
           businessId: product.business_id,
-          catalogId: product.catalog_id
+          catalogId: product.catalog_id,
+          latitude: product.catalogs?.business_profiles?.latitude,
+          longitude: product.catalogs?.business_profiles?.longitude
         } as SearchResult;
       }).filter(item => item.score > 0) || [];
       
@@ -398,12 +431,35 @@ export const useUnifiedSearch = () => {
         searchProducts(query, filters)
       ]);
 
-      // Fusion et tri des résultats par score
-      const allResults = [...businessResults, ...catalogResults, ...productResults]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 20); // Limite à 20 résultats
-
-      setResults(allResults);
+      // Calculer la distance pour chaque résultat
+      const resultsWithDistance = [...businessResults, ...catalogResults, ...productResults].map(result => {
+        if (result.latitude && result.longitude) {
+          const distance = calculateDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            result.latitude,
+            result.longitude
+          );
+          return {
+            ...result,
+            distance_meters: distance,
+            distance: distance < 1000 
+              ? `${Math.round(distance)}m`
+              : `${(distance / 1000).toFixed(1)}km`
+          };
+        }
+        return result;
+      });
+      
+      // Trier par distance (du plus proche au plus éloigné)
+      resultsWithDistance.sort((a, b) => {
+        const distA = a.distance_meters || Infinity;
+        const distB = b.distance_meters || Infinity;
+        return distA - distB;
+      });
+      
+      // Limiter à 20 résultats
+      setResults(resultsWithDistance.slice(0, 20));
     } catch (error) {
       console.error('Search error:', error);
       setError('Erreur lors de la recherche');

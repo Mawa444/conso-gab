@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserLocation } from './use-user-location';
 
 export const useOptimizedBusinesses = () => {
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { location: userLocation, loading: locationLoading } = useUserLocation();
 
   // Memoize the fetch function to prevent unnecessary re-creations
   const fetchBusinesses = useMemo(() => {
@@ -13,33 +15,31 @@ export const useOptimizedBusinesses = () => {
         setLoading(true);
         setError(null);
         
-        // Optimized query - only fetch essential fields
-        const { data, error: fetchError } = await supabase
-          .from('business_profiles')
-          .select(`
-            id,
-            business_name,
-            business_category,
-            description,
-            address,
-            is_verified,
-            city
-          `)
-          .eq('is_active', true)
-          .limit(10); // Limit results for better performance
+        // Utiliser le RPC get_nearest_businesses pour trier par distance
+        const { data, error: rpcError } = await supabase.rpc('get_nearest_businesses', {
+          user_lat: userLocation.latitude,
+          user_lng: userLocation.longitude,
+          radius_meters: 50000, // 50km de rayon
+          limit_count: 20
+        });
 
-        if (fetchError) throw fetchError;
+        if (rpcError) throw rpcError;
 
         // Transform data with minimal processing
-        const transformedData = data?.map(business => ({
+        const transformedData = data?.map((business: any) => ({
           id: business.id,
           name: business.business_name,
           type: business.business_category || 'Non spécifié',
           description: business.description,
-          address: `${business.address}${business.city ? ', ' + business.city : ''}`,
+          address: `${business.address || ''}${business.city ? ', ' + business.city : ''}`,
           verified: business.is_verified || false,
           rating: 4.5, // Default rating
-          distance: "N/A"
+          distance: business.distance_meters 
+            ? business.distance_meters < 1000 
+              ? `${Math.round(business.distance_meters)}m`
+              : `${(business.distance_meters / 1000).toFixed(1)}km`
+            : "N/A",
+          distance_meters: business.distance_meters
         })) || [];
 
         setBusinesses(transformedData);
@@ -50,16 +50,20 @@ export const useOptimizedBusinesses = () => {
         setLoading(false);
       }
     };
-  }, []);
+  }, [userLocation.latitude, userLocation.longitude]);
 
   useEffect(() => {
-    fetchBusinesses();
-  }, [fetchBusinesses]);
+    // Attendre que la géolocalisation soit disponible
+    if (!locationLoading) {
+      fetchBusinesses();
+    }
+  }, [fetchBusinesses, locationLoading]);
 
   return {
     businesses,
-    loading,
+    loading: loading || locationLoading,
     error,
-    refreshBusinesses: fetchBusinesses
+    refreshBusinesses: fetchBusinesses,
+    userLocation
   };
 };
