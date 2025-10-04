@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { LocationStep } from "@/components/auth/LocationStep";
+import { ProfileImageUploader } from "@/components/profile/ProfileImageUploader";
+import { CoverImageUploader } from "@/components/profile/CoverImageUploader";
 import { Building2, MapPin, Clock, Share2, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -133,12 +135,31 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
 
       <CardContent>
         <Tabs defaultValue="basic" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="basic">Informations de base</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="images">Images</TabsTrigger>
+            <TabsTrigger value="basic">Informations</TabsTrigger>
             <TabsTrigger value="location">Localisation</TabsTrigger>
             <TabsTrigger value="contact">Contact</TabsTrigger>
             <TabsTrigger value="social">Réseaux sociaux</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="images" className="space-y-6">
+            <CoverImageUploader
+              currentImageUrl={data.cover_image_url}
+              onImageUploaded={(url, path) => updateData({ cover_image_url: url })}
+              bucket="catalog-covers"
+              folder="business-covers"
+              label="Image de couverture du profil"
+            />
+
+            <ProfileImageUploader
+              currentImageUrl={data.logo_url}
+              onImageUploaded={(url, path) => updateData({ logo_url: url })}
+              bucket="catalog-covers"
+              folder="business-logos"
+              label="Logo de l'entreprise"
+            />
+          </TabsContent>
 
           <TabsContent value="basic" className="space-y-4">
             <div>

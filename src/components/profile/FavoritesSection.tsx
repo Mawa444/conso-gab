@@ -1,31 +1,20 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PackageX, Store, Heart } from "lucide-react";
 
-// Section des favoris - utilise les vraies données de la base de données
 const FavoritesSection = () => {
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Mes Favoris</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-center py-8">
-            Vos commerces et produits favoris apparaîtront ici.
-          </p>
-        </CardContent>
-      </Card>
+      <EmptyState
+        icon={Heart}
+        title="Aucun favori pour le moment"
+        description="Commencez à ajouter des commerces et produits en favoris pour les retrouver facilement ici."
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Mes Abonnements</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-center py-8">
-            Vos abonnements aux commerces apparaîtront ici.
-          </p>
-        </CardContent>
-      </Card>
+      <EmptyState
+        icon={Store}
+        title="Aucun abonnement"
+        description="Abonnez-vous à vos commerces préférés pour recevoir leurs actualités et promotions."
+      />
     </div>
   );
 };

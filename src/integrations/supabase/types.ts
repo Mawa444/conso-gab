@@ -1633,6 +1633,7 @@ export type Database = {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"]
           avatar_url: string | null
+          cover_image_url: string | null
           created_at: string
           display_name: string | null
           email_verified: boolean | null
@@ -1652,6 +1653,7 @@ export type Database = {
         Insert: {
           account_type?: Database["public"]["Enums"]["account_type"]
           avatar_url?: string | null
+          cover_image_url?: string | null
           created_at?: string
           display_name?: string | null
           email_verified?: boolean | null
@@ -1671,6 +1673,7 @@ export type Database = {
         Update: {
           account_type?: Database["public"]["Enums"]["account_type"]
           avatar_url?: string | null
+          cover_image_url?: string | null
           created_at?: string
           display_name?: string | null
           email_verified?: boolean | null

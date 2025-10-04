@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Settings, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2 } from "lucide-react";
+import { User, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FavoritesSection from "@/components/profile/FavoritesSection";
 import { AdvancedBusinessManager } from "@/components/profile/AdvancedBusinessManager";
+import { ConsumerProfileSettings } from "@/components/profile/ConsumerProfileSettings";
 import { useNavigate } from "react-router-dom";
 import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { toast } from "sonner";
@@ -210,9 +211,6 @@ export const ProfilePage = ({
             </div>
             
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={onSettings} className="text-white hover:bg-white/20 backdrop-blur-sm">
-                <Settings className="w-6 h-6" />
-              </Button>
               <Button variant="ghost" size="icon" onClick={handleDeleteAccount} className="text-white hover:bg-white/20 backdrop-blur-sm">
                 <Trash2 className="w-6 h-6" />
               </Button>
@@ -418,68 +416,7 @@ export const ProfilePage = ({
 
           {/* Paramètres */}
           <TabsContent value="settings" className="space-y-6">
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold">Paramètres du compte</h3>
-              
-              {/* Section Compte */}
-              <Card>
-                <CardHeader className="bg-[3a75c4] bg-[#3a75c4]/[0.97]">
-                  <CardTitle className="flex items-center gap-2 text-white">
-                    <User className="w-5 h-5" />
-                    Informations du compte
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 bg-gray-200 px-[14px] my-0">
-                  <Button variant="outline" onClick={onSettings} className="w-full justify-start rounded-3xl my-[10px] bg-white">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Modifier mon profil
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[5px] bg-white">
-                    <Shield className="w-4 h-4 mr-2" />
-                    Sécurité et confidentialité
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[10px] bg-white">
-                    <Bell className="w-4 h-4 mr-2" />
-                    Notifications
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Section Support */}
-              <Card>
-                <CardHeader className="bg-[3a75c4] bg-[#3a75c4]/[0.96]">
-                  <CardTitle className="text-white text-left">Support & Aide</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 bg-gray-200 my-0">
-                  <Button variant="outline" className="w-full justify-start my-[12px] rounded-3xl bg-white">
-                    Centre d'aide
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start rounded-3xl my-0 bg-white">
-                    Nous contacter
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start rounded-3xl my-[12px] bg-white">
-                    À propos de ConsoGab
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Section Danger */}
-              <Card className="border-red-200">
-                <CardHeader className="bg-zinc-950">
-                  <CardTitle className="font-bold text-red-500 text-2xl">Zone dangereuse</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 bg-white my-0">
-                  <Button variant="outline" onClick={handleDeleteAccount} className="w-full justify-start border-red-200 my-[12px] rounded-3xl text-center bg-red-600 hover:bg-red-500 text-white">
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer mon compte
-                  </Button>
-                  <Button variant="destructive" onClick={handleLogout} className="w-full justify-start rounded-3xl bg-black my-0">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Se déconnecter
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            <ConsumerProfileSettings />
           </TabsContent>
         </Tabs>
       </div>
