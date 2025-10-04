@@ -41,7 +41,7 @@ export const CreateBusinessButton = ({
 
       {/* Modal de création */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[var(--z-modal-backdrop)] animate-fade-in" style={{ zIndex: 'var(--z-modal-backdrop)' }}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center animate-fade-in" style={{ zIndex: 1040 }}>
           <div className="w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
             <BusinessCreationWizard 
               onCancel={handleBusinessCreationCancelled}
