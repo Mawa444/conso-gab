@@ -4,9 +4,10 @@ import { BusinessChatHeader } from './BusinessChatHeader';
 import { BusinessChatMessages } from './BusinessChatMessages';
 import { BusinessChatInput } from './BusinessChatInput';
 import { WhatsAppRedirectButton } from './WhatsAppRedirectButton';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MessageCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface BusinessChatViewProps {
   businessId: string;
@@ -70,24 +71,29 @@ export const BusinessChatView: React.FC<BusinessChatViewProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header */}
-      <BusinessChatHeader
-        businessName={businessName || conversation.title}
-        businessLogoUrl={businessLogoUrl}
-        isOnline={true} // TODO: Implémenter la détection de présence
-      />
-
-      {/* Bouton WhatsApp si disponible */}
-      {whatsappNumber && (
-        <div className="px-4 py-2 border-b border-border">
+      {/* Boutons d'actions rapides */}
+      <div className="flex-shrink-0 px-4 py-2 border-b border-border bg-card flex items-center gap-2">
+        {whatsappNumber && (
           <WhatsAppRedirectButton
             phoneNumber={whatsappNumber}
             businessName={businessName || conversation.title}
           />
-        </div>
-      )}
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            // Redirection vers Mimo Chat avec cette conversation
+            window.location.href = `/mimo-chat/conversation/${conversation.id}`;
+          }}
+          className="flex-1"
+        >
+          <MessageCircle className="w-4 h-4 mr-2" />
+          Ouvrir dans Mimo Chat
+        </Button>
+      </div>
 
-      {/* Zone de messages */}
+      {/* Zone de messages - Scrollable */}
       <div className="flex-1 overflow-hidden">
         <BusinessChatMessages
           messages={messages}
@@ -95,12 +101,14 @@ export const BusinessChatView: React.FC<BusinessChatViewProps> = ({
         />
       </div>
 
-      {/* Input de message */}
-      <BusinessChatInput
-        onSendMessage={sendMessage}
-        disabled={isSending}
-        businessId={businessId}
-      />
+      {/* Input de message - Fixé en bas */}
+      <div className="flex-shrink-0 border-t border-border bg-card">
+        <BusinessChatInput
+          onSendMessage={sendMessage}
+          disabled={isSending}
+          businessId={businessId}
+        />
+      </div>
     </div>
   );
 };

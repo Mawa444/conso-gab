@@ -90,28 +90,28 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
   };
 
   const attachmentOptions = [
-    { id: 'camera', label: 'Appareil photo', icon: Camera, color: 'bg-mimo-error' },
+    { id: 'camera', label: 'Appareil photo', icon: Camera, color: 'bg-error' },
     { id: 'image', label: 'Galerie', icon: Image, color: 'bg-purple-500' },
-    { id: 'document', label: 'Document', icon: FileText, color: 'bg-mimo-blue' },
-    { id: 'location', label: 'Position', icon: MapPin, color: 'bg-mimo-success' }
+    { id: 'document', label: 'Document', icon: FileText, color: 'bg-primary' },
+    { id: 'location', label: 'Position', icon: MapPin, color: 'bg-success' }
   ];
 
   const canSend = message.trim().length > 0 && !disabled;
 
   return (
     <div className={cn(
-      'bg-white border-t border-mimo-gray-200 p-3',
+      'bg-card border-t border-border p-3',
       'safe-area-pb',
       className
     )}>
       {/* Reply preview */}
       {replyTo && (
-        <div className="mb-3 p-2 bg-mimo-gray-50 rounded-lg border-l-2 border-primary-500 flex items-center justify-between">
+        <div className="mb-3 p-2 bg-muted rounded-lg border-l-2 border-primary flex items-center justify-between">
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-primary-600">
+            <p className="text-xs font-medium text-primary">
               Réponse à {replyTo.sender}
             </p>
-            <p className="text-sm text-mimo-gray-700 truncate">
+            <p className="text-sm text-foreground truncate">
               {replyTo.content}
             </p>
           </div>
@@ -128,7 +128,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
 
       {/* Attachments menu */}
       {showAttachments && (
-        <div className="mb-3 p-2 bg-mimo-gray-50 rounded-lg">
+        <div className="mb-3 p-2 bg-muted rounded-lg">
           <div className="grid grid-cols-4 gap-3">
             {attachmentOptions.map((option) => {
               const Icon = option.icon;
@@ -136,7 +136,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
                 <button
                   key={option.id}
                   onClick={() => handleFileSelect(option.id)}
-                  className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-white transition-colors"
+                  className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-card transition-colors"
                 >
                   <div className={cn(
                     'w-12 h-12 rounded-full flex items-center justify-center text-white',
@@ -144,7 +144,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
                   )}>
                     <Icon className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-medium text-mimo-gray-700">
+                  <span className="text-xs font-medium text-foreground">
                     {option.label}
                   </span>
                 </button>
@@ -164,8 +164,8 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
           className={cn(
             'p-2 h-10 w-10 rounded-full',
             showAttachments 
-              ? 'bg-primary-500 text-white' 
-              : 'text-mimo-gray-500 hover:bg-mimo-gray-100'
+              ? 'bg-primary text-primary-foreground' 
+              : 'text-muted-foreground hover:bg-muted'
           )}
         >
           <Plus className={cn(
@@ -185,8 +185,8 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
             disabled={disabled}
             className={cn(
               'min-h-[40px] max-h-[120px] resize-none',
-              'bg-mimo-gray-100 border-0 rounded-3xl',
-              'focus:ring-2 focus:ring-primary-500 focus:bg-white',
+              'bg-input border-0 rounded-3xl',
+              'focus:ring-2 focus:ring-ring focus:bg-card',
               'pr-10'
             )}
           />
@@ -195,7 +195,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 h-6 w-6 text-mimo-gray-500"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 h-6 w-6 text-muted-foreground"
           >
             <Smile className="w-4 h-4" />
           </Button>
@@ -206,7 +206,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
           <Button
             onClick={handleSend}
             disabled={disabled}
-            className="p-2 h-10 w-10 rounded-full bg-mimo-green hover:bg-mimo-green/90 text-white"
+            className="p-2 h-10 w-10 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <Send className="w-5 h-5" />
           </Button>
@@ -220,8 +220,8 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
             className={cn(
               'p-2 h-10 w-10 rounded-full transition-all duration-200',
               isRecording 
-                ? 'bg-mimo-error text-white scale-110' 
-                : 'bg-mimo-gray-200 text-mimo-gray-600 hover:bg-mimo-gray-300'
+                ? 'bg-error text-error-foreground scale-110' 
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
             )}
           >
             <Mic className="w-5 h-5" />
@@ -231,8 +231,8 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
 
       {/* Recording indicator */}
       {isRecording && (
-        <div className="mt-2 flex items-center justify-center gap-2 text-mimo-error">
-          <div className="w-2 h-2 bg-mimo-error rounded-full animate-pulse" />
+        <div className="mt-2 flex items-center justify-center gap-2 text-error">
+          <div className="w-2 h-2 bg-error rounded-full animate-pulse" />
           <span className="text-sm font-medium">Enregistrement en cours...</span>
         </div>
       )}

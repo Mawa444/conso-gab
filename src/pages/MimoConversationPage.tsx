@@ -126,7 +126,7 @@ const MimoConversationPageContent: React.FC = () => {
         onBack={handleBack}
       >
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-mimo-gray-500">Chargement de la conversation...</div>
+          <div className="text-muted-foreground">Chargement de la conversation...</div>
         </div>
       </MimoChatLayout>
     );
@@ -141,10 +141,10 @@ const MimoConversationPageContent: React.FC = () => {
       >
         <div className="flex-1 flex items-center justify-center text-center px-6">
           <div>
-            <h3 className="text-lg font-semibold text-mimo-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Conversation introuvable
             </h3>
-            <p className="text-mimo-gray-500">
+            <p className="text-muted-foreground">
               Cette conversation n'existe pas ou a été supprimée.
             </p>
           </div>
@@ -166,23 +166,23 @@ const MimoConversationPageContent: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="p-2 hover:bg-mimo-gray-100 rounded-full"
+            className="p-2 hover:bg-muted rounded-full"
           >
-            <Video className="w-5 h-5 text-mimo-gray-600" />
+            <Video className="w-5 h-5 text-muted-foreground" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="p-2 hover:bg-mimo-gray-100 rounded-full"
+            className="p-2 hover:bg-muted rounded-full"
           >
-            <Phone className="w-5 h-5 text-mimo-gray-600" />
+            <Phone className="w-5 h-5 text-muted-foreground" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="p-2 hover:bg-mimo-gray-100 rounded-full"
+            className="p-2 hover:bg-muted rounded-full"
           >
-            <Info className="w-5 h-5 text-mimo-gray-600" />
+            <Info className="w-5 h-5 text-muted-foreground" />
           </Button>
         </div>
       }
@@ -205,13 +205,13 @@ const MimoConversationPageContent: React.FC = () => {
             {/* Empty state */}
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="w-20 h-20 bg-mimo-gray-100 rounded-full flex items-center justify-center mb-4">
+                <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
                   💬
                 </div>
-                <h3 className="text-lg font-semibold text-mimo-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   Début de la conversation
                 </h3>
-                <p className="text-mimo-gray-500 max-w-sm">
+                <p className="text-muted-foreground max-w-sm">
                   Commencez par dire bonjour ! 👋
                 </p>
               </div>

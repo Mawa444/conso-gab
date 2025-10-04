@@ -34,7 +34,7 @@ export const MimoChatLayout: React.FC<MimoChatLayoutProps> = ({
   className
 }) => {
   return (
-    <div className={cn('flex flex-col h-screen bg-mimo-gray-50 overflow-hidden', className)}>
+    <div className={cn('flex flex-col h-screen bg-background overflow-hidden', className)}>
       {/* Top App Bar */}
       <MimoTopBar
         title={title}

@@ -23,8 +23,8 @@ export const MimoFAB: React.FC<MimoFABProps> = ({
       className={cn(
         'fixed bottom-20 right-4 z-40',
         'w-fab h-fab rounded-full',
-        'bg-mimo-green hover:bg-mimo-green/90 active:bg-mimo-green/80',
-        'text-white shadow-mimo-8',
+        'bg-primary hover:bg-primary/90 active:bg-primary/80',
+        'text-primary-foreground shadow-lg',
         'flex items-center justify-center',
         'transition-all duration-200 hover:scale-105 active:scale-95',
         disabled && 'opacity-50 cursor-not-allowed',

@@ -120,7 +120,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       {!isOwn && showAvatar && (
         <Avatar className="w-8 h-8 mt-auto">
           <AvatarImage src={message.sender_profile?.avatar_url} />
-          <AvatarFallback className="bg-mimo-gray-200 text-mimo-gray-700 text-xs">
+          <AvatarFallback className="bg-muted text-foreground text-xs">
             {message.sender_profile?.display_name?.charAt(0)?.toUpperCase() || '?'}
           </AvatarFallback>
         </Avatar>
@@ -136,14 +136,14 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       )}>
         {/* Reply indicator */}
         {message.reply_to_message_id && (
-          <div className="mb-1 px-3 py-1 bg-mimo-gray-100 rounded-lg text-xs text-mimo-gray-600 border-l-2 border-primary-500">
+          <div className="mb-1 px-3 py-1 bg-muted rounded-lg text-xs text-muted-foreground border-l-2 border-primary">
             Réponse à un message
           </div>
         )}
 
         {/* Sender name (for group chats) */}
         {!isOwn && !groupedWithPrevious && (
-          <p className="text-xs font-medium text-primary-600 mb-1 px-1">
+          <p className="text-xs font-medium text-primary mb-1 px-1">
             {message.sender_profile?.display_name || 'Inconnu'}
           </p>
         )}
@@ -153,15 +153,15 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           'px-4 py-2 relative',
           getBubbleRadius(),
           isOwn
-            ? 'bg-mimo-outgoing text-white'
-            : 'bg-white border border-mimo-gray-200 text-mimo-gray-900'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-card border border-border text-foreground'
         )}>
           {renderMessageContent()}
 
           {/* Message status and time */}
           <div className={cn(
             'flex items-center gap-1 mt-1 justify-end',
-            isOwn ? 'text-white/70' : 'text-mimo-gray-500'
+            isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'
           )}>
             <span className="text-xs">
               {formatTime(message.created_at)}
@@ -181,7 +181,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => onReply(message)}
-                className="h-6 w-6 p-0 bg-white shadow-mimo-4 hover:bg-mimo-gray-50"
+                className="h-6 w-6 p-0 bg-card shadow-sm hover:bg-muted"
               >
                 <Reply className="w-3 h-3" />
               </Button>
@@ -191,7 +191,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => onLongPress?.(message)}
-              className="h-6 w-6 p-0 bg-white shadow-mimo-4 hover:bg-mimo-gray-50"
+              className="h-6 w-6 p-0 bg-card shadow-sm hover:bg-muted"
             >
               <MoreVertical className="w-3 h-3" />
             </Button>

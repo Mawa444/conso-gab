@@ -46,9 +46,9 @@ export const MimoBottomNav: React.FC<MimoBottomNavProps> = ({
   return (
     <nav className={cn(
       'fixed bottom-0 left-0 right-0 z-50',
-      'h-bottom-nav bg-white border-t border-mimo-gray-200',
+      'h-bottom-nav bg-card border-t border-border',
       'flex items-center justify-around px-2',
-      'shadow-mimo-4',
+      'shadow-lg',
       className
     )}>
       {navItems.map((item) => {
@@ -64,18 +64,15 @@ export const MimoBottomNav: React.FC<MimoBottomNavProps> = ({
               'py-2 px-3 rounded-lg transition-all duration-200',
               'min-w-0 flex-1 max-w-[80px]',
               isActive
-                ? 'text-mimo-green'
-                : 'text-mimo-gray-500 hover:text-mimo-gray-700 active:bg-mimo-gray-100'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground active:bg-muted'
             )}
           >
             <div className="relative">
-              <Icon className={cn(
-                'w-6 h-6 mb-1',
-                isActive && 'animate-bounce-soft'
-              )} />
+              <Icon className="w-6 h-6 mb-1" />
               
               {item.badge && item.badge > 0 && (
-                <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-mimo-error text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-error text-error-foreground text-xs font-bold rounded-full flex items-center justify-center">
                   {item.badge > 99 ? '99+' : item.badge}
                 </div>
               )}
