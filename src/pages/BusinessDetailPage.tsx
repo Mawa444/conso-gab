@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Star, MapPin, Phone, Clock, Share, Heart, ThumbsUp, ThumbsDown, MessageCircle, Navigation, ExternalLink, Users, Award, Camera, Settings, Store, Bell, Shield, Headphones, FileText, HelpCircle, LogOut, Trash2, History, Moon, BarChart, Target, MessageSquare, AlertTriangle } from "lucide-react";
+import { BusinessImageViewModal } from "@/components/business/BusinessImageViewModal";
+import { useBusinessImageLikes } from "@/hooks/use-business-image-likes";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,9 +112,16 @@ export const BusinessDetailPage = () => {
   });
 
   const [business, setBusiness] = useState<BusinessDetail | null>(null);
+  const [viewingImage, setViewingImage] = useState<{ url: string; type: 'logo' | 'cover'; title: string } | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
   
   // Vérifier si l'utilisateur peut accéder à l'onglet Pro
   const canAccessPro = businessId ? canAccessBusinessPro(businessId) : false;
+  
+  // Hooks pour les likes des images
+  const logoLikes = useBusinessImageLikes(businessId || '', 'logo');
+  const coverLikes = useBusinessImageLikes(businessId || '', 'cover');
 
   useEffect(() => {
     fetchBusinessData();
@@ -128,7 +137,7 @@ export const BusinessDetailPage = () => {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('business_profiles')
-        .select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url')
+        .select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url')
         .eq('id', businessId)
         .single();
 
@@ -160,6 +169,10 @@ export const BusinessDetailPage = () => {
           isScheduledForDeletion: !!data.deactivation_scheduled_at,
           deletionDate: data.deactivation_scheduled_at
         });
+        
+        // Stocker les URLs des images
+        setLogoUrl(data.logo_url || null);
+        setCoverUrl(data.cover_image_url || null);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -211,13 +224,19 @@ export const BusinessDetailPage = () => {
   return (
     <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
       <div className="min-h-screen bg-background">
-      {/* Header avec image */}
-      <div className="relative h-64 bg-gradient-to-br from-primary/20 to-accent/20">
+      {/* Header avec image de couverture */}
+      <div 
+        className="relative h-64 bg-gradient-to-br from-primary/20 to-accent/20 cursor-pointer group"
+        onClick={() => coverUrl && setViewingImage({ url: coverUrl, type: 'cover', title: `Couverture de ${business.name}` })}
+      >
         <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(-1);
+            }}
             className="bg-white/90 hover:bg-white"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -227,27 +246,42 @@ export const BusinessDetailPage = () => {
           <ProfileModeSwitch className="bg-white/90 hover:bg-white" />
         </div>
 
-        {/* Galerie photos */}
+        {/* Image de couverture */}
         <div className="relative w-full h-full overflow-hidden">
-          <img 
-            src={images[currentImageIndex]} 
-            alt={business.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="flex gap-2 justify-center">
-              {images.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={cn(
-                    "w-2 h-2 rounded-full transition-all",
-                    index === currentImageIndex ? "bg-white" : "bg-white/50"
-                  )}
-                />
-              ))}
+          {coverUrl ? (
+            <>
+              <img 
+                src={coverUrl} 
+                alt={`Couverture de ${business.name}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+              <Camera className="w-12 h-12 text-muted-foreground" />
             </div>
-          </div>
+          )}
+          
+          {/* Like button pour la couverture */}
+          {coverUrl && (
+            <div className="absolute bottom-4 right-4">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  coverLikes.toggleLike();
+                }}
+                disabled={coverLikes.isLoading}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors",
+                  coverLikes.isLiked && "text-red-500"
+                )}
+              >
+                <Heart className={cn("w-4 h-4", coverLikes.isLiked && "fill-red-500")} />
+                <span className="text-sm font-medium text-white">{coverLikes.likesCount}</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -256,8 +290,38 @@ export const BusinessDetailPage = () => {
         <div className="bg-card rounded-t-2xl -mt-6 relative z-10 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">{business.name[0]}</span>
+              {/* Logo cliquable */}
+              <div 
+                className="relative cursor-pointer group"
+                onClick={() => logoUrl && setViewingImage({ url: logoUrl, type: 'logo', title: `Logo de ${business.name}` })}
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full overflow-hidden flex items-center justify-center border-4 border-background ring-4 ring-background">
+                  {logoUrl ? (
+                    <>
+                      <img src={logoUrl} alt={`Logo de ${business.name}`} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-full" />
+                    </>
+                  ) : (
+                    <span className="text-white font-bold text-xl">{business.name[0]}</span>
+                  )}
+                </div>
+                {/* Like button pour le logo */}
+                {logoUrl && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      logoLikes.toggleLike();
+                    }}
+                    disabled={logoLikes.isLoading}
+                    className={cn(
+                      "absolute -bottom-1 -right-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors border border-border text-xs",
+                      logoLikes.isLiked && "text-red-500 border-red-500"
+                    )}
+                  >
+                    <Heart className={cn("w-3 h-3", logoLikes.isLiked && "fill-red-500")} />
+                    <span className="font-medium">{logoLikes.likesCount}</span>
+                  </button>
+                )}
               </div>
               <div>
                 <h1 className="font-bold text-xl">{business.name}</h1>
@@ -674,8 +738,20 @@ export const BusinessDetailPage = () => {
         </div>
       </div>
 
+      {/* Image View Modal */}
+      {viewingImage && (
+        <BusinessImageViewModal
+          open={true}
+          onClose={() => setViewingImage(null)}
+          imageUrl={viewingImage.url}
+          imageType={viewingImage.type}
+          businessId={businessId!}
+          imageTitle={viewingImage.title}
+        />
+      )}
+
       {/* Modal de suppression */}
-      <DeleteBusinessModal 
+      <DeleteBusinessModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         businessId={business.id}
