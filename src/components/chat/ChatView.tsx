@@ -3,7 +3,7 @@ import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Phone } from 'lucide-react';
-import { WhatsAppRedirectButton } from '@/components/business-chat/WhatsAppRedirectButton';
+import { WhatsAppRedirectButton } from './WhatsAppRedirectButton';
 import { useMessaging } from '@/contexts/MessagingContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useNavigate } from 'react-router-dom';

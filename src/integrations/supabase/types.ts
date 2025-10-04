@@ -955,47 +955,6 @@ export type Database = {
           },
         ]
       }
-      conversation_members: {
-        Row: {
-          conversation_id: string | null
-          id: string
-          is_active: boolean | null
-          joined_at: string | null
-          last_read_at: string | null
-          notifications_enabled: boolean | null
-          role: string | null
-          user_id: string
-        }
-        Insert: {
-          conversation_id?: string | null
-          id?: string
-          is_active?: boolean | null
-          joined_at?: string | null
-          last_read_at?: string | null
-          notifications_enabled?: boolean | null
-          role?: string | null
-          user_id: string
-        }
-        Update: {
-          conversation_id?: string | null
-          id?: string
-          is_active?: boolean | null
-          joined_at?: string | null
-          last_read_at?: string | null
-          notifications_enabled?: boolean | null
-          role?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conversation_members_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       conversations: {
         Row: {
           conversation_type: string | null

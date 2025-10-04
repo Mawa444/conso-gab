@@ -26,8 +26,8 @@ import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { useMediaUpload, MediaType } from '@/hooks/use-media-upload';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { VoiceRecorder } from '@/components/business-chat/VoiceRecorder';
-import { MediaPreview } from '@/components/business-chat/MediaPreview';
+import { VoiceRecorder } from './VoiceRecorder';
+import { MediaPreview } from './MediaPreview';
 import { MessageType } from '@/types/chat.types';
 
 interface MessageInputProps {
