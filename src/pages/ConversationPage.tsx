@@ -48,53 +48,25 @@ const ConversationPageContent: React.FC = () => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load conversation - META-STYLE
-  // Si l'URL contient un business_id au lieu d'un conversation_id, résoudre d'abord
+  // Load conversation
   useEffect(() => {
     if (!conversationId || !user) return;
 
     const loadConversation = async () => {
-      // 1. Chercher par conversation_id d'abord
+      // Chercher la conversation dans celles déjà chargées
       let conversation = conversations.find(c => c.id === conversationId);
       
-      // 2. Si pas trouvé, peut-être que c'est un business_id (Meta-style)
-      if (!conversation) {
-        const businessConv = conversations.find(
-          c => c.origin_type === 'business' && c.origin_id === conversationId
-        );
-        
-        if (businessConv) {
-          // Rediriger vers la bonne URL avec conversation_id
-          navigate(`/messaging/${businessConv.id}`, { replace: true });
-          return;
-        }
-        
-        // Sinon, utiliser la fonction RPC pour obtenir le conversation_id
-        const { data: realConvId, error } = await supabase
-          .rpc('get_or_create_business_conversation', {
-            p_business_id: conversationId,
-            p_user_id: user.id
-          });
-        
-        if (!error && realConvId) {
-          // Rediriger vers la bonne URL
-          navigate(`/messaging/${realConvId}`, { replace: true });
-          return;
-        }
-      }
-      
-      // 3. Charger la conversation trouvée
       if (conversation) {
         setActiveConversation(conversation);
       }
 
-      // Fetch messages
+      // Charger les messages
       await fetchMessages(conversationId);
       
-      // Mark as read
+      // Marquer comme lu
       await markAsRead(conversationId);
 
-      // Subscribe to real-time updates
+      // S'abonner aux mises à jour temps réel
       subscribeToConversation(conversationId);
     };
 
@@ -103,7 +75,7 @@ const ConversationPageContent: React.FC = () => {
     return () => {
       unsubscribeFromConversation();
     };
-  }, [conversationId, user]);
+  }, [conversationId, user, conversations, setActiveConversation, fetchMessages, markAsRead, subscribeToConversation, unsubscribeFromConversation]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {

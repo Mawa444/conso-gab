@@ -36,26 +36,24 @@ export const ChatView: React.FC<ChatViewProps> = ({
     createBusinessConversation
   } = useMessaging();
 
-  // Load or create conversation - META-STYLE
-  // Si conversationId est un business_id, on trouve/crée le bon conversation_id
+  // Load conversation
   React.useEffect(() => {
     const initConversation = async () => {
       if (!conversationId || !user) return;
 
-      // Check if it's already a conversation_id
+      // Si c'est un conversation_id, on le charge directement
       let conversation = conversations.find(c => c.id === conversationId);
       
-      // If not found, check if it's a business_id
+      // Si c'est un business_id, on cherche ou crée la conversation
       if (!conversation) {
         const businessConversation = conversations.find(
           c => c.origin_type === 'business' && c.origin_id === conversationId
         );
         
         if (businessConversation) {
-          // Found existing conversation for this business
           conversation = businessConversation;
         } else {
-          // Meta-style: Get or create atomically
+          // C'est un business_id, créer/obtenir la conversation
           const newConv = await createBusinessConversation(conversationId);
           if (newConv) {
             conversation = newConv as any;
