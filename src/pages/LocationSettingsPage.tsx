@@ -1,15 +1,26 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/layout/Header";
 import { UserLocationManager } from "@/components/location/UserLocationManager";
 import { LocationRequestsManager } from "@/components/location/LocationRequestsManager";
 import { MapPin, MessageSquare, Shield, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const LocationSettingsPage = () => {
+  const navigate = useNavigate();
+  
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="space-y-8">
-        {/* En-tête */}
-        <div className="text-center space-y-4">
+    <div className="min-h-screen bg-background">
+      <Header 
+        title="Géolocalisation" 
+        showBack 
+        onBack={() => navigate(-1)}
+      />
+      
+      <div className="container mx-auto px-4 pt-24 pb-8 max-w-6xl">
+        <div className="space-y-8">
+          {/* En-tête */}
+          <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
             <div className="p-3 bg-primary/10 rounded-full">
               <MapPin className="w-8 h-8 text-primary" />
@@ -187,6 +198,7 @@ export const LocationSettingsPage = () => {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );

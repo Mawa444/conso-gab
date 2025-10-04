@@ -3,6 +3,7 @@ import { useProfileMode } from "@/hooks/use-profile-mode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Header } from "@/components/layout/Header";
 import { Building2, Plus, Crown, Users, Settings } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,8 +27,15 @@ export const EntreprisesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
+      <Header 
+        title="Mes Entreprises" 
+        showBack 
+        onBack={() => navigate(-1)}
+        showNotifications={false}
+      />
+      
+      <div className="max-w-4xl mx-auto space-y-6 pt-24 px-6 pb-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

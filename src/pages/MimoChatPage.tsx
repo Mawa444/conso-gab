@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MimoChatProvider } from '@/contexts/MimoChatContext';
 import { MimoChatLayout } from '@/components/mimo-chat/layout/MimoChatLayout';
 import { ChatsTab } from '@/components/mimo-chat/tabs/ChatsTab';
@@ -8,7 +9,7 @@ import { SettingsTab } from '@/components/mimo-chat/tabs/SettingsTab';
 import { Plus } from 'lucide-react';
 
 export const MimoChatPage: React.FC = () => {
-  // Wrapping with provider at page level instead of app level
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('chats');
 
   const renderActiveTab = () => {
@@ -66,6 +67,8 @@ export const MimoChatPage: React.FC = () => {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         title={getPageTitle()}
+        showBackButton
+        onBack={() => navigate(-1)}
         showFAB={activeTab !== 'settings'}
         onFABClick={handleFABClick}
         fabIcon={<Plus className="w-6 h-6" />}
