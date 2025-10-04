@@ -34,7 +34,7 @@ const sortOptions = [{
   label: "Ordre alphabétique",
   icon: Filter
 }];
-export const CategoryPage = () => {
+const CategoryPage = () => {
   const {
     categoryId
   } = useParams<{
@@ -322,3 +322,5 @@ export const CategoryPage = () => {
     }} />}
   </PageWithSkeleton>;
 };
+
+export default CategoryPage;

@@ -21,12 +21,12 @@ import {
   LazyMimoConversation,
   LazyCreateCatalog,
   LazyPublicCatalogs,
-  LazyEntreprisesPage
+  LazyEntreprisesPage,
+  LazyCategoryPage
 } from "@/lib/performance/lazy-components";
 
 // Pages Business légères (gardées normales)
 import { BusinessDetailPage } from "@/pages/BusinessDetailPage";
-import { CategoryPage } from "@/pages/CategoryPage";
 
 // Pages Auth
 import { AuthFlowPage } from "@/pages/AuthFlowPage";
@@ -94,7 +94,7 @@ const App = () => {
                   <Route path="/messaging" element={<Navigate to="/mimo-chat" replace />} />
                   
                   {/* Routes catégories */}
-                  <Route path="/category/:categoryId" element={<CategoryPage />} />
+                  <Route path="/category/:categoryId" element={<LazyCategoryPage />} />
                   
                   {/* Route par défaut */}
                   <Route path="/" element={<Navigate to="/consumer/home" replace />} />

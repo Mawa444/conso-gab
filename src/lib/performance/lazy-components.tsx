@@ -93,6 +93,11 @@ export const LazyEntreprisesPage = lazyLoad(
   () => import('@/pages/EntreprisesPage')
 );
 
+// Pages Catégories
+export const LazyCategoryPage = lazyLoad(
+  () => import('@/pages/CategoryPage')
+);
+
 /**
  * ============================================
  * PREFETCH STRATEGIES
