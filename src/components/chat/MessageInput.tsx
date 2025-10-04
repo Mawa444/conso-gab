@@ -179,7 +179,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   }
 
   return (
-    <div className={cn("bg-card p-4", className)}>
+    <div className={cn("bg-card p-4 relative", className)}>
       {uploading && (
         <div className="mb-3 px-3 py-2 bg-primary/10 rounded-md">
           <div className="flex items-center justify-between mb-1">
@@ -273,7 +273,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             <PopoverContent 
               side="top" 
               align="end" 
-              className="w-auto p-0 border-none shadow-lg"
+              className="w-auto p-0 border-none shadow-lg z-50"
               sideOffset={8}
             >
               <EmojiPicker
