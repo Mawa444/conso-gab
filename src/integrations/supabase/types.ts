@@ -2154,6 +2154,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           active_profile: string | null
@@ -2228,6 +2252,20 @@ export type Database = {
           role: string
         }[]
       }
+      has_any_role: {
+        Args: {
+          _roles: Database["public"]["Enums"]["app_role"][]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       log_user_activity: {
         Args: {
           action_description_param: string
@@ -2274,6 +2312,7 @@ export type Database = {
     }
     Enums: {
       account_type: "individual" | "business"
+      app_role: "admin" | "moderator" | "business_owner" | "user"
       business_category:
         | "restaurant"
         | "retail"
@@ -2470,6 +2509,7 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["individual", "business"],
+      app_role: ["admin", "moderator", "business_owner", "user"],
       business_category: [
         "restaurant",
         "retail",
