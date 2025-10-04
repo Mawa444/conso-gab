@@ -8,12 +8,13 @@ export interface MimoMessage {
   conversation_id: string;
   sender_id: string;
   content: string;
-  message_type: 'text' | 'image' | 'audio' | 'document' | 'location' | 'system';
+  message_type: 'text' | 'image' | 'audio' | 'document' | 'location' | 'system' | 'file' | 'video';
   created_at: string;
   edited_at?: string;
   reply_to_message_id?: string;
   reactions?: any;
   attachment_url?: string;
+  status?: 'sent' | 'delivered' | 'read';
   sender_profile?: {
     display_name?: string;
     avatar_url?: string;
@@ -24,6 +25,8 @@ export interface MimoConversation {
   id: string;
   title?: string;
   type: 'private' | 'group' | 'business';
+  origin_type?: 'business' | 'direct' | 'group';
+  origin_id?: string;
   created_at: string;
   last_message?: MimoMessage;
   last_activity: string;
@@ -41,6 +44,10 @@ export interface MimoConversation {
     business_id: string;
     business_name: string;
     category: string;
+    logo_url?: string;
+    whatsapp?: string;
+    phone?: string;
+    email?: string;
   };
 }
 
@@ -56,6 +63,7 @@ interface MimoChatContextType {
   setActiveConversation: (conversation: MimoConversation | null) => void;
   sendMessage: (content: string, type?: string) => Promise<void>;
   createConversation: (participants: string[], title?: string, type?: string) => Promise<MimoConversation>;
+  createBusinessConversation: (businessId: string) => Promise<MimoConversation | null>;
   markAsRead: (conversationId: string) => Promise<void>;
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId: string) => Promise<void>;
@@ -313,7 +321,8 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
       setMessages(prev => 
         prev.map(msg => msg.id === tempMessage.id ? { 
           ...data, 
-          message_type: data.message_type as 'text' | 'image' | 'audio' | 'document' | 'location' | 'system',
+          message_type: data.message_type as MimoMessage['message_type'],
+          status: (data.status || 'sent') as 'sent' | 'delivered' | 'read',
           sender_profile: tempMessage.sender_profile 
         } : msg)
       );
@@ -354,6 +363,82 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
     const newConversation = data.conversation as MimoConversation;
     setConversations(prev => [newConversation, ...prev]);
     return newConversation;
+  };
+
+  // Create business conversation
+  const createBusinessConversation = async (businessId: string): Promise<MimoConversation | null> => {
+    if (!user) {
+      setError('Utilisateur non connecté');
+      return null;
+    }
+
+    try {
+      setLoading(true);
+
+      // Check if conversation already exists
+      const existingConversation = conversations.find(
+        c => c.origin_type === 'business' && c.origin_id === businessId
+      );
+
+      if (existingConversation) {
+        return existingConversation;
+      }
+
+      // Fetch business info
+      const { data: businessData, error: businessError } = await supabase
+        .from('business_profiles')
+        .select('business_name, user_id, logo_url, whatsapp, phone, email, business_category')
+        .eq('id', businessId)
+        .single();
+
+      if (businessError || !businessData) {
+        throw new Error('Business introuvable');
+      }
+
+      // Create conversation via edge function
+      const { data: createData, error: createError } = await supabase.functions.invoke('create-conversation', {
+        body: {
+          origin_type: 'business',
+          origin_id: businessId,
+          title: businessData.business_name || 'Conversation Business',
+          conversation_type: 'business',
+          participants: [
+            { user_id: user.id, role: 'consumer' },
+            { user_id: businessData.user_id, role: 'business' }
+          ]
+        }
+      });
+
+      if (createError) throw createError;
+
+      const newConversation = {
+        ...createData.conversation,
+        type: 'business' as const,
+        origin_type: 'business' as const,
+        origin_id: businessId,
+        unread_count: 0,
+        business_context: {
+          business_id: businessId,
+          business_name: businessData.business_name,
+          category: businessData.business_category,
+          logo_url: businessData.logo_url,
+          whatsapp: businessData.whatsapp,
+          phone: businessData.phone,
+          email: businessData.email
+        }
+      } as MimoConversation;
+
+      // Add to conversations list
+      setConversations(prev => [newConversation, ...prev]);
+      
+      return newConversation;
+    } catch (error: any) {
+      console.error('Erreur création conversation business:', error);
+      setError(error.message || 'Impossible de créer la conversation');
+      return null;
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Mark as read
@@ -471,6 +556,7 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
     setActiveConversation,
     sendMessage,
     createConversation,
+    createBusinessConversation,
     markAsRead,
     fetchConversations,
     fetchMessages,
