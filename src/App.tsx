@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { RoleBasedRouter } from "@/components/auth/RoleBasedRouter";
 import { ModeGuard } from "@/components/auth/ModeGuard";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { SplashScreen } from "@/pages/SplashScreen";
 import ConsumerApp from "@/pages/ConsumerApp";
@@ -40,13 +41,14 @@ const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <Router>
-            <RoleBasedRouter>
-              <ModeGuard>
-                <Routes>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <Router>
+              <RoleBasedRouter>
+                <ModeGuard>
+                  <Routes>
                   {/* Routes publiques */}
                   <Route path="/auth" element={<AuthFlowPage onComplete={() => {}} />} />
                   <Route path="/splash" element={<SplashScreen onStart={() => {}} />} />
@@ -91,14 +93,15 @@ const App = () => {
                   {/* Route par défaut */}
                   <Route path="/" element={<Navigate to="/consumer/home" replace />} />
                   <Route path="*" element={<Navigate to="/consumer/home" replace />} />
-                </Routes>
-                <Toaster />
-              </ModeGuard>
-            </RoleBasedRouter>
-          </Router>
-        </AuthProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+                  </Routes>
+                  <Toaster />
+                </ModeGuard>
+              </RoleBasedRouter>
+            </Router>
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
