@@ -124,10 +124,10 @@ export const CatalogCard = ({
             </div>
             
             <div className="flex items-center gap-2">
-              {catalog.geo_city && <Badge variant="secondary" className="text-xs px-2 py-1 bg-black/[0.12] text-black font-medium">
+              {catalog.geo_city && <Badge variant="secondary" className="text-xs px-2 text-black font-medium bg-white py-[4px]">
                   {catalog.geo_city}
                 </Badge>}
-              {!isOwner && <Button variant="ghost" size="sm" className="p-1 h-auto w-auto hover:bg-accent/20">
+              {!isOwner && <Button variant="ghost" size="sm" className="p-1 h-auto w-auto hover:bg-accent/20 text-[1e7be6] text-black/[0.96]">
                   <MoreVertical className="w-4 h-4" />
                 </Button>}
             </div>
@@ -135,12 +135,12 @@ export const CatalogCard = ({
 
           {/* Ligne 2 - Nom, Prix & Catégorie */}
           <div className="mb-2">
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center justify-between mb-1 bg-inherit">
               <h3 className="text-base font-semibold text-foreground truncate">
                 {catalog.name}
               </h3>
               {/* Prix du produit/service */}
-              <div className="text-sm font-bold text-primary">
+              <div className="text-sm font-bold text-primary bg-[1e7be6] rounded-2xl bg-inherit">
                 {catalog.catalog_type === 'products' ? '15,000' : '8,500'} FCFA
               </div>
             </div>
