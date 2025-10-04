@@ -155,16 +155,16 @@ export const CatalogCard = ({
             </p>}
 
           {/* Ligne 4 - Métadonnées */}
-          <div className="flex items-center gap-1 mb-4 bg-black">
+          <div className="flex items-center gap-1 mb-4 bg-[1e7be6] bg-[#1e7be6]/[0.96]">
             <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
             <div className="text-sm text-muted-foreground truncate">
-              <span>de {catalog.business?.business_name || 'Utilisateur'}</span>
+              <span className="text-white font-bold">de {catalog.business?.business_name || 'Utilisateur'}</span>
               {catalog.geo_district && <>
                   <span className="mx-1">•</span>
                   <span>{catalog.geo_district}</span>
                 </>}
               <span className="mx-1">•</span>
-              <span>{new Date(catalog.created_at).toLocaleDateString('fr-FR')}</span>
+              <span className="text-white text-center px-[128px]">{new Date(catalog.created_at).toLocaleDateString('fr-FR')}</span>
             </div>
           </div>
 
