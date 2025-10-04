@@ -91,7 +91,7 @@ export const EnhancedBusinessCard = ({
 
               {/* Actions */}
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setShowQuickMessage(true)} className="flex-1 gap-1 rounded-3xl bg-black">
+                <Button variant="outline" size="sm" onClick={() => setShowQuickMessage(true)} className="flex-1 gap-1 rounded-3xl bg-[1e7be6] bg-[#1e7be6]/[0.97]">
                   <MessageCircle className="w-3 h-3" />
                   <span className="hidden sm:inline">Message</span>
                 </Button>
