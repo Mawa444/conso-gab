@@ -17,9 +17,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useMediaUpload } from '@/hooks/use-media-upload';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import { useMediaUpload, MediaType } from '@/hooks/use-media-upload';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { VoiceRecorder } from './VoiceRecorder';
+import { MediaPreview } from './MediaPreview';
 
 interface BusinessChatInputProps {
   onSendMessage: (content: string, type?: 'text' | 'image' | 'file' | 'audio' | 'video' | 'location', attachmentUrl?: string) => Promise<void>;
@@ -34,20 +42,36 @@ export const BusinessChatInput: React.FC<BusinessChatInputProps> = ({
 }) => {
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedMediaType, setSelectedMediaType] = useState<MediaType | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { uploadFile, uploading } = useMediaUpload();
+  const { uploadFile, uploading, progress } = useMediaUpload();
 
   const handleSend = async () => {
-    const trimmedMessage = message.trim();
-    if (!trimmedMessage || disabled || uploading) return;
+    if (selectedFile && selectedMediaType) {
+      // Upload media first
+      toast.info('Upload en cours...');
+      const url = await uploadFile(selectedFile, selectedMediaType);
+      if (url) {
+        const messageType = selectedMediaType === 'document' ? 'file' : selectedMediaType;
+        await onSendMessage(message.trim() || selectedFile.name, messageType as any, url);
+        setSelectedFile(null);
+        setSelectedMediaType(null);
+        setMessage('');
+      }
+    } else {
+      const trimmedMessage = message.trim();
+      if (!trimmedMessage || disabled || uploading) return;
 
-    setMessage('');
-    await onSendMessage(trimmedMessage, 'text');
-    
-    // Réinitialiser la hauteur du textarea
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
+      setMessage('');
+      await onSendMessage(trimmedMessage, 'text');
+      
+      // Réinitialiser la hauteur du textarea
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
   };
 
@@ -58,9 +82,7 @@ export const BusinessChatInput: React.FC<BusinessChatInputProps> = ({
     }
   };
 
-  const handleFileSelect = async (type: 'image' | 'video' | 'document') => {
-    if (!fileInputRef.current) return;
-
+  const handleFileSelect = (type: MediaType) => {
     const input = document.createElement('input');
     input.type = 'file';
     
@@ -71,21 +93,19 @@ export const BusinessChatInput: React.FC<BusinessChatInputProps> = ({
       case 'video':
         input.accept = 'video/mp4,video/webm,video/quicktime';
         break;
+      case 'audio':
+        input.accept = 'audio/mpeg,audio/wav,audio/ogg,audio/webm';
+        break;
       case 'document':
         input.accept = '.pdf,.txt,.doc,.docx,.xls,.xlsx';
         break;
     }
 
-    input.onchange = async (e) => {
+    input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      toast.info('Upload en cours...');
-      
-      const url = await uploadFile(file, type);
-      if (url) {
-        const messageType = type === 'document' ? 'file' : type;
-        await onSendMessage(file.name, messageType as any, url);
+      if (file) {
+        setSelectedFile(file);
+        setSelectedMediaType(type);
       }
     };
 
@@ -118,9 +138,24 @@ export const BusinessChatInput: React.FC<BusinessChatInputProps> = ({
   };
 
   const handleVoiceRecord = () => {
-    // TODO: Implémenter l'enregistrement vocal
-    toast.info('Fonctionnalité en cours de développement');
-    setIsRecording(!isRecording);
+    setIsRecording(true);
+  };
+
+  const handleRecordingComplete = async (audioBlob: Blob) => {
+    const audioFile = new File([audioBlob], `audio-${Date.now()}.webm`, { type: 'audio/webm' });
+    toast.info('Upload en cours...');
+    const url = await uploadFile(audioFile, 'audio');
+    if (url) {
+      await onSendMessage('🎤 Note vocale', 'audio', url);
+      toast.success('Note vocale envoyée');
+    }
+    setIsRecording(false);
+  };
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setMessage(prev => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+    textareaRef.current?.focus();
   };
 
   // Auto-resize du textarea
@@ -134,8 +169,50 @@ export const BusinessChatInput: React.FC<BusinessChatInputProps> = ({
     }
   };
 
+  // Mode enregistrement vocal
+  if (isRecording) {
+    return (
+      <div className="border-t border-border bg-card p-4">
+        <VoiceRecorder
+          onRecordingComplete={handleRecordingComplete}
+          onCancel={() => setIsRecording(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="border-t border-border bg-card p-4">
+      {/* Progress bar upload */}
+      {uploading && (
+        <div className="mb-3 px-3 py-2 bg-primary/10 rounded-md">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium">Upload en cours...</span>
+            <span className="text-sm text-muted-foreground">{progress}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Media Preview */}
+      {selectedFile && selectedMediaType && (
+        <div className="mb-3 p-3 bg-muted/50 rounded-lg">
+          <MediaPreview
+            file={selectedFile}
+            mediaType={selectedMediaType}
+            onRemove={() => {
+              setSelectedFile(null);
+              setSelectedMediaType(null);
+            }}
+          />
+        </div>
+      )}
+
       <div className="flex items-end gap-2">
         {/* Bouton Attachements */}
         <DropdownMenu>
@@ -157,6 +234,10 @@ export const BusinessChatInput: React.FC<BusinessChatInputProps> = ({
             <DropdownMenuItem onClick={() => handleFileSelect('video')}>
               <Video className="w-4 h-4 mr-2" />
               Vidéo
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleFileSelect('audio')}>
+              <FileText className="w-4 h-4 mr-2" />
+              Audio
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleFileSelect('document')}>
               <FileText className="w-4 h-4 mr-2" />
@@ -185,20 +266,35 @@ export const BusinessChatInput: React.FC<BusinessChatInputProps> = ({
             rows={1}
           />
           
-          {/* Bouton Emoji (dans le textarea) */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-1 bottom-1 h-8 w-8"
-            disabled={disabled || uploading}
-            onClick={() => toast.info('Sélecteur d\'emoji en cours de développement')}
-          >
-            <Smile className="w-4 h-4" />
-          </Button>
+          {/* Bouton Emoji */}
+          <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 bottom-1 h-8 w-8"
+                disabled={disabled || uploading}
+              >
+                <Smile className="w-4 h-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent 
+              side="top" 
+              align="end" 
+              className="w-auto p-0 border-none shadow-lg"
+              sideOffset={8}
+            >
+              <EmojiPicker
+                onEmojiClick={handleEmojiClick}
+                width={320}
+                height={400}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Bouton Envoyer ou Micro */}
-        {message.trim() ? (
+        {message.trim() || selectedFile ? (
           <Button
             onClick={handleSend}
             disabled={disabled || uploading}
@@ -215,29 +311,10 @@ export const BusinessChatInput: React.FC<BusinessChatInputProps> = ({
             disabled={disabled || uploading}
             onClick={handleVoiceRecord}
           >
-            <Mic className={cn(
-              "w-5 h-5",
-              isRecording && "text-red-500 animate-pulse"
-            )} />
+            <Mic className="w-5 h-5" />
           </Button>
         )}
       </div>
-
-      {/* Indicateur d'upload */}
-      {uploading && (
-        <div className="mt-2 text-xs text-muted-foreground flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <span>Upload en cours...</span>
-        </div>
-      )}
-
-      {/* Indicateur d'enregistrement */}
-      {isRecording && (
-        <div className="mt-2 text-xs text-red-500 flex items-center gap-2">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-          <span>Enregistrement en cours...</span>
-        </div>
-      )}
 
       <input ref={fileInputRef} type="file" className="hidden" />
     </div>
