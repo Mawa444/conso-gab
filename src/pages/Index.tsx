@@ -91,7 +91,7 @@ const Index = () => {
       setShowLoginModal(true);
       return;
     }
-    navigate("/mimo-chat");
+    navigate("/messaging");
   };
   const handleProfileSettings = () => {
     if (!user) {

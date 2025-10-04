@@ -4,7 +4,7 @@ import { MessageInput } from './MessageInput';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Phone } from 'lucide-react';
 import { WhatsAppRedirectButton } from '@/components/business-chat/WhatsAppRedirectButton';
-import { useMimoChat } from '@/contexts/MimoChatContext';
+import { useMessaging } from '@/contexts/MessagingContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -34,7 +34,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
     setActiveConversation,
     conversations,
     createBusinessConversation
-  } = useMimoChat();
+  } = useMessaging();
 
   // Load or create conversation
   React.useEffect(() => {
@@ -74,7 +74,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
   };
 
   const handleOpenInMimoChat = () => {
-    navigate(`/mimo-chat/conversation/${conversationId}`);
+    navigate(`/messaging/${conversationId}`);
   };
 
   if (loading && !activeConversation) {
@@ -120,7 +120,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
             className="flex-1"
           >
             <MessageCircle className="w-4 h-4 mr-2" />
-            Ouvrir dans Mimo Chat
+            Continuer dans Messagerie
           </Button>
         </div>
       )}

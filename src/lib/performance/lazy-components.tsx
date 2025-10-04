@@ -70,13 +70,13 @@ export const LazyBusinessCreation = lazyLoad(
   () => import('@/pages/BusinessCreationPage')
 );
 
-// Pages Chat (très lourdes)
-export const LazyMimoChatPage = lazyLoad(
-  () => import('@/pages/MimoChatPage')
+// Pages Messagerie (très lourdes)
+export const LazyMessagingPage = lazyLoad(
+  () => import('@/pages/MessagingPage')
 );
 
-export const LazyMimoConversation = lazyLoad(
-  () => import('@/pages/MimoConversationPage')
+export const LazyConversationPage = lazyLoad(
+  () => import('@/pages/ConversationPage')
 );
 
 // Pages Catalogues

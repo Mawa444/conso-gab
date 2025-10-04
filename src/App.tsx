@@ -17,8 +17,8 @@ import {
   LazyBusinessSettings,
   LazyBusinessProfile,
   LazyBusinessCreation,
-  LazyMimoChatPage,
-  LazyMimoConversation,
+  LazyMessagingPage,
+  LazyConversationPage,
   LazyCreateCatalog,
   LazyPublicCatalogs,
   LazyEntreprisesPage,
@@ -88,10 +88,11 @@ const App = () => {
                   {/* Routes produits */}
                   <Route path="/product/:productId" element={<ProductDetailPage />} />
                   
-                  {/* Routes Chat MIMO */}
-                  <Route path="/mimo-chat" element={<LazyMimoChatPage />} />
-                  <Route path="/mimo-chat/:conversationId" element={<LazyMimoConversation />} />
-                  <Route path="/messaging" element={<Navigate to="/mimo-chat" replace />} />
+                  {/* Routes Messagerie */}
+                  <Route path="/messaging" element={<LazyMessagingPage />} />
+                  <Route path="/messaging/:conversationId" element={<LazyConversationPage />} />
+                  <Route path="/mimo-chat" element={<Navigate to="/messaging" replace />} />
+                  <Route path="/mimo-chat/:conversationId" element={<Navigate to="/messaging/:conversationId" replace />} />
                   
                   {/* Routes catégories */}
                   <Route path="/category/:categoryId" element={<LazyCategoryPage />} />

@@ -73,21 +73,25 @@ interface MimoChatContextType {
   unsubscribeFromConversation: () => void;
 }
 
-const MimoChatContext = createContext<MimoChatContextType | undefined>(undefined);
+const MessagingContext = createContext<MimoChatContextType | undefined>(undefined);
 
-export const useMimoChat = () => {
-  const context = useContext(MimoChatContext);
+// New exports for MessagingContext
+export const useMessaging = () => {
+  const context = useContext(MessagingContext);
   if (!context) {
-    throw new Error('useMimoChat must be used within a MimoChatProvider');
+    throw new Error('useMessaging must be used within a MessagingProvider');
   }
   return context;
 };
 
-interface MimoChatProviderProps {
+// Keep old export for backward compatibility
+export const useMimoChat = useMessaging;
+
+interface MessagingProviderProps {
   children: ReactNode;
 }
 
-export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) => {
+export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }) => {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<MimoConversation[]>([]);
   const [activeConversation, setActiveConversationState] = useState<MimoConversation | null>(null);
@@ -565,8 +569,11 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
   };
 
   return (
-    <MimoChatContext.Provider value={value}>
+    <MessagingContext.Provider value={value}>
       {children}
-    </MimoChatContext.Provider>
+    </MessagingContext.Provider>
   );
 };
+
+// Keep old export for backward compatibility
+export const MimoChatProvider = MessagingProvider;
