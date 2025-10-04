@@ -149,66 +149,57 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         });
       });
 
-      // 3. UNIFIED IDENTITY FETCH (Meta-style) - Batch fetch all profiles at once
-      const { data: unifiedProfilesData, error: profilesError } = await supabase
-        .rpc('get_unified_profiles_batch', {
-          p_user_ids: Array.from(allParticipantIds)
-        });
+      // 3. Fetch user profiles
+      const { data: userProfiles } = await supabase
+        .from('user_profiles')
+        .select('user_id, pseudo, profile_picture_url')
+        .in('user_id', Array.from(allParticipantIds));
 
-      if (profilesError) {
-        console.error('Error fetching unified profiles:', profilesError);
-      }
-
-      // Parse unified profiles response
-      const profilesMap = new Map();
-      if (unifiedProfilesData) {
-        Object.entries(unifiedProfilesData).forEach(([userId, profileData]: [string, any]) => {
-          profilesMap.set(userId, {
-            display_name: profileData.display_name,
-            avatar_url: profileData.avatar_url,
-            type: profileData.type
-          });
-        });
-      }
-
-      // 4. Batch fetch: Business context and last messages
-      const [businessContexts, lastMessagesResult] = await Promise.all([
-        // Get business context for business conversations (Meta-style)
-        (async () => {
-          const businessConversationIds = (data || [])
-            .filter((c: any) => c.origin_type === 'business')
-            .map(c => c.id);
-          
-          if (businessConversationIds.length === 0) return [];
-          
-          const contexts = await Promise.all(
-            businessConversationIds.map(async (convId) => {
-              const { data: contextData } = await supabase
-                .rpc('get_conversation_context', { p_conversation_id: convId });
-              return { convId, context: contextData };
-            })
-          );
-          
-          return contexts;
-        })(),
-        
-        // Get last messages for each conversation
-        supabase
-          .from('messages')
-          .select('id, conversation_id, content, message_type, created_at, sender_id')
-          .in('conversation_id', conversationIds)
-          .order('created_at', { ascending: false })
-      ]);
-
-      const businessContextMap = new Map(
-        businessContexts.map((bc: any) => [bc.convId, bc.context])
+      const profilesMap = new Map(
+        userProfiles?.map(p => [p.user_id, {
+          display_name: p.pseudo,
+          avatar_url: p.profile_picture_url
+        }]) || []
       );
-      const lastMessages = lastMessagesResult.data || [];
 
-      // 5. Transform conversations with unified data
+      // 4. Fetch business profiles for business conversations
+      const businessOriginIds = data
+        .filter((c: any) => c.origin_type === 'business' && c.origin_id)
+        .map(c => c.origin_id);
+
+      let businessProfilesMap = new Map();
+      if (businessOriginIds.length > 0) {
+        const { data: businessProfiles } = await supabase
+          .from('business_profiles')
+          .select('id, business_name, logo_url, whatsapp, phone, email, business_category')
+          .in('id', businessOriginIds);
+
+        businessProfilesMap = new Map(
+          businessProfiles?.map(bp => [bp.id, bp]) || []
+        );
+      }
+
+      // 5. Fetch last messages
+      const { data: lastMessagesData } = await supabase
+        .from('messages')
+        .select('id, conversation_id, content, message_type, created_at, sender_id')
+        .in('conversation_id', conversationIds)
+        .order('created_at', { ascending: false });
+
+      // Group messages by conversation (keep only the latest)
+      const lastMessagesMap = new Map();
+      lastMessagesData?.forEach((msg: any) => {
+        if (!lastMessagesMap.has(msg.conversation_id)) {
+          lastMessagesMap.set(msg.conversation_id, msg);
+        }
+      });
+
+      const lastMessages = Array.from(lastMessagesMap.values());
+
+      // 6. Transform conversations with unified data
       const transformedConversations = await Promise.all(
         (data || []).map(async (conv: any) => {
-          const lastMessage = lastMessages?.find((msg: any) => msg.conversation_id === conv.id);
+          const lastMessage = lastMessagesMap.get(conv.id);
           const userParticipant = conv.participants.find((p: any) => p.user_id === user.id);
           
           // Enrich participants with unified profile data
@@ -217,10 +208,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
             return {
               ...p,
               joined_at: p.created_at,
-              profile: profile ? {
-                display_name: profile.display_name,
-                avatar_url: profile.avatar_url
-              } : undefined
+              profile: profile || undefined
             };
           });
           
@@ -236,16 +224,24 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
             unreadCount = count || 0;
           }
           
-          // Enrich business conversations with context (Meta-style)
+          // Enrich business conversations with context
           let enrichedConv: any = { ...conv };
-          if (conv.origin_type === 'business') {
-            const businessContext = businessContextMap.get(conv.id);
-            if (businessContext) {
+          if (conv.origin_type === 'business' && conv.origin_id) {
+            const businessProfile = businessProfilesMap.get(conv.origin_id);
+            if (businessProfile) {
               enrichedConv = {
                 ...conv,
-                title: businessContext.business_name || conv.title || 'Business',
-                avatar_url: businessContext.logo_url,
-                business_context: businessContext
+                title: businessProfile.business_name || conv.title || 'Business',
+                avatar_url: businessProfile.logo_url,
+                business_context: {
+                  business_id: businessProfile.id,
+                  business_name: businessProfile.business_name,
+                  logo_url: businessProfile.logo_url,
+                  whatsapp: businessProfile.whatsapp,
+                  phone: businessProfile.phone,
+                  email: businessProfile.email,
+                  business_category: businessProfile.business_category
+                }
               };
             }
           }
