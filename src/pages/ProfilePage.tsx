@@ -327,8 +327,8 @@ export const ProfilePage = ({
             {/* Actions rapides - Alignées à droite */}
             <div className="flex items-center gap-2 sm:pb-2">
               <Button size="sm" variant="default" className="gap-2">
-                <Bell className="w-4 h-4" />
-                <span className="hidden sm:inline">S'abonner</span>
+                <Star className="w-4 h-4" />
+                <span className="hidden sm:inline">Favoris</span>
               </Button>
               <Button variant="outline" size="icon" onClick={handleDeleteAccount} title="Supprimer le compte">
                 <Trash2 className="w-4 h-4" />

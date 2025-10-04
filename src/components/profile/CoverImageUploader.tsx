@@ -44,7 +44,7 @@ export const CoverImageUploader = ({
       const result = await uploadProcessedImage(file, {
         bucket,
         folder,
-        exactDimensions: { width: 1300, height: 1300 },
+        exactDimensions: { width: 1920, height: 1080 },
         quality: 0.92,
         maxSize: 5242880
       });
@@ -75,7 +75,7 @@ export const CoverImageUploader = ({
     <>
       <div className="space-y-2">
         <label className="text-sm font-medium">{label}</label>
-        <p className="text-xs text-muted-foreground">Format carré 1300x1300px, max 5MB</p>
+        <p className="text-xs text-muted-foreground">Format 16:9 (1920x1080px), max 5MB</p>
 
         <Card className="overflow-hidden">
         <CardContent className="p-0">
@@ -148,7 +148,7 @@ export const CoverImageUploader = ({
             setTempImageUrl(null);
           }}
           imageUrl={tempImageUrl}
-          aspectRatio={1}
+          aspectRatio={16 / 9}
           onCropComplete={handleCropComplete}
         />
       )}

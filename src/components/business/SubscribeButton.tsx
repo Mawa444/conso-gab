@@ -90,12 +90,12 @@ export const SubscribeButton: React.FC<SubscribeButtonProps> = ({
         {subscribed ? (
           <>
             <BellRing className="h-4 w-4" />
-            Abonné
+            Favori
           </>
         ) : (
           <>
             <Bell className="h-4 w-4" />
-            S'abonner
+            Favoris
           </>
         )}
       </Button>
@@ -142,7 +142,7 @@ export const SubscribeButton: React.FC<SubscribeButtonProps> = ({
                   onClick={() => handleSubscribe()}
                   className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
-                  Se désabonner
+                  Se retirer des favoris
                 </Button>
               </div>
             </div>

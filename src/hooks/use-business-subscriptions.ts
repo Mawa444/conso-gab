@@ -78,8 +78,8 @@ export const useBusinessSubscriptions = () => {
 
       await fetchSubscriptions();
       toast({
-        title: "Abonnement réussi",
-        description: "Vous êtes maintenant abonné à ce profil business.",
+        title: "Ajouté aux favoris",
+        description: "Vous recevrez les actualités de ce profil en priorité.",
       });
       return true;
     } catch (error: any) {
@@ -106,8 +106,8 @@ export const useBusinessSubscriptions = () => {
 
       await fetchSubscriptions();
       toast({
-        title: "Désabonnement réussi",
-        description: "Vous n'êtes plus abonné à ce profil business.",
+        title: "Retiré des favoris",
+        description: "Vous ne recevrez plus les actualités de ce profil.",
       });
       return true;
     } catch (error: any) {

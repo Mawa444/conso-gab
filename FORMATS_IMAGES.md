@@ -7,9 +7,8 @@
 
 #### Utilisations :
 - ✅ Logo d'entreprise
-- ✅ Image de couverture de profil business
 - ✅ Photo de profil utilisateur
-- ✅ Image de couverture utilisateur
+- ✅ Photo de profil business
 - ✅ Images de catalogues
 - ✅ Photos de produits
 
@@ -28,6 +27,8 @@
 **Dimensions : 1920×1080 px**
 
 #### Utilisations :
+- ✅ Image de couverture utilisateur
+- ✅ Image de couverture business
 - ✅ Bannières multi-images
 - ✅ Images de héros de page
 - ✅ Visuels promotionnels larges

@@ -63,7 +63,7 @@ export const useEnhancedImageUpload = () => {
     file: File,
     targetWidth: number = 1300,
     targetHeight: number = 1300,
-    quality: number = 0.95
+    quality: number = 0.92
   ): Promise<{ blob: Blob; format: string }> => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
@@ -129,13 +129,13 @@ export const useEnhancedImageUpload = () => {
         throw new Error(validation.message);
       }
 
-      // Dimensions cibles (par défaut 1300x1300 pour les catalogues)
+      // Dimensions cibles - 1300x1300 pour profils/catalogues, 1920x1080 pour couvertures
       const targetWidth = options.exactDimensions?.width || 1300;
       const targetHeight = options.exactDimensions?.height || 1300;
       const maxSize = options.maxSize || 2097152; // 2MB
 
       // Redimensionner et recadrer
-      let quality = options.quality || 0.95;
+      let quality = options.quality || 0.92;
       let { blob, format } = await resizeAndCropImage(file, targetWidth, targetHeight, quality);
 
       // Si trop volumineux, réduire la qualité progressivement
