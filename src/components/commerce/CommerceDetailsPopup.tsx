@@ -264,22 +264,12 @@ export const CommerceDetailsPopup = ({
 
         {/* Actions finales */}
         <div className="p-4 border-t border-border">
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(commerce.address)}`, '_blank')}
-            >
-              <MapPin className="w-4 h-4 mr-2" />
-              Itinéraire
-            </Button>
-            <Button
-              className="flex-1 bg-gradient-to-r from-primary to-accent text-white hover:opacity-90"
-            >
-              <Phone className="w-4 h-4 mr-2" />
-              Appeler
-            </Button>
-          </div>
+          <Button
+            className="w-full bg-gradient-to-r from-primary to-accent text-white hover:opacity-90"
+          >
+            <Phone className="w-4 h-4 mr-2" />
+            Appeler
+          </Button>
         </div>
       </div>
     </div>

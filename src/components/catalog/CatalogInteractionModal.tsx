@@ -28,7 +28,6 @@ import {
 } from 'lucide-react';
 import { BusinessVitrineTab } from '@/components/business/BusinessVitrineTab';
 import { MessageSheet } from '@/components/commerce/MessageSheet';
-import { RouteMapModal } from '@/components/map/RouteMapModal';
 import { useCatalogComments, useCatalogLikes, useCatalogImageComments, useCatalogImageLikes } from '@/hooks/use-catalog-interactions';
 import { useCatalogFavorites, useCatalogShares } from '@/hooks/use-catalog-favorites';
 import { supabase } from '@/integrations/supabase/client';
@@ -73,7 +72,6 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
   const [commentRating, setCommentRating] = useState(5);
   const [messageSheetOpen, setMessageSheetOpen] = useState(false);
   const [showAdvancedMessaging, setShowAdvancedMessaging] = useState(false);
-  const [showRouteModal, setShowRouteModal] = useState(false);
   
   // Hooks pour les interactions
   const { comments, addComment, isAdding } = useCatalogComments(catalog.id);
@@ -497,21 +495,13 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                         </Button>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 gap-2">
                         <Button 
                           className="bg-primary/10 text-primary hover:bg-primary/20"
                           onClick={() => setShowAdvancedMessaging(true)}
                           size="sm"
                         >
                           Options avancées
-                        </Button>
-                        <Button 
-                          className="bg-orange-500 hover:bg-orange-600 text-white"
-                          onClick={() => setShowRouteModal(true)}
-                          size="sm"
-                        >
-                          <MapPin className="w-3 h-3 mr-1" />
-                          Itinéraire
                         </Button>
                       </div>
                     </TabsContent>
@@ -634,16 +624,6 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
         />
 
         {/* Messaging functionality will be re-implemented */}
-
-        <RouteMapModal
-          open={showRouteModal}
-          onClose={() => setShowRouteModal(false)}
-          destination={{
-            name: catalog.businessName || catalog.name,
-            address: `${catalog.geo_district || ''}, ${catalog.geo_city || ''}`.trim().replace(/^,\s*|,\s*$/, ''),
-            coordinates: { lat: 0, lng: 0 } // À remplacer par les vraies coordonnées
-          }}
-        />
       </DialogContent>
     </Dialog>
   );

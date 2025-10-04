@@ -151,12 +151,6 @@ export const EnhancedCommerceDetailsPopup = ({
     window.open(`tel:${enrichedCommerce.phone}`, '_self');
   };
 
-  const handleDirections = () => {
-    const address = encodeURIComponent(enrichedCommerce.address);
-    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${address}`;
-    window.open(googleMapsUrl, '_blank');
-  };
-
   return (
     <>
       <div className="fixed inset-0 bg-background z-modal overflow-y-auto" style={{ zIndex: 'var(--z-modal)' }}>
@@ -492,23 +486,13 @@ export const EnhancedCommerceDetailsPopup = ({
 
         {/* Actions flottantes */}
         <div className="sticky bottom-0 bg-background border-t border-border p-4">
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={handleDirections}
-            >
-              <Navigation className="w-4 h-4 mr-2" />
-              Itinéraire
-            </Button>
-            <Button
-              className="flex-1"
-              onClick={handleCall}
-            >
-              <Phone className="w-4 h-4 mr-2" />
-              Appeler
-            </Button>
-          </div>
+          <Button
+            className="w-full"
+            onClick={handleCall}
+          >
+            <Phone className="w-4 h-4 mr-2" />
+            Appeler
+          </Button>
         </div>
       </div>
 
