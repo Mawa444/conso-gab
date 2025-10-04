@@ -1629,6 +1629,30 @@ export type Database = {
           },
         ]
       }
+      profile_image_likes: {
+        Row: {
+          created_at: string
+          id: string
+          image_type: string
+          profile_user_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_type: string
+          profile_user_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_type?: string
+          profile_user_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"]

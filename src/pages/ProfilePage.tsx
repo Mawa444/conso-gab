@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2 } from "lucide-react";
+import { User, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +15,41 @@ import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { toast } from "sonner";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
+import { ImageViewModal } from "@/components/profile/ImageViewModal";
+import { useProfileImageLikes } from "@/hooks/use-profile-image-likes";
+import { cn } from "@/lib/utils";
+// Composants de likes pour les images
+const LikeButton = ({ profileUserId, imageType }: { profileUserId: string; imageType: 'avatar' | 'cover' }) => {
+  const { likesCount, isLiked, isLoading, toggleLike } = useProfileImageLikes(profileUserId, imageType);
+  
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={(e) => {
+        e.stopPropagation();
+        toggleLike();
+      }}
+      disabled={isLoading}
+      className={cn(
+        "gap-2 bg-background/80 backdrop-blur-sm hover:bg-background/90",
+        isLiked && "text-red-500"
+      )}
+    >
+      <Heart className={cn("w-4 h-4", isLiked && "fill-red-500")} />
+      <span className="text-sm font-medium">{likesCount}</span>
+    </Button>
+  );
+};
+
+const CoverLikeButton = ({ profileUserId }: { profileUserId: string }) => (
+  <LikeButton profileUserId={profileUserId} imageType="cover" />
+);
+
+const AvatarLikeButton = ({ profileUserId }: { profileUserId: string }) => (
+  <LikeButton profileUserId={profileUserId} imageType="avatar" />
+);
+
 interface UserProfileData {
   name: string;
   email: string;
@@ -86,6 +121,11 @@ export const ProfilePage = ({
   const [activityFilter, setActivityFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [imageViewModal, setImageViewModal] = useState<{
+    open: boolean;
+    imageUrl: string;
+    imageType: 'avatar' | 'cover';
+  }>({ open: false, imageUrl: '', imageType: 'avatar' });
   const navigate = useNavigate();
   const {
     signOut
@@ -220,13 +260,27 @@ export const ProfilePage = ({
       {/* Header Profile style Facebook */}
       <div className="relative bg-background">
         {/* Image de couverture */}
-        <div className="h-48 md:h-64 bg-gradient-to-br from-primary via-accent to-secondary relative overflow-hidden">
+        <div 
+          className="h-48 md:h-64 bg-gradient-to-br from-primary via-accent to-secondary relative overflow-hidden cursor-pointer group"
+          onClick={() => userProfile.cover_image_url && setImageViewModal({
+            open: true,
+            imageUrl: userProfile.cover_image_url,
+            imageType: 'cover'
+          })}
+        >
           {userProfile.cover_image_url ? (
-            <img 
-              src={userProfile.cover_image_url} 
-              alt="Couverture" 
-              className="w-full h-full object-cover"
-            />
+            <>
+              <img 
+                src={userProfile.cover_image_url} 
+                alt="Couverture" 
+                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <CoverLikeButton profileUserId={user?.id || ''} />
+                </div>
+              </div>
+            </>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-accent/80 to-secondary/80" />
           )}
@@ -238,13 +292,20 @@ export const ProfilePage = ({
             {/* Section gauche : Photo + Infos */}
             <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-20">
               {/* Photo de profil avec contour blanc épais */}
-              <div className="relative">
-                <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl ring-4 ring-background">
+              <div 
+                className="relative cursor-pointer group"
+                onClick={() => userProfile.avatar_url && setImageViewModal({
+                  open: true,
+                  imageUrl: userProfile.avatar_url,
+                  imageType: 'avatar'
+                })}
+              >
+                <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl ring-4 ring-background transition-all group-hover:ring-primary/50">
                   {userProfile.avatar_url ? (
                     <img 
                       src={userProfile.avatar_url} 
                       alt={userProfile.name} 
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform group-hover:scale-110"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
@@ -252,6 +313,11 @@ export const ProfilePage = ({
                     </div>
                   )}
                 </div>
+                {userProfile.avatar_url && (
+                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <AvatarLikeButton profileUserId={user?.id || ''} />
+                  </div>
+                )}
               </div>
 
               {/* Infos utilisateur */}
@@ -481,5 +547,17 @@ export const ProfilePage = ({
         </Tabs>
       </div>
       </div>
+
+      {/* Modal de visualisation d'image */}
+      {user && imageViewModal.open && (
+        <ImageViewModal
+          open={imageViewModal.open}
+          onClose={() => setImageViewModal({ ...imageViewModal, open: false })}
+          imageUrl={imageViewModal.imageUrl}
+          imageType={imageViewModal.imageType}
+          profileUserId={user.id}
+          imageTitle={imageViewModal.imageType === 'avatar' ? 'Photo de profil' : 'Image de couverture'}
+        />
+      )}
     </PageWithSkeleton>;
 };
