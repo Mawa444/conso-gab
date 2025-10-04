@@ -1,22 +1,44 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ArrowLeft, Map, List } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CommerceListTab } from "@/components/map/CommerceListTab";
-import { MapTab } from "@/components/map/MapTab";
+import { MapLibreView } from "@/components/map/MapLibreView";
+import { BusinessMarkersLayer } from "@/components/map/BusinessMarkersLayer";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { MapPageSkeleton } from "@/components/ui/skeleton-screens";
-import { useOptimizedBusinesses } from "@/hooks/use-optimized-businesses";
+import { useMapBusinesses, type MapBusiness } from "@/hooks/use-map-businesses";
+import type maplibregl from "maplibre-gl";
 interface MapPageProps {
   onBack?: () => void;
 }
 export const MapPage = ({
   onBack
 }: MapPageProps) => {
-  const [activeTab, setActiveTab] = useState("list");
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("map");
+  const [map, setMap] = useState<maplibregl.Map | null>(null);
+  
   const {
-    loading
-  } = useOptimizedBusinesses();
+    businesses,
+    loading,
+    setCurrentBounds,
+  } = useMapBusinesses({ autoFetch: false });
+
+  const handleMapLoad = useCallback((loadedMap: maplibregl.Map) => {
+    setMap(loadedMap);
+    // Charger les entreprises du viewport initial
+    setCurrentBounds(loadedMap.getBounds());
+  }, [setCurrentBounds]);
+
+  const handleMoveEnd = useCallback((bounds: maplibregl.LngLatBounds) => {
+    setCurrentBounds(bounds);
+  }, [setCurrentBounds]);
+
+  const handleBusinessClick = useCallback((business: MapBusiness) => {
+    navigate(`/business/${business.id}/profile`);
+  }, [navigate]);
   return <PageWithSkeleton isLoading={loading} skeleton={<MapPageSkeleton />}>
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex flex-col">
       {/* Header simplifié */}
@@ -58,8 +80,29 @@ export const MapPage = ({
               <CommerceListTab />
             </TabsContent>
             
-            <TabsContent value="map" className="h-full m-0">
-              <MapTab />
+            <TabsContent value="map" className="h-full m-0 relative">
+              <MapLibreView
+                initialCenter={[9.4673, 0.4162]}
+                initialZoom={12}
+                onMapLoad={handleMapLoad}
+                onMoveEnd={handleMoveEnd}
+                className="h-full"
+              >
+                <BusinessMarkersLayer
+                  map={map}
+                  businesses={businesses}
+                  onBusinessClick={handleBusinessClick}
+                />
+              </MapLibreView>
+              
+              {loading && (
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-background/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-border z-[1000]">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm font-medium">Chargement des entreprises...</span>
+                  </div>
+                </div>
+              )}
             </TabsContent>
           </div>
         </Tabs>
