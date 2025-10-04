@@ -2815,6 +2815,10 @@ export type Database = {
           phone: string
         }[]
       }
+      get_conversation_context: {
+        Args: { p_conversation_id: string }
+        Returns: Json
+      }
       get_my_business_profiles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -2853,6 +2857,14 @@ export type Database = {
       get_proj4_from_srid: {
         Args: { "": number }
         Returns: string
+      }
+      get_unified_profile: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+      get_unified_profiles_batch: {
+        Args: { p_user_ids: string[] }
+        Returns: Json
       }
       get_user_context: {
         Args: Record<PropertyKey, never>

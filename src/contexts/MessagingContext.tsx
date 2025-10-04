@@ -100,7 +100,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(true);
 
-  // Fetch conversations - OPTIMIZED (no N+1 queries)
+  // Fetch conversations - META-STYLE (unified identity)
   const fetchConversations = async () => {
     if (!user) return;
     
@@ -108,7 +108,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     setError(null);
     
     try {
-      // Fetch conversations with participants (NO profiles join)
+      // Fetch conversations with participants
       const { data, error } = await supabase
         .from('conversations')
         .select(`
@@ -136,38 +136,25 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         return;
       }
 
-      const conversationIds = data?.map(conv => conv.id) || [];
+      const conversationIds = data.map(conv => conv.id);
 
-      // Extract all unique participant user_ids
-      const allParticipantIds = new Set<string>();
-      data.forEach((conv: any) => {
-        conv.participants?.forEach((p: any) => {
-          allParticipantIds.add(p.user_id);
-        });
-      });
+      // Extract all unique participant user_ids for unified profile fetch
+      const allParticipantIds = Array.from(
+        new Set(
+          data.flatMap((conv: any) => 
+            conv.participants?.map((p: any) => p.user_id) || []
+          )
+        )
+      );
 
-      // Batch fetch: Profiles, Business info and last messages
-      const [profilesResult, businessesResult, lastMessagesResult] = await Promise.all([
-        // Fetch all participant profiles
-        supabase
-          .from('profiles')
-          .select('user_id, display_name, avatar_url')
-          .in('user_id', Array.from(allParticipantIds)),
+      // META-STYLE: Batch fetch unified profiles + business contexts + last messages
+      const [profilesResult, lastMessagesResult] = await Promise.all([
+        // Unified profiles batch fetch (like Facebook User Graph)
+        supabase.rpc('get_unified_profiles_batch', { 
+          p_user_ids: allParticipantIds 
+        }),
         
-        // Get business info for business conversations
-        (async () => {
-          const businessConversations = (data || []).filter((c: any) => c.origin_type === 'business' && c.origin_id);
-          const businessIds = businessConversations.map((c: any) => c.origin_id).filter(Boolean);
-          
-          if (businessIds.length === 0) return { data: [] };
-          
-          return await supabase
-            .from('business_profiles')
-            .select('id, business_name, logo_url, business_category, whatsapp, phone, email')
-            .in('id', businessIds);
-        })(),
-        
-        // Get last messages for each conversation (NO profiles join)
+        // Get last messages for each conversation
         supabase
           .from('messages')
           .select('id, conversation_id, content, message_type, created_at, sender_id')
@@ -175,31 +162,58 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
           .order('created_at', { ascending: false })
       ]);
 
-      const profilesData = profilesResult.data || [];
-      const profilesMap = new Map(profilesData.map(p => [p.user_id, p]));
-      const businessData = businessesResult.data || [];
+      const profilesMap = new Map(
+        Object.entries(profilesResult.data || {}).map(([userId, profile]: [string, any]) => [
+          userId,
+          {
+            display_name: profile.display_name,
+            avatar_url: profile.avatar_url,
+            type: profile.type
+          }
+        ])
+      );
+
       const lastMessages = lastMessagesResult.data || [];
 
-      // Transform conversations with all enriched data
+      // Fetch business contexts for business conversations
+      const businessConvIds = data
+        .filter((c: any) => c.origin_type === 'business' && c.origin_id)
+        .map((c: any) => c.id);
+      
+      const businessContextsMap = new Map();
+      if (businessConvIds.length > 0) {
+        const contextResults = await Promise.all(
+          businessConvIds.map(async (convId: string) => {
+            const { data: ctx } = await supabase.rpc('get_conversation_context', {
+              p_conversation_id: convId
+            });
+            return [convId, ctx];
+          })
+        );
+        contextResults.forEach(([convId, ctx]) => {
+          if (ctx && Object.keys(ctx).length > 0) {
+            businessContextsMap.set(convId, ctx);
+          }
+        });
+      }
+
+      // Transform conversations with unified data
       const transformedConversations = await Promise.all(
-        (data || []).map(async (conv: any) => {
-          const lastMessage = lastMessages?.find((msg: any) => msg.conversation_id === conv.id);
+        data.map(async (conv: any) => {
+          const lastMessage = lastMessages.find((msg: any) => msg.conversation_id === conv.id);
           const userParticipant = conv.participants.find((p: any) => p.user_id === user.id);
           
-          // Enrich participants with profile data
+          // Enrich participants with unified profiles
           const enrichedParticipants = conv.participants.map((p: any) => {
             const profile = profilesMap.get(p.user_id);
             return {
               ...p,
               joined_at: p.created_at,
-              profile: profile ? {
-                display_name: profile.display_name,
-                avatar_url: profile.avatar_url
-              } : undefined
+              profile: profile || undefined
             };
           });
           
-          // Calculate unread count for this conversation
+          // Calculate unread count
           let unreadCount = 0;
           if (userParticipant?.last_read) {
             const { count } = await supabase
@@ -211,26 +225,16 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
             unreadCount = count || 0;
           }
           
-          // Enrich business conversations with business info
+          // Enrich with business context if applicable
           let enrichedConv: any = { ...conv };
-          if (conv.origin_type === 'business' && conv.origin_id) {
-            const businessInfo = businessData.find((b: any) => b.id === conv.origin_id);
-            if (businessInfo) {
-              enrichedConv = {
-                ...conv,
-                title: businessInfo.business_name || conv.title || 'Business',
-                avatar_url: businessInfo.logo_url,
-                business_context: {
-                  business_id: businessInfo.id,
-                  business_name: businessInfo.business_name,
-                  category: businessInfo.business_category,
-                  logo_url: businessInfo.logo_url,
-                  whatsapp: businessInfo.whatsapp,
-                  phone: businessInfo.phone,
-                  email: businessInfo.email
-                }
-              };
-            }
+          const businessContext = businessContextsMap.get(conv.id);
+          if (businessContext) {
+            enrichedConv = {
+              ...conv,
+              title: businessContext.business_name || conv.title || 'Business',
+              avatar_url: businessContext.logo_url,
+              business_context: businessContext
+            };
           }
           
           return {
@@ -248,13 +252,14 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
 
       setConversations(transformedConversations as MimoConversation[]);
     } catch (err) {
+      console.error('Fetch conversations error:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des conversations');
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch messages for a conversation with pagination
+  // Fetch messages - META-STYLE (unified identity)
   const fetchMessages = async (conversationId: string, page: number = 0) => {
     setLoading(true);
     setError(null);
@@ -264,7 +269,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
       const start = page * MESSAGES_PER_PAGE;
       const end = start + MESSAGES_PER_PAGE - 1;
 
-      // Fetch messages WITHOUT profiles join
+      // Fetch messages
       const { data, error } = await supabase
         .from('messages')
         .select(`
@@ -276,7 +281,8 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
           created_at,
           edited_at,
           reply_to_message_id,
-          attachment_url
+          attachment_url,
+          status
         `)
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true })
@@ -284,27 +290,31 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
 
       if (error) throw error;
 
-      // Fetch sender profiles separately
+      // META-STYLE: Batch fetch unified profiles for all senders
       const senderIds = [...new Set(data?.map((m: any) => m.sender_id) || [])];
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('user_id, display_name, avatar_url')
-        .in('user_id', senderIds);
+      const { data: profilesData } = await supabase.rpc('get_unified_profiles_batch', {
+        p_user_ids: senderIds
+      });
       
       const profilesMap = new Map(
-        (profilesData || []).map(p => [p.user_id, p])
+        Object.entries(profilesData || {}).map(([userId, profile]: [string, any]) => [
+          userId,
+          {
+            display_name: profile.display_name,
+            avatar_url: profile.avatar_url,
+            type: profile.type
+          }
+        ])
       );
 
-      // Enrich messages with sender profiles
+      // Enrich messages with unified sender profiles
       const transformedMessages = (data || []).map((msg: any) => {
         const profile = profilesMap.get(msg.sender_id);
         return {
           ...msg,
-          message_type: msg.message_type as 'text' | 'image' | 'audio' | 'document' | 'location' | 'system',
-          sender_profile: profile ? {
-            display_name: profile.display_name,
-            avatar_url: profile.avatar_url
-          } : undefined
+          message_type: msg.message_type as 'text' | 'image' | 'audio' | 'document' | 'location' | 'system' | 'file' | 'video',
+          status: (msg.status || 'sent') as 'sent' | 'delivered' | 'read',
+          sender_profile: profile || undefined
         };
       });
 
@@ -315,6 +325,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         setMessages(transformedMessages as MimoMessage[]);
       }
     } catch (err) {
+      console.error('Fetch messages error:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des messages');
     } finally {
       setLoading(false);
@@ -530,12 +541,12 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         async (payload) => {
           const newMessage = payload.new as MimoMessage;
           
-          // Fetch sender profile for the new message
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('display_name, avatar_url')
-            .eq('user_id', newMessage.sender_id)
-            .single();
+          // META-STYLE: Fetch unified profile for the new message sender
+          const { data: profileData } = await supabase.rpc('get_unified_profile', {
+            p_user_id: newMessage.sender_id
+          });
+          
+          const profile = profileData as any;
           
           const enrichedMessage = {
             ...newMessage,
