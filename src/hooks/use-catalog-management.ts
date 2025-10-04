@@ -2,11 +2,16 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import type { Tables, TablesInsert, TablesUpdate, Json } from '@/integrations/supabase/types';
 
 type Catalog = Tables<'catalogs'>;
 type CatalogInsert = TablesInsert<'catalogs'>;
 type CatalogUpdate = TablesUpdate<'catalogs'>;
+
+interface CatalogDataWithImages extends Omit<CatalogInsert, 'business_id' | 'images'> {
+  images?: Json; // Json compatible with DB
+  title?: string;
+}
 
 export const useCatalogManagement = (businessId: string) => {
   const { toast } = useToast();
@@ -34,7 +39,7 @@ export const useCatalogManagement = (businessId: string) => {
 
   // Create catalog mutation
   const createCatalogMutation = useMutation({
-    mutationFn: async (catalogData: Omit<CatalogInsert, 'business_id'> & { images?: any[]; title?: string }) => {
+    mutationFn: async (catalogData: CatalogDataWithImages) => {
       console.log('Creating catalog with data:', catalogData);
       const { images, title, ...catalogInsert } = catalogData;
       
@@ -47,10 +52,10 @@ export const useCatalogManagement = (businessId: string) => {
       console.log('Current user:', user.id);
       console.log('Business ID:', businessId);
       
-      const insertData = { 
+      const insertData: CatalogInsert = { 
         ...catalogInsert, 
         business_id: businessId,
-        images: images || [],
+        images: images || null,
         name: title || catalogInsert.name || 'Catalogue sans nom'
       };
       

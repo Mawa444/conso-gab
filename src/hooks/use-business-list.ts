@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { BusinessAddress } from '@/types/common.types';
 
 interface BusinessListItem {
   id: string;
@@ -84,9 +85,10 @@ export const useBusinessList = () => {
       }));
 
       setBusinesses(formattedBusinesses);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Erreur lors de la récupération des entreprises:', err);
-      setError(err.message || 'Erreur lors de la récupération des entreprises');
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la récupération des entreprises';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -123,7 +125,7 @@ const getCategoryLabel = (category: string): string => {
   return categoryLabels[category] || category;
 };
 
-const formatAddress = (business: any): string => {
+const formatAddress = (business: BusinessAddress): string => {
   const parts = [
     business.quartier,
     business.department,
