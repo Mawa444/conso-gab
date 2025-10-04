@@ -76,16 +76,19 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
   }, [authLoading, user, navigate, location.pathname]);
 
   // Redirection intelligente après connexion - uniquement depuis racine ou auth
+  const [hasRedirected, setHasRedirected] = useState(false);
+  
   useEffect(() => {
-    if (!globalLoading && user && userProfile.role) {
+    if (!globalLoading && user && userProfile.role && !hasRedirected) {
       const currentPath = location.pathname;
       
       // Rediriger SEULEMENT depuis la racine exacte ou auth (pas lors d'actualisations)
       if (currentPath === '/' || currentPath.startsWith('/auth')) {
+        setHasRedirected(true);
         redirectToLastUsedProfile();
       }
     }
-  }, [globalLoading, user, userProfile.role, location.pathname]);
+  }, [globalLoading, user, userProfile.role, hasRedirected]);
 
   const redirectToLastUsedProfile = async () => {
     if (!user) return;

@@ -208,16 +208,35 @@ export const useBusinessConversation = (businessId: string) => {
           conversation_id: conversation.id,
           message_type: messageType,
           content: content,
-          attachment_url: attachmentUrl
+          attachment_url: attachmentUrl || ''
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erreur edge function:', error);
+        throw error;
+      }
 
-      console.log('✅ Message envoyé avec succès');
+      console.log('✅ Message envoyé avec succès:', data);
       
-      // Le message sera ajouté via le real-time subscription
-      // Pas besoin de l'ajouter manuellement
+      // Ajouter le message optimistiquement (il sera dédupliqué par le real-time)
+      const optimisticMessage: BusinessMessage = {
+        id: crypto.randomUUID(),
+        conversation_id: conversation.id,
+        sender_id: user.id,
+        message_type: messageType,
+        content: content,
+        attachment_url: attachmentUrl,
+        status: 'sent',
+        created_at: new Date().toISOString(),
+        sender: {
+          id: user.id,
+          pseudo: undefined,
+          profile_picture_url: undefined
+        }
+      };
+      
+      setMessages(prev => [...prev, optimisticMessage]);
 
     } catch (err: any) {
       console.error('❌ Erreur lors de l\'envoi du message:', err);
@@ -235,8 +254,8 @@ export const useBusinessConversation = (businessId: string) => {
 
     try {
       await supabase
-        .from('conversation_members')
-        .update({ last_read_at: new Date().toISOString() })
+        .from('participants')
+        .update({ last_read: new Date().toISOString() })
         .eq('conversation_id', conversation.id)
         .eq('user_id', user.id);
     } catch (err) {
@@ -286,10 +305,18 @@ export const useBusinessConversation = (businessId: string) => {
             }
           };
 
-          setMessages(prev => [...prev, newMessage]);
+          setMessages(prev => {
+            // Éviter les doublons
+            if (prev.some(m => m.id === newMessage.id)) {
+              return prev;
+            }
+            return [...prev, newMessage];
+          });
           
           // Marquer comme lu si l'utilisateur est actif
-          markAsRead();
+          if (payload.new.sender_id !== user.id) {
+            markAsRead();
+          }
         }
       )
       .subscribe();

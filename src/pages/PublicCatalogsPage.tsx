@@ -115,7 +115,7 @@ export const PublicCatalogsPage = () => {
   return (
     <PageWithSkeleton isLoading={isLoading} skeleton={<CommerceListSkeleton />}>
       <div className="min-h-screen bg-background">
-        <Header title="Catalogues" showBack onBack={() => navigate(-1)} />
+        <Header title="Catalogues" showBack onBack={() => navigate('/')} />
       
       <div className="pt-24 px-4 pb-8">
         {/* Filtres et recherche */}
