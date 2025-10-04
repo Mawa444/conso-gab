@@ -39,16 +39,22 @@ class ErrorTracker {
       route: window.location.pathname,
     };
 
-    console.error('[ErrorTracker]', error, fullContext);
+    // Safe error logging - avoid complex object conversion
+    const errorMessage = error?.message || 'Unknown error';
+    const errorName = error?.name || 'Error';
+    const errorStack = error?.stack || '';
+    
+    console.error('[ErrorTracker]', errorName, errorMessage);
 
     this.errorQueue.push({ error, context: fullContext });
 
     // Log vers la console en développement
     if (import.meta.env.DEV) {
       console.group('🔴 Error Tracked');
-      console.error('Error:', error);
-      console.log('Context:', fullContext);
-      console.trace();
+      console.error('Error Name:', errorName);
+      console.error('Error Message:', errorMessage);
+      console.error('Stack:', errorStack);
+      console.log('Context:', JSON.stringify(fullContext, null, 2));
       console.groupEnd();
     }
 

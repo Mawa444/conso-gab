@@ -238,3 +238,5 @@ export const MimoConversationPage: React.FC = () => {
     </MimoChatProvider>
   );
 };
+
+export default MimoConversationPage;

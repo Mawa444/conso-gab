@@ -72,11 +72,11 @@ export const LazyBusinessCreation = lazyLoad(
 
 // Pages Chat (très lourdes)
 export const LazyMimoChatPage = lazyLoad(
-  () => import('@/pages/MimoChatPage') as any
+  () => import('@/pages/MimoChatPage')
 );
 
 export const LazyMimoConversation = lazyLoad(
-  () => import('@/pages/MimoConversationPage') as any
+  () => import('@/pages/MimoConversationPage')
 );
 
 // Pages Catalogues
@@ -85,7 +85,7 @@ export const LazyCreateCatalog = lazyLoad(
 );
 
 export const LazyPublicCatalogs = lazyLoad(
-  () => import('@/pages/PublicCatalogsPage') as any
+  () => import('@/pages/PublicCatalogsPage')
 );
 
 // Pages Entreprises

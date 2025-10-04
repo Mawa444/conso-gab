@@ -59,19 +59,39 @@ class StructuredLogger {
       return;
     }
 
-    switch (level) {
-      case 'ERROR':
-        console.error(JSON.stringify(entry, null, 2));
-        break;
-      case 'WARN':
-        console.warn(JSON.stringify(entry, null, 2));
-        break;
-      case 'INFO':
-        console.info(JSON.stringify(entry, null, 2));
-        break;
-      case 'DEBUG':
-        console.log(JSON.stringify(entry, null, 2));
-        break;
+    // Safe JSON stringification with circular reference handling
+    const safeStringify = (obj: any) => {
+      const seen = new WeakSet();
+      return JSON.stringify(obj, (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+          if (seen.has(value)) {
+            return '[Circular]';
+          }
+          seen.add(value);
+        }
+        return value;
+      }, 2);
+    };
+
+    try {
+      const logString = safeStringify(entry);
+      switch (level) {
+        case 'ERROR':
+          console.error(logString);
+          break;
+        case 'WARN':
+          console.warn(logString);
+          break;
+        case 'INFO':
+          console.info(logString);
+          break;
+        case 'DEBUG':
+          console.log(logString);
+          break;
+      }
+    } catch (error) {
+      // Fallback if stringification fails
+      console.error(`[Logger] Failed to stringify log entry: ${message}`);
     }
   }
 

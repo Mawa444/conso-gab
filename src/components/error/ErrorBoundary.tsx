@@ -44,10 +44,17 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Safe error serialization to avoid "Cannot convert object to primitive value"
+    const safeError = {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    };
+    
     logger.error('React Error Boundary caught error', {
       action: 'component_error',
       status: 'error'
-    }, { error, componentStack: errorInfo.componentStack });
+    }, { error: safeError, componentStack: errorInfo.componentStack });
 
     this.setState({
       error,

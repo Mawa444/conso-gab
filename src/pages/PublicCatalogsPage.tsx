@@ -240,3 +240,5 @@ export const PublicCatalogsPage = () => {
     </PageWithSkeleton>
   );
 };
+
+export default PublicCatalogsPage;

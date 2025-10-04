@@ -16,17 +16,23 @@ if (!import.meta.env.DEV) {
 
 // Global error handler
 window.addEventListener('error', (event) => {
-  errorTracker.trackError(event.error, {
+  // Safely extract error information
+  const error = event.error instanceof Error 
+    ? event.error 
+    : new Error(String(event.message || 'Unknown error'));
+    
+  errorTracker.trackError(error, {
     type: 'global-error',
   });
 });
 
 window.addEventListener('unhandledrejection', (event) => {
+  // Safely handle promise rejection
+  const message = event.reason?.message || event.reason?.toString() || 'Unhandled Promise Rejection';
   errorTracker.trackError(
-    new Error(event.reason?.message || 'Unhandled Promise Rejection'),
+    new Error(String(message)),
     {
       type: 'unhandled-rejection',
-      reason: event.reason,
     }
   );
 });
