@@ -169,7 +169,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
   if (isRecording) {
     return (
-      <div className={cn("border-t border-border bg-card p-4", className)}>
+      <div className={cn("bg-card p-4", className)}>
         <VoiceRecorder
           onRecordingComplete={handleRecordingComplete}
           onCancel={() => setIsRecording(false)}
@@ -179,7 +179,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   }
 
   return (
-    <div className={cn("border-t border-border bg-card p-4", className)}>
+    <div className={cn("bg-card p-4", className)}>
       {uploading && (
         <div className="mb-3 px-3 py-2 bg-primary/10 rounded-md">
           <div className="flex items-center justify-between mb-1">
@@ -220,7 +220,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               <Paperclip className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuContent align="start" className="w-48 bg-card z-50">
             <DropdownMenuItem onClick={() => handleFileSelect('image')}>
               <ImageIcon className="w-4 h-4 mr-2" />
               Photo

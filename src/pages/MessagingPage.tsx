@@ -39,9 +39,9 @@ const MessagingPageContent: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-[100dvh] flex flex-col bg-background">
       {/* Header - Signal Style */}
-      <div className="flex-shrink-0 border-b border-border bg-card">
+      <div className="flex-shrink-0 border-b border-border bg-card z-10">
         <div className="flex items-center gap-3 px-4 py-3">
           <Button
             variant="ghost"

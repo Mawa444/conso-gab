@@ -141,9 +141,9 @@ const ConversationPageContent: React.FC = () => {
   const groupedMessages = groupMessagesByDate(messages);
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-[100dvh] flex flex-col bg-background">
       {/* Header - Signal Style */}
-      <div className="flex-shrink-0 border-b border-border bg-card">
+      <div className="flex-shrink-0 border-b border-border bg-card z-10">
         <div className="flex items-center gap-3 px-4 py-3">
           <Button
             variant="ghost"
@@ -275,7 +275,7 @@ const ConversationPageContent: React.FC = () => {
       </ScrollArea>
 
       {/* Input Area - Fixed at Bottom */}
-      <div className="flex-shrink-0 border-t border-border bg-card">
+      <div className="flex-shrink-0 border-t border-border bg-card z-20">
         <MessageInput
           onSendMessage={handleSendMessage}
           disabled={loading}
