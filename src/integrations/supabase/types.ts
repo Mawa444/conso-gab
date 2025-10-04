@@ -311,6 +311,38 @@ export type Database = {
         }
         Relationships: []
       }
+      business_image_likes: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          image_type: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          image_type: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          image_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_image_likes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_profiles: {
         Row: {
           address: string | null
