@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2, Heart } from "lucide-react";
+import { User, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,38 +17,8 @@ import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
 import { ImageViewModal } from "@/components/profile/ImageViewModal";
 import { useProfileImageLikes } from "@/hooks/use-profile-image-likes";
+import { ImageLikeButton } from "@/components/shared/ImageLikeButton";
 import { cn } from "@/lib/utils";
-// Composants de likes pour les images
-const LikeButton = ({ profileUserId, imageType }: { profileUserId: string; imageType: 'avatar' | 'cover' }) => {
-  const { likesCount, isLiked, isLoading, toggleLike } = useProfileImageLikes(profileUserId, imageType);
-  
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={(e) => {
-        e.stopPropagation();
-        toggleLike();
-      }}
-      disabled={isLoading}
-      className={cn(
-        "gap-2 bg-background/80 backdrop-blur-sm hover:bg-background/90",
-        isLiked && "text-red-500"
-      )}
-    >
-      <Heart className={cn("w-4 h-4", isLiked && "fill-red-500")} />
-      <span className="text-sm font-medium">{likesCount}</span>
-    </Button>
-  );
-};
-
-const CoverLikeButton = ({ profileUserId }: { profileUserId: string }) => (
-  <LikeButton profileUserId={profileUserId} imageType="cover" />
-);
-
-const AvatarLikeButton = ({ profileUserId }: { profileUserId: string }) => (
-  <LikeButton profileUserId={profileUserId} imageType="avatar" />
-);
 
 interface UserProfileData {
   name: string;
@@ -128,13 +98,14 @@ export const ProfilePage = ({
     imageUrl: string;
     imageType: 'avatar' | 'cover';
   }>({ open: false, imageUrl: '', imageType: 'avatar' });
+  
   const navigate = useNavigate();
-  const {
-    signOut
-  } = useAuth();
-  const {
-    secureSignOut
-  } = useAuthCleanup();
+  const { user, signOut } = useAuth();
+  const { secureSignOut } = useAuthCleanup();
+  
+  // Hooks pour les likes (après user)
+  const coverLikes = useProfileImageLikes(user?.id || '', 'cover');
+  const avatarLikes = useProfileImageLikes(user?.id || '', 'avatar');
   const [userProfile, setUserProfile] = useState<UserProfileData>({
     name: "Chargement...",
     email: "",
@@ -149,9 +120,7 @@ export const ProfilePage = ({
     pseudo: "",
     role: ""
   });
-  const {
-    user
-  } = useAuth();
+  
   const fetchUserProfile = async () => {
     if (!user) {
       setIsLoading(false);
@@ -280,8 +249,18 @@ export const ProfilePage = ({
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  <CoverLikeButton profileUserId={user?.id || ''} />
+                <div 
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ImageLikeButton
+                    likesCount={coverLikes.likesCount}
+                    isLiked={coverLikes.isLiked}
+                    isLoading={coverLikes.isLoading}
+                    onToggle={coverLikes.toggleLike}
+                    size="md"
+                    className="bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full"
+                  />
                 </div>
               </div>
             </>
@@ -318,8 +297,18 @@ export const ProfilePage = ({
                   )}
                 </div>
                 {userProfile.avatar_url && (
-                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <AvatarLikeButton profileUserId={user?.id || ''} />
+                  <div 
+                    className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ImageLikeButton
+                      likesCount={avatarLikes.likesCount}
+                      isLiked={avatarLikes.isLiked}
+                      isLoading={avatarLikes.isLoading}
+                      onToggle={avatarLikes.toggleLike}
+                      size="sm"
+                      className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full"
+                    />
                   </div>
                 )}
               </div>

@@ -1,7 +1,8 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Heart, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useBusinessImageLikes } from '@/hooks/use-business-image-likes';
+import { ImageLikeButton } from '@/components/shared/ImageLikeButton';
 import { cn } from '@/lib/utils';
 
 interface BusinessImageViewModalProps {
@@ -75,24 +76,14 @@ export const BusinessImageViewModal = ({
           <div className="text-white/70 text-xs">
             {uploadDate && <span>Publié le {formatDate(uploadDate)}</span>}
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleLike}
-            disabled={isLoading}
-            className={cn(
-              "text-white hover:bg-white/20 transition-all gap-2",
-              isLiked && "text-red-500"
-            )}
-          >
-            <Heart
-              className={cn(
-                "w-5 h-5 transition-all",
-                isLiked && "fill-red-500"
-              )}
-            />
-            <span className="font-medium">{likesCount}</span>
-          </Button>
+          <ImageLikeButton
+            likesCount={likesCount}
+            isLiked={isLiked}
+            isLoading={isLoading}
+            onToggle={toggleLike}
+            size="lg"
+            className="text-white"
+          />
         </div>
       </DialogContent>
     </Dialog>
