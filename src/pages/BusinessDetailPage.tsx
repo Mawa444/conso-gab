@@ -30,7 +30,6 @@ import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
 import { ChatView } from "@/components/chat/ChatView";
 import { MessagingProvider } from "@/contexts/MessagingContext";
-
 interface BusinessDetail {
   id: string;
   name: string;
@@ -60,8 +59,7 @@ interface BusinessDetail {
     lng: number;
   };
 }
-
-const defaultBusiness: BusinessDetail = {  
+const defaultBusiness: BusinessDetail = {
   id: "",
   name: "",
   type: "",
@@ -84,23 +82,25 @@ const defaultBusiness: BusinessDetail = {
     lng: 9.4673
   }
 };
-
 const reviews: any[] = [];
-
-const images = [
-  "/placeholder.svg?height=300&width=400",
-  "/placeholder.svg?height=300&width=400&text=Intérieur",
-  "/placeholder.svg?height=300&width=400&text=Équipe",
-  "/placeholder.svg?height=300&width=400&text=Spécialités"
-];
-
+const images = ["/placeholder.svg?height=300&width=400", "/placeholder.svg?height=300&width=400&text=Intérieur", "/placeholder.svg?height=300&width=400&text=Équipe", "/placeholder.svg?height=300&width=400&text=Spécialités"];
 export const BusinessDetailPage = () => {
   const navigate = useNavigate();
-  const { businessId } = useParams<{ businessId: string }>();
-  const { user } = useAuth();
-  const { canAccessBusinessPro } = useProfileMode();
+  const {
+    businessId
+  } = useParams<{
+    businessId: string;
+  }>();
+  const {
+    user
+  } = useAuth();
+  const {
+    canAccessBusinessPro
+  } = useProfileMode();
   const [isLoading, setIsLoading] = useState(true);
-  const { secureSignOut } = useAuthCleanup();
+  const {
+    secureSignOut
+  } = useAuthCleanup();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
@@ -113,46 +113,43 @@ export const BusinessDetailPage = () => {
     isScheduledForDeletion: false,
     deletionDate: null as string | null
   });
-
   const [business, setBusiness] = useState<BusinessDetail | null>(null);
-  const [viewingImage, setViewingImage] = useState<{ url: string; type: 'logo' | 'cover'; title: string } | null>(null);
+  const [viewingImage, setViewingImage] = useState<{
+    url: string;
+    type: 'logo' | 'cover';
+    title: string;
+  } | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [logoUploadDate, setLogoUploadDate] = useState<string | null>(null);
   const [coverUploadDate, setCoverUploadDate] = useState<string | null>(null);
-  
+
   // Vérifier si l'utilisateur peut accéder à l'onglet Pro
   const canAccessPro = businessId ? canAccessBusinessPro(businessId) : false;
-  
+
   // Hooks pour les likes des images
   const logoLikes = useBusinessImageLikes(businessId || '', 'logo');
   const coverLikes = useBusinessImageLikes(businessId || '', 'cover');
-
   useEffect(() => {
     fetchBusinessData();
   }, [businessId, user]);
-
   const fetchBusinessData = async () => {
     if (!user || !businessId) {
       setIsLoading(false);
       return;
     }
-    
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('business_profiles')
-        .select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url, logo_updated_at, cover_updated_at')
-        .eq('id', businessId)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('business_profiles').select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url, logo_updated_at, cover_updated_at').eq('id', businessId).single();
       if (error) {
         console.error('Erreur lors du chargement du profil business:', error);
         toast.error("Impossible de charger le profil business");
         setIsLoading(false);
         return;
       }
-
       if (data) {
         // Créer l'objet business avec les vraies données de la DB
         setBusiness({
@@ -165,7 +162,7 @@ export const BusinessDetailPage = () => {
           whatsapp: data.whatsapp || undefined,
           website: data.website || undefined,
           email: data.email || undefined,
-          description: data.description || 'Aucune description disponible',
+          description: data.description || 'Aucune description disponible'
         });
 
         // Mettre à jour l'état d'activité
@@ -174,7 +171,7 @@ export const BusinessDetailPage = () => {
           isScheduledForDeletion: !!data.deactivation_scheduled_at,
           deletionDate: data.deactivation_scheduled_at
         });
-        
+
         // Stocker les URLs des images
         setLogoUrl(data.logo_url || null);
         setCoverUrl(data.cover_image_url || null);
@@ -188,17 +185,14 @@ export const BusinessDetailPage = () => {
       setIsLoading(false);
     }
   };
-
   const handleLike = () => {
     setIsLiked(!isLiked);
     if (isDisliked) setIsDisliked(false);
   };
-
   const handleDislike = () => {
     setIsDisliked(!isDisliked);
     if (isLiked) setIsLiked(false);
   };
-
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -208,44 +202,37 @@ export const BusinessDetailPage = () => {
       });
     }
   };
-
   const handleGetDirections = () => {
-    const { lat, lng } = business.coordinates;
+    const {
+      lat,
+      lng
+    } = business.coordinates;
     window.open(`https://maps.google.com/?q=${lat},${lng}`, '_blank');
   };
-
   const handleCall = () => {
     window.open(`tel:${business.phone}`, '_self');
   };
-
   const handleWhatsApp = () => {
     if (business.whatsapp) {
       window.open(`https://wa.me/${business.whatsapp.replace(/\D/g, '')}`, '_blank');
     }
   };
-
   if (!business) {
     return <ProfilePageSkeleton />;
   }
-
-  return (
-    <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
+  return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
       <div className="min-h-screen bg-background">
       {/* Header avec image de couverture */}
-      <div 
-        className="relative h-64 bg-gradient-to-br from-primary/20 to-accent/20 cursor-pointer group"
-        onClick={() => coverUrl && setViewingImage({ url: coverUrl, type: 'cover', title: `Couverture de ${business.name}` })}
-      >
+      <div className="relative h-64 bg-gradient-to-br from-primary/20 to-accent/20 cursor-pointer group" onClick={() => coverUrl && setViewingImage({
+        url: coverUrl,
+        type: 'cover',
+        title: `Couverture de ${business.name}`
+      })}>
         <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(-1);
-            }}
-            className="bg-white/90 hover:bg-white"
-          >
+          <Button variant="ghost" size="sm" onClick={e => {
+            e.stopPropagation();
+            navigate(-1);
+          }} className="bg-white/90 hover:bg-white">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
@@ -255,100 +242,63 @@ export const BusinessDetailPage = () => {
 
         {/* Image de couverture */}
         <div className="relative w-full h-full overflow-hidden">
-          {coverUrl ? (
-            <>
-              <img 
-                src={coverUrl} 
-                alt={`Couverture de ${business.name}`}
-                className="w-full h-full object-cover"
-              />
+          {coverUrl ? <>
+              <img src={coverUrl} alt={`Couverture de ${business.name}`} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-            </>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+            </> : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
               <Camera className="w-12 h-12 text-muted-foreground" />
-            </div>
-          )}
+            </div>}
           
           {/* Like button pour la couverture */}
-          {coverUrl && (
-            <div className="absolute bottom-4 right-4">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  coverLikes.toggleLike();
-                }}
-                disabled={coverLikes.isLoading}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors",
-                  coverLikes.isLiked && "text-red-500"
-                )}
-              >
+          {coverUrl && <div className="absolute bottom-4 right-4">
+              <button onClick={e => {
+              e.stopPropagation();
+              coverLikes.toggleLike();
+            }} disabled={coverLikes.isLoading} className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors", coverLikes.isLiked && "text-red-500")}>
                 <Heart className={cn("w-4 h-4", coverLikes.isLiked && "fill-red-500")} />
                 <span className="text-sm font-medium text-white">{coverLikes.likesCount}</span>
               </button>
-            </div>
-          )}
+            </div>}
         </div>
       </div>
 
       <div className="px-4 pb-24">
         {/* Info principale */}
-        <div className="bg-card rounded-t-2xl -mt-6 relative z-10 p-6 shadow-lg">
+        <div className="bg-card rounded-t-2xl -mt-6 relative z-10 p-6 shadow-lg rounded-3xl">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               {/* Logo cliquable */}
-              <div 
-                className="relative cursor-pointer group"
-                onClick={() => logoUrl && setViewingImage({ url: logoUrl, type: 'logo', title: `Logo de ${business.name}` })}
-              >
+              <div className="relative cursor-pointer group" onClick={() => logoUrl && setViewingImage({
+                url: logoUrl,
+                type: 'logo',
+                title: `Logo de ${business.name}`
+              })}>
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full overflow-hidden flex items-center justify-center border-4 border-background ring-4 ring-background">
-                  {logoUrl ? (
-                    <>
+                  {logoUrl ? <>
                       <img src={logoUrl} alt={`Logo de ${business.name}`} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-full" />
-                    </>
-                  ) : (
-                    <span className="text-white font-bold text-xl">{business.name[0]}</span>
-                  )}
+                    </> : <span className="text-white font-bold text-xl">{business.name[0]}</span>}
                 </div>
                 {/* Like button pour le logo */}
-                {logoUrl && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      logoLikes.toggleLike();
-                    }}
-                    disabled={logoLikes.isLoading}
-                    className={cn(
-                      "absolute -bottom-1 -right-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors border border-border text-xs",
-                      logoLikes.isLiked && "text-red-500 border-red-500"
-                    )}
-                  >
+                {logoUrl && <button onClick={e => {
+                  e.stopPropagation();
+                  logoLikes.toggleLike();
+                }} disabled={logoLikes.isLoading} className={cn("absolute -bottom-1 -right-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors border border-border text-xs", logoLikes.isLiked && "text-red-500 border-red-500")}>
                     <Heart className={cn("w-3 h-3", logoLikes.isLiked && "fill-red-500")} />
                     <span className="font-medium">{logoLikes.likesCount}</span>
-                  </button>
-                )}
+                  </button>}
               </div>
               <div>
                 <h1 className="font-bold text-xl">{business.name}</h1>
                 <p className="text-muted-foreground">{business.type}</p>
                 {/* Bouton S'abonner */}
-                <Button
-                  className="mt-2 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
-                  size="sm"
-                >
+                <Button size="sm" className="mt-2 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 rounded-3xl">
                   <Bell className="w-4 h-4 mr-2" />
                   S'abonner à ce commerce
                 </Button>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsFavorite(!isFavorite)}
-              className="p-2"
-            >
+            <Button variant="ghost" size="sm" onClick={() => setIsFavorite(!isFavorite)} className="p-2">
               <Heart className={cn("w-5 h-5", isFavorite ? "fill-red-500 text-red-500" : "")} />
             </Button>
           </div>
@@ -360,14 +310,12 @@ export const BusinessDetailPage = () => {
                 <span className="font-semibold">{business.rating}</span>
                 <span className="text-sm text-muted-foreground">({business.reviewCount} avis)</span>
               </div>
-              {business.verified && (
-                <Badge variant="outline" className="text-xs border-[hsl(var(--gaboma-green))] text-[hsl(var(--gaboma-green))]">
+              {business.verified && <Badge variant="outline" className="text-xs border-[hsl(var(--gaboma-green))] text-[hsl(var(--gaboma-green))]">
                   <Award className="w-3 h-3 mr-1" />
                   Vérifié
-                </Badge>
-              )}
+                </Badge>}
             </div>
-            <Badge className="bg-gradient-to-r from-primary to-accent text-white">
+            <Badge className="bg-gradient-to-r from-primary to-accent text-white rounded-3xl">
               Top 3 de la semaine
             </Badge>
           </div>
@@ -375,38 +323,20 @@ export const BusinessDetailPage = () => {
           {/* Actions rapides */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn("p-2 h-10 w-10", isLiked && "bg-[hsl(var(--gaboma-blue))] text-white")}
-                onClick={handleLike}
-              >
+              <Button variant="ghost" size="sm" className={cn("p-2 h-10 w-10", isLiked && "bg-[hsl(var(--gaboma-blue))] text-white")} onClick={handleLike}>
                 <ThumbsUp className={cn("w-4 h-4", isLiked ? "fill-current" : "")} />
               </Button>
               
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn("p-2 h-10 w-10", isDisliked && "bg-[hsl(var(--gaboma-yellow))] text-black")}
-                onClick={handleDislike}
-              >
+              <Button variant="ghost" size="sm" className={cn("p-2 h-10 w-10", isDisliked && "bg-[hsl(var(--gaboma-yellow))] text-black")} onClick={handleDislike}>
                 <ThumbsDown className={cn("w-4 h-4", isDisliked ? "fill-current" : "")} />
               </Button>
               
-              <Button
-                variant="ghost"
-                size="sm"
-                className="p-2 h-10 w-10"
-                onClick={handleShare}
-              >
+              <Button variant="ghost" size="sm" className="p-2 h-10 w-10" onClick={handleShare}>
                 <Share className="w-4 h-4" />
               </Button>
             </div>
             
-            <Button
-              onClick={() => window.location.href = "/messaging"}
-              className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6"
-            >
+            <Button onClick={() => window.location.href = "/messaging"} className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6">
               <MessageCircle className="w-4 h-4 mr-2" />
               Contacter
             </Button>
@@ -414,18 +344,11 @@ export const BusinessDetailPage = () => {
 
           {/* Actions de contact */}
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <Button
-              variant="outline"
-              onClick={handleGetDirections}
-              className="flex items-center justify-center gap-2"
-            >
+            <Button variant="outline" onClick={handleGetDirections} className="flex items-center justify-center gap-2">
               <Navigation className="w-4 h-4" />
               Itinéraire
             </Button>
-            <Button
-              onClick={handleCall}
-              className="bg-gradient-to-r from-primary to-accent text-white hover:opacity-90"
-            >
+            <Button onClick={handleCall} className="bg-gradient-to-r from-primary to-accent text-white hover:opacity-90">
               <Phone className="w-4 h-4 mr-2" />
               Appeler
             </Button>
@@ -441,11 +364,9 @@ export const BusinessDetailPage = () => {
               </TabsTrigger>
               <TabsTrigger value="info" className="text-xs">Infos</TabsTrigger>
               <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
-              <TabsTrigger value="reviews" className="text-xs">Avis</TabsTrigger>
+              <TabsTrigger value="reviews" className="text-xs text-inherit">Avis</TabsTrigger>
               <TabsTrigger value="favorites" className="text-xs">Favoris</TabsTrigger>
-              {canAccessPro && (
-                <TabsTrigger value="pro" className="text-xs">Pro</TabsTrigger>
-              )}
+              {canAccessPro && <TabsTrigger value="pro" className="text-xs">Pro</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="info" className="space-y-6 mt-6">
@@ -467,14 +388,12 @@ export const BusinessDetailPage = () => {
                     <span className="text-sm">{business.phone}</span>
                   </div>
 
-                  {business.website && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                  {business.website && <div className="flex items-center gap-2 text-muted-foreground">
                       <ExternalLink className="w-4 h-4" />
                       <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
                         Site web
                       </a>
-                    </div>
-                  )}
+                    </div>}
                 </CardContent>
               </Card>
 
@@ -493,72 +412,48 @@ export const BusinessDetailPage = () => {
                 <CardContent className="p-4">
                   <h3 className="font-semibold mb-3">Certifications</h3>
                   <div className="flex flex-wrap gap-2">
-                    {business.certifications.map((cert, index) => (
-                      <Badge key={index} variant="secondary">
+                    {business.certifications.map((cert, index) => <Badge key={index} variant="secondary">
                         {cert}
-                      </Badge>
-                    ))}
+                      </Badge>)}
                   </div>
                 </CardContent>
               </Card>
 
               {/* Réseaux sociaux */}
-              {(business.socialMedia.facebook || business.socialMedia.instagram || business.socialMedia.telegram) && (
-                <Card>
+              {(business.socialMedia.facebook || business.socialMedia.instagram || business.socialMedia.telegram) && <Card>
                   <CardContent className="p-4">
                     <h3 className="font-semibold mb-3">Suivez-nous</h3>
                     <div className="space-y-2">
-                      {business.socialMedia.facebook && (
-                        <a href={business.socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                      {business.socialMedia.facebook && <a href={business.socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
                           📘 Facebook
-                        </a>
-                      )}
-                      {business.socialMedia.instagram && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        </a>}
+                      {business.socialMedia.instagram && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           📷 {business.socialMedia.instagram}
-                        </div>
-                      )}
-                      {business.socialMedia.telegram && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        </div>}
+                      {business.socialMedia.telegram && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           📱 {business.socialMedia.telegram}
-                        </div>
-                      )}
+                        </div>}
                     </div>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
             </TabsContent>
 
             <TabsContent value="catalog" className="mt-6">
-              <BusinessCatalogView
-                businessId={businessId || business.id}
-                businessName={business.name}
-              />
+              <BusinessCatalogView businessId={businessId || business.id} businessName={business.name} />
             </TabsContent>
 
             <TabsContent value="chat" className="mt-6">
               <Card>
                 <CardContent className="p-0">
                   <MessagingProvider>
-                    <ChatView
-                      conversationId={businessId || business.id}
-                      showActions={true}
-                      compact={true}
-                    />
+                    <ChatView conversationId={businessId || business.id} showActions={true} compact={true} />
                   </MessagingProvider>
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="reviews" className="space-y-4 mt-6">
-              {reviews.map((review) => (
-                <ReviewReplySection 
-                  key={review.id}
-                  review={review}
-                  businessId={business.id}
-                  businessName={business.name}
-                />
-              ))}
+              {reviews.map(review => <ReviewReplySection key={review.id} review={review} businessId={business.id} businessName={business.name} />)}
             </TabsContent>
 
 
@@ -569,8 +464,7 @@ export const BusinessDetailPage = () => {
             <TabsContent value="pro" className="mt-6">
               <div className="space-y-6">
                 {/* Alerte suppression programmée */}
-                {businessData.isScheduledForDeletion && businessData.deletionDate && (
-                  <Card className="border-red-200 bg-red-50">
+                {businessData.isScheduledForDeletion && businessData.deletionDate && <Card className="border-red-200 bg-red-50">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <AlertTriangle className="w-5 h-5 text-red-600 mt-1 flex-shrink-0" />
@@ -580,35 +474,29 @@ export const BusinessDetailPage = () => {
                           </h3>
                           <p className="text-sm text-red-700 mb-3">
                             Votre entreprise sera supprimée définitivement le {new Date(businessData.deletionDate).toLocaleDateString('fr-FR', {
-                              day: 'numeric', 
-                              month: 'long', 
-                              hour: '2-digit', 
-                              minute: '2-digit'
-                            })}
+                            day: 'numeric',
+                            month: 'long',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                           </p>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="border-red-600 text-red-600 hover:bg-red-100"
-                            onClick={async () => {
-                              try {
-                                await supabase.rpc('cancel_business_deletion', {
-                                  business_profile_id: business.id
-                                });
-                                toast.success("Suppression annulée");
-                                fetchBusinessData();
-                              } catch (error) {
-                                toast.error("Erreur lors de l'annulation");
-                              }
-                            }}
-                          >
+                          <Button size="sm" variant="outline" className="border-red-600 text-red-600 hover:bg-red-100" onClick={async () => {
+                          try {
+                            await supabase.rpc('cancel_business_deletion', {
+                              business_profile_id: business.id
+                            });
+                            toast.success("Suppression annulée");
+                            fetchBusinessData();
+                          } catch (error) {
+                            toast.error("Erreur lors de l'annulation");
+                          }
+                        }}>
                             Annuler la suppression
                           </Button>
                         </div>
                       </div>
                     </CardContent>
-                  </Card>
-                )}
+                  </Card>}
 
                 {/* Sous-onglets Pro */}
                 <Tabs value={proSubTab} onValueChange={setProSubTab}>
@@ -621,12 +509,7 @@ export const BusinessDetailPage = () => {
                   </TabsList>
 
                   <TabsContent value="dashboard" className="space-y-6 mt-6">
-                    <ProfessionalDashboard 
-                      businessId={business.id}
-                      businessName={business.name}
-                      businessCategory={business.type}
-                      userType="owner"
-                    />
+                    <ProfessionalDashboard businessId={business.id} businessName={business.name} businessCategory={business.type} userType="owner" />
                   </TabsContent>
 
                   <TabsContent value="tools" className="space-y-6 mt-6">
@@ -669,14 +552,12 @@ export const BusinessDetailPage = () => {
 
                   <TabsContent value="settings" className="space-y-6 mt-6">
                     {/* Mode Sommeil */}
-                    <SleepModeToggle 
-                      businessId={business.id}
-                      businessName={business.name}
-                      currentSleepState={businessData.isSleeping}
-                      onStateChange={(newState) => {
-                        setBusinessData(prev => ({ ...prev, isSleeping: newState }));
-                      }}
-                    />
+                    <SleepModeToggle businessId={business.id} businessName={business.name} currentSleepState={businessData.isSleeping} onStateChange={newState => {
+                      setBusinessData(prev => ({
+                        ...prev,
+                        isSleeping: newState
+                      }));
+                    }} />
 
                     {/* Gestion du profil */}
                     <BusinessProfileEditor businessId={business.id} />
@@ -708,19 +589,11 @@ export const BusinessDetailPage = () => {
                         <CardTitle className="text-red-600">Zone dangereuse</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
-                          onClick={() => setShowDeleteModal(true)}
-                        >
+                        <Button variant="outline" className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50" onClick={() => setShowDeleteModal(true)}>
                           <Trash2 className="w-4 h-4 mr-2" />
                           Supprimer l'entreprise
                         </Button>
-                        <Button 
-                          variant="destructive" 
-                          className="w-full justify-start"
-                          onClick={secureSignOut}
-                        >
+                        <Button variant="destructive" className="w-full justify-start" onClick={secureSignOut}>
                           <LogOut className="w-4 h-4 mr-2" />
                           Se déconnecter
                         </Button>
@@ -736,41 +609,17 @@ export const BusinessDetailPage = () => {
       </div>
 
       {/* Image View Modal */}
-      {viewingImage && (
-        <BusinessImageViewModal
-          open={true}
-          onClose={() => setViewingImage(null)}
-          imageUrl={viewingImage.url}
-          imageType={viewingImage.type}
-          businessId={businessId!}
-          imageTitle={viewingImage.title}
-          uploadDate={viewingImage.type === 'logo' ? logoUploadDate : coverUploadDate}
-        />
-      )}
+      {viewingImage && <BusinessImageViewModal open={true} onClose={() => setViewingImage(null)} imageUrl={viewingImage.url} imageType={viewingImage.type} businessId={businessId!} imageTitle={viewingImage.title} uploadDate={viewingImage.type === 'logo' ? logoUploadDate : coverUploadDate} />}
 
       {/* Modal de suppression */}
-      <DeleteBusinessModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        businessId={business.id}
-        businessName={business.name}
-        onDeleteScheduled={fetchBusinessData}
-      />
+      <DeleteBusinessModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} businessId={business.id} businessName={business.name} onDeleteScheduled={fetchBusinessData} />
 
       {/* Navigation en bas */}
-      <BottomNavigation 
-        activeTab="business" 
-        onTabChange={(tab) => {
-          if (tab === "home") navigate("/consumer/home");
-          else if (tab === "map") navigate("/consumer/map");
-          else if (tab === "rankings") navigate("/consumer/rankings");
-          else if (tab === "profile") navigate("/consumer/profile");
-          else if (tab === "scanner") {
-            // Scanner functionality - could open a global modal
-          }
-        }} 
-      />
+      <BottomNavigation activeTab="business" onTabChange={tab => {
+        if (tab === "home") navigate("/consumer/home");else if (tab === "map") navigate("/consumer/map");else if (tab === "rankings") navigate("/consumer/rankings");else if (tab === "profile") navigate("/consumer/profile");else if (tab === "scanner") {
+          // Scanner functionality - could open a global modal
+        }
+      }} />
       </div>
-    </PageWithSkeleton>
-  );
+    </PageWithSkeleton>;
 };
