@@ -216,9 +216,9 @@ export const ProfilePage = ({
     toast.error("Fonctionnalité à venir - Suppression de compte");
   };
   return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col min-h-full bg-background">
       {/* Header Profile style Facebook */}
-      <div className="relative">
+      <div className="relative bg-background">
         {/* Image de couverture */}
         <div className="h-48 md:h-64 bg-gradient-to-br from-primary via-accent to-secondary relative overflow-hidden">
           {userProfile.cover_image_url ? (
@@ -233,68 +233,71 @@ export const ProfilePage = ({
         </div>
 
         {/* Conteneur pour photo de profil et infos */}
-        <div className="px-6 pb-4">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16 md:-mt-20 gap-4">
-            {/* Photo de profil */}
-            <div className="flex items-end gap-4">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background bg-muted overflow-hidden shadow-xl">
-                {userProfile.avatar_url ? (
-                  <img 
-                    src={userProfile.avatar_url} 
-                    alt={userProfile.name} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
-                    <User className="w-16 h-16 md:w-20 md:h-20 text-muted-foreground" />
-                  </div>
-                )}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-4">
+            {/* Section gauche : Photo + Infos */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-20">
+              {/* Photo de profil avec contour blanc épais */}
+              <div className="relative">
+                <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl ring-4 ring-background">
+                  {userProfile.avatar_url ? (
+                    <img 
+                      src={userProfile.avatar_url} 
+                      alt={userProfile.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+                      <User className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Infos utilisateur */}
-              <div className="flex-1 pb-2">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">{userProfile.name}</h1>
-                <p className="text-sm text-muted-foreground">{userProfile.email}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary">{userProfile.level}</Badge>
-                  <Badge variant="outline">Membre depuis {userProfile.joinDate}</Badge>
+              <div className="flex-1 sm:pb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{userProfile.name}</h1>
+                <p className="text-sm text-muted-foreground mt-1">{userProfile.email}</p>
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <Badge variant="secondary" className="font-medium">{userProfile.level}</Badge>
+                  <Badge variant="outline" className="text-xs">Membre depuis {userProfile.joinDate}</Badge>
                 </div>
               </div>
             </div>
 
-            {/* Actions rapides */}
-            <div className="flex items-center gap-2">
+            {/* Actions rapides - Alignées à droite */}
+            <div className="flex items-center gap-2 sm:pb-2">
               <Button size="sm" variant="default" className="gap-2">
                 <Bell className="w-4 h-4" />
-                S'abonner
+                <span className="hidden sm:inline">S'abonner</span>
               </Button>
-              <Button variant="outline" size="icon" onClick={handleDeleteAccount}>
+              <Button variant="outline" size="icon" onClick={handleDeleteAccount} title="Supprimer le compte">
                 <Trash2 className="w-4 h-4" />
               </Button>
-              <Button variant="destructive" size="icon" onClick={handleLogout}>
+              <Button variant="destructive" size="icon" onClick={handleLogout} title="Se déconnecter">
                 <LogOut className="w-4 h-4" />
               </Button>
             </div>
           </div>
 
           {/* Stats rapides */}
-          <div className="grid grid-cols-3 gap-3 mt-6">
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl md:text-3xl font-bold text-primary">{userProfile.points}</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Points ConsoGab</div>
+          <div className="grid grid-cols-3 gap-3 mt-4 pb-4">
+            <Card className="border-border/50">
+              <CardContent className="p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{userProfile.points}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-1">Points ConsoGab</div>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl md:text-3xl font-bold text-primary">{userProfile.scansCount}</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Scans effectués</div>
+            <Card className="border-border/50">
+              <CardContent className="p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{userProfile.scansCount}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-1">Scans effectués</div>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl md:text-3xl font-bold text-primary">{userProfile.reviewsCount}</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Avis publiés</div>
+            <Card className="border-border/50">
+              <CardContent className="p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{userProfile.reviewsCount}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-1">Avis publiés</div>
               </CardContent>
             </Card>
           </div>
