@@ -28,28 +28,24 @@ export const ImageViewModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl w-full h-[90vh] p-0 gap-0 bg-black/95">
+      <DialogContent className="max-w-4xl w-[95vw] max-h-[85vh] p-0 gap-0 bg-black/95 mb-20">
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h3 className="text-white font-medium">
-                {imageTitle || (imageType === 'avatar' ? 'Photo de profil' : 'Image de couverture')}
-              </h3>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="text-white hover:bg-white/20"
-            >
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
+        <div className="flex items-center justify-between p-3 border-b border-white/10">
+          <h3 className="text-white font-medium text-sm truncate">
+            {imageTitle || (imageType === 'avatar' ? 'Photo de profil' : 'Image de couverture')}
+          </h3>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="text-white hover:bg-white/20 h-8 w-8"
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
 
         {/* Image */}
-        <div className="flex items-center justify-center w-full h-full p-8">
+        <div className="flex items-center justify-center flex-1 p-4 overflow-hidden">
           <img
             src={imageUrl}
             alt={imageTitle || (imageType === 'avatar' ? 'Photo de profil' : 'Image de couverture')}
@@ -61,27 +57,25 @@ export const ImageViewModal = ({
         </div>
 
         {/* Like Button */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-          <div className="flex items-center justify-center gap-4">
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={toggleLike}
-              disabled={isLoading}
+        <div className="flex items-center justify-center p-4 border-t border-white/10">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleLike}
+            disabled={isLoading}
+            className={cn(
+              "text-white hover:bg-white/20 transition-all gap-2",
+              isLiked && "text-red-500"
+            )}
+          >
+            <Heart
               className={cn(
-                "text-white hover:bg-white/20 transition-all gap-3",
-                isLiked && "text-red-500"
+                "w-5 h-5 transition-all",
+                isLiked && "fill-red-500"
               )}
-            >
-              <Heart
-                className={cn(
-                  "w-6 h-6 transition-all",
-                  isLiked && "fill-red-500"
-                )}
-              />
-              <span className="text-lg font-medium">{likesCount}</span>
-            </Button>
-          </div>
+            />
+            <span className="font-medium">{likesCount}</span>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
