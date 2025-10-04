@@ -115,6 +115,8 @@ export const BusinessDetailPage = () => {
   const [viewingImage, setViewingImage] = useState<{ url: string; type: 'logo' | 'cover'; title: string } | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [logoUploadDate, setLogoUploadDate] = useState<string | null>(null);
+  const [coverUploadDate, setCoverUploadDate] = useState<string | null>(null);
   
   // Vérifier si l'utilisateur peut accéder à l'onglet Pro
   const canAccessPro = businessId ? canAccessBusinessPro(businessId) : false;
@@ -137,7 +139,7 @@ export const BusinessDetailPage = () => {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('business_profiles')
-        .select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url')
+        .select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url, logo_updated_at, cover_updated_at')
         .eq('id', businessId)
         .single();
 
@@ -173,6 +175,8 @@ export const BusinessDetailPage = () => {
         // Stocker les URLs des images
         setLogoUrl(data.logo_url || null);
         setCoverUrl(data.cover_image_url || null);
+        setLogoUploadDate(data.logo_updated_at || null);
+        setCoverUploadDate(data.cover_updated_at || null);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -747,6 +751,7 @@ export const BusinessDetailPage = () => {
           imageType={viewingImage.type}
           businessId={businessId!}
           imageTitle={viewingImage.title}
+          uploadDate={viewingImage.type === 'logo' ? logoUploadDate : coverUploadDate}
         />
       )}
 

@@ -352,6 +352,7 @@ export type Database = {
           city: string | null
           country: string | null
           cover_image_url: string | null
+          cover_updated_at: string | null
           created_at: string
           deactivation_scheduled_at: string | null
           department: string | null
@@ -364,6 +365,7 @@ export type Database = {
           is_sleeping: boolean | null
           is_verified: boolean | null
           latitude: number | null
+          logo_updated_at: string | null
           logo_url: string | null
           longitude: number | null
           office_location: Json | null
@@ -390,6 +392,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           cover_image_url?: string | null
+          cover_updated_at?: string | null
           created_at?: string
           deactivation_scheduled_at?: string | null
           department?: string | null
@@ -402,6 +405,7 @@ export type Database = {
           is_sleeping?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
+          logo_updated_at?: string | null
           logo_url?: string | null
           longitude?: number | null
           office_location?: Json | null
@@ -428,6 +432,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           cover_image_url?: string | null
+          cover_updated_at?: string | null
           created_at?: string
           deactivation_scheduled_at?: string | null
           department?: string | null
@@ -440,6 +445,7 @@ export type Database = {
           is_sleeping?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
+          logo_updated_at?: string | null
           logo_url?: string | null
           longitude?: number | null
           office_location?: Json | null

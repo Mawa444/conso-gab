@@ -11,6 +11,7 @@ interface BusinessImageViewModalProps {
   imageType: 'logo' | 'cover';
   businessId: string;
   imageTitle?: string;
+  uploadDate?: string | null;
 }
 
 export const BusinessImageViewModal = ({
@@ -19,12 +20,25 @@ export const BusinessImageViewModal = ({
   imageUrl,
   imageType,
   businessId,
-  imageTitle
+  imageTitle,
+  uploadDate
 }: BusinessImageViewModalProps) => {
   const { likesCount, isLiked, isLoading, toggleLike } = useBusinessImageLikes(
     businessId,
     imageType
   );
+
+  const formatDate = (date: string | null | undefined) => {
+    if (!date) return null;
+    const d = new Date(date);
+    return d.toLocaleDateString('fr-FR', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -57,7 +71,10 @@ export const BusinessImageViewModal = ({
         </div>
 
         {/* Like Button */}
-        <div className="flex items-center justify-center p-4 border-t border-white/10">
+        <div className="flex items-center justify-between p-4 border-t border-white/10">
+          <div className="text-white/70 text-xs">
+            {uploadDate && <span>Publié le {formatDate(uploadDate)}</span>}
+          </div>
           <Button
             variant="ghost"
             size="sm"
