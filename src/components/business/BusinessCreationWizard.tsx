@@ -192,8 +192,12 @@ export const BusinessCreationWizard = ({
       
       console.log('Business created successfully:', businessProfile);
       
+      // ✅ ATTENDRE que refreshBusinessProfiles() complète AVANT de naviguer
       await refreshBusinessProfiles();
+      
       toast.success("🎉 Entreprise créée avec succès !");
+      
+      // ✅ Maintenant, le business est garanti d'être dans businessProfiles
       if (onCreated) {
         onCreated(businessProfile.id);
       }
