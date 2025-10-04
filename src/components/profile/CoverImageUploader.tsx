@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 interface CoverImageUploaderProps {
   currentImageUrl?: string;
   onImageUploaded: (url: string, path: string) => void;
+  onImageClick?: () => void;
   bucket: string;
   folder?: string;
   label?: string;
@@ -17,6 +18,7 @@ interface CoverImageUploaderProps {
 export const CoverImageUploader = ({ 
   currentImageUrl, 
   onImageUploaded,
+  onImageClick,
   bucket,
   folder = 'covers',
   label = "Image de couverture"
@@ -80,7 +82,12 @@ export const CoverImageUploader = ({
           {/* Cover preview */}
           <div className="relative w-full h-48 bg-muted flex items-center justify-center">
             {previewUrl ? (
-              <img src={previewUrl} alt="Couverture" className="w-full h-full object-cover" />
+              <img 
+                src={previewUrl} 
+                alt="Couverture" 
+                className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" 
+                onClick={onImageClick}
+              />
             ) : (
               <div className="text-center">
                 <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-2" />

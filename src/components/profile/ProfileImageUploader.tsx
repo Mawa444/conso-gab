@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 interface ProfileImageUploaderProps {
   currentImageUrl?: string;
   onImageUploaded: (url: string, path: string) => void;
+  onImageClick?: () => void;
   bucket: string;
   folder?: string;
   label?: string;
@@ -16,6 +17,7 @@ interface ProfileImageUploaderProps {
 export const ProfileImageUploader = ({ 
   currentImageUrl, 
   onImageUploaded,
+  onImageClick,
   bucket,
   folder = 'avatars',
   label = "Photo de profil"
@@ -77,7 +79,10 @@ export const ProfileImageUploader = ({
         <div className="flex items-center gap-4">
         {/* Avatar preview */}
         <div className="relative">
-          <div className="w-24 h-24 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+          <div 
+            className="w-24 h-24 rounded-full overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={previewUrl ? onImageClick : undefined}
+          >
             {previewUrl ? (
               <img src={previewUrl} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
