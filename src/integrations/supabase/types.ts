@@ -2854,6 +2854,10 @@ export type Database = {
           phone: string
         }[]
       }
+      get_or_create_business_conversation: {
+        Args: { p_business_id: string; p_user_id: string }
+        Returns: string
+      }
       get_proj4_from_srid: {
         Args: { "": number }
         Returns: string

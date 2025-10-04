@@ -429,7 +429,8 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     return newConversation;
   };
 
-  // Create business conversation (Meta-style: seamless like Facebook->Messenger)
+  // Create business conversation - META-STYLE ATOMIC
+  // Facebook principe: 1 user + 1 business = 1 thread unique, toujours le même
   const createBusinessConversation = async (businessId: string): Promise<MimoConversation | null> => {
     if (!user) {
       setError('Utilisateur non connecté');
@@ -439,7 +440,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     try {
       setLoading(true);
 
-      // Check if conversation already exists
+      // Check if conversation already exists in local state
       const existingConversation = conversations.find(
         c => c.origin_type === 'business' && c.origin_id === businessId
       );
@@ -448,57 +449,86 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         return existingConversation;
       }
 
-      // Fetch business info
-      const { data: businessData, error: businessError } = await supabase
-        .from('business_profiles')
-        .select('business_name, user_id, logo_url, whatsapp, phone, email, business_category')
-        .eq('id', businessId)
+      // Appel RPC atomique : trouve OU crée (Meta-style)
+      const { data: conversationId, error: rpcError } = await supabase
+        .rpc('get_or_create_business_conversation', {
+          p_business_id: businessId,
+          p_user_id: user.id
+        });
+
+      if (rpcError) throw rpcError;
+
+      // Fetch complete conversation data
+      const { data: convData, error: convError } = await supabase
+        .from('conversations')
+        .select(`
+          id,
+          title,
+          conversation_type,
+          created_at,
+          last_activity,
+          origin_type,
+          origin_id,
+          participants(user_id, role, created_at)
+        `)
+        .eq('id', conversationId)
         .single();
 
-      if (businessError || !businessData) {
-        throw new Error('Business introuvable');
+      if (convError) throw convError;
+
+      // Fetch business context
+      const { data: businessContext } = await supabase
+        .rpc('get_conversation_context', { p_conversation_id: conversationId });
+
+      // Fetch participant profiles
+      const participantIds = convData.participants?.map((p: any) => p.user_id) || [];
+      const { data: profilesData } = await supabase
+        .rpc('get_unified_profiles_batch', { p_user_ids: participantIds });
+
+      const profilesMap = new Map();
+      if (profilesData) {
+        Object.entries(profilesData).forEach(([userId, profileData]: [string, any]) => {
+          profilesMap.set(userId, {
+            display_name: profileData.display_name,
+            avatar_url: profileData.avatar_url
+          });
+        });
       }
 
-      // Create conversation via edge function
-      const { data: createData, error: createError } = await supabase.functions.invoke('create-conversation', {
-        body: {
-          origin_type: 'business',
-          origin_id: businessId,
-          title: businessData.business_name || 'Conversation Business',
-          conversation_type: 'business',
-          participants: [
-            { user_id: user.id, role: 'consumer' },
-            { user_id: businessData.user_id, role: 'business' }
-          ]
-        }
-      });
+      const enrichedParticipants = (convData.participants || []).map((p: any) => ({
+        ...p,
+        joined_at: p.created_at,
+        profile: profilesMap.get(p.user_id)
+      }));
 
-      if (createError) throw createError;
-
-      const newConversation = {
-        ...createData.conversation,
-        type: 'business' as const,
-        origin_type: 'business' as const,
-        origin_id: businessId,
+      const newConversation: MimoConversation = {
+        id: convData.id,
+        title: convData.title,
+        type: convData.conversation_type as 'private' | 'group' | 'business',
+        origin_type: convData.origin_type as 'business' | 'direct' | 'group',
+        origin_id: convData.origin_id,
+        created_at: convData.created_at,
+        last_activity: convData.last_activity,
         unread_count: 0,
-        business_context: {
-          business_id: businessId,
-          business_name: businessData.business_name,
-          category: businessData.business_category,
-          logo_url: businessData.logo_url,
-          whatsapp: businessData.whatsapp,
-          phone: businessData.phone,
-          email: businessData.email
-        }
-      } as MimoConversation;
+        participants: enrichedParticipants,
+        business_context: businessContext ? {
+          business_id: (businessContext as any).business_id,
+          business_name: (businessContext as any).business_name,
+          category: (businessContext as any).category,
+          logo_url: (businessContext as any).logo_url,
+          whatsapp: (businessContext as any).whatsapp,
+          phone: (businessContext as any).phone,
+          email: (businessContext as any).email
+        } : undefined
+      };
 
       // Add to conversations list
       setConversations(prev => [newConversation, ...prev]);
       
       return newConversation;
     } catch (error: any) {
-      console.error('Erreur création conversation business:', error);
-      setError(error.message || 'Impossible de créer la conversation');
+      console.error('Erreur conversation business:', error);
+      setError(error.message || 'Impossible de charger la conversation');
       return null;
     } finally {
       setLoading(false);

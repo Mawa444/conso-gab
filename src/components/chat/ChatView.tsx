@@ -36,24 +36,26 @@ export const ChatView: React.FC<ChatViewProps> = ({
     createBusinessConversation
   } = useMessaging();
 
-  // Load or create conversation
+  // Load or create conversation - META-STYLE
+  // Si conversationId est un business_id, on trouve/crée le bon conversation_id
   React.useEffect(() => {
     const initConversation = async () => {
       if (!conversationId || !user) return;
 
-      // Check if conversation already exists
+      // Check if it's already a conversation_id
       let conversation = conversations.find(c => c.id === conversationId);
       
-      // If not found, it might be a businessId - try to create/find business conversation
+      // If not found, check if it's a business_id
       if (!conversation) {
         const businessConversation = conversations.find(
           c => c.origin_type === 'business' && c.origin_id === conversationId
         );
         
         if (businessConversation) {
+          // Found existing conversation for this business
           conversation = businessConversation;
         } else {
-          // Try to create new business conversation
+          // Meta-style: Get or create atomically
           const newConv = await createBusinessConversation(conversationId);
           if (newConv) {
             conversation = newConv as any;
@@ -74,7 +76,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
   };
 
   const handleOpenInMimoChat = () => {
-    navigate(`/messaging/${conversationId}`);
+    // Meta-style navigation: toujours utiliser le conversation_id réel
+    if (activeConversation?.id) {
+      navigate(`/messaging/${activeConversation.id}`);
+    }
   };
 
   if (loading && !activeConversation) {

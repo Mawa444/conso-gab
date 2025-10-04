@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MessagingProvider, useMessaging } from '@/contexts/MessagingContext';
+import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -47,14 +48,42 @@ const ConversationPageContent: React.FC = () => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load conversation
+  // Load conversation - META-STYLE
+  // Si l'URL contient un business_id au lieu d'un conversation_id, résoudre d'abord
   useEffect(() => {
     if (!conversationId || !user) return;
 
     const loadConversation = async () => {
-      // Find conversation in list or fetch it
+      // 1. Chercher par conversation_id d'abord
       let conversation = conversations.find(c => c.id === conversationId);
       
+      // 2. Si pas trouvé, peut-être que c'est un business_id (Meta-style)
+      if (!conversation) {
+        const businessConv = conversations.find(
+          c => c.origin_type === 'business' && c.origin_id === conversationId
+        );
+        
+        if (businessConv) {
+          // Rediriger vers la bonne URL avec conversation_id
+          navigate(`/messaging/${businessConv.id}`, { replace: true });
+          return;
+        }
+        
+        // Sinon, utiliser la fonction RPC pour obtenir le conversation_id
+        const { data: realConvId, error } = await supabase
+          .rpc('get_or_create_business_conversation', {
+            p_business_id: conversationId,
+            p_user_id: user.id
+          });
+        
+        if (!error && realConvId) {
+          // Rediriger vers la bonne URL
+          navigate(`/messaging/${realConvId}`, { replace: true });
+          return;
+        }
+      }
+      
+      // 3. Charger la conversation trouvée
       if (conversation) {
         setActiveConversation(conversation);
       }
