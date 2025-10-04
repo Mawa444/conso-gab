@@ -108,7 +108,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     setError(null);
     
     try {
-      // Single query to get conversations with participants
+      // Fetch conversations with participants (NO profiles join)
       const { data, error } = await supabase
         .from('conversations')
         .select(`
@@ -123,58 +123,81 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
             user_id,
             role,
             last_read,
-            created_at,
-            profiles(display_name, avatar_url)
+            created_at
           )
         `)
         .eq('participants.user_id', user.id)
         .order('last_activity', { ascending: false });
 
       if (error) throw error;
+      if (!data || data.length === 0) {
+        setConversations([]);
+        setLoading(false);
+        return;
+      }
 
       const conversationIds = data?.map(conv => conv.id) || [];
 
-      // Batch fetch: Business info and last messages
-      const [businessesResult, lastMessagesResult] = await Promise.all([
+      // Extract all unique participant user_ids
+      const allParticipantIds = new Set<string>();
+      data.forEach((conv: any) => {
+        conv.participants?.forEach((p: any) => {
+          allParticipantIds.add(p.user_id);
+        });
+      });
+
+      // Batch fetch: Profiles, Business info and last messages
+      const [profilesResult, businessesResult, lastMessagesResult] = await Promise.all([
+        // Fetch all participant profiles
+        supabase
+          .from('profiles')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', Array.from(allParticipantIds)),
+        
         // Get business info for business conversations
         (async () => {
-          const businessConversations = (data || []).filter(c => c.origin_type === 'business' && c.origin_id);
-          const businessIds = businessConversations.map(c => c.origin_id).filter(Boolean);
+          const businessConversations = (data || []).filter((c: any) => c.origin_type === 'business' && c.origin_id);
+          const businessIds = businessConversations.map((c: any) => c.origin_id).filter(Boolean);
           
-          if (businessIds.length === 0) return [];
+          if (businessIds.length === 0) return { data: [] };
           
-          const { data: businesses } = await supabase
+          return await supabase
             .from('business_profiles')
             .select('id, business_name, logo_url, business_category, whatsapp, phone, email')
             .in('id', businessIds);
-          
-          return businesses || [];
         })(),
         
-        // Get last messages for each conversation
+        // Get last messages for each conversation (NO profiles join)
         supabase
           .from('messages')
-          .select(`
-            id,
-            conversation_id,
-            content,
-            message_type,
-            created_at,
-            sender_id,
-            profiles(display_name, avatar_url)
-          `)
+          .select('id, conversation_id, content, message_type, created_at, sender_id')
           .in('conversation_id', conversationIds)
           .order('created_at', { ascending: false })
       ]);
 
-      const businessData = businessesResult;
+      const profilesData = profilesResult.data || [];
+      const profilesMap = new Map(profilesData.map(p => [p.user_id, p]));
+      const businessData = businessesResult.data || [];
       const lastMessages = lastMessagesResult.data || [];
 
       // Transform conversations with all enriched data
       const transformedConversations = await Promise.all(
-        (data || []).map(async (conv) => {
-          const lastMessage = lastMessages?.find(msg => msg.conversation_id === conv.id);
+        (data || []).map(async (conv: any) => {
+          const lastMessage = lastMessages?.find((msg: any) => msg.conversation_id === conv.id);
           const userParticipant = conv.participants.find((p: any) => p.user_id === user.id);
+          
+          // Enrich participants with profile data
+          const enrichedParticipants = conv.participants.map((p: any) => {
+            const profile = profilesMap.get(p.user_id);
+            return {
+              ...p,
+              joined_at: p.created_at,
+              profile: profile ? {
+                display_name: profile.display_name,
+                avatar_url: profile.avatar_url
+              } : undefined
+            };
+          });
           
           // Calculate unread count for this conversation
           let unreadCount = 0;
@@ -214,15 +237,11 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
             ...enrichedConv,
             type: conv.conversation_type as 'private' | 'group' | 'business',
             unread_count: unreadCount,
+            participants: enrichedParticipants,
             last_message: lastMessage ? {
               ...lastMessage,
-              sender_profile: lastMessage.profiles
-            } : null,
-            participants: conv.participants.map((p: any) => ({
-              ...p,
-              joined_at: p.created_at,
-              profile: p.profiles
-            }))
+              sender_profile: profilesMap.get(lastMessage.sender_id)
+            } : null
           };
         })
       );
@@ -245,6 +264,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
       const start = page * MESSAGES_PER_PAGE;
       const end = start + MESSAGES_PER_PAGE - 1;
 
+      // Fetch messages WITHOUT profiles join
       const { data, error } = await supabase
         .from('messages')
         .select(`
@@ -256,8 +276,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
           created_at,
           edited_at,
           reply_to_message_id,
-          attachment_url,
-          profiles(display_name, avatar_url)
+          attachment_url
         `)
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true })
@@ -265,11 +284,29 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
 
       if (error) throw error;
 
-      const transformedMessages = data?.map(msg => ({
-        ...msg,
-        message_type: msg.message_type as 'text' | 'image' | 'audio' | 'document' | 'location' | 'system',
-        sender_profile: msg.profiles
-      })) || [];
+      // Fetch sender profiles separately
+      const senderIds = [...new Set(data?.map((m: any) => m.sender_id) || [])];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_url')
+        .in('user_id', senderIds);
+      
+      const profilesMap = new Map(
+        (profilesData || []).map(p => [p.user_id, p])
+      );
+
+      // Enrich messages with sender profiles
+      const transformedMessages = (data || []).map((msg: any) => {
+        const profile = profilesMap.get(msg.sender_id);
+        return {
+          ...msg,
+          message_type: msg.message_type as 'text' | 'image' | 'audio' | 'document' | 'location' | 'system',
+          sender_profile: profile ? {
+            display_name: profile.display_name,
+            avatar_url: profile.avatar_url
+          } : undefined
+        };
+      });
 
       // If page > 0, append to existing messages, otherwise replace
       if (page > 0) {
@@ -497,12 +534,15 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
           const { data: profile } = await supabase
             .from('profiles')
             .select('display_name, avatar_url')
-            .eq('id', newMessage.sender_id)
+            .eq('user_id', newMessage.sender_id)
             .single();
           
           const enrichedMessage = {
             ...newMessage,
-            sender_profile: profile || undefined
+            sender_profile: profile ? {
+              display_name: profile.display_name,
+              avatar_url: profile.avatar_url
+            } : undefined
           };
           
           setMessages(prev => [...prev, enrichedMessage]);
