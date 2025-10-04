@@ -42,7 +42,8 @@ export const ProfileImageUploader = ({
         bucket,
         folder,
         exactDimensions: { width: 1300, height: 1300 },
-        maxSize: 3145728
+        quality: 0.92,
+        maxSize: 5242880
       });
 
       if (result) {

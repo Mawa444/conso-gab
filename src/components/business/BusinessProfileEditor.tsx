@@ -76,6 +76,27 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
     }
   };
 
+  const handleImageUpdate = async (field: 'logo_url' | 'cover_image_url', url: string) => {
+    updateData({ [field]: url });
+    
+    // Sauvegarde automatique de l'image
+    try {
+      const { error } = await supabase
+        .from('business_profiles')
+        .update({ [field]: url })
+        .eq('id', businessId);
+
+      if (error) throw error;
+      toast.success("Image mise à jour avec succès !");
+      
+      // Recharger les données pour rafraîchir l'affichage
+      await fetchBusinessData();
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de l\'image:', error);
+      toast.error("Erreur lors de la sauvegarde de l'image");
+    }
+  };
+
   const handleSave = async () => {
     if (!data) return;
     setLoading(true);
@@ -125,43 +146,72 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Building2 className="w-6 h-6" />
-          Modifier mon profil business
-        </CardTitle>
-      </CardHeader>
+    <div className="w-full space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Building2 className="w-5 h-5" />
+            Gestion du profil
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Modifiez les informations de votre entreprise
+          </p>
+        </div>
+      </div>
 
-      <CardContent>
-        <Tabs defaultValue="basic" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="images">Images</TabsTrigger>
-            <TabsTrigger value="basic">Informations</TabsTrigger>
-            <TabsTrigger value="location">Localisation</TabsTrigger>
-            <TabsTrigger value="contact">Contact</TabsTrigger>
-            <TabsTrigger value="social">Réseaux sociaux</TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="basic" className="space-y-6">
+        <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
+          <TabsTrigger 
+            value="basic" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+          >
+            Informations
+          </TabsTrigger>
+          <TabsTrigger 
+            value="images"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+          >
+            Images
+          </TabsTrigger>
+          <TabsTrigger 
+            value="location"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+          >
+            Localisation
+          </TabsTrigger>
+          <TabsTrigger 
+            value="contact"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+          >
+            Contact
+          </TabsTrigger>
+          <TabsTrigger 
+            value="social"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+          >
+            Réseaux sociaux
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="images" className="space-y-6">
-            <CoverImageUploader
-              currentImageUrl={data.cover_image_url}
-              onImageUploaded={(url, path) => updateData({ cover_image_url: url })}
-              bucket="catalog-covers"
-              folder="business-covers"
-              label="Image de couverture du profil"
-            />
+        <TabsContent value="images" className="space-y-6 mt-6">
+          <CoverImageUploader
+            currentImageUrl={data.cover_image_url}
+            onImageUploaded={(url, path) => handleImageUpdate('cover_image_url', url)}
+            bucket="catalog-covers"
+            folder="business-covers"
+            label="Image de couverture du profil"
+          />
 
-            <ProfileImageUploader
-              currentImageUrl={data.logo_url}
-              onImageUploaded={(url, path) => updateData({ logo_url: url })}
-              bucket="catalog-covers"
-              folder="business-logos"
-              label="Logo de l'entreprise"
-            />
-          </TabsContent>
+          <ProfileImageUploader
+            currentImageUrl={data.logo_url}
+            onImageUploaded={(url, path) => handleImageUpdate('logo_url', url)}
+            bucket="catalog-covers"
+            folder="business-logos"
+            label="Logo de l'entreprise"
+          />
+        </TabsContent>
 
-          <TabsContent value="basic" className="space-y-4">
+          <TabsContent value="basic" className="space-y-4 mt-6">
             <div>
               <Label htmlFor="businessName" className="text-sm font-semibold">
                 Nom de l'entreprise *
@@ -209,7 +259,7 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
             </div>
           </TabsContent>
 
-          <TabsContent value="location" className="space-y-4">
+          <TabsContent value="location" className="space-y-4 mt-6">
             <LocationStep
               initialLocation={{
                 country: data.country || 'Gabon',
@@ -236,7 +286,7 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
             />
           </TabsContent>
 
-          <TabsContent value="contact" className="space-y-4">
+          <TabsContent value="contact" className="space-y-4 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="phone" className="text-sm font-semibold">
@@ -293,7 +343,7 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
             </div>
           </TabsContent>
 
-          <TabsContent value="social" className="space-y-4">
+          <TabsContent value="social" className="space-y-4 mt-6">
             <div className="space-y-4">
               {[
                 { key: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/votre-page' },
@@ -324,26 +374,25 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
               ))}
             </div>
           </TabsContent>
-        </Tabs>
+      </Tabs>
 
-        <Separator className="my-6" />
+      <Separator className="my-6" />
 
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={loading} className="px-8">
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Sauvegarde...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Sauvegarder les modifications
-              </>
-            )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="flex justify-end">
+        <Button onClick={handleSave} disabled={loading} size="lg" className="px-8">
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Sauvegarde...
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4 mr-2" />
+              Sauvegarder les modifications
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
   );
 };
