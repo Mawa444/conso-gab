@@ -65,6 +65,8 @@ interface UserProfileData {
   role: string;
   avatar_url?: string;
   cover_image_url?: string;
+  avatar_updated_at?: string;
+  cover_updated_at?: string;
 }
 const recentActivity = [{
   id: "act_001",
@@ -197,7 +199,9 @@ export const ProfilePage = ({
           pseudo: profileData.display_name || userProfileData?.pseudo || "",
           role: userProfileData?.role || "",
           avatar_url: profileData.avatar_url || undefined,
-          cover_image_url: profileData.cover_image_url || undefined
+          cover_image_url: profileData.cover_image_url || undefined,
+          avatar_updated_at: profileData.avatar_updated_at || undefined,
+          cover_updated_at: profileData.cover_updated_at || undefined
         });
       } else if (userProfileData) {
         setUserProfile({
@@ -557,6 +561,7 @@ export const ProfilePage = ({
           imageType={imageViewModal.imageType}
           profileUserId={user.id}
           imageTitle={imageViewModal.imageType === 'avatar' ? 'Photo de profil' : 'Image de couverture'}
+          uploadDate={imageViewModal.imageType === 'avatar' ? userProfile.avatar_updated_at : userProfile.cover_updated_at}
         />
       )}
     </PageWithSkeleton>;
