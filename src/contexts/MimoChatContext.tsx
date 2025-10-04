@@ -104,6 +104,8 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
           conversation_type,
           created_at,
           last_activity,
+          origin_type,
+          origin_id,
           participants!inner(
             user_id,
             role,
@@ -113,6 +115,21 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
         `)
         .eq('participants.user_id', user.id)
         .order('last_activity', { ascending: false });
+
+      if (error) throw error;
+
+      // Get business info for business conversations
+      const businessConversations = (data || []).filter(c => c.origin_type === 'business' && c.origin_id);
+      const businessIds = businessConversations.map(c => c.origin_id).filter(Boolean);
+      
+      let businessData: any[] = [];
+      if (businessIds.length > 0) {
+        const { data: businesses } = await supabase
+          .from('business_profiles')
+          .select('id, business_name, logo_url, business_category')
+          .in('id', businessIds);
+        businessData = businesses || [];
+      }
 
       if (error) throw error;
 
@@ -165,8 +182,27 @@ export const MimoChatProvider: React.FC<MimoChatProviderProps> = ({ children }) 
       // Transform conversations with calculated unread counts
       const transformedConversations = participantsWithLastRead.map((conv, index) => {
         const lastMessage = lastMessages?.find(msg => msg.conversation_id === conv.id);
+        
+        // Enrich business conversations with business info
+        let enrichedConv: any = { ...conv };
+        if (conv.origin_type === 'business' && conv.origin_id) {
+          const businessInfo = businessData.find(b => b.id === conv.origin_id);
+          if (businessInfo) {
+            enrichedConv = {
+              ...conv,
+              title: businessInfo.business_name || conv.title || 'Business',
+              avatar_url: businessInfo.logo_url,
+              business_context: {
+                business_id: businessInfo.id,
+                business_name: businessInfo.business_name,
+                category: businessInfo.business_category
+              }
+            };
+          }
+        }
+        
         return {
-          ...conv,
+          ...enrichedConv,
           type: conv.conversation_type as 'private' | 'group' | 'business',
           unread_count: unreadCounts[index] || 0,
           last_message: lastMessage ? {

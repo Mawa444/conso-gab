@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Building2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { MimoConversation } from '@/contexts/MimoChatContext';
@@ -53,6 +53,11 @@ const getLastMessagePreview = (conversation: MimoConversation): string => {
 };
 
 const getConversationTitle = (conversation: MimoConversation, currentUserId?: string): string => {
+  // Business conversations
+  if (conversation.business_context) {
+    return conversation.business_context.business_name;
+  }
+  
   if (conversation.title) return conversation.title;
   
   if (conversation.type === 'group') {
@@ -65,6 +70,11 @@ const getConversationTitle = (conversation: MimoConversation, currentUserId?: st
 };
 
 const getConversationAvatar = (conversation: MimoConversation, currentUserId?: string): string => {
+  // Business conversations - use avatar_url enriched by context
+  if (conversation.business_context && (conversation as any).avatar_url) {
+    return (conversation as any).avatar_url;
+  }
+  
   if (conversation.type === 'group') {
     return ''; // Group default avatar
   }
@@ -76,6 +86,10 @@ const getConversationAvatar = (conversation: MimoConversation, currentUserId?: s
 const getConversationInitials = (conversation: MimoConversation, currentUserId?: string): string => {
   const title = getConversationTitle(conversation, currentUserId);
   return title.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+};
+
+const isBusinessConversation = (conversation: MimoConversation): boolean => {
+  return !!conversation.business_context;
 };
 
 export const ConversationList: React.FC<ConversationListProps> = ({
@@ -144,24 +158,43 @@ export const ConversationList: React.FC<ConversationListProps> = ({
           >
             {/* Avatar */}
             <div className="relative">
-              <Avatar className="w-12 h-12">
+              <Avatar className={cn(
+                "w-12 h-12",
+                isBusinessConversation(conversation) && "ring-2 ring-primary/20"
+              )}>
                 <AvatarImage src={avatarUrl} alt={title} />
-                <AvatarFallback className="bg-mimo-gray-200 text-mimo-gray-700 font-semibold">
-                  {initials}
+                <AvatarFallback className={cn(
+                  "bg-mimo-gray-200 text-mimo-gray-700 font-semibold",
+                  isBusinessConversation(conversation) && "bg-gradient-to-br from-primary to-accent text-white"
+                )}>
+                  {isBusinessConversation(conversation) ? (
+                    <Building2 className="w-5 h-5" />
+                  ) : (
+                    initials
+                  )}
                 </AvatarFallback>
               </Avatar>
               
               {/* Online status indicator */}
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-mimo-success rounded-full border-2 border-white" />
+              {!isBusinessConversation(conversation) && (
+                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-mimo-success rounded-full border-2 border-white" />
+              )}
             </div>
 
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
-                <h3 className="font-semibold text-mimo-gray-900 truncate pr-2">
-                  {title}
-                </h3>
-                <div className="flex items-center gap-1 text-mimo-gray-500">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <h3 className="font-semibold text-mimo-gray-900 truncate">
+                    {title}
+                  </h3>
+                  {isBusinessConversation(conversation) && (
+                    <Badge variant="outline" className="text-xs border-primary/20 text-primary bg-primary/5 flex-shrink-0">
+                      Business
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 text-mimo-gray-500 flex-shrink-0 ml-2">
                   {conversation.last_message?.sender_id && (
                     <CheckCheck className="w-4 h-4 text-mimo-blue" />
                   )}

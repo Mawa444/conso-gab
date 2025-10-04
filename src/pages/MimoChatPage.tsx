@@ -68,7 +68,7 @@ export const MimoChatPage: React.FC = () => {
         onTabChange={setActiveTab}
         title={getPageTitle()}
         showBackButton
-        onBack={() => navigate(-1)}
+        onBack={() => navigate('/')}
         showFAB={activeTab !== 'settings'}
         onFABClick={handleFABClick}
         fabIcon={<Plus className="w-6 h-6" />}
