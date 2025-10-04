@@ -62,7 +62,7 @@ export const CommerceDetailsPopup = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[1200] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 z-modal flex items-center justify-center p-4" style={{ zIndex: 'var(--z-modal)' }}>
       <div className="bg-card rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
@@ -117,7 +117,7 @@ export const CommerceDetailsPopup = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
-                    <Star className="w-5 h-5 fill-[hsl(var(--gaboma-yellow))] text-[hsl(var(--gaboma-yellow))]" />
+                    <Star className="w-5 h-5 fill-secondary text-secondary" />
                     <span className="font-semibold">{commerce.rating}</span>
                     <span className="text-sm text-muted-foreground">(127 avis)</span>
                   </div>

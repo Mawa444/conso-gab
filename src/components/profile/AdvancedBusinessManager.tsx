@@ -86,10 +86,10 @@ export const AdvancedBusinessManager = ({
               </div>
               
               <div className="flex items-center gap-2">
-                {currentMode === 'consumer' && <Badge variant="secondary" className="text-xs bg-[fcd116] bg-[#fcd116]/[0.96]">ACTUEL</Badge>}
+                {currentMode === 'consumer' && <Badge variant="secondary" className="text-xs">ACTUEL</Badge>}
                 <Button variant="default" size="sm" onClick={() => switchMode('consumer', undefined, () => {
                   navigate('/consumer/profile?tab=businesses');
-                })} className="text-[fcd116] text-white">
+                })} className="text-white">
                   {currentMode === 'consumer' ? 'Actuel' : 'Basculer'}
                 </Button>
               </div>
@@ -98,8 +98,8 @@ export const AdvancedBusinessManager = ({
         </Card>
 
         {/* Business Profiles */}
-        <div className="space-y-3 rounded-3xl bg-[009e60] mx-0 bg-[#095c39]/[0.96]">
-          <h3 className="font-bold text-[#fcd116]/[0.96] text-base my-[12px]">Mes Profils Business</h3>
+        <div className="space-y-3 rounded-3xl bg-accent/10 mx-0">
+          <h3 className="font-bold text-secondary text-base my-[12px]">Mes Profils Business</h3>
 
           {businessProfiles.length > 0 ? <div className="space-y-3 px-[26px] py-[12px]">
               {businessProfiles.map(business => <Card key={business.id} className={`transition-all duration-300 cursor-pointer hover:scale-[1.02] ${currentMode === 'business' && currentBusiness?.id === business.id ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' : 'hover:bg-muted/30'}`}>
@@ -135,7 +135,7 @@ export const AdvancedBusinessManager = ({
                 </Card>)}
               
               {/* Bouton unique pour créer une nouvelle entreprise */}
-              <CreateBusinessButton size="lg" className="h-14 from-primary to-accent hover:scale-[1.02] transition-all duration-300 shadow-lg rounded-3xl my-[15px] bg-[fcd116] bg-[#fcd116]/[0.97] text-black" fullWidth>
+              <CreateBusinessButton size="lg" className="h-14 hover:scale-[1.02] transition-all duration-300 shadow-lg rounded-3xl my-[15px]" fullWidth>
                 <span className="text-lg font-bold">Créer un nouveau profil business</span>
               </CreateBusinessButton>
             </div> : <Card className="border-dashed border-2 border-muted-foreground/30">

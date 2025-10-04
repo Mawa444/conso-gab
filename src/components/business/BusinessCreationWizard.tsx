@@ -244,7 +244,7 @@ export const BusinessCreationWizard = ({
         return <div className="space-y-6">
             <div className="text-center mb-6 bg-inherit">
               <Building2 className="w-16 h-16 mx-auto mb-4 text-primary" />
-              <h3 className="font-bold mb-2 text-[3a75c4] text-[#3a75c4]/[0.97]">Informations de base</h3>
+              <h3 className="font-bold mb-2 text-primary">Informations de base</h3>
               <p className="text-black font-semibold">
                 Présentez votre entreprise de manière claire et attractive
               </p>
@@ -263,8 +263,8 @@ export const BusinessCreationWizard = ({
                 </p>
               </div>
 
-              <div className="rounded-3xl bg-[fcd116] bg-[#fcd116]/[0.97]">
-                <Label htmlFor="category" className="text-sm font-semibold bg-[fcd116] bg-inherit">
+              <div className="rounded-3xl bg-secondary/10">
+                <Label htmlFor="category" className="text-sm font-semibold">
                   Catégorie *
                 </Label>
                 <Select value={data.businessCategory} onValueChange={value => updateData({
@@ -599,7 +599,7 @@ export const BusinessCreationWizard = ({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-[3a75c4] text-[#3a75c4]/[0.96]">
+            <CardTitle className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Créer mon entreprise
             </CardTitle>
             <p className="text-muted-foreground mt-1">
@@ -622,7 +622,7 @@ export const BusinessCreationWizard = ({
         </div>
 
         <div className="flex justify-center mt-3">
-          <Badge variant={step === 6 ? "default" : "secondary"} className="text-xs rounded-3xl bg-[fcd116] bg-[#fcd116]/[0.96]">
+          <Badge variant={step === 6 ? "default" : "secondary"} className="text-xs rounded-3xl">
             Étape {step}/6: {steps[step - 1].title}
           </Badge>
         </div>
@@ -633,17 +633,17 @@ export const BusinessCreationWizard = ({
 
         {/* Navigation buttons */}
         <div className="flex justify-between mt-8 pt-6 border-t">
-          <Button variant="outline" onClick={handleBack} disabled={step === 1} className="px-6 text-white bg-slate-600 hover:bg-slate-500">
+          <Button variant="outline" onClick={handleBack} disabled={step === 1} className="px-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
 
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={onCancel} className="bg-red-600 hover:bg-red-500 text-white rounded-3xl">
+            <Button variant="destructive" onClick={onCancel} className="rounded-3xl">
               Annuler
             </Button>
 
-            {step < 6 ? <Button onClick={handleNext} disabled={!canNext()} className="px-6 from-primary to-accent text-white bg-[3a75c4] bg-[#3a75c4]/[0.96] rounded-3xl">
+            {step < 6 ? <Button onClick={handleNext} disabled={!canNext()} className="px-6 rounded-3xl">
                 Suivant
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button> : <Button onClick={handleCreate} disabled={loading || !canNext()} className="px-8 bg-gradient-to-r from-primary to-accent text-white" size="lg">

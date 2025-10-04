@@ -159,7 +159,7 @@ export const EnhancedCommerceDetailsPopup = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-background z-[1200] overflow-y-auto">
+      <div className="fixed inset-0 bg-background z-modal overflow-y-auto" style={{ zIndex: 'var(--z-modal)' }}>
         {/* Header avec image de couverture */}
         <div className="relative h-64 bg-muted/30">
           <img 

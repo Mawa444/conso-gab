@@ -26,7 +26,7 @@ export const BottomNavigation = ({
   activeTab,
   onTabChange
 }: BottomNavigationProps) => {
-  return <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border/20 safe-area-pb z-[999] noselect">
+  return <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border/20 safe-area-pb z-[var(--z-sticky)] noselect" style={{ zIndex: 'var(--z-sticky)' }}>
       <div className="flex items-center justify-around py-2 px-4">
         {navItems.map(item => {
         const isActive = activeTab === item.id;

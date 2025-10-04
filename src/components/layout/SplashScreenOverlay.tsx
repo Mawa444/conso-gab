@@ -64,7 +64,7 @@ export const SplashScreenOverlay = () => {
   if (!showSplash) return null;
 
   return (
-    <div className={`fixed inset-0 z-[9999] flex items-center justify-center ${
+    <div className={`fixed inset-0 z-[var(--z-splash)] flex items-center justify-center ${
       welcomeStep === 'hidden' ? 'opacity-0 pointer-events-none' : 'opacity-100'
     }`}>
       {/* Arrière-plan avec dégradé Gaboma */}

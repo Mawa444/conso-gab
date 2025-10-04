@@ -171,7 +171,29 @@ export default {
 				'mimo-1': 'var(--shadow-1)',
 				'mimo-4': 'var(--shadow-4)',
 				'mimo-8': 'var(--shadow-8)',
-				'mimo-16': 'var(--shadow-16)'
+				'mimo-16': 'var(--shadow-16)',
+				'xs': 'var(--shadow-xs)',
+				'sm': 'var(--shadow-sm)',
+				'md': 'var(--shadow-md)',
+				'lg': 'var(--shadow-lg)',
+				'xl': 'var(--shadow-xl)',
+				'2xl': 'var(--shadow-2xl)',
+				'inner': 'var(--shadow-inner)',
+				'primary-glow': 'var(--shadow-primary-glow)',
+				'secondary-glow': 'var(--shadow-secondary-glow)',
+				'accent-glow': 'var(--shadow-accent-glow)'
+			},
+			zIndex: {
+				'base': '0',
+				'dropdown': '1000',
+				'sticky': '1020',
+				'fixed': '1030',
+				'modal-backdrop': '1040',
+				'modal': '1050',
+				'popover': '1060',
+				'tooltip': '1070',
+				'notification': '1080',
+				'splash': '9999'
 			},
 			keyframes: {
 				'accordion-down': {

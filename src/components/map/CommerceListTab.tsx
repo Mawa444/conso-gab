@@ -90,7 +90,7 @@ export const CommerceListTab = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Rechercher par nom, catégorie, description..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 h-11" />
           </div>
-          <Button variant={showFilters ? "default" : "outline"} onClick={() => setShowFilters(!showFilters)} className="px-4 bg-[3a75c4] bg-[#3a75c4]/[0.97] text-white">
+          <Button variant={showFilters ? "default" : "outline"} onClick={() => setShowFilters(!showFilters)} className="px-4">
             <Filter className="w-4 h-4 mr-2" />
             Filtres
           </Button>
@@ -151,8 +151,8 @@ export const CommerceListTab = () => {
           {/* Panneau latéral - Statistiques par catégorie */}
           <div className="lg:col-span-1 space-y-4">
             <Card>
-              <CardContent className="p-4 rounded-3xl bg-[3a75c4] bg-white">
-                <h3 className="font-semibold mb-4 flex items-center gap-2 text-[3a75c4] text-[#3a75c4]/[0.96] text-center">
+              <CardContent className="p-4 rounded-3xl bg-card">
+                <h3 className="font-semibold mb-4 flex items-center gap-2 text-primary text-center">
                   <Building className="w-4 h-4" />
                   Répartition par catégorie
                 </h3>

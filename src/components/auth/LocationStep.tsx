@@ -152,7 +152,7 @@ export const LocationStep = ({
               </p>
             </CardHeader>
             <CardContent>
-          <Button onClick={getGPSLocation} disabled={isGettingLocation} variant={locationMethod === 'gps' ? 'default' : 'outline'} className="w-full bg-[3a75c4] bg-[#3a75c4]/[0.97] text-white">
+          <Button onClick={getGPSLocation} disabled={isGettingLocation} variant={locationMethod === 'gps' ? 'default' : 'outline'} className="w-full">
             {isGettingLocation ? <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 Localisation en cours...

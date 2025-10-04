@@ -19,8 +19,8 @@ export const Header = ({
   onLocationClick,
   onMessageClick
 }: HeaderProps) => {
-  return <header className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary via-accent to-primary/90 text-white shadow-[var(--shadow-elevated)] backdrop-blur-sm noselect">
-        <div className="flex items-center justify-between rounded-none px-[15px] py-[12px] bg-[3a75c4] bg-[#3a75c4]/[0.97]">
+  return <header className="fixed top-0 left-0 right-0 z-[var(--z-fixed)] bg-gradient-to-r from-primary via-accent to-primary/90 text-white shadow-[var(--shadow-elevated)] backdrop-blur-sm noselect" style={{ zIndex: 'var(--z-fixed)' }}>
+        <div className="flex items-center justify-between rounded-none px-[15px] py-[12px] bg-primary">
         {/* Côté gauche - Logo et titre */}
         <div className="flex items-center gap-3">
           {showBack ? <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20 transition-colors">

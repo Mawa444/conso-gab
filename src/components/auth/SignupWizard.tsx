@@ -514,7 +514,7 @@ export const SignupWizard = ({ email, password, onComplete, onClose }: SignupWiz
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1200] p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[var(--z-modal)] p-4" style={{ zIndex: 'var(--z-modal)' }}>
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
         <CardHeader>
           <div className="flex items-center justify-between">

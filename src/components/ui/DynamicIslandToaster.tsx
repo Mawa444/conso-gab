@@ -86,7 +86,7 @@ export const DynamicIslandToaster = () => {
 
   return (
     <div
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-[999] animate-fade-in"
+      className="fixed top-4 left-1/2 -translate-x-1/2 animate-fade-in"
       role="alert"
       aria-live="assertive"
     >

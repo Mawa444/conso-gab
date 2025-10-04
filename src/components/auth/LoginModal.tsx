@@ -210,7 +210,8 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1200] p-4"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[var(--z-modal)] p-4"
+      style={{ zIndex: 'var(--z-modal)' }}
       onClick={handleBackdropClick}
     >
       <Card className="w-full max-w-md" ref={modalRef}>

@@ -211,7 +211,7 @@ export const HomePage = ({
                   Découvrez tous les catalogues des commerces
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/catalogs')} className="gap-2 text-white bg-[009e60] bg-[#009e60]/[0.96]">
+              <Button variant="outline" size="sm" onClick={() => navigate('/catalogs')} className="gap-2">
                 <Grid3X3 className="w-4 h-4" />
                 Voir tout
               </Button>
@@ -233,7 +233,7 @@ export const HomePage = ({
                 {businesses.length}
               </span>
             </h2>
-            <Button variant="ghost" size="sm" onClick={refreshBusinesses} disabled={loading} className="gap-2 text-[3a75c4] text-[#3a75c4]/[0.97]">
+            <Button variant="ghost" size="sm" onClick={refreshBusinesses} disabled={loading} className="gap-2">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Actualiser
             </Button>
