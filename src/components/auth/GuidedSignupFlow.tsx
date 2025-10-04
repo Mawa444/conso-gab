@@ -157,10 +157,10 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-md mx-auto space-y-6 py-8">
+    <div className="min-h-[100dvh] bg-background p-4 flex flex-col">
+      <div className="max-w-md mx-auto w-full flex flex-col" style={{ maxHeight: 'calc(100dvh - 2rem)' }}>
         {/* Header */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-3 py-4 flex-shrink-0">
           <Button
             variant="ghost"
             size="sm"
@@ -172,15 +172,15 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
           </Button>
           
            <div className="flex justify-center">
-             <img src={gabomaLogo} alt="ConsoGab" className="w-24 h-24 object-contain" />
+             <img src={gabomaLogo} alt="ConsoGab" className="w-20 h-20 object-contain" />
            </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Création de votre compte</h1>
-            <p className="text-muted-foreground text-sm">Rejoignez la communauté économique gabonaise</p>
+            <h1 className="text-lg font-bold text-foreground">Création de votre compte</h1>
+            <p className="text-muted-foreground text-xs">Rejoignez la communauté économique gabonaise</p>
           </div>
           
           {/* Progress */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Progress value={progress} className="h-2" />
             <p className="text-xs text-muted-foreground">
               Étape {currentStepIndex + 1} sur {steps.length}
@@ -188,13 +188,13 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
+        <Card className="flex-1 flex flex-col overflow-hidden">
+          <CardHeader className="flex-shrink-0 pb-3">
             <CardTitle className="text-center text-base">
               {steps.find(step => step.id === currentStep)?.title}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex-1 overflow-y-auto space-y-3 pb-3">
 
             {/* Basic Info Step */}
             {currentStep === 'basic-info' && (
@@ -291,7 +291,7 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
 
             {/* Location Step */}
             {currentStep === 'location-info' && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <Badge variant="secondary" className="w-fit">
                   Votre localisation
                 </Badge>
@@ -314,9 +314,11 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
               </div>
             )}
 
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between pt-4">
+          </CardContent>
+          
+          {/* Navigation Buttons - Outside CardContent so always visible */}
+          <div className="border-t p-4 flex-shrink-0 bg-card">
+            <div className="flex justify-between">
               <Button
                 type="button"
                 variant="outline"
@@ -342,34 +344,7 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
                 )}
               </Button>
             </div>
-
-            {/* OAuth Options (only on first step) */}
-            {currentStep === 'profile-choice' && (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => handleOAuthSignIn('google')}
-                  >
-                    <Globe className="mr-2 h-4 w-4" />
-                    S'inscrire avec Google
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => handleOAuthSignIn('github')}
-                  >
-                    Continuer avec GitHub
-                  </Button>
-                </div>
-              </>
-            )}
-          </CardContent>
+          </div>
         </Card>
       </div>
     </div>

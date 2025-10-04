@@ -124,9 +124,9 @@ export const LocationStep = ({
       toast.success("Position GPS détaillée récupérée avec succès ! 🌍");
     }
   };
-  return <div className="space-y-4">
-      <div className="text-center space-y-2">
-        <p className="text-sm text-muted-foreground">
+  return <div className="space-y-3">
+      <div className="text-center space-y-1.5">
+        <p className="text-xs text-muted-foreground">
           Renseignez votre localisation pour découvrir les opérateurs près de chez vous
         </p>
         <Button variant="ghost" size="sm" onClick={() => {
@@ -142,16 +142,16 @@ export const LocationStep = ({
       {!skipLocation && <>
           {/* GPS Option */}
           <Card>
-            <CardHeader className="pb-3 bg-white">
-              <CardTitle className="flex items-center space-x-2 text-base">
-                <Navigation className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-2 bg-white">
+              <CardTitle className="flex items-center space-x-2 text-sm">
+                <Navigation className="h-4 w-4 text-primary" />
                 <span>Position GPS automatique</span>
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Obtenez automatiquement tous les détails de votre localisation précise
               </p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-3">
           <Button onClick={getGPSLocation} disabled={isGettingLocation} variant={locationMethod === 'gps' ? 'default' : 'outline'} className="w-full">
             {isGettingLocation ? <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -228,17 +228,17 @@ export const LocationStep = ({
 
       {/* Manual Selection */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center space-x-2 text-base">
-            <MapPin className="h-5 w-5 text-primary" />
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center space-x-2 text-sm">
+            <MapPin className="h-4 w-4 text-primary" />
             <span>Sélection manuelle</span>
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Choisissez votre localisation étape par étape
           </p>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-3">
+        <CardContent className="pt-3">
+          <div className="grid gap-2.5">
             <div className="space-y-2">
               <Label htmlFor="province">Province</Label>
               <Select value={provinces?.find(p => p.name === location.province)?.id || ''} onValueChange={handleProvinceChange}>
