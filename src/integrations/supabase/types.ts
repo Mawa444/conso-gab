@@ -2891,6 +2891,10 @@ export type Database = {
         Args: { "": number }
         Returns: string
       }
+      get_user_context: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       gettransactionid: {
         Args: Record<PropertyKey, never>
         Returns: unknown

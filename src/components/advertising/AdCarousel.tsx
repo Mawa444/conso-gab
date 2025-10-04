@@ -84,8 +84,8 @@ export const AdCarousel = ({
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
   return <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-lg group z-10">
-      {/* Slides */}
-      <div className="flex h-full transition-transform duration-700 ease-out touch-pan-x" style={{
+      {/* Slides - Remove transitions for instant display */}
+      <div className="flex h-full touch-pan-x" style={{
       transform: `translateX(-${currentSlide * 100}%)`
     }}>
         {filteredSlides.map(slide => <div key={slide.id} className="w-full h-full flex-shrink-0 relative">
@@ -111,7 +111,7 @@ export const AdCarousel = ({
                 {slide.subtitle}
               </p>
               
-              <Button variant="secondary" className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 transition-all duration-300 hover:scale-105" onClick={() => console.log(`CTA clicked for slide ${slide.id}`)}>
+              <Button variant="secondary" className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30">
                 {slide.cta}
               </Button>
             </div>
@@ -122,18 +122,9 @@ export const AdCarousel = ({
 
       {/* Dots indicator */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-        {filteredSlides.map((_, index) => <button key={index} className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide ? 'bg-white scale-110' : 'bg-white/50 hover:bg-white/70'}`} onClick={() => goToSlide(index)} />)}
+        {filteredSlides.map((_, index) => <button key={index} className={`w-3 h-3 rounded-full ${index === currentSlide ? 'bg-white' : 'bg-white/50 hover:bg-white/70'}`} onClick={() => goToSlide(index)} />)}
       </div>
 
-      {/* Removed progress bar to improve performance */}
-
-      <style>
-        {`
-        @keyframes progress {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
-        `}
-      </style>
+      {/* Removed all animations and @keyframes for performance */}
     </div>;
 };

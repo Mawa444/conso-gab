@@ -1,173 +1,103 @@
+/**
+ * Centralized logging system for GABOMA
+ * - Development: All logs visible in console
+ * - Production: Only errors logged, console.* stripped by Vite
+ */
+
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+
 interface LogContext {
-  user_id?: string;
-  session_id?: string;
-  trace_id?: string;
-  service: string;
-  action?: string;
-  from?: string;
-  to?: string;
-  business_id?: string;
-  business_name?: string;
-  status?: 'success' | 'error' | 'warning' | 'info';
-  sensitive?: boolean;
+  [key: string]: any;
 }
 
-type LogLevel = 'ERROR' | 'WARN' | 'INFO' | 'DEBUG';
+class Logger {
+  private isDev = import.meta.env.DEV;
 
-class StructuredLogger {
-  private sessionId: string;
-  
-  constructor() {
-    this.sessionId = Math.random().toString(36).substring(2, 15);
+  private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
+    const timestamp = new Date().toISOString();
+    const contextStr = context ? ` | ${JSON.stringify(context)}` : '';
+    return `[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`;
   }
 
-  private createLogEntry(level: LogLevel, message: string, context: LogContext, data?: any) {
-    const entry = {
-      timestamp: new Date().toISOString(),
-      level,
-      service: context.service,
-      session_id: this.sessionId,
-      trace_id: context.trace_id || Math.random().toString(36).substring(2, 15),
-      user_id: context.user_id,
-      action: context.action,
-      message,
-      status: context.status,
-      from: context.from,
-      to: context.to,
-      business_id: context.business_id,
-      business_name: context.business_name,
-      data: context.sensitive ? '[REDACTED]' : data,
-      path: window.location.pathname,
-      user_agent: navigator.userAgent.split(' ')[0] // Simplified UA
-    };
-
-    // Filter out undefined values to keep JSON clean
-    Object.keys(entry).forEach(key => {
-      if ((entry as any)[key] === undefined) {
-        delete (entry as any)[key];
-      }
-    });
-
-    return entry;
+  debug(message: string, context?: LogContext, additionalContext?: LogContext): void {
+    const mergedContext = { ...context, ...additionalContext };
+    if (this.isDev) {
+      console.log(this.formatMessage('debug', message, mergedContext));
+    }
   }
 
-  private log(level: LogLevel, message: string, context: LogContext, data?: any) {
-    const entry = this.createLogEntry(level, message, context, data);
+  info(message: string, context?: LogContext, additionalContext?: LogContext): void {
+    const mergedContext = { ...context, ...additionalContext };
+    if (this.isDev) {
+      console.info(this.formatMessage('info', message, mergedContext));
+    }
+  }
+
+  warn(message: string, context?: LogContext, additionalContext?: LogContext): void {
+    const mergedContext = { ...context, ...additionalContext };
+    if (this.isDev) {
+      console.warn(this.formatMessage('warn', message, mergedContext));
+    }
+  }
+
+  error(message: string, context?: LogContext, errorOrContext?: Error | LogContext): void {
+    // Handle both error object and additional context
+    let errorContext = context || {};
     
-    // Production: only ERROR, WARN, INFO
-    if (import.meta.env.PROD && level === 'DEBUG') {
-      return;
-    }
-
-    // Safe JSON stringification with circular reference handling
-    const safeStringify = (obj: any) => {
-      const seen = new WeakSet();
-      return JSON.stringify(obj, (key, value) => {
-        if (typeof value === 'object' && value !== null) {
-          if (seen.has(value)) {
-            return '[Circular]';
-          }
-          seen.add(value);
-        }
-        return value;
-      }, 2);
-    };
-
-    try {
-      const logString = safeStringify(entry);
-      switch (level) {
-        case 'ERROR':
-          console.error(logString);
-          break;
-        case 'WARN':
-          console.warn(logString);
-          break;
-        case 'INFO':
-          console.info(logString);
-          break;
-        case 'DEBUG':
-          console.log(logString);
-          break;
+    if (errorOrContext) {
+      if (errorOrContext instanceof Error) {
+        errorContext = { 
+          ...context, 
+          error: errorOrContext.message, 
+          stack: errorOrContext.stack 
+        };
+      } else {
+        errorContext = { ...context, ...errorOrContext };
       }
-    } catch (error) {
-      // Fallback if stringification fails
-      console.error(`[Logger] Failed to stringify log entry: ${message}`);
+    }
+    
+    // Always log errors, even in production
+    console.error(this.formatMessage('error', message, errorContext));
+    
+    // TODO: Send to monitoring service (Sentry, LogRocket, etc.)
+    // this.sendToMonitoring(message, errorContext);
+  }
+
+  // Performance tracking
+  time(label: string): void {
+    if (this.isDev) {
+      console.time(label);
     }
   }
 
-  error(message: string, context: LogContext, data?: any) {
-    this.log('ERROR', message, { ...context, status: 'error' }, data);
-  }
-
-  warn(message: string, context: LogContext, data?: any) {
-    this.log('WARN', message, { ...context, status: 'warning' }, data);
-  }
-
-  info(message: string, context: LogContext, data?: any) {
-    this.log('INFO', message, { ...context, status: 'info' }, data);
-  }
-
-  debug(message: string, context: LogContext, data?: any) {
-    this.log('DEBUG', message, { ...context, status: 'info' }, data);
-  }
-
-  // Specialized logging methods
-  navigation(from: string, to: string, context: Partial<LogContext> = {}) {
-    this.info('Navigation', {
-      service: 'router',
-      action: 'navigate',
-      from,
-      to,
-      status: 'success',
-      ...context
-    });
-  }
-
-  profileSwitch(fromMode: string, toMode: string, businessId?: string, context: Partial<LogContext> = {}) {
-    this.info('Profile mode switch', {
-      service: 'profile-manager',
-      action: 'switch_mode',
-      from: fromMode,
-      to: toMode,
-      business_id: businessId,
-      status: 'success',
-      ...context
-    });
-  }
-
-  authEvent(action: string, context: Partial<LogContext> = {}) {
-    this.info(`Auth ${action}`, {
-      service: 'auth',
-      action,
-      status: 'success',
-      ...context
-    });
-  }
-
-  businessAction(action: string, businessId: string, context: Partial<LogContext> = {}) {
-    this.info(`Business ${action}`, {
-      service: 'business',
-      action,
-      business_id: businessId,
-      status: 'success',
-      ...context
-    });
+  timeEnd(label: string): void {
+    if (this.isDev) {
+      console.timeEnd(label);
+    }
   }
 }
 
-// Singleton instance
-export const logger = new StructuredLogger();
+export const logger = new Logger();
 
-// Domain-specific loggers
-export const createDomainLogger = (service: string) => {
+/**
+ * Create a domain-specific logger with prefixed messages
+ * Example: createDomainLogger('auth') will prefix all logs with [AUTH]
+ */
+export const createDomainLogger = (domain: string) => {
+  const prefix = `[${domain.toUpperCase()}]`;
+  
   return {
-    error: (message: string, context: Partial<LogContext> = {}, data?: any) => 
-      logger.error(message, { service, ...context }, data),
-    warn: (message: string, context: Partial<LogContext> = {}, data?: any) => 
-      logger.warn(message, { service, ...context }, data),
-    info: (message: string, context: Partial<LogContext> = {}, data?: any) => 
-      logger.info(message, { service, ...context }, data),
-    debug: (message: string, context: Partial<LogContext> = {}, data?: any) => 
-      logger.debug(message, { service, ...context }, data),
+    debug: (message: string, context?: LogContext, additionalContext?: LogContext) => 
+      logger.debug(`${prefix} ${message}`, context, additionalContext),
+    info: (message: string, context?: LogContext, additionalContext?: LogContext) => 
+      logger.info(`${prefix} ${message}`, context, additionalContext),
+    warn: (message: string, context?: LogContext, additionalContext?: LogContext) => 
+      logger.warn(`${prefix} ${message}`, context, additionalContext),
+    error: (message: string, context?: LogContext, errorOrContext?: Error | LogContext) => 
+      logger.error(`${prefix} ${message}`, context, errorOrContext),
+    time: (label: string) => 
+      logger.time(`${prefix} ${label}`),
+    timeEnd: (label: string) => 
+      logger.timeEnd(`${prefix} ${label}`),
   };
 };

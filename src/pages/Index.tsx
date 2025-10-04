@@ -101,7 +101,6 @@ const Index = () => {
     setShowProfileSettings(true);
   };
   const handleScanResult = (result: string) => {
-    console.log("QR Code scanné:", result);
     setShowScanner(false);
     // Traiter le résultat du scan
   };

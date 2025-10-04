@@ -29,21 +29,21 @@ export const CategoriesSection = ({ userLocation = "Libreville" }: CategoriesSec
       elementsToRender.push(
         <div key={`categories-${i}`} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {chunk.map((category) => (
-            <Card key={category.id} className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/30">
+            <Card key={category.id} className="group hover:shadow-lg border-border/50">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center text-white text-xl font-bold shadow-lg`}>
                     {category.icon}
                   </div>
                   <div className="flex-1">
-                    <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                    <CardTitle className="text-lg group-hover:text-primary">
                       {category.nom}
                     </CardTitle>
                     <Badge variant="secondary" className="mt-1 text-xs">
                       {category.subcategories.length} sous-catégories
                     </Badge>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
                 </div>
               </CardHeader>
               
@@ -65,7 +65,7 @@ export const CategoriesSection = ({ userLocation = "Libreville" }: CategoriesSec
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="w-full mt-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                  className="w-full mt-4 group-hover:bg-primary group-hover:text-primary-foreground"
                   onClick={() => handleCategoryClick(category.id)}
                 >
                   Explorer cette catégorie

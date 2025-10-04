@@ -26,7 +26,7 @@ export const HeroBlock = ({ onSearch, className }: HeroBlockProps) => {
         <div className="space-y-2">
           <h2 className="text-2xl font-bold flex items-center justify-center gap-2">
             Découvrez les paresseux du Gabon
-            <span className="animate-bounce text-3xl">🇬🇦</span>
+            <span className="text-3xl">🇬🇦</span>
           </h2>
           <p className="text-white/80 text-base max-w-2xl mx-auto">
             Trouvez, évaluez et soutenez les entreprises locales avec notre plateforme intelligente
@@ -39,11 +39,11 @@ export const HeroBlock = ({ onSearch, className }: HeroBlockProps) => {
             onClick={() => setShowSearchModal(true)}
             className="relative cursor-pointer group"
           >
-            <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl px-6 py-4 text-white hover:bg-white/30 transition-all duration-300">
+            <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl px-6 py-4 text-white hover:bg-white/30">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <span className="text-white/90 group-hover:text-white transition-colors">
+              <span className="text-white/90 group-hover:text-white">
                 Rechercher commerces, services, produits...
               </span>
             </div>

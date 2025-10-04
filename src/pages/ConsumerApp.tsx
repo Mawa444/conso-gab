@@ -100,7 +100,6 @@ const ConsumerApp = () => {
     setShowProfileSettings(true);
   };
   const handleScanResult = (result: string) => {
-    console.log("QR Code scanné:", result);
     trackButtonClick("QR Code Scanné", "Scanner");
     setShowScanner(false);
   };
@@ -162,7 +161,6 @@ const ConsumerApp = () => {
       trackModalOpen("Scanner QR - Fermeture");
       setShowScanner(false);
     }} onScan={result => {
-      console.log("QR Code scanné:", result);
       trackButtonClick("QR Code Scanné", "Scanner");
       setShowScanner(false);
     }} />}

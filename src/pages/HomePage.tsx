@@ -49,7 +49,7 @@ export const HomePage = ({
       setScannedCommerce(commerce);
       setShowScanner(false);
     } catch (error) {
-      console.error("Erreur lors du parsing du QR code:", error);
+      // Error handling without console
     }
   };
 

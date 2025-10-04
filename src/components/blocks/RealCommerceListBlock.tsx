@@ -67,7 +67,7 @@ export const RealCommerceListBlock = ({
 
   if (error) {
     return (
-      <Card className="animate-ui-card">
+      <Card>
         <CardContent className="p-6 text-center">
           <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">Erreur de chargement</h3>
@@ -82,7 +82,7 @@ export const RealCommerceListBlock = ({
 
   if (businesses.length === 0) {
     return (
-      <Card className="animate-ui-card">
+      <Card>
         <CardContent className="p-8 text-center">
           <Store className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-xl font-semibold mb-2">Aucune entreprise pour le moment</h3>
@@ -103,7 +103,7 @@ export const RealCommerceListBlock = ({
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">{title}</h2>
-          <Badge variant="outline" className="animate-ui-card">
+          <Badge variant="outline">
             {filteredBusinesses.length} résultat{filteredBusinesses.length > 1 ? 's' : ''}
           </Badge>
         </div>
@@ -150,7 +150,7 @@ export const RealCommerceListBlock = ({
 
       {/* Liste des entreprises */}
       {filteredBusinesses.length === 0 ? (
-        <Card className="animate-ui-card">
+        <Card>
           <CardContent className="p-8 text-center">
             <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Aucun résultat</h3>
@@ -164,7 +164,7 @@ export const RealCommerceListBlock = ({
           {displayedBusinesses.map((business) => (
             <Card 
               key={business.id} 
-              className="animate-ui-card cursor-pointer group hover:shadow-lg transition-all duration-200"
+              className="cursor-pointer group hover:shadow-lg"
               onClick={() => handleBusinessClick(business.id)}
             >
               <CardContent className="p-0">
@@ -174,7 +174,8 @@ export const RealCommerceListBlock = ({
                     <img 
                       src={business.cover_image_url} 
                       alt={business.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -193,7 +194,7 @@ export const RealCommerceListBlock = ({
                 <div className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">
+                      <h3 className="font-semibold text-lg truncate group-hover:text-primary">
                         {business.name}
                       </h3>
                       <p className="text-sm text-muted-foreground">
@@ -206,6 +207,7 @@ export const RealCommerceListBlock = ({
                         src={business.logo_url} 
                         alt={`Logo ${business.name}`}
                         className="w-10 h-10 rounded-lg object-cover border"
+                        loading="lazy"
                       />
                     )}
                   </div>
@@ -223,7 +225,7 @@ export const RealCommerceListBlock = ({
                       )}
                     </div>
                     
-                    <Button size="sm" className="animate-ui-button">
+                    <Button size="sm">
                       Voir les détails
                     </Button>
                   </div>
@@ -240,7 +242,6 @@ export const RealCommerceListBlock = ({
           <Button 
             variant="default" 
             onClick={() => navigate('/businesses')}
-            className="animate-ui-button"
           >
             Voir toutes les entreprises ({sortedBusinesses.length - limit} de plus)
           </Button>
