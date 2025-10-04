@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { getAllBusinessCategories } from "@/data/businessCategories";
+import { createBusinessSchema, validateAndSanitize } from "@/lib/validation/business.validation";
+import { businessCreationLimiter, checkRateLimit } from "@/lib/validation/rate-limit";
 interface BusinessCreationWizardProps {
   onCancel?: () => void;
   onCreated?: (businessId: string) => void;
@@ -150,35 +152,57 @@ export const BusinessCreationWizard = ({
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
+
+    // ✅ RATE LIMITING - Protection anti-abus
+    const rateLimitCheck = checkRateLimit(businessCreationLimiter, user.id);
+    if (!rateLimitCheck.allowed) {
+      const retryTime = 'retryAfter' in rateLimitCheck ? rateLimitCheck.retryAfter : 60;
+      toast.error(`Trop de créations récentes. Réessayez dans ${retryTime} secondes.`);
+      return;
+    }
     
     setLoading(true);
     try {
+      // ✅ VALIDATION ZOD - Sécurité + nettoyage des données
+      const validationResult = validateAndSanitize(createBusinessSchema, data);
+      
+      if (!validationResult.success) {
+        const errors = 'errors' in validationResult ? validationResult.errors : null;
+        const firstError = errors?.errors[0];
+        toast.error(firstError?.message || "Données invalides");
+        console.error('Validation errors:', errors);
+        setLoading(false);
+        return;
+      }
+
+      const validatedData = validationResult.data;
+
       const businessData = {
         user_id: user.id,
-        business_name: data.businessName!,
-        business_category: data.businessCategory! as any,
-        description: data.description,
-        logo_url: data.logoUrl,
-        cover_image_url: data.coverImageUrl,
-        phone: data.businessPhone,
-        whatsapp: data.whatsapp,
-        email: data.businessEmail,
-        website: data.website,
-        address: data.address,
-        city: data.quartier,
-        country: data.country || 'Gabon',
-        province: data.province,
-        department: data.department,
-        arrondissement: data.arrondissement,
-        quartier: data.quartier,
-        latitude: data.latitude,
-        longitude: data.longitude,
-        social_media: data.socialMedia || {},
+        business_name: validatedData.businessName,
+        business_category: validatedData.businessCategory as any,
+        description: validatedData.description || '',
+        logo_url: validatedData.logoUrl,
+        cover_image_url: validatedData.coverImageUrl,
+        phone: validatedData.businessPhone,
+        whatsapp: validatedData.whatsapp,
+        email: validatedData.businessEmail,
+        website: validatedData.website,
+        address: validatedData.address,
+        city: validatedData.quartier,
+        country: validatedData.country || 'Gabon',
+        province: validatedData.province,
+        department: validatedData.department,
+        arrondissement: validatedData.arrondissement,
+        quartier: validatedData.quartier,
+        latitude: validatedData.latitude,
+        longitude: validatedData.longitude,
+        social_media: validatedData.socialMedia || {},
         is_active: true,
         is_verified: false
       };
       
-      console.log('Creating business with data:', businessData);
+      console.log('Creating business with validated data');
       
       const {
         data: businessProfile,
