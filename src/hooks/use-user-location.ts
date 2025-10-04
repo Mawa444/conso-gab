@@ -28,7 +28,7 @@ export const useUserLocation = () => {
     setLoading(true);
     setError(null);
 
-    const watchId = navigator.geolocation.watchPosition(
+    navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocation({
           latitude: position.coords.latitude,
@@ -40,8 +40,6 @@ export const useUserLocation = () => {
         setLoading(false);
       },
       (error) => {
-        console.error('Erreur de géolocalisation:', error);
-        
         if (error.code === error.PERMISSION_DENIED) {
           setPermissionDenied(true);
           setError('Vous avez refusé l\'accès à votre position. Les résultats sont affichés autour de Libreville.');
@@ -58,19 +56,14 @@ export const useUserLocation = () => {
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 30000
+        maximumAge: 60000
       }
     );
-
-    return () => {
-      navigator.geolocation.clearWatch(watchId);
-    };
   }, []);
 
   useEffect(() => {
-    const cleanup = requestLocation();
-    return cleanup;
-  }, [requestLocation]);
+    requestLocation();
+  }, []);
 
   const retryLocation = useCallback(() => {
     requestLocation();

@@ -33,15 +33,16 @@ export const CommerceListBlock = ({
 
   // Filtrage et tri
   const processedCommerces = commerces
-    .filter(commerce => filterCategory === "all" || commerce.type === filterCategory)
+    .filter(commerce => filterCategory === "all" || commerce.type?.toLowerCase() === filterCategory.toLowerCase())
     .sort((a, b) => {
       switch (sortBy) {
         case "rating":
-          return b.rating - a.rating;
+          return (b.rating || 0) - (a.rating || 0);
         case "distance":
-          return parseFloat(a.distance) - parseFloat(b.distance);
+          // Utiliser distance_meters pour tri précis
+          return (a.distance_meters || Infinity) - (b.distance_meters || Infinity);
         case "name":
-          return a.name.localeCompare(b.name);
+          return (a.name || '').localeCompare(b.name || '');
         default:
           return 0;
       }

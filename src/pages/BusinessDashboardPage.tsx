@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useProfileMode } from "@/hooks/use-profile-mode";
+import { useBusinessStats } from "@/hooks/use-business-stats";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   ShoppingBag, 
   Package, 
@@ -11,7 +13,9 @@ import {
   MessageSquare,
   Settings,
   ArrowLeft,
-  BarChart3
+  BarChart3,
+  Eye,
+  Heart
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,6 +23,7 @@ export const BusinessDashboardPage = () => {
   const { businessId } = useParams<{ businessId: string }>();
   const navigate = useNavigate();
   const { currentMode, currentBusinessId, getCurrentBusiness, isOwnerOfBusiness } = useProfileMode();
+  const { stats, loading: statsLoading } = useBusinessStats(businessId);
 
   const currentBusiness = getCurrentBusiness();
   const isOwner = businessId ? isOwnerOfBusiness(businessId) : false;
@@ -35,11 +40,13 @@ export const BusinessDashboardPage = () => {
     return null;
   }
 
-  const stats = [
-    { label: "Commandes", value: "12", icon: ShoppingBag, color: "text-blue-600" },
-    { label: "Produits", value: "45", icon: Package, color: "text-green-600" },
-    { label: "Messages", value: "8", icon: MessageSquare, color: "text-purple-600" },
-    { label: "Vues", value: "234", icon: TrendingUp, color: "text-orange-600" }
+  const statsDisplay = [
+    { label: "Commandes", value: stats.orders.toString(), icon: ShoppingBag, color: "text-blue-600" },
+    { label: "Produits", value: stats.products.toString(), icon: Package, color: "text-green-600" },
+    { label: "Messages", value: stats.messages.toString(), icon: MessageSquare, color: "text-purple-600" },
+    { label: "Vues", value: stats.views.toString(), icon: Eye, color: "text-orange-600" },
+    { label: "Catalogues", value: stats.catalogs.toString(), icon: BarChart3, color: "text-indigo-600" },
+    { label: "Abonnés", value: stats.subscribers.toString(), icon: Heart, color: "text-pink-600" }
   ];
 
   const quickActions = [
@@ -113,20 +120,36 @@ export const BusinessDashboardPage = () => {
       {/* Content */}
       <div className="container mx-auto p-6 space-y-6">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat) => (
-            <Card key={stat.label}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-3xl font-bold mt-1">{stat.value}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {statsLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-8 w-16" />
+                    </div>
+                    <Skeleton className="w-10 h-10 rounded-full" />
                   </div>
-                  <stat.icon className={`w-10 h-10 ${stat.color}`} />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            statsDisplay.map((stat) => (
+              <Card key={stat.label}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                      <p className="text-3xl font-bold mt-1">{stat.value}</p>
+                    </div>
+                    <stat.icon className={`w-10 h-10 ${stat.color}`} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
 
         {/* Quick Actions */}
