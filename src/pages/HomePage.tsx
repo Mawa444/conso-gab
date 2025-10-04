@@ -8,6 +8,7 @@ import { CommerceDetailsPopup } from "@/components/commerce/CommerceDetailsPopup
 import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
 import { OperatorDashboardModal } from "@/components/business/OperatorDashboardModal";
 import { useOptimizedBusinesses } from "@/hooks/use-optimized-businesses";
+import { useUserLocation } from "@/hooks/use-user-location";
 import { useNavigate } from "react-router-dom";
 import { Loader2, RefreshCw, Grid3X3, Building2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -158,8 +159,11 @@ export const HomePage = ({
     businesses,
     loading,
     error,
-    refreshBusinesses
+    refreshBusinesses,
+    userLocation: businessUserLocation
   } = useOptimizedBusinesses();
+  
+  const { error: locationError, permissionDenied, retryLocation } = useUserLocation();
   const handleScanResult = (result: string) => {
     try {
       const commerce = JSON.parse(result);
@@ -179,6 +183,38 @@ export const HomePage = ({
       <div className="min-h-screen bg-background">
         {/* Contenu principal */}
         <div className="space-y-6 p-4 bg-background px-0 py-0">
+        
+        {/* Alerte de géolocalisation */}
+        {(locationError || permissionDenied) && (
+          <Card className="bg-yellow-50 border-yellow-200 mx-4">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-yellow-800 text-sm mb-1">
+                    Géolocalisation désactivée
+                  </h3>
+                  <p className="text-yellow-700 text-xs mb-2">
+                    {locationError || 'Activez la géolocalisation pour voir les entreprises les plus proches de vous.'}
+                  </p>
+                  {permissionDenied && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={retryLocation}
+                      className="text-xs bg-white hover:bg-yellow-50 border-yellow-300"
+                    >
+                      Autoriser la géolocalisation
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Barre de recherche unifiée */}
         <div className="p-4 shadow-sm border-border rounded-3xl bg-inherit py-0 px-0">
           <UnifiedSearchBar onSelect={result => {

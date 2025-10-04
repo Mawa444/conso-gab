@@ -2829,13 +2829,21 @@ export type Database = {
         Returns: unknown
       }
       get_businesses_in_bbox: {
-        Args: {
-          limit_count?: number
-          max_lat: number
-          max_lng: number
-          min_lat: number
-          min_lng: number
-        }
+        Args:
+          | {
+              limit_count?: number
+              max_lat: number
+              max_lng: number
+              min_lat: number
+              min_lng: number
+            }
+          | {
+              limit_count?: number
+              max_lat: number
+              max_lng: number
+              min_lat: number
+              min_lng: number
+            }
         Returns: {
           address: string
           business_category: string
@@ -2864,12 +2872,19 @@ export type Database = {
         }[]
       }
       get_nearest_businesses: {
-        Args: {
-          limit_count?: number
-          radius_meters?: number
-          user_lat: number
-          user_lng: number
-        }
+        Args:
+          | {
+              limit_count?: number
+              radius_meters?: number
+              user_lat: number
+              user_lng: number
+            }
+          | {
+              limit_count?: number
+              radius_meters?: number
+              user_lat: number
+              user_lng: number
+            }
         Returns: {
           address: string
           business_category: string

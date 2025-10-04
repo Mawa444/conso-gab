@@ -16,6 +16,7 @@ export interface MapBusiness {
   longitude: number;
   is_verified: boolean;
   is_active: boolean;
+  distance_meters?: number;
 }
 
 interface UseMapBusinessesOptions {
