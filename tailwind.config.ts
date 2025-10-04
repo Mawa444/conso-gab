@@ -52,13 +52,54 @@ export default {
 					foreground: 'hsl(var(--primary-foreground))',
 					50: 'hsl(var(--color-primary-50))',
 					100: 'hsl(var(--color-primary-100))',
+					200: 'hsl(var(--color-primary-200))',
+					300: 'hsl(var(--color-primary-300))',
+					400: 'hsl(var(--color-primary-400))',
 					500: 'hsl(var(--color-primary-500))',
 					600: 'hsl(var(--color-primary-600))',
+					700: 'hsl(var(--color-primary-700))',
+					800: 'hsl(var(--color-primary-800))',
 					900: 'hsl(var(--color-primary-900))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					foreground: 'hsl(var(--secondary-foreground))',
+					50: 'hsl(var(--color-secondary-50))',
+					100: 'hsl(var(--color-secondary-100))',
+					200: 'hsl(var(--color-secondary-200))',
+					500: 'hsl(var(--color-secondary-500))',
+					600: 'hsl(var(--color-secondary-600))',
+					900: 'hsl(var(--color-secondary-900))'
+				},
+				accent: {
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))',
+					50: 'hsl(var(--color-accent-50))',
+					100: 'hsl(var(--color-accent-100))',
+					500: 'hsl(var(--color-accent-500))',
+					600: 'hsl(var(--color-accent-600))',
+					900: 'hsl(var(--color-accent-900))'
+				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))',
+					50: 'hsl(var(--color-success-50))',
+					500: 'hsl(var(--color-success-500))',
+					600: 'hsl(var(--color-success-600))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))',
+					50: 'hsl(var(--color-warning-50))',
+					500: 'hsl(var(--color-warning-500))',
+					600: 'hsl(var(--color-warning-600))'
+				},
+				error: {
+					DEFAULT: 'hsl(var(--error))',
+					foreground: 'hsl(var(--error-foreground))',
+					50: 'hsl(var(--color-error-50))',
+					500: 'hsl(var(--color-error-500))',
+					600: 'hsl(var(--color-error-600))'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -67,10 +108,6 @@ export default {
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
 					foreground: 'hsl(var(--muted-foreground))'
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',

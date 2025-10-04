@@ -3,87 +3,185 @@
 @tailwind utilities;
 
 /* ================================ */
-/* MIMO CHAT DESIGN SYSTEM TOKENS */
+/* GABOMA DESIGN SYSTEM - PRODUCTION */
 /* ================================ */
 
 :root {
-  /* Couleurs primaires */
-  --color-primary-50: 240 249 255;
-  --color-primary-100: 224 242 254;
-  --color-primary-500: 0 102 204;
-  --color-primary-600: 0 82 163;
-  --color-primary-900: 0 40 81;
+  /* ========= COULEURS PRIMAIRES (HSL) ========= */
+  --color-primary-50: 212 100% 97%;      /* #f0f7ff - Très clair */
+  --color-primary-100: 212 100% 92%;     /* #d6e9ff */
+  --color-primary-200: 212 100% 84%;     /* #add4ff */
+  --color-primary-300: 212 95% 72%;      /* #7ab8ff */
+  --color-primary-400: 212 85% 60%;      /* #4a9eff */
+  --color-primary-500: 212 80% 51%;      /* #3a75c4 - Bleu principal GABOMA */
+  --color-primary-600: 212 75% 45%;      /* #2563c4 */
+  --color-primary-700: 212 70% 38%;      /* #1d4fa0 */
+  --color-primary-800: 212 65% 30%;      /* #163b7d */
+  --color-primary-900: 212 60% 22%;      /* #0f2959 */
   
-  /* Couleurs grises */
-  --color-gray-50: 249 250 251;
-  --color-gray-100: 243 244 246;
-  --color-gray-200: 229 231 235;
-  --color-gray-300: 209 213 219;
-  --color-gray-400: 156 163 175;
-  --color-gray-500: 107 114 128;
-  --color-gray-600: 75 85 99;
-  --color-gray-700: 55 65 81;
-  --color-gray-800: 31 41 55;
-  --color-gray-900: 17 24 39;
+  /* ========= COULEURS SECONDAIRES - JAUNE GABOMA (HSL) ========= */
+  --color-secondary-50: 48 100% 97%;     /* #fffbf0 */
+  --color-secondary-100: 48 100% 90%;    /* #fff5cc */
+  --color-secondary-200: 48 100% 80%;    /* #ffe899 */
+  --color-secondary-300: 48 100% 70%;    /* #ffdb66 */
+  --color-secondary-400: 48 100% 60%;    /* #ffcd33 */
+  --color-secondary-500: 48 100% 54%;    /* #fcd116 - Jaune GABOMA */
+  --color-secondary-600: 45 95% 48%;     /* #e6bc00 */
+  --color-secondary-700: 42 90% 40%;     /* #cc9f00 */
+  --color-secondary-800: 39 85% 32%;     /* #b38600 */
+  --color-secondary-900: 36 80% 24%;     /* #996600 */
   
-  /* Couleurs système */
-  --color-success-500: 16 185 129;
-  --color-warning-500: 245 158 11;
-  --color-error-500: 239 68 68;
+  /* ========= COULEURS ACCENT - VERT GABOMA (HSL) ========= */
+  --color-accent-50: 142 60% 95%;        /* #e8f5f0 */
+  --color-accent-100: 142 58% 88%;       /* #c9e8db */
+  --color-accent-200: 142 56% 76%;       /* #9dd6ba */
+  --color-accent-300: 142 54% 64%;       /* #70c399 */
+  --color-accent-400: 142 52% 56%;       /* #4db17f */
+  --color-accent-500: 142 50% 49%;       /* #009e60 - Vert GABOMA */
+  --color-accent-600: 142 55% 42%;       /* #008952 */
+  --color-accent-700: 142 60% 35%;       /* #007344 */
+  --color-accent-800: 142 65% 28%;       /* #005c36 */
+  --color-accent-900: 142 70% 21%;       /* #095c39 - Vert foncé */
   
-  /* Couleurs MIMO Chat spécifiques */
-  --mimo-green: 37 211 102;
-  --mimo-blue: 0 102 204;
-  --mimo-incoming: 241 243 244;
-  --mimo-outgoing: 0 102 204;
+  /* ========= COULEURS SYSTÈME (HSL) ========= */
+  --color-success-50: 142 76% 95%;
+  --color-success-100: 142 76% 88%;
+  --color-success-500: 142 76% 44%;      /* #10b981 */
+  --color-success-600: 142 76% 36%;
+  --color-success-900: 142 76% 20%;
   
-  /* Élévations */
-  --shadow-1: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-4: 0 4px 6px rgba(0,0,0,0.07);
-  --shadow-8: 0 8px 25px rgba(0,0,0,0.15);
-  --shadow-16: 0 16px 40px rgba(0,0,0,0.12);
+  --color-warning-50: 38 100% 95%;
+  --color-warning-100: 38 100% 88%;
+  --color-warning-500: 38 92% 50%;       /* #f59e0b */
+  --color-warning-600: 38 92% 42%;
+  --color-warning-900: 38 92% 24%;
   
-  /* Spacing système */
+  --color-error-50: 0 86% 95%;
+  --color-error-100: 0 86% 88%;
+  --color-error-500: 0 84% 60%;          /* #ef4444 */
+  --color-error-600: 0 84% 52%;
+  --color-error-900: 0 84% 30%;
+  
+  --color-info-50: 199 89% 95%;
+  --color-info-100: 199 89% 88%;
+  --color-info-500: 199 89% 48%;         /* #0ea5e9 */
+  --color-info-600: 199 89% 40%;
+  --color-info-900: 199 89% 24%;
+  
+  /* ========= GRAYS SYSTEM (HSL) ========= */
+  --color-gray-50: 210 13% 97%;          /* #f9fafb */
+  --color-gray-100: 210 13% 95%;         /* #f3f4f6 */
+  --color-gray-200: 210 13% 90%;         /* #e5e7eb */
+  --color-gray-300: 210 13% 82%;         /* #d1d5db */
+  --color-gray-400: 210 13% 64%;         /* #9ca3af */
+  --color-gray-500: 210 13% 46%;         /* #6b7280 */
+  --color-gray-600: 210 13% 38%;         /* #4b5563 */
+  --color-gray-700: 210 13% 30%;         /* #374151 */
+  --color-gray-800: 210 13% 22%;         /* #1f2937 */
+  --color-gray-900: 210 13% 14%;         /* #111827 */
+  
+  /* ========= GRADIENTS RÉUTILISABLES ========= */
+  --gradient-primary: linear-gradient(135deg, hsl(var(--color-primary-500)), hsl(var(--color-primary-700)));
+  --gradient-secondary: linear-gradient(135deg, hsl(var(--color-secondary-500)), hsl(var(--color-secondary-700)));
+  --gradient-accent: linear-gradient(135deg, hsl(var(--color-accent-500)), hsl(var(--color-accent-700)));
+  --gradient-success: linear-gradient(135deg, hsl(var(--color-success-500)), hsl(var(--color-success-700)));
+  --gradient-warm: linear-gradient(135deg, hsl(var(--color-primary-500)), hsl(var(--color-secondary-500)));
+  --gradient-fresh: linear-gradient(135deg, hsl(var(--color-accent-500)), hsl(var(--color-primary-500)));
+  --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+  
+  /* ========= ÉLÉVATIONS (HSL-based shadows) ========= */
+  --shadow-xs: 0 1px 2px 0 hsla(var(--color-gray-900), 0.05);
+  --shadow-sm: 0 1px 3px 0 hsla(var(--color-gray-900), 0.1), 0 1px 2px -1px hsla(var(--color-gray-900), 0.1);
+  --shadow-md: 0 4px 6px -1px hsla(var(--color-gray-900), 0.1), 0 2px 4px -2px hsla(var(--color-gray-900), 0.1);
+  --shadow-lg: 0 10px 15px -3px hsla(var(--color-gray-900), 0.1), 0 4px 6px -4px hsla(var(--color-gray-900), 0.1);
+  --shadow-xl: 0 20px 25px -5px hsla(var(--color-gray-900), 0.1), 0 8px 10px -6px hsla(var(--color-gray-900), 0.1);
+  --shadow-2xl: 0 25px 50px -12px hsla(var(--color-gray-900), 0.25);
+  --shadow-inner: inset 0 2px 4px 0 hsla(var(--color-gray-900), 0.05);
+  
+  /* Ombres colorées pour effets spéciaux */
+  --shadow-primary-glow: 0 0 20px 0 hsla(var(--color-primary-500), 0.3);
+  --shadow-secondary-glow: 0 0 20px 0 hsla(var(--color-secondary-500), 0.3);
+  --shadow-accent-glow: 0 0 20px 0 hsla(var(--color-accent-500), 0.3);
+  
+  /* ========= Z-INDEX SYSTEM ========= */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-notification: 1080;
+  --z-splash: 9999;
+  
+  /* ========= SPACING SYSTEM ========= */
   --touch-target-min: 44px;
   --top-bar-height: 56px;
-  --bottom-nav-height: 60px;
+  --bottom-nav-height: 80px;
   --fab-size: 56px;
+  --content-max-width: 1280px;
+  --sidebar-width: 280px;
   
-  /* Breakpoints */
+  /* ========= BREAKPOINTS ========= */
   --breakpoint-mobile: 720px;
   --breakpoint-tablet: 1024px;
   --breakpoint-desktop: 1280px;
+  
+  /* ========= TRANSITIONS ========= */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Système de design minimaliste noir & blanc inspiré d'Animate UI */
 
 @layer base {
   :root {
-    /* Couleurs officielles du Gabon (conservées uniquement pour le logo) */
-    --gaboma-green: 142 69% 49%;
-    --gaboma-yellow: 48 100% 50%;
-    --gaboma-blue: 217 91% 60%;
+    /* Couleurs officielles du Gabon (pour logo uniquement) */
+    --gaboma-green: 142 50% 49%;
+    --gaboma-yellow: 48 100% 54%;
+    --gaboma-blue: 212 80% 51%;
 
-    /* Mode clair - Style minimaliste avec fond personnalisé */
-    --background: 210 13% 96%;         /* #f2f4f7 - Fond personnalisé */
-    --foreground: 0 0% 5%;             /* #0d0d0d - Noir soft pour le texte */
-    --card: 0 0% 98%;                  /* #fafafa - Cards très claires */
-    --card-foreground: 0 0% 5%;        /* #0d0d0d - Texte sur cards */
-    --popover: 0 0% 100%;              /* #ffffff - Popovers blancs */
-    --popover-foreground: 0 0% 5%;     /* #0d0d0d - Texte sur popovers */
-    --primary: 212 49% 49%;            /* #3a75c4 - Boutons bleus */
-    --primary-foreground: 0 0% 100%;   /* #ffffff - Texte blanc sur boutons */
-    --secondary: 0 0% 96%;             /* #f5f5f5 - Secondaire gris très clair */
-    --secondary-foreground: 0 0% 5%;   /* #0d0d0d - Texte sur secondaire */
-    --muted: 0 0% 94%;                 /* #f0f0f0 - Muted gris clair */
-    --muted-foreground: 0 0% 40%;      /* #666666 - Texte gris sur muted */
-    --accent: 0 0% 92%;                /* #ebebeb - Accent gris clair */
-    --accent-foreground: 0 0% 5%;      /* #0d0d0d - Texte sur accent */
-    --destructive: 0 84% 60%;          /* Rouge pour destructif */
-    --destructive-foreground: 0 0% 98%; /* Texte clair sur destructif */
-    --border: 0 0% 90%;                /* #e6e6e6 - Bordures grises claires */
-    --input: 0 0% 96%;                 /* #f5f5f5 - Inputs gris très clair */
-    --ring: 0 0% 5%;                   /* #0d0d0d - Focus ring noir */
+    /* ========= MODE CLAIR - DESIGN SYSTEM ========= */
+    --background: 210 13% 96%;                    /* #f2f4f7 - Fond doux */
+    --foreground: 0 0% 5%;                        /* #0d0d0d - Texte principal */
+    --card: 0 0% 100%;                            /* #ffffff - Cards blanches */
+    --card-foreground: 0 0% 5%;                   /* #0d0d0d - Texte sur cards */
+    --popover: 0 0% 100%;                         /* #ffffff - Popovers blancs */
+    --popover-foreground: 0 0% 5%;                /* #0d0d0d - Texte sur popovers */
+    
+    /* Primaire - Bleu GABOMA */
+    --primary: 212 80% 51%;                       /* #3a75c4 */
+    --primary-foreground: 0 0% 100%;              /* #ffffff - Texte blanc */
+    
+    /* Secondaire - Jaune GABOMA */
+    --secondary: 48 100% 54%;                     /* #fcd116 */
+    --secondary-foreground: 0 0% 5%;              /* #0d0d0d - Texte noir */
+    
+    /* Accent - Vert GABOMA */
+    --accent: 142 50% 49%;                        /* #009e60 */
+    --accent-foreground: 0 0% 100%;               /* #ffffff - Texte blanc */
+    
+    /* États système */
+    --success: 142 76% 44%;                       /* Vert succès */
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;                        /* Orange warning */
+    --warning-foreground: 0 0% 5%;
+    --error: 0 84% 60%;                           /* Rouge erreur */
+    --error-foreground: 0 0% 100%;
+    --info: 199 89% 48%;                          /* Bleu info */
+    --info-foreground: 0 0% 100%;
+    
+    /* Neutrals */
+    --muted: 210 13% 95%;                         /* #f3f4f6 - Gris très clair */
+    --muted-foreground: 210 13% 46%;              /* #6b7280 - Gris moyen */
+    --destructive: 0 84% 60%;                     /* Rouge destructif */
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 13% 90%;                        /* #e5e7eb - Bordures douces */
+    --input: 210 13% 95%;                         /* #f3f4f6 - Inputs gris clair */
+    --ring: 212 80% 51%;                          /* #3a75c4 - Focus ring primaire */
 
     /* Sidebar en mode clair */
     --sidebar-background: 0 0% 98%;
@@ -106,27 +204,45 @@
     --bottom-nav-height: 80px;
   }
 
-  /* Mode sombre - Style Animate UI total noir contrasté */
+  /* ========= MODE SOMBRE - DESIGN SYSTEM ========= */
   .dark {
-    --background: 0 0% 5%;             /* #0d0d0d - Fond noir soft */
-    --foreground: 0 0% 100%;           /* #ffffff - Texte blanc pur */
-    --card: 0 0% 10%;                  /* #1a1a1a - Cards gris très foncé */
-    --card-foreground: 0 0% 100%;      /* #ffffff - Texte blanc sur cards */
-    --popover: 0 0% 8%;                /* #141414 - Popovers gris foncé */
-    --popover-foreground: 0 0% 100%;   /* #ffffff - Texte blanc sur popovers */
-    --primary: 0 0% 100%;              /* #ffffff - Boutons blancs */
-    --primary-foreground: 0 0% 0%;     /* #000000 - Texte noir sur boutons */
-    --secondary: 0 0% 12%;             /* #1e1e1e - Secondaire gris foncé */
-    --secondary-foreground: 0 0% 100%; /* #ffffff - Texte blanc sur secondaire */
-    --muted: 0 0% 14%;                 /* #242424 - Muted gris foncé */
-    --muted-foreground: 0 0% 70%;      /* #b3b3b3 - Texte gris clair sur muted */
-    --accent: 0 0% 16%;                /* #292929 - Accent gris foncé */
-    --accent-foreground: 0 0% 100%;    /* #ffffff - Texte blanc sur accent */
-    --destructive: 0 84% 60%;          /* Rouge pour destructif */
-    --destructive-foreground: 0 0% 98%; /* Texte clair sur destructif */
-    --border: 0 0% 16%;                /* #2a2a2a - Bordures grises foncées */
-    --input: 0 0% 12%;                 /* #1e1e1e - Inputs gris foncé */
-    --ring: 0 0% 100%;                 /* #ffffff - Focus ring blanc */
+    --background: 0 0% 5%;                        /* #0d0d0d - Fond noir doux */
+    --foreground: 0 0% 100%;                      /* #ffffff - Texte blanc */
+    --card: 0 0% 10%;                             /* #1a1a1a - Cards gris foncé */
+    --card-foreground: 0 0% 100%;                 /* #ffffff - Texte blanc */
+    --popover: 0 0% 8%;                           /* #141414 - Popovers foncés */
+    --popover-foreground: 0 0% 100%;              /* #ffffff - Texte blanc */
+    
+    /* Primaire - Bleu plus clair en dark mode */
+    --primary: 212 85% 60%;                       /* #4a9eff - Bleu plus vif */
+    --primary-foreground: 0 0% 100%;              /* #ffffff - Texte blanc */
+    
+    /* Secondaire - Jaune ajusté en dark mode */
+    --secondary: 48 95% 48%;                      /* #e6bc00 - Jaune ajusté */
+    --secondary-foreground: 0 0% 5%;              /* #0d0d0d - Texte noir */
+    
+    /* Accent - Vert ajusté en dark mode */
+    --accent: 142 52% 56%;                        /* #4db17f - Vert plus clair */
+    --accent-foreground: 0 0% 100%;               /* #ffffff - Texte blanc */
+    
+    /* États système */
+    --success: 142 76% 50%;
+    --success-foreground: 0 0% 5%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 5%;
+    --error: 0 84% 65%;
+    --error-foreground: 0 0% 100%;
+    --info: 199 89% 55%;
+    --info-foreground: 0 0% 100%;
+    
+    /* Neutrals */
+    --muted: 0 0% 14%;                            /* #242424 - Gris foncé */
+    --muted-foreground: 0 0% 70%;                 /* #b3b3b3 - Gris clair */
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 16%;                           /* #2a2a2a - Bordures foncées */
+    --input: 0 0% 12%;                            /* #1e1e1e - Inputs foncés */
+    --ring: 212 85% 60%;                          /* #4a9eff - Focus ring primaire */
 
     /* Sidebar en mode sombre */
     --sidebar-background: 0 0% 5%;
