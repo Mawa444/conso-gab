@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -11,33 +11,39 @@ import { SplashScreen } from "@/pages/SplashScreen";
 import ConsumerApp from "@/pages/ConsumerApp";
 import { ProductDetailPage } from "@/pages/ProductDetailPage";
 
-// Pages Business
-import BusinessCreationPage from "@/pages/BusinessCreationPage";
-import BusinessDashboardPage from "@/pages/BusinessDashboardPage";
-import BusinessSettingsPage from "@/pages/BusinessSettingsPage";
-import BusinessProfilePage from "@/pages/BusinessProfilePage";
+// Lazy loaded pages pour code splitting
+import {
+  LazyBusinessDashboard,
+  LazyBusinessSettings,
+  LazyBusinessProfile,
+  LazyBusinessCreation,
+  LazyMimoChatPage,
+  LazyMimoConversation,
+  LazyCreateCatalog,
+  LazyPublicCatalogs,
+  LazyEntreprisesPage
+} from "@/lib/performance/lazy-components";
+
+// Pages Business légères (gardées normales)
 import { BusinessDetailPage } from "@/pages/BusinessDetailPage";
-
-// Pages Entreprises
-import EntreprisesPage from "@/pages/EntreprisesPage";
-
-// Pages Catalogues
-import CreateCatalogPage from "@/pages/CreateCatalogPage";
-import { PublicCatalogsPage } from "@/pages/PublicCatalogsPage";
-
-// Pages Catégories
 import { CategoryPage } from "@/pages/CategoryPage";
 
 // Pages Auth
 import { AuthFlowPage } from "@/pages/AuthFlowPage";
 
-// Pages Chat
-import { MimoChatPage } from "@/pages/MimoChatPage";
-import { MimoConversationPage } from "@/pages/MimoConversationPage";
-
 import "./App.css";
 
-const queryClient = new QueryClient();
+// Configuration QueryClient avec optimisations
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (anciennement cacheTime)
+      retry: 1,
+      refetchOnWindowFocus: false
+    }
+  }
+});
 
 const App = () => {
   return (
@@ -58,17 +64,17 @@ const App = () => {
                   <Route path="/home" element={<Navigate to="/consumer/home" replace />} />
                   
                   {/* Routes gestion des entreprises (depuis mode consommateur) */}
-                  <Route path="/entreprises" element={<EntreprisesPage />} />
-                  <Route path="/entreprises/create" element={<BusinessCreationPage />} />
+                  <Route path="/entreprises" element={<LazyEntreprisesPage />} />
+                  <Route path="/entreprises/create" element={<LazyBusinessCreation />} />
                   
                   {/* Routes Business publiques (accessibles à tous) */}
                   <Route path="/business/:businessId" element={<BusinessDetailPage />} />
                   
                   {/* Routes Business privées (mode business uniquement) */}
-                  <Route path="/business/:businessId/dashboard" element={<BusinessDashboardPage />} />
-                  <Route path="/business/:businessId/settings" element={<BusinessSettingsPage />} />
-                  <Route path="/business/:businessId/profile" element={<BusinessProfilePage />} />
-                  <Route path="/business/:businessId/catalogues" element={<CreateCatalogPage />} />
+                  <Route path="/business/:businessId/dashboard" element={<LazyBusinessDashboard />} />
+                  <Route path="/business/:businessId/settings" element={<LazyBusinessSettings />} />
+                  <Route path="/business/:businessId/profile" element={<LazyBusinessProfile />} />
+                  <Route path="/business/:businessId/catalogues" element={<LazyCreateCatalog />} />
                   
                   {/* Anciennes routes business (redirection) */}
                   <Route path="/business/create" element={<Navigate to="/entreprises/create" replace />} />
@@ -77,14 +83,14 @@ const App = () => {
                   <Route path="/business/create-catalog" element={<Navigate to="/entreprises" replace />} />
                   
                   {/* Routes catalogues publics */}
-                  <Route path="/catalogs" element={<PublicCatalogsPage />} />
+                  <Route path="/catalogs" element={<LazyPublicCatalogs />} />
                   
                   {/* Routes produits */}
                   <Route path="/product/:productId" element={<ProductDetailPage />} />
                   
                   {/* Routes Chat MIMO */}
-                  <Route path="/mimo-chat" element={<MimoChatPage />} />
-                  <Route path="/mimo-chat/:conversationId" element={<MimoConversationPage />} />
+                  <Route path="/mimo-chat" element={<LazyMimoChatPage />} />
+                  <Route path="/mimo-chat/:conversationId" element={<LazyMimoConversation />} />
                   <Route path="/messaging" element={<Navigate to="/mimo-chat" replace />} />
                   
                   {/* Routes catégories */}
