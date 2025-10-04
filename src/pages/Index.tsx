@@ -10,7 +10,6 @@ import { QRScanner } from "@/components/scanner/QRScanner";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { TransitionWrapper } from "@/components/layout/TransitionWrapper";
 const Index = () => {
   const {
     user,
@@ -107,32 +106,28 @@ const Index = () => {
     // Traiter le résultat du scan
   };
   const renderActiveTab = () => {
-    return <TransitionWrapper>
-        {(() => {
-        switch (activeTab) {
-          case "map":
-            return <MapPage onBack={() => navigate("/home", {
-              replace: true
-            })} />;
-          case "rankings":
-            return <RankingsPage onBack={() => navigate("/home", {
-              replace: true
-            })} />;
-          case "profile":
-            return <ProfilePage onBack={() => navigate("/home", {
-              replace: true
-            })} onSettings={handleProfileSettings} />;
-          default:
-            return <HomePage onNavigate={setActiveTab} onMessage={commerce => {
-              if (!user) {
-                setShowLoginModal(true);
-                return;
-              }
-              setSelectedCommerce(commerce);
-            }} />;
-        }
-      })()}
-      </TransitionWrapper>;
+    switch (activeTab) {
+      case "map":
+        return <MapPage onBack={() => navigate("/home", {
+          replace: true
+        })} />;
+      case "rankings":
+        return <RankingsPage onBack={() => navigate("/home", {
+          replace: true
+        })} />;
+      case "profile":
+        return <ProfilePage onBack={() => navigate("/home", {
+          replace: true
+        })} onSettings={handleProfileSettings} />;
+      default:
+        return <HomePage onNavigate={setActiveTab} onMessage={commerce => {
+          if (!user) {
+            setShowLoginModal(true);
+            return;
+          }
+          setSelectedCommerce(commerce);
+        }} />;
+    }
   };
   return <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       {activeTab === "home" && <Header title={getPageTitle()} showBack={false} onLocationClick={handleLocationClick} onMessageClick={handleMessageClick} />}

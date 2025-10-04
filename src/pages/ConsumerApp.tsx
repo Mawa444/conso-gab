@@ -10,7 +10,6 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocation, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";
-import { PageTransition } from "@/components/layout/PageTransition";
 import { useActivityTracker } from "@/hooks/use-activity-tracker";
 const ConsumerApp = () => {
   const {
@@ -106,27 +105,17 @@ const ConsumerApp = () => {
     setShowScanner(false);
   };
   const renderActiveTab = () => {
-    const getTransitionDirection = () => {
-      if (slideDirection === 'right') return 'right';
-      if (slideDirection === 'left') return 'left';
-      return 'fade';
-    };
-    const content = (() => {
-      switch (activeTab) {
-        case "map":
-          return <MapPage onBack={() => setActiveTab("home")} />;
-        case "profile":
-          return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
-        default:
-          return <HomePage onNavigate={setActiveTab} onMessage={commerce => {
-            setSelectedCommerce(commerce);
-            handleMessageClick();
-          }} />;
-      }
-    })();
-    return <PageTransition key={activeTab} direction={getTransitionDirection()} className="h-full">
-        {content}
-      </PageTransition>;
+    switch (activeTab) {
+      case "map":
+        return <MapPage onBack={() => setActiveTab("home")} />;
+      case "profile":
+        return <ProfilePage onBack={() => setActiveTab("home")} onSettings={handleProfileSettings} />;
+      default:
+        return <HomePage onNavigate={setActiveTab} onMessage={commerce => {
+          setSelectedCommerce(commerce);
+          handleMessageClick();
+        }} />;
+    }
   };
   return <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <Routes>

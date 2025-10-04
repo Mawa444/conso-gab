@@ -129,10 +129,7 @@
   --breakpoint-desktop: 1280px;
   
   /* ========= TRANSITIONS ========= */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Toutes les transitions sont désactivées pour optimiser les performances */
 }
 
 /* Système de design minimaliste noir & blanc inspiré d'Animate UI */
