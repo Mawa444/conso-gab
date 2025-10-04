@@ -1,11 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const verifyPinSchema = z.object({
+  pin: z.string().regex(/^\d{4}$/, 'PIN must be exactly 4 digits')
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -27,14 +33,23 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { pin } = await req.json();
+    const requestBody = await req.json();
 
-    if (!pin || pin.length !== 4) {
+    // Validate input
+    const validationResult = verifyPinSchema.safeParse(requestBody);
+
+    if (!validationResult.success) {
       return new Response(
-        JSON.stringify({ valid: false, error: 'Invalid PIN format' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          valid: false, 
+          error: 'Invalid PIN format',
+          details: validationResult.error.errors
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { pin } = validationResult.data;
 
     // Get user profile with PIN hash
     const { data: profile, error: profileError } = await supabaseClient

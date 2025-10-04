@@ -1,10 +1,25 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const orderItemSchema = z.object({
+  product_id: z.string().uuid('Invalid product ID'),
+  price_cents: z.number().int().positive('Price must be positive'),
+  quantity: z.number().int().positive('Quantity must be positive').max(1000, 'Quantity too large')
+});
+
+const createOrderSchema = z.object({
+  conversation_id: z.string().uuid('Invalid conversation ID').optional(),
+  seller_id: z.string().uuid('Invalid seller ID'),
+  items: z.array(orderItemSchema).min(1, 'At least one item required').max(100, 'Too many items'),
+  currency: z.enum(['XAF', 'EUR', 'USD']).default('XAF')
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -26,12 +41,26 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { conversation_id, seller_id, items, currency = 'XAF' } = await req.json();
+    const requestBody = await req.json();
 
+    // Validate input
+    const validationResult = createOrderSchema.safeParse(requestBody);
+
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Validation failed', 
+          details: validationResult.error.errors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { conversation_id, seller_id, items, currency } = validationResult.data;
     console.log('Creating order:', { conversation_id, seller_id, items, user_id: user.id });
 
-    // Calculate total
-    const total_cents = items.reduce((sum: number, item: any) => 
+    // Calculate total with validation
+    const total_cents = items.reduce((sum, item) => 
       sum + (item.price_cents * item.quantity), 0
     );
 

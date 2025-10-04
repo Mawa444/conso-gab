@@ -1,10 +1,21 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const sendMessageSchema = z.object({
+  conversation_id: z.string().uuid('Invalid conversation ID'),
+  message_type: z.enum(['text', 'image', 'file', 'location', 'audio', 'action']).default('text'),
+  content: z.string().min(1, 'Content required').max(10000, 'Content too long'),
+  content_json: z.record(z.unknown()).optional(),
+  attachment_url: z.string().url().optional().or(z.literal('')),
+  action_payload: z.record(z.unknown()).optional()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -28,13 +39,34 @@ serve(async (req) => {
 
     const { conversation_id, message_type, content, content_json, attachment_url, action_payload } = await req.json();
 
-    console.log('Sending message:', { conversation_id, message_type, user_id: user.id });
+    // Validate input
+    const validationResult = sendMessageSchema.safeParse({
+      conversation_id,
+      message_type,
+      content,
+      content_json,
+      attachment_url,
+      action_payload
+    });
+
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Validation failed', 
+          details: validationResult.error.errors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const validData = validationResult.data;
+    console.log('Sending message:', { conversation_id: validData.conversation_id, message_type: validData.message_type, user_id: user.id });
 
     // Verify user is participant
     const { data: participant } = await supabaseClient
       .from('participants')
       .select('id')
-      .eq('conversation_id', conversation_id)
+      .eq('conversation_id', validData.conversation_id)
       .eq('user_id', user.id)
       .single();
 
@@ -46,12 +78,12 @@ serve(async (req) => {
     const { data: message, error: messageError } = await supabaseClient
       .from('messages')
       .insert({
-        conversation_id,
+        conversation_id: validData.conversation_id,
         sender_id: user.id,
-        message_type: message_type || 'text',
-        content,
-        content_json,
-        attachment_url,
+        message_type: validData.message_type,
+        content: validData.content,
+        content_json: validData.content_json,
+        attachment_url: validData.attachment_url,
         status: 'sent'
       })
       .select()
@@ -63,13 +95,13 @@ serve(async (req) => {
     }
 
     // If action payload provided, create message action
-    if (action_payload && message_type === 'action') {
+    if (validData.action_payload && validData.message_type === 'action') {
       const { error: actionError } = await supabaseClient
         .from('message_actions')
         .insert({
           message_id: message.id,
-          action_type: action_payload.action_type,
-          payload: action_payload,
+          action_type: (validData.action_payload as any).action_type,
+          payload: validData.action_payload,
           status: 'pending'
         });
 
@@ -82,7 +114,7 @@ serve(async (req) => {
     await supabaseClient
       .from('conversations')
       .update({ last_activity: new Date().toISOString() })
-      .eq('id', conversation_id);
+      .eq('id', validData.conversation_id);
 
     console.log('Message sent successfully:', message.id);
 
