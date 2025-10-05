@@ -1,0 +1,3 @@
+-- Ajouter l'image de couverture pour les profils consommateurs
+ALTER TABLE public.profiles 
+ADD COLUMN IF NOT EXISTS cover_image_url TEXT;

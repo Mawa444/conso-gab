@@ -1,0 +1,386 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================ */
+/* GABOMA DESIGN SYSTEM - PRODUCTION */
+/* ================================ */
+
+:root {
+  /* ========= COULEURS PRIMAIRES (HSL) ========= */
+  --color-primary-50: 212 100% 97%;      /* #f0f7ff - Très clair */
+  --color-primary-100: 212 100% 92%;     /* #d6e9ff */
+  --color-primary-200: 212 100% 84%;     /* #add4ff */
+  --color-primary-300: 212 95% 72%;      /* #7ab8ff */
+  --color-primary-400: 212 85% 60%;      /* #4a9eff */
+  --color-primary-500: 212 80% 51%;      /* #3a75c4 - Bleu principal GABOMA */
+  --color-primary-600: 212 75% 45%;      /* #2563c4 */
+  --color-primary-700: 212 70% 38%;      /* #1d4fa0 */
+  --color-primary-800: 212 65% 30%;      /* #163b7d */
+  --color-primary-900: 212 60% 22%;      /* #0f2959 */
+  
+  /* ========= COULEURS SECONDAIRES - JAUNE GABOMA (HSL) ========= */
+  --color-secondary-50: 48 100% 97%;     /* #fffbf0 */
+  --color-secondary-100: 48 100% 90%;    /* #fff5cc */
+  --color-secondary-200: 48 100% 80%;    /* #ffe899 */
+  --color-secondary-300: 48 100% 70%;    /* #ffdb66 */
+  --color-secondary-400: 48 100% 60%;    /* #ffcd33 */
+  --color-secondary-500: 48 100% 54%;    /* #fcd116 - Jaune GABOMA */
+  --color-secondary-600: 45 95% 48%;     /* #e6bc00 */
+  --color-secondary-700: 42 90% 40%;     /* #cc9f00 */
+  --color-secondary-800: 39 85% 32%;     /* #b38600 */
+  --color-secondary-900: 36 80% 24%;     /* #996600 */
+  
+  /* ========= COULEURS ACCENT - VERT GABOMA (HSL) ========= */
+  --color-accent-50: 142 60% 95%;        /* #e8f5f0 */
+  --color-accent-100: 142 58% 88%;       /* #c9e8db */
+  --color-accent-200: 142 56% 76%;       /* #9dd6ba */
+  --color-accent-300: 142 54% 64%;       /* #70c399 */
+  --color-accent-400: 142 52% 56%;       /* #4db17f */
+  --color-accent-500: 142 50% 49%;       /* #009e60 - Vert GABOMA */
+  --color-accent-600: 142 55% 42%;       /* #008952 */
+  --color-accent-700: 142 60% 35%;       /* #007344 */
+  --color-accent-800: 142 65% 28%;       /* #005c36 */
+  --color-accent-900: 142 70% 21%;       /* #095c39 - Vert foncé */
+  
+  /* ========= COULEURS SYSTÈME (HSL) ========= */
+  --color-success-50: 142 76% 95%;
+  --color-success-100: 142 76% 88%;
+  --color-success-500: 142 76% 44%;      /* #10b981 */
+  --color-success-600: 142 76% 36%;
+  --color-success-900: 142 76% 20%;
+  
+  --color-warning-50: 38 100% 95%;
+  --color-warning-100: 38 100% 88%;
+  --color-warning-500: 38 92% 50%;       /* #f59e0b */
+  --color-warning-600: 38 92% 42%;
+  --color-warning-900: 38 92% 24%;
+  
+  --color-error-50: 0 86% 95%;
+  --color-error-100: 0 86% 88%;
+  --color-error-500: 0 84% 60%;          /* #ef4444 */
+  --color-error-600: 0 84% 52%;
+  --color-error-900: 0 84% 30%;
+  
+  --color-info-50: 199 89% 95%;
+  --color-info-100: 199 89% 88%;
+  --color-info-500: 199 89% 48%;         /* #0ea5e9 */
+  --color-info-600: 199 89% 40%;
+  --color-info-900: 199 89% 24%;
+  
+  /* ========= GRAYS SYSTEM (HSL) ========= */
+  --color-gray-50: 210 13% 97%;          /* #f9fafb */
+  --color-gray-100: 210 13% 95%;         /* #f3f4f6 */
+  --color-gray-200: 210 13% 90%;         /* #e5e7eb */
+  --color-gray-300: 210 13% 82%;         /* #d1d5db */
+  --color-gray-400: 210 13% 64%;         /* #9ca3af */
+  --color-gray-500: 210 13% 46%;         /* #6b7280 */
+  --color-gray-600: 210 13% 38%;         /* #4b5563 */
+  --color-gray-700: 210 13% 30%;         /* #374151 */
+  --color-gray-800: 210 13% 22%;         /* #1f2937 */
+  --color-gray-900: 210 13% 14%;         /* #111827 */
+  
+  /* ========= GRADIENTS RÉUTILISABLES ========= */
+  --gradient-primary: linear-gradient(135deg, hsl(var(--color-primary-500)), hsl(var(--color-primary-700)));
+  --gradient-secondary: linear-gradient(135deg, hsl(var(--color-secondary-500)), hsl(var(--color-secondary-700)));
+  --gradient-accent: linear-gradient(135deg, hsl(var(--color-accent-500)), hsl(var(--color-accent-700)));
+  --gradient-success: linear-gradient(135deg, hsl(var(--color-success-500)), hsl(var(--color-success-700)));
+  --gradient-warm: linear-gradient(135deg, hsl(var(--color-primary-500)), hsl(var(--color-secondary-500)));
+  --gradient-fresh: linear-gradient(135deg, hsl(var(--color-accent-500)), hsl(var(--color-primary-500)));
+  --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+  
+  /* ========= ÉLÉVATIONS (HSL-based shadows) ========= */
+  --shadow-xs: 0 1px 2px 0 hsla(var(--color-gray-900), 0.05);
+  --shadow-sm: 0 1px 3px 0 hsla(var(--color-gray-900), 0.1), 0 1px 2px -1px hsla(var(--color-gray-900), 0.1);
+  --shadow-md: 0 4px 6px -1px hsla(var(--color-gray-900), 0.1), 0 2px 4px -2px hsla(var(--color-gray-900), 0.1);
+  --shadow-lg: 0 10px 15px -3px hsla(var(--color-gray-900), 0.1), 0 4px 6px -4px hsla(var(--color-gray-900), 0.1);
+  --shadow-xl: 0 20px 25px -5px hsla(var(--color-gray-900), 0.1), 0 8px 10px -6px hsla(var(--color-gray-900), 0.1);
+  --shadow-2xl: 0 25px 50px -12px hsla(var(--color-gray-900), 0.25);
+  --shadow-inner: inset 0 2px 4px 0 hsla(var(--color-gray-900), 0.05);
+  
+  /* Ombres colorées pour effets spéciaux */
+  --shadow-primary-glow: 0 0 20px 0 hsla(var(--color-primary-500), 0.3);
+  --shadow-secondary-glow: 0 0 20px 0 hsla(var(--color-secondary-500), 0.3);
+  --shadow-accent-glow: 0 0 20px 0 hsla(var(--color-accent-500), 0.3);
+  
+  /* ========= Z-INDEX SYSTEM ========= */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-notification: 1080;
+  --z-splash: 9999;
+  
+  /* ========= SPACING SYSTEM ========= */
+  --touch-target-min: 44px;
+  --top-bar-height: 56px;
+  --bottom-nav-height: 80px;
+  --fab-size: 56px;
+  --content-max-width: 1280px;
+  --sidebar-width: 280px;
+  
+  /* ========= BREAKPOINTS ========= */
+  --breakpoint-mobile: 720px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1280px;
+  
+  /* ========= TRANSITIONS ========= */
+  /* Toutes les transitions sont désactivées pour optimiser les performances */
+}
+
+/* Système de design minimaliste noir & blanc inspiré d'Animate UI */
+
+@layer base {
+  :root {
+    /* Couleurs officielles du Gabon (pour logo uniquement) */
+    --gaboma-green: 142 50% 49%;
+    --gaboma-yellow: 48 100% 54%;
+    --gaboma-blue: 212 80% 51%;
+
+    /* ========= MODE CLAIR - DESIGN SYSTEM ========= */
+    --background: 210 13% 96%;                    /* #f2f4f7 - Fond doux */
+    --foreground: 0 0% 5%;                        /* #0d0d0d - Texte principal */
+    --card: 0 0% 100%;                            /* #ffffff - Cards blanches */
+    --card-foreground: 0 0% 5%;                   /* #0d0d0d - Texte sur cards */
+    --popover: 0 0% 100%;                         /* #ffffff - Popovers blancs */
+    --popover-foreground: 0 0% 5%;                /* #0d0d0d - Texte sur popovers */
+    
+    /* Primaire - Bleu GABOMA */
+    --primary: 212 80% 51%;                       /* #3a75c4 */
+    --primary-foreground: 0 0% 100%;              /* #ffffff - Texte blanc */
+    
+    /* Secondaire - Jaune GABOMA */
+    --secondary: 48 100% 54%;                     /* #fcd116 */
+    --secondary-foreground: 0 0% 5%;              /* #0d0d0d - Texte noir */
+    
+    /* Accent - Vert GABOMA */
+    --accent: 142 50% 49%;                        /* #009e60 */
+    --accent-foreground: 0 0% 100%;               /* #ffffff - Texte blanc */
+    
+    /* États système */
+    --success: 142 76% 44%;                       /* Vert succès */
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;                        /* Orange warning */
+    --warning-foreground: 0 0% 5%;
+    --error: 0 84% 60%;                           /* Rouge erreur */
+    --error-foreground: 0 0% 100%;
+    --info: 199 89% 48%;                          /* Bleu info */
+    --info-foreground: 0 0% 100%;
+    
+    /* Neutrals */
+    --muted: 210 13% 95%;                         /* #f3f4f6 - Gris très clair */
+    --muted-foreground: 210 13% 46%;              /* #6b7280 - Gris moyen */
+    --destructive: 0 84% 60%;                     /* Rouge destructif */
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 13% 90%;                        /* #e5e7eb - Bordures douces */
+    --input: 210 13% 95%;                         /* #f3f4f6 - Inputs gris clair */
+    --ring: 212 80% 51%;                          /* #3a75c4 - Focus ring primaire */
+
+    /* Sidebar en mode clair */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 5%;
+    --sidebar-primary: 0 0% 5%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 92%;
+    --sidebar-accent-foreground: 0 0% 5%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 0 0% 5%;
+
+    /* Ombres subtiles pour mode clair */
+    --shadow-soft: 0 1px 3px -1px hsla(0, 0%, 0%, 0.1);
+    --shadow-medium: 0 4px 8px -2px hsla(0, 0%, 0%, 0.1);
+    --shadow-strong: 0 8px 25px -5px hsla(0, 0%, 0%, 0.15);
+    --shadow-elevated: 0 20px 60px -20px hsla(0, 0%, 0%, 0.2);
+
+    /* Variables communes */
+    --radius: 0.75rem;  /* 12px - coins plus arrondis comme Animate UI */
+    --bottom-nav-height: 80px;
+  }
+
+  /* ========= MODE SOMBRE - DESIGN SYSTEM ========= */
+  .dark {
+    --background: 0 0% 5%;                        /* #0d0d0d - Fond noir doux */
+    --foreground: 0 0% 100%;                      /* #ffffff - Texte blanc */
+    --card: 0 0% 10%;                             /* #1a1a1a - Cards gris foncé */
+    --card-foreground: 0 0% 100%;                 /* #ffffff - Texte blanc */
+    --popover: 0 0% 8%;                           /* #141414 - Popovers foncés */
+    --popover-foreground: 0 0% 100%;              /* #ffffff - Texte blanc */
+    
+    /* Primaire - Bleu plus clair en dark mode */
+    --primary: 212 85% 60%;                       /* #4a9eff - Bleu plus vif */
+    --primary-foreground: 0 0% 100%;              /* #ffffff - Texte blanc */
+    
+    /* Secondaire - Jaune ajusté en dark mode */
+    --secondary: 48 95% 48%;                      /* #e6bc00 - Jaune ajusté */
+    --secondary-foreground: 0 0% 5%;              /* #0d0d0d - Texte noir */
+    
+    /* Accent - Vert ajusté en dark mode */
+    --accent: 142 52% 56%;                        /* #4db17f - Vert plus clair */
+    --accent-foreground: 0 0% 100%;               /* #ffffff - Texte blanc */
+    
+    /* États système */
+    --success: 142 76% 50%;
+    --success-foreground: 0 0% 5%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 5%;
+    --error: 0 84% 65%;
+    --error-foreground: 0 0% 100%;
+    --info: 199 89% 55%;
+    --info-foreground: 0 0% 100%;
+    
+    /* Neutrals */
+    --muted: 0 0% 14%;                            /* #242424 - Gris foncé */
+    --muted-foreground: 0 0% 70%;                 /* #b3b3b3 - Gris clair */
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 16%;                           /* #2a2a2a - Bordures foncées */
+    --input: 0 0% 12%;                            /* #1e1e1e - Inputs foncés */
+    --ring: 212 85% 60%;                          /* #4a9eff - Focus ring primaire */
+
+    /* Sidebar en mode sombre */
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 0 0% 100%;
+
+    /* Ombres pour le mode sombre */
+    --shadow-soft: 0 1px 3px -1px hsla(0, 0%, 0%, 0.4);
+    --shadow-medium: 0 4px 8px -2px hsla(0, 0%, 0%, 0.5);
+    --shadow-strong: 0 8px 25px -5px hsla(0, 0%, 0%, 0.6);
+    --shadow-elevated: 0 20px 60px -20px hsla(0, 0%, 0%, 0.8);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    /* Désactiver complètement la sélection de texte partout */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    /* Renforcer la désactivation sur le body */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Classes utilitaires pour cartes sans animations */
+  .card-animate {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-medium);
+  }
+
+  /* Boutons sans animations */
+  .btn-animate {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: var(--radius);
+    font-weight: 500;
+  }
+
+  /* Focus states minimalistes */
+  .focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Texte dégradé pour le logo uniquement */
+  .text-gaboma-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--gaboma-green)), 
+      hsl(var(--gaboma-blue))
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Désactivation complète de la sélection de texte */
+  .noselect {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    -webkit-touch-callout: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-text-size-adjust: none;
+    -moz-text-size-adjust: none;
+    -ms-text-size-adjust: none;
+    text-size-adjust: none;
+  }
+
+  /* Empêcher le téléchargement et glissement d'images */
+  img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    pointer-events: auto;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Page de connexion fixe - empêcher le scroll */
+  .auth-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* Permettre la sélection uniquement pour les champs de saisie */
+  input, textarea, [contenteditable="true"], .selectable {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+  }
+}
+
+/* Skeleton screens seulement - pas d'autres animations */
+
+/* Scrollbar styling minimal */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Responsive design */
+@media (min-width: 768px) {
+  .card-animate {
+    border-radius: calc(var(--radius) + 2px);
+  }
+}
