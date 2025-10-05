@@ -77,12 +77,16 @@ const ConversationPageContent: React.FC = () => {
     };
   }, [conversationId, user, conversations, setActiveConversation, fetchMessages, markAsRead, subscribeToConversation, unsubscribeFromConversation]);
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll to bottom on new messages - debounced to prevent input blocking
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
+    const timeoutId = setTimeout(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [messages.length]); // Only trigger on message count change, not content
 
   const handleSendMessage = async (content: string, type?: any, attachmentUrl?: string) => {
     await sendMessage(content, type || 'text');

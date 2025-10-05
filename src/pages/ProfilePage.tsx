@@ -19,6 +19,7 @@ import { ImageViewModal } from "@/components/profile/ImageViewModal";
 import { useProfileImageLikes } from "@/hooks/use-profile-image-likes";
 import { ImageLikeButton } from "@/components/shared/ImageLikeButton";
 import { cn } from "@/lib/utils";
+import { OptimizedImage } from "@/components/layout/OptimizedImage";
 
 interface UserProfileData {
   name: string;
@@ -229,12 +230,12 @@ export const ProfilePage = ({
     toast.error("Fonctionnalité à venir - Suppression de compte");
   };
   return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
-      <div className="flex flex-col min-h-full bg-background">
+      <div className="flex flex-col min-h-full bg-background pt-0">
       {/* Header Profile style Facebook */}
-      <div className="relative bg-background">
+      <div className="relative bg-background -mt-4">
         {/* Image de couverture */}
         <div 
-          className="h-48 md:h-64 bg-gradient-to-br from-primary via-accent to-secondary relative overflow-hidden cursor-pointer group"
+          className="h-40 md:h-56 bg-gradient-to-br from-primary via-accent to-secondary relative overflow-hidden cursor-pointer group"
           onClick={() => userProfile.cover_image_url && setImageViewModal({
             open: true,
             imageUrl: userProfile.cover_image_url,
@@ -243,10 +244,11 @@ export const ProfilePage = ({
         >
           {userProfile.cover_image_url ? (
             <>
-              <img 
+              <OptimizedImage 
                 src={userProfile.cover_image_url} 
                 alt="Couverture" 
-                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                className="w-full h-full"
+                priority={true}
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
                 <div 
@@ -273,7 +275,7 @@ export const ProfilePage = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-4">
             {/* Section gauche : Photo + Infos */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-20">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-14 sm:-mt-16">
               {/* Photo de profil avec contour blanc épais */}
               <div 
                 className="relative cursor-pointer group"
@@ -283,12 +285,13 @@ export const ProfilePage = ({
                   imageType: 'avatar'
                 })}
               >
-                <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl ring-4 ring-background transition-all group-hover:ring-primary/50">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl ring-4 ring-background transition-all group-hover:ring-primary/50">
                   {userProfile.avatar_url ? (
-                    <img 
+                    <OptimizedImage 
                       src={userProfile.avatar_url} 
                       alt={userProfile.name} 
-                      className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                      className="w-full h-full rounded-full"
+                      priority={true}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
