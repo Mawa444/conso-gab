@@ -56,7 +56,10 @@ export const useOptimizedBusinesses = () => {
           distance: distanceMeters < 1000 
             ? `${Math.round(distanceMeters)}m`
             : `${(distanceMeters / 1000).toFixed(1)}km`,
-          distance_meters: distanceMeters
+          distance_meters: distanceMeters,
+          logo_url: business.logo_url,
+          whatsapp: business.whatsapp,
+          cover_image_url: business.cover_image_url
         };
       }).sort((a, b) => a.distance_meters - b.distance_meters) || [];
 

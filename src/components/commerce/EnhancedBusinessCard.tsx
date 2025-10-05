@@ -7,7 +7,7 @@ import { MapPin, MessageCircle, Star, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { QuickMessageModal } from "./QuickMessageModal";
-import { LazyImage } from "@/components/ui/lazy-image";
+import { OptimizedImage } from "@/components/layout/OptimizedImage";
 interface EnhancedBusinessCardProps {
   business: {
     id: string;
@@ -42,13 +42,14 @@ export const EnhancedBusinessCard = ({
       <Card className={cn("overflow-hidden hover:shadow-lg transition-shadow", className)}>
         <CardContent className="p-4 rounded-3xl">
           <div className="flex gap-4">
-            {/* Avatar avec Lazy Loading */}
+            {/* Avatar avec OptimizedImage */}
             <Avatar className="w-16 h-16 flex-shrink-0">
               {business.logo_url ? (
-                <LazyImage 
+                <OptimizedImage 
                   src={business.logo_url} 
                   alt={business.name}
                   className="w-full h-full rounded-full object-cover"
+                  priority={false}
                 />
               ) : (
                 <AvatarFallback className="bg-primary/10 text-primary font-semibold">

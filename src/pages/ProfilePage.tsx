@@ -232,10 +232,10 @@ export const ProfilePage = ({
   return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
       <div className="flex flex-col min-h-full bg-background pt-0">
       {/* Header Profile style Facebook */}
-      <div className="relative bg-background -mt-4">
+      <div className="relative bg-background">
         {/* Image de couverture */}
         <div 
-          className="h-40 md:h-56 bg-gradient-to-br from-primary via-accent to-secondary relative overflow-hidden cursor-pointer group"
+          className="h-32 md:h-48 bg-gradient-to-br from-primary via-accent to-secondary relative overflow-hidden cursor-pointer group"
           onClick={() => userProfile.cover_image_url && setImageViewModal({
             open: true,
             imageUrl: userProfile.cover_image_url,
@@ -275,7 +275,7 @@ export const ProfilePage = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-4">
             {/* Section gauche : Photo + Infos */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-14 sm:-mt-16">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12 sm:-mt-14">
               {/* Photo de profil avec contour blanc épais */}
               <div 
                 className="relative cursor-pointer group"
@@ -285,7 +285,7 @@ export const ProfilePage = ({
                   imageType: 'avatar'
                 })}
               >
-                <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl ring-4 ring-background transition-all group-hover:ring-primary/50">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl ring-4 ring-background transition-all group-hover:ring-primary/50">
                   {userProfile.avatar_url ? (
                     <OptimizedImage 
                       src={userProfile.avatar_url} 

@@ -77,16 +77,26 @@ const ConversationPageContent: React.FC = () => {
     };
   }, [conversationId, user, conversations, setActiveConversation, fetchMessages, markAsRead, subscribeToConversation, unsubscribeFromConversation]);
 
-  // Auto-scroll to bottom on new messages - debounced to prevent input blocking
+  // Auto-scroll to bottom on new messages - only if user is already at bottom
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }
-    }, 100);
+    if (!scrollRef.current) return;
     
-    return () => clearTimeout(timeoutId);
-  }, [messages.length]); // Only trigger on message count change, not content
+    const scrollContainer = scrollRef.current.parentElement;
+    if (!scrollContainer) return;
+    
+    // Check if user is near bottom (within 100px)
+    const isNearBottom = scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight < 100;
+    
+    // Only auto-scroll if user is already at bottom
+    if (isNearBottom && messages.length > 0) {
+      // Use scrollTop instead of scrollIntoView to avoid stealing focus
+      requestAnimationFrame(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollIntoView({ behavior: 'auto', block: 'end' });
+        }
+      });
+    }
+  }, [messages.length]);
 
   const handleSendMessage = async (content: string, type?: any, attachmentUrl?: string) => {
     await sendMessage(content, type || 'text');
