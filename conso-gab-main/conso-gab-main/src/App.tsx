@@ -2,6 +2,8 @@ import React, { lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { AdProvider } from "@/context/AdContext";
+import { FullScreenAdPopup } from "@/components/advertising/FullScreenAdPopup";
 import { RoleBasedRouter } from "@/components/auth/RoleBasedRouter";
 import { ModeGuard } from "@/components/auth/ModeGuard";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -51,9 +53,10 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <AuthProvider>
-            <Router>
-              <RoleBasedRouter>
-                <ModeGuard>
+            <AdProvider>
+              <Router>
+                <RoleBasedRouter>
+                  <ModeGuard>
                   <Routes>
                   {/* Routes publiques */}
                   <Route path="/auth" element={<AuthFlowPage onComplete={() => {}} />} />
@@ -105,11 +108,13 @@ const App = () => {
                 </ModeGuard>
               </RoleBasedRouter>
             </Router>
-          </AuthProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
+            <FullScreenAdPopup />
+          </AdProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
+);
 };
 
 export default App;

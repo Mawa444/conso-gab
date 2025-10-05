@@ -1,5 +1,4 @@
 import { QRScanner } from "@/components/scanner/QRScanner";
-import { AdCarousel } from "@/components/advertising/AdCarousel";
 import { UnifiedSearchBar } from "@/components/search/UnifiedSearchBar";
 import { CommerceDetailsPopup } from "@/components/commerce/CommerceDetailsPopup";
 import { OperatorDashboardModal } from "@/components/business/OperatorDashboardModal";
@@ -15,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { HomePageSkeleton, CommerceCardSkeleton } from "@/components/ui/skeleton-screens";
 import { getAllBusinessCategories } from "@/data/businessCategories";
+import AdInjector from "@/components/shared/AdInjector";
 
 interface HomePageProps {
   onNavigate: (tab: string) => void;
@@ -120,11 +120,7 @@ export const HomePage = ({
           </CardContent>
         </Card>
 
-        {/* Section Publicité Partenaire */}
-        <div className="space-y-4">
-          <AdCarousel userLocation={userLocation} />
-        </div>
-
+        {/* Section Publicité Partenaire - Remplacé par AdInjector */}
         {/* Section En tendance */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -153,18 +149,27 @@ export const HomePage = ({
               <p className="text-gray-500 mb-2">Aucune entreprise active pour le moment</p>
               <p className="text-sm text-gray-400">Les nouvelles entreprises apparaîtront ici</p>
             </div> : <div className="space-y-4">
-              {businesses.map(business => <EnhancedBusinessCard key={business.id} business={{
-              id: business.id,
-              name: business.business_name || business.name,
-              logo_url: business.logo_url,
-              business_category: business.business_category || business.type,
-              description: business.description,
-              distance: business.distance_meters,
-              rating: 4.5, // TODO: Implement real ratings
-              verified: business.is_verified,
-              city: business.city || business.address,
-              whatsapp: business.whatsapp
-            }} />)}
+              <AdInjector
+                items={businesses.map(business => (
+                  <EnhancedBusinessCard
+                    key={business.id}
+                    business={{
+                      id: business.id,
+                      name: business.business_name || business.name,
+                      logo_url: business.logo_url,
+                      business_category:
+                        business.business_category || business.type,
+                      description: business.description,
+                      distance: business.distance_meters,
+                      rating: 4.5, // TODO: Implement real ratings
+                      verified: business.is_verified,
+                      city: business.city || business.address,
+                      whatsapp: business.whatsapp,
+                    }}
+                  />
+                ))}
+                userLocation={userLocation}
+              />
             </div>}
         </div>
 

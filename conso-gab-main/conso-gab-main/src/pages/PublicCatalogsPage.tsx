@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { CommerceListSkeleton } from "@/components/ui/skeleton-screens";
 import { CatalogCard } from "@/components/catalog/CatalogCard";
+import AdInjector from "@/components/shared/AdInjector";
+
 interface PublicCatalog {
   id: string;
   name: string;
@@ -149,7 +151,8 @@ export const PublicCatalogsPage = () => {
         </div>
 
         {/* Liste des catalogues */}
-        {filteredCatalogs.length === 0 ? <Card>
+        {filteredCatalogs.length === 0 ? (
+          <Card>
             <CardContent className="p-12 text-center">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Grid3X3 className="w-8 h-8 text-muted-foreground" />
@@ -159,34 +162,54 @@ export const PublicCatalogsPage = () => {
                 Aucun catalogue ne correspond à vos critères de recherche.
               </p>
             </CardContent>
-          </Card> : <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-            {filteredCatalogs.map(catalog => {
-            // Convertir PublicCatalog vers le format attendu par CatalogCard
-            const catalogForCard = {
-              id: catalog.id,
-              name: catalog.name,
-              description: catalog.description,
-              category: catalog.category,
-              subcategory: null,
-              catalog_type: 'products' as const,
-              cover_image_url: catalog.cover_url,
-              business_id: catalog.business_id,
-              geo_city: catalog.geo_city,
-              is_public: true,
-              is_active: true,
-              created_at: catalog.created_at,
-              business: {
-                business_name: catalog.business_profiles?.business_name || 'Commerce',
-                user_id: 'unknown'
-              }
-            };
-            return <CatalogCard key={catalog.id} catalog={catalogForCard} onSelect={cat => {
-              // L'interaction se fait via le modal intégré dans CatalogCard
-            }} />;
-          })}
-          </div>}
-        </div>
+          </Card>
+        ) : (
+          <div
+            className={
+              viewMode === 'grid'
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                : "space-y-4"
+            }
+          >
+            <AdInjector
+              items={filteredCatalogs.map(catalog => {
+                // Convertir PublicCatalog vers le format attendu par CatalogCard
+                const catalogForCard = {
+                  id: catalog.id,
+                  name: catalog.name,
+                  description: catalog.description,
+                  category: catalog.category,
+                  subcategory: null,
+                  catalog_type: 'products' as const,
+                  cover_image_url: catalog.cover_url,
+                  business_id: catalog.business_id,
+                  geo_city: catalog.geo_city,
+                  is_public: true,
+                  is_active: true,
+                  created_at: catalog.created_at,
+                  business: {
+                    business_name:
+                      catalog.business_profiles?.business_name || 'Commerce',
+                    user_id: 'unknown',
+                  },
+                };
+                return (
+                  <CatalogCard
+                    key={catalog.id}
+                    catalog={catalogForCard}
+                    onSelect={cat => {
+                      // L'interaction se fait via le modal intégré dans CatalogCard
+                    }}
+                  />
+                );
+              })}
+              userLocation="Libreville" // This will be dynamic later
+            />
+          </div>
+        )}
       </div>
-    </PageWithSkeleton>;
+    </div>
+  </PageWithSkeleton>
+);
 };
 export default PublicCatalogsPage;

@@ -2,55 +2,8 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-const advertisementSlides = [{
-  id: 1,
-  title: "Découvrez nos nouveaux partenaires",
-  subtitle: "Plus de 50 nouveaux commerces rejoignent ConsoGab",
-  image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=400&fit=crop",
-  backgroundColor: "from-emerald-500 to-teal-600",
-  cta: "Voir les nouveautés",
-  targetZone: "Libreville"
-}, {
-  id: 2,
-  title: "Promotion Spéciale",
-  subtitle: "10% de réduction chez nos partenaires beauté",
-  image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=400&fit=crop",
-  backgroundColor: "from-rose-500 to-pink-600",
-  cta: "Profiter de l'offre",
-  targetZone: "Libreville"
-}, {
-  id: 3,
-  title: "Nouvelle Zone de Livraison",
-  subtitle: "ConsoGab s'étend maintenant à Port-Gentil",
-  image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=400&fit=crop",
-  backgroundColor: "from-blue-500 to-indigo-600",
-  cta: "En savoir plus",
-  targetZone: "Port-Gentil"
-}, {
-  id: 4,
-  title: "Programme de Fidélité",
-  subtitle: "Gagnez des points à chaque achat et débloquez des récompenses",
-  image: "https://images.unsplash.com/photo-1607734834519-d8576ae60ea7?w=800&h=400&fit=crop",
-  backgroundColor: "from-amber-500 to-orange-600",
-  cta: "Rejoindre maintenant",
-  targetZone: "National"
-}, {
-  id: 5,
-  title: "Restaurant Chez Maman Rosine",
-  subtitle: "Spécialités gabonaises authentiques à Owendo",
-  image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop",
-  backgroundColor: "from-orange-500 to-red-600",
-  cta: "Commander maintenant",
-  targetZone: "Owendo"
-}, {
-  id: 6,
-  title: "Pharmacie Lambaréné Centre",
-  subtitle: "Vos médicaments livrés en 30 minutes",
-  image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop",
-  backgroundColor: "from-green-500 to-teal-600",
-  cta: "Voir les produits",
-  targetZone: "Lambaréné"
-}];
+import { advertisements } from "@/data/advertisements";
+
 interface AdCarouselProps {
   userLocation?: string;
 }
