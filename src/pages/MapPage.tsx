@@ -9,7 +9,7 @@ import { BusinessMarkersLayer } from "@/components/map/BusinessMarkersLayer";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { MapPageSkeleton } from "@/components/ui/skeleton-screens";
 import { useMapBusinesses, type MapBusiness } from "@/hooks/use-map-businesses";
-import { useUserLocation } from "@/hooks/use-user-location";
+import { useGeoLocationContext } from "@/contexts/GeoLocationContext";
 import type maplibregl from "maplibre-gl";
 interface MapPageProps {
   onBack?: () => void;
@@ -20,7 +20,7 @@ export const MapPage = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("map");
   const [map, setMap] = useState<maplibregl.Map | null>(null);
-  const { location: userLocation, loading: locationLoading } = useUserLocation();
+  const { position: userLocation, loading: locationLoading } = useGeoLocationContext();
   
   const {
     businesses,

@@ -10,6 +10,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { SplashScreen } from "@/pages/SplashScreen";
 import ConsumerApp from "@/pages/ConsumerApp";
 import { ProductDetailPage } from "@/pages/ProductDetailPage";
+import { GeoLocationProvider } from "@/contexts/GeoLocationContext";
 
 // Lazy loaded pages pour code splitting
 import {
@@ -50,11 +51,12 @@ const App = () => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <AuthProvider>
-            <Router>
-              <RoleBasedRouter>
-                <ModeGuard>
-                  <Routes>
+          <GeoLocationProvider>
+            <AuthProvider>
+              <Router>
+                <RoleBasedRouter>
+                  <ModeGuard>
+                    <Routes>
                   {/* Routes publiques */}
                   <Route path="/auth" element={<AuthFlowPage onComplete={() => {}} />} />
                   <Route path="/splash" element={<SplashScreen onStart={() => {}} />} />
@@ -100,12 +102,13 @@ const App = () => {
                   {/* Route par défaut */}
                   <Route path="/" element={<Navigate to="/consumer/home" replace />} />
                   <Route path="*" element={<Navigate to="/consumer/home" replace />} />
-                  </Routes>
-                  <Toaster />
-                </ModeGuard>
-              </RoleBasedRouter>
-            </Router>
-          </AuthProvider>
+                    </Routes>
+                    <Toaster />
+                  </ModeGuard>
+                </RoleBasedRouter>
+              </Router>
+            </AuthProvider>
+          </GeoLocationProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>

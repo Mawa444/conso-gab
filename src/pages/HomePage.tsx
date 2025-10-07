@@ -8,8 +8,8 @@ import { CommerceDetailsPopup } from "@/components/commerce/CommerceDetailsPopup
 import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
 import { OperatorDashboardModal } from "@/components/business/OperatorDashboardModal";
 import { EnhancedBusinessCard } from "@/components/commerce/EnhancedBusinessCard";
-import { useOptimizedBusinesses } from "@/hooks/use-optimized-businesses";
-import { useUserLocation } from "@/hooks/use-user-location";
+import { useGeoRecommendations } from "@/hooks/use-geo-recommendations";
+import { useGeoLocationContext } from "@/contexts/GeoLocationContext";
 import { useNavigate } from "react-router-dom";
 import { Loader2, RefreshCw, Grid3X3, Building2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,19 +34,40 @@ export const HomePage = ({
   const [selectedCommerce, setSelectedCommerce] = useState<any>(null);
   const [showOperatorDashboard, setShowOperatorDashboard] = useState(false);
 
-  // Utiliser le hook optimisé pour de meilleures performances
+  // Utiliser le nouveau système de géolocalisation intelligent
   const {
-    businesses,
+    businesses: geoBusinesses,
     loading,
     error,
-    refreshBusinesses
-  } = useOptimizedBusinesses();
+    refresh: refreshBusinesses,
+    currentPosition
+  } = useGeoRecommendations({
+    initialRadius: 2, // 2km par défaut
+    maxRadius: 50, // jusqu'à 50km
+    minResults: 5, // minimum 5 résultats
+    autoRefresh: true
+  });
+  
   const {
-    location: userLocationData,
-    error: locationError,
     permissionDenied,
-    retryLocation
-  } = useUserLocation();
+    requestPosition
+  } = useGeoLocationContext();
+
+  // Transformer pour compatibilité avec le composant
+  const businesses = geoBusinesses.map(rec => ({
+    id: rec.item.id,
+    name: rec.item.business_name,
+    logo_url: rec.item.logo_url,
+    type: rec.item.business_category,
+    description: rec.item.description,
+    address: rec.item.address ? `${rec.item.address}${rec.item.city ? ', ' + rec.item.city : ''}` : rec.item.city || '',
+    distance: rec.distanceFormatted,
+    distance_meters: rec.distance * 1000,
+    rating: 4.5,
+    verified: rec.item.is_verified,
+    whatsapp: rec.item.phone,
+    cover_image_url: null
+  }));
   const handleScanResult = (result: string) => {
     try {
       const commerce = JSON.parse(result);
@@ -79,7 +100,7 @@ export const HomePage = ({
                     Activez la localisation pour des résultats personnalisés
                   </p>
                 </div>
-                <Button variant="ghost" size="sm" onClick={retryLocation} className="text-xs h-7 text-blue-600 hover:text-blue-700 hover:bg-blue-100">
+                <Button variant="ghost" size="sm" onClick={requestPosition} className="text-xs h-7 text-blue-600 hover:text-blue-700 hover:bg-blue-100">
                   Activer
                 </Button>
               </div>
