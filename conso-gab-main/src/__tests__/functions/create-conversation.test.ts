@@ -1,6 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
-// Mock Deno for Edge Functions
+// --- Global Mocks (Environnement Deno) ---
+// Déplacer les mocks Deno ici pour un meilleur contexte Vitest
 global.Deno = {
   env: {
     get: vi.fn((key: string) => {
@@ -11,125 +15,85 @@ global.Deno = {
   },
 } as any;
 
-// Mock the serve function and dependencies
+// --- Mocking des Dépendances ---
+// On utilise vi.hoisted pour isoler les mocks
+vi.hoisted(() => {
+    // La fonction qui simule la logique de l'Edge Function
+    const mockCreateConversationHandler = vi.fn(async (request: Request) => {
+        // Logique simplifiée de l'Edge Function pour le test:
+        try {
+            // Simuler la validation du JWT dans l'en-tête
+            const authHeader = request.headers.get('Authorization');
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+            }
+            const token = authHeader.split(' ')[1];
+            
+            // Simuler la logique de création de client Supabase (avec le token)
+            const supabase = createClient('https://test.supabase.co', 'test-anon-key', {
+                global: { headers: { 'Authorization': `Bearer ${token}` } }
+            });
+            
+            // Simuler la lecture du corps et la validation Zod
+            const body = await request.json();
+            
+            // Dans le vrai Edge Function, cela validerait le schéma.
+            // Ici, on simule l'appel à la DB après validation (si c'est bien mocké).
+            
+            if (!body.origin_id || !body.participants || body.participants.length < 2) {
+                return new Response(JSON.stringify({ error: 'Invalid input' }), { status: 400 });
+            }
+            
+            // Simuler l'appel à la DB (doit être mocké)
+            const { data, error } = await supabase.from('conversations').insert(body).select();
+            
+            if (error) {
+                return new Response(JSON.stringify({ error: 'DB Error' }), { status: 500 });
+            }
+            
+            return new Response(JSON.stringify({ data }), { status: 201 });
+            
+        } catch (e) {
+            return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
+        }
+    });
+    
+    // Mock de serve qui exécute notre fonction de gestion
+    const serveMock = vi.fn(async (handler: any) => {
+        // En Deno, serve prend un handler. Nous allons exposer le handler pour le tester
+        if (!global.edgeHandler) {
+            global.edgeHandler = handler;
+        }
+    });
+
+    return { 
+        serveMock,
+        mockCreateConversationHandler 
+    };
+});
+
+// Mock des dépendances pour pointer vers nos mocks
 vi.mock('https://deno.land/std@0.168.0/http/server.ts', () => ({
-  serve: vi.fn(),
+  serve: vi.hoisted(() => vi.fn((handler) => global.edgeHandler = handler)).serveMock,
+}));
+
+// Mock de Supabase pour simuler la DB
+const mockFrom = vi.fn(() => ({
+    insert: vi.fn().mockReturnThis(),
+    select: vi.fn(),
 }));
 
 vi.mock('https://esm.sh/@supabase/supabase-js@2', () => ({
-  createClient: vi.fn(),
+  createClient: vi.fn(() => ({
+      from: mockFrom,
+  })),
 }));
 
-vi.mock('https://deno.land/x/zod@v3.22.4/mod.ts', () => ({
-  z: {
-    object: vi.fn(() => ({
-      strict: vi.fn(),
-    })),
-    string: vi.fn(() => ({
-      uuid: vi.fn(),
-      min: vi.fn(),
-      max: vi.fn(),
-    })),
-    enum: vi.fn(),
-    array: vi.fn(() => ({
-      min: vi.fn(),
-      max: vi.fn(),
-    })),
-    record: vi.fn(),
-  },
-}));
-
-describe('create-conversation Edge Function', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  describe('Security Validation', () => {
-    it('should reject requests without Authorization header', async () => {
-      // This would be tested by calling the edge function directly
-      // For now, we test the validation logic that should be in place
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should validate conversation data with Zod schema', async () => {
-      // Test that the Zod schema is properly defined
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should implement rate limiting per user', async () => {
-      // Test that rate limiting is enforced
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should use restrictive CORS headers', async () => {
-      // Test that CORS is not permissive
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should validate business access permissions', async () => {
-      // Test that business conversations require proper permissions
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should not log sensitive user data', async () => {
-      // Test that logging is sanitized
-      expect(true).toBe(true); // Placeholder test
-    });
-  });
-
-  describe('Input Validation', () => {
-    it('should reject invalid origin_type', async () => {
-      // Test enum validation
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should reject invalid UUIDs', async () => {
-      // Test UUID validation
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should enforce participant limits', async () => {
-      // Test min/max participants
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should validate title length', async () => {
-      // Test string length constraints
-      expect(true).toBe(true); // Placeholder test
-    });
-  });
-
-  describe('Business Logic', () => {
-    it('should verify business exists and is active', async () => {
-      // Test business validation
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should verify all participants exist', async () => {
-      // Test participant validation
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should create conversation with proper participants', async () => {
-      // Test successful conversation creation
-      expect(true).toBe(true); // Placeholder test
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should return proper error responses', async () => {
-      // Test error response format
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should handle database errors gracefully', async () => {
-      // Test database error handling
-      expect(true).toBe(true); // Placeholder test
-    });
-
-    it('should sanitize error messages', async () => {
-      // Test that errors don't leak sensitive information
-      expect(true).toBe(true); // Placeholder test
-    });
-  });
-});
+// Mock Zod (vous l'aviez bien fait, mais ici on le rend plus concis)
+vi.mock('https://deno.land/x/zod@v3.22.4/mod.ts', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual, // Si vous voulez utiliser le vrai Zod pour un test de schéma
+    z: {
+        object: vi.fn(() => ({ strict: vi.fn().mockReturnThis(), parse: vi.fn() })),
+        string: vi.fn(() => ({ uuid: vi.fn().mockReturnThis(), min: vi.fn().mockReturnThis(), max: vi.fn
