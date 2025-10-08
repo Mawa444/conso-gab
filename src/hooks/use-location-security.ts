@@ -52,6 +52,9 @@ export const useLocationSecurity = () => {
         updated_at: new Date().toISOString()
       };
 
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Non authentifié");
+
       if (locationType === 'home') {
         const { error } = await supabase
           .from('user_profiles')
@@ -59,7 +62,7 @@ export const useLocationSecurity = () => {
             home_location: encryptedLocation,
             location_updated_at: new Date().toISOString()
           })
-          .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+          .eq('user_id', session.user.id);
 
         if (error) throw error;
       } else {
@@ -69,7 +72,7 @@ export const useLocationSecurity = () => {
             office_location: encryptedLocation,
             office_location_updated_at: new Date().toISOString()
           })
-          .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+          .eq('user_id', session.user.id);
 
         if (error) throw error;
       }
@@ -92,11 +95,14 @@ export const useLocationSecurity = () => {
   ) => {
     setIsLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Non authentifié");
+
       const { data, error } = await supabase
         .from('location_requests')
         .insert({
           conversation_id: conversationId,
-          requester_id: (await supabase.auth.getUser()).data.user?.id,
+          requester_id: session.user.id,
           target_id: targetUserId,
           purpose,
           share_mode: shareMode,
@@ -132,6 +138,9 @@ export const useLocationSecurity = () => {
       };
 
       if (action === 'accept' && userLocation) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) throw new Error("Non authentifié");
+
         updateData.shared_location = {
           encrypted_data: encryptLocation(userLocation),
           shared_at: new Date().toISOString()
@@ -142,7 +151,7 @@ export const useLocationSecurity = () => {
           .from('location_share_history')
           .insert({
             request_id: requestId,
-            shared_by: (await supabase.auth.getUser()).data.user?.id,
+            shared_by: session.user.id,
             shared_to: requests.find(r => r.id === requestId)?.requester_id,
             share_mode: requests.find(r => r.id === requestId)?.share_mode || 'one_time',
             purpose: requests.find(r => r.id === requestId)?.purpose || 'general',
@@ -171,13 +180,13 @@ export const useLocationSecurity = () => {
   // Charger les demandes de position
   const loadLocationRequests = async () => {
     try {
-      const userId = (await supabase.auth.getUser()).data.user?.id;
-      if (!userId) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
 
       const { data, error } = await supabase
         .from('location_requests')
         .select('*')
-        .or(`requester_id.eq.${userId},target_id.eq.${userId}`)
+        .or(`requester_id.eq.${session.user.id},target_id.eq.${session.user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

@@ -219,7 +219,7 @@ export const useProfileMode = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, initialized, loadBusinessProfiles, loadCurrentMode, currentMode]);
+  }, [user, initialized]); // Supprimer currentMode des deps pour éviter la boucle
 
 
 

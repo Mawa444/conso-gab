@@ -197,26 +197,12 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
       const lastMessages = Array.from(lastMessagesMap.values());
 
       // 6. Dédupliquer les conversations business par origin_id + user
-      const uniqueConversationsMap = new Map();
-      data.forEach((conv: any) => {
-        if (conv.origin_type === 'business' && conv.origin_id) {
-          const key = `${conv.origin_id}-${user.id}`;
-          // Garder seulement la plus récente
-          if (!uniqueConversationsMap.has(key) || 
-              new Date(conv.last_activity) > new Date(uniqueConversationsMap.get(key).last_activity)) {
-            uniqueConversationsMap.set(key, conv);
-          }
-        } else {
-          // Pour les conversations non-business, garder toutes
-          uniqueConversationsMap.set(conv.id, conv);
-        }
-      });
-
-      const deduplicatedConversations = Array.from(uniqueConversationsMap.values());
-
+      // La déduplication est maintenant gérée par la DB via get_or_create_business_conversation
+      // Pas besoin de dédupliquer côté client
+      
       // 7. Transform conversations with unified data
       const transformedConversations = await Promise.all(
-        (deduplicatedConversations || []).map(async (conv: any) => {
+        (data || []).map(async (conv: any) => {
           const lastMessage = lastMessagesMap.get(conv.id);
           const userParticipant = conv.participants.find((p: any) => p.user_id === user.id);
           

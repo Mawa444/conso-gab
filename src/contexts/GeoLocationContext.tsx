@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
+import { debounce } from '@/utils/debounce';
 
 export interface GeoPosition {
   latitude: number;
@@ -35,26 +36,34 @@ export const GeoLocationProvider = ({ children }: { children: ReactNode }) => {
   const [isTracking, setIsTracking] = useState(false);
   const [watchId, setWatchId] = useState<number | null>(null);
 
-  const handlePositionUpdate = useCallback((newPosition: GeolocationPosition) => {
-    const distance = calculateDistance(
-      position.latitude,
-      position.longitude,
-      newPosition.coords.latitude,
-      newPosition.coords.longitude
-    );
+  // Fonction de mise à jour debouncée (limite à 1 update toutes les 3 secondes)
+  const debouncedPositionUpdate = useMemo(
+    () => debounce((newPos: GeolocationPosition) => {
+      const distance = calculateDistance(
+        position.latitude,
+        position.longitude,
+        newPos.coords.latitude,
+        newPos.coords.longitude
+      );
 
-    // Mise à jour uniquement si déplacement significatif (>50m)
-    if (distance > 0.05 || position === DEFAULT_POSITION) {
-      setPosition({
-        latitude: newPosition.coords.latitude,
-        longitude: newPosition.coords.longitude,
-        accuracy: newPosition.coords.accuracy,
-        timestamp: Date.now()
-      });
-      setError(null);
-      setPermissionDenied(false);
-    }
-  }, [position]);
+      // Mise à jour uniquement si déplacement significatif (>50m)
+      if (distance > 0.05 || position === DEFAULT_POSITION) {
+        setPosition({
+          latitude: newPos.coords.latitude,
+          longitude: newPos.coords.longitude,
+          accuracy: newPos.coords.accuracy,
+          timestamp: Date.now()
+        });
+        setError(null);
+        setPermissionDenied(false);
+      }
+    }, 3000),
+    [position]
+  );
+
+  const handlePositionUpdate = useCallback((newPosition: GeolocationPosition) => {
+    debouncedPositionUpdate(newPosition);
+  }, [debouncedPositionUpdate]);
 
   const handlePositionError = useCallback((error: GeolocationPositionError) => {
     setLoading(false);

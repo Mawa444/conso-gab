@@ -23,14 +23,14 @@ export const useCatalogLikes = (catalogId: string) => {
   const userLikeQuery = useQuery({
     queryKey: ['catalog-user-like', catalogId],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return null;
 
       const { data, error } = await supabase
         .from('catalog_likes')
         .select('*')
         .eq('catalog_id', catalogId)
-        .eq('user_id', user.id)
+        .eq('user_id', session.user.id)
         .maybeSingle();
       
       if (error) throw error;
@@ -40,8 +40,8 @@ export const useCatalogLikes = (catalogId: string) => {
 
   const toggleLike = useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Non authentifié");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Non authentifié");
 
       if (userLikeQuery.data) {
         // Unlike
@@ -49,7 +49,7 @@ export const useCatalogLikes = (catalogId: string) => {
           .from('catalog_likes')
           .delete()
           .eq('catalog_id', catalogId)
-          .eq('user_id', user.id);
+          .eq('user_id', session.user.id);
         
         if (error) throw error;
         return { action: 'unlike' };
@@ -59,7 +59,7 @@ export const useCatalogLikes = (catalogId: string) => {
           .from('catalog_likes')
           .insert({
             catalog_id: catalogId,
-            user_id: user.id
+            user_id: session.user.id
           });
         
         if (error) throw error;
@@ -110,14 +110,14 @@ export const useCatalogComments = (catalogId: string) => {
 
   const addComment = useMutation({
     mutationFn: async ({ comment, rating }: { comment: string; rating?: number }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Non authentifié");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Non authentifié");
 
       const { data, error } = await supabase
         .from('catalog_comments')
         .insert({
           catalog_id: catalogId,
-          user_id: user.id,
+          user_id: session.user.id,
           comment: comment.trim(),
           rating
         })
@@ -174,15 +174,15 @@ export const useCatalogImageLikes = (catalogId: string, imageUrl: string) => {
   const userLikeQuery = useQuery({
     queryKey: ['catalog-image-user-like', catalogId, imageUrl],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return null;
 
       const { data, error } = await supabase
         .from('catalog_image_likes')
         .select('*')
         .eq('catalog_id', catalogId)
         .eq('image_url', imageUrl)
-        .eq('user_id', user.id)
+        .eq('user_id', session.user.id)
         .maybeSingle();
       
       if (error) throw error;
@@ -192,8 +192,8 @@ export const useCatalogImageLikes = (catalogId: string, imageUrl: string) => {
 
   const toggleLike = useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Non authentifié");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Non authentifié");
 
       if (userLikeQuery.data) {
         // Unlike
@@ -202,7 +202,7 @@ export const useCatalogImageLikes = (catalogId: string, imageUrl: string) => {
           .delete()
           .eq('catalog_id', catalogId)
           .eq('image_url', imageUrl)
-          .eq('user_id', user.id);
+          .eq('user_id', session.user.id);
         
         if (error) throw error;
         return { action: 'unlike' };
@@ -213,7 +213,7 @@ export const useCatalogImageLikes = (catalogId: string, imageUrl: string) => {
           .insert({
             catalog_id: catalogId,
             image_url: imageUrl,
-            user_id: user.id
+            user_id: session.user.id
           });
         
         if (error) throw error;
@@ -265,15 +265,15 @@ export const useCatalogImageComments = (catalogId: string, imageUrl: string) => 
 
   const addComment = useMutation({
     mutationFn: async ({ comment }: { comment: string }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Non authentifié");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Non authentifié");
 
       const { data, error } = await supabase
         .from('catalog_image_comments')
         .insert({
           catalog_id: catalogId,
           image_url: imageUrl,
-          user_id: user.id,
+          user_id: session.user.id,
           comment: comment.trim()
         })
         .select()

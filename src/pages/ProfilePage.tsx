@@ -130,66 +130,59 @@ export const ProfilePage = ({
     try {
       setIsLoading(true);
       
-      // Récupérer les données du profil depuis la table profiles
+      // Utiliser UNIQUEMENT la table profiles comme source unique de vérité
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      // Récupérer les données user_profiles pour compatibilité
-      const { data: userProfileData, error: userProfileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profileError && userProfileError) {
-        console.error('Erreur récupération profil:', profileError, userProfileError);
+      if (profileError) {
+        console.error('Erreur récupération profil:', profileError);
         setIsLoading(false);
         return;
       }
 
-      // Priorité à profileData pour les images et noms
       if (profileData) {
         setUserProfile({
-          name: profileData.display_name || profileData.first_name || userProfileData?.pseudo || user.email?.split('@')[0] || "Utilisateur",
+          name: profileData.display_name || profileData.first_name || user.email?.split('@')[0] || "Utilisateur",
           email: user.email || "",
-          phone: profileData.phone || userProfileData?.phone || "",
+          phone: profileData.phone || "",
           joinDate: new Date(profileData.created_at || user.created_at).toLocaleDateString('fr-FR', {
             month: 'long',
             year: 'numeric'
           }),
-          userType: userProfileData?.role === 'merchant' ? 'commerçant' : 'client',
+          userType: 'client',
           points: Math.floor(Math.random() * 3000) + 1000,
-          level: userProfileData?.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
+          level: 'Ambassador ConsoGab',
           scansCount: Math.floor(Math.random() * 50) + 10,
           reviewsCount: Math.floor(Math.random() * 30) + 5,
           favoritesCount: Math.floor(Math.random() * 20) + 3,
-          pseudo: profileData.display_name || userProfileData?.pseudo || "",
-          role: userProfileData?.role || "",
+          pseudo: profileData.display_name || "",
+          role: "",
           avatar_url: profileData.avatar_url || undefined,
           cover_image_url: profileData.cover_image_url || undefined,
           avatar_updated_at: profileData.avatar_updated_at || undefined,
           cover_updated_at: profileData.cover_updated_at || undefined
         });
-      } else if (userProfileData) {
+      } else {
+        // Créer un profil par défaut si n'existe pas
         setUserProfile({
-          name: userProfileData.pseudo || user.email?.split('@')[0] || "Utilisateur",
+          name: user.email?.split('@')[0] || "Utilisateur",
           email: user.email || "",
-          phone: userProfileData.phone || "",
-          joinDate: new Date(userProfileData.created_at || user.created_at).toLocaleDateString('fr-FR', {
+          phone: "",
+          joinDate: new Date(user.created_at).toLocaleDateString('fr-FR', {
             month: 'long',
             year: 'numeric'
           }),
-          userType: userProfileData.role === 'merchant' ? 'commerçant' : 'client',
-          points: Math.floor(Math.random() * 3000) + 1000,
-          level: userProfileData.role === 'merchant' ? 'Entrepreneur' : 'Ambassador ConsoGab',
-          scansCount: Math.floor(Math.random() * 50) + 10,
-          reviewsCount: Math.floor(Math.random() * 30) + 5,
-          favoritesCount: Math.floor(Math.random() * 20) + 3,
-          pseudo: userProfileData.pseudo || "",
-          role: userProfileData.role || ""
+          userType: 'client',
+          points: 1000,
+          level: 'Ambassador ConsoGab',
+          scansCount: 0,
+          reviewsCount: 0,
+          favoritesCount: 0,
+          pseudo: "",
+          role: ""
         });
       }
     } catch (error) {
