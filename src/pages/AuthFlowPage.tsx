@@ -31,22 +31,21 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Pré-remplir l'email si disponible (ex: après inscription sans auto-login)
+  // Pré-remplir l'email si disponible
   useEffect(() => {
     try {
-      const prefill = localStorage.getItem('prefillEmail');
-      if (prefill) {
-        setEmail(prefill);
-        // Optionnel: nettoyer après lecture
+      const prefillEmail = localStorage.getItem('prefillEmail');
+      if (prefillEmail && step === 'login') {
+        setEmail(prefillEmail);
         localStorage.removeItem('prefillEmail');
       }
     } catch {}
-  }, []);
+  }, [step]);
 
   // Rediriger si déjà connecté
   useEffect(() => {
     if (!loading && user) {
-      navigate('/');
+      navigate('/consumer/home', { replace: true });
     }
   }, [user, loading, navigate]);
 
@@ -59,9 +58,15 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
 
     setIsLoading(true);
     try {
-      const { error } = await signIn(email, password);
-      if (error) throw error;
-      toast.success('Connexion réussie !');
+      const { data, error } = await signIn(email, password);
+      if (error) {
+        toast.error(error.message || 'Erreur de connexion');
+        return;
+      }
+      
+      // Redirection automatique vers la page d'accueil
+      toast.success('Connexion réussie ! 👋');
+      navigate('/consumer/home', { replace: true });
       onComplete();
     } catch (error: any) {
       console.error('Erreur de connexion:', error);

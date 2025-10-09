@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useGeoLocationContext } from '@/contexts/GeoLocationContext';
 import { GeoLocationService, GeoRecommendation, GeoRecommendationsOptions } from '@/services/geoLocationService';
 
 interface UseGeoRecommendationsOptions extends GeoRecommendationsOptions {
-  autoRefresh?: boolean; // Actualiser automatiquement quand la position change
-  refreshInterval?: number; // Intervalle de rafraîchissement en ms (0 = désactivé)
+  autoRefresh?: boolean;
+  refreshInterval?: number;
 }
 
 export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}) => {
@@ -15,23 +15,44 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<number>(0);
 
-  const {
-    autoRefresh = true,
-    refreshInterval = 0,
-    ...geoOptions
-  } = options;
+  // Stabiliser les options avec useMemo pour éviter les re-renders infinis
+  const stableOptions = useMemo(() => {
+    const {
+      autoRefresh = true,
+      refreshInterval = 0,
+      initialRadius = 2,
+      maxRadius = 50,
+      minResults = 5,
+      limit = 50
+    } = options;
+
+    return {
+      autoRefresh,
+      refreshInterval,
+      geoOptions: { initialRadius, maxRadius, minResults, limit }
+    };
+  }, [
+    options.autoRefresh,
+    options.refreshInterval,
+    options.initialRadius,
+    options.maxRadius,
+    options.minResults,
+    options.limit
+  ]);
 
   const fetchRecommendations = useCallback(async () => {
-    if (!position) return;
+    if (!position) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      // Récupérer les entreprises et catalogues en parallèle
       const [businessResults, catalogResults] = await Promise.all([
-        GeoLocationService.getNearestBusinesses(position, geoOptions),
-        GeoLocationService.getNearestCatalogs(position, geoOptions)
+        GeoLocationService.getNearestBusinesses(position, stableOptions.geoOptions),
+        GeoLocationService.getNearestCatalogs(position, stableOptions.geoOptions)
       ]);
 
       setBusinesses(businessResults);
@@ -43,25 +64,25 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
     } finally {
       setLoading(false);
     }
-  }, [position, geoOptions]);
+  }, [position, stableOptions.geoOptions]);
 
   // Récupérer les recommandations au montage et quand la position change
   useEffect(() => {
-    if (!positionLoading && position && autoRefresh) {
+    if (!positionLoading && position && stableOptions.autoRefresh) {
       fetchRecommendations();
     }
-  }, [position?.latitude, position?.longitude, positionLoading, autoRefresh, fetchRecommendations]);
+  }, [position?.latitude, position?.longitude, positionLoading, stableOptions.autoRefresh, fetchRecommendations]);
 
   // Rafraîchissement automatique si activé
   useEffect(() => {
-    if (refreshInterval > 0) {
+    if (stableOptions.refreshInterval > 0) {
       const interval = setInterval(() => {
         fetchRecommendations();
-      }, refreshInterval);
+      }, stableOptions.refreshInterval);
 
       return () => clearInterval(interval);
     }
-  }, [refreshInterval, fetchRecommendations]);
+  }, [stableOptions.refreshInterval, fetchRecommendations]);
 
   const refresh = useCallback(() => {
     fetchRecommendations();
