@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Search, Edit, MoreVertical, Archive, MessageSquarePlus, Video } from 'lucide-react';
-import { VideoCallButton } from '@/components/chat/VideoCallButton';
+// VideoCallButton removed - integrated in ChatWindow
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';

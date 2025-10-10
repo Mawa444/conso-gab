@@ -28,7 +28,7 @@ import { toast } from "sonner";
 import { ProfileModeSwitch } from "@/components/profile/ProfileModeSwitch";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
-import { ChatView } from "@/components/chat/ChatView";
+import { ChatWindow } from "@/components/mimo-chat/ChatWindow";
 import { MessagingProvider } from "@/contexts/MessagingContext";
 interface BusinessDetail {
   id: string;
@@ -446,7 +446,7 @@ export const BusinessDetailPage = () => {
               <Card>
                 <CardContent className="p-0">
                   <MessagingProvider>
-                    <ChatView conversationId={businessId || business.id} showActions={true} compact={true} />
+                    <ChatWindow conversationId={businessId || business.id} />
                   </MessagingProvider>
                 </CardContent>
               </Card>

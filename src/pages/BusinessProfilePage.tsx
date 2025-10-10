@@ -11,7 +11,7 @@ import { CatalogInventoryIntegration } from "@/components/business/CatalogInvent
 import { BusinessProfileEditor } from "@/components/business/BusinessProfileEditor";
 import { toast } from "sonner";
 import { MessagingProvider } from "@/contexts/MessagingContext";
-import { ChatView } from "@/components/chat/ChatView";
+import { ChatWindow } from "@/components/mimo-chat/ChatWindow";
 
 interface BusinessProfile {
   id: string;
@@ -183,11 +183,7 @@ export const BusinessProfilePage = () => {
             <Card>
               <CardContent className="p-0 h-[600px]">
                 <MessagingProvider>
-                  <ChatView
-                    conversationId={businessId}
-                    showActions={true}
-                    compact={true}
-                  />
+                  <ChatWindow conversationId={businessId} />
                 </MessagingProvider>
               </CardContent>
             </Card>
