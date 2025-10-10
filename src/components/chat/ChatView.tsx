@@ -4,6 +4,7 @@ import { MessageInput } from './MessageInput';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Phone } from 'lucide-react';
 import { WhatsAppRedirectButton } from './WhatsAppRedirectButton';
+import { VideoCallButton } from './VideoCallButton';
 import { useMessaging } from '@/contexts/MessagingContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useNavigate } from 'react-router-dom';
@@ -116,6 +117,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
               businessName={businessName}
             />
           )}
+          <VideoCallButton 
+            conversationId={activeConversation.id}
+            className="flex-shrink-0"
+          />
           <Button
             variant="outline"
             size="sm"

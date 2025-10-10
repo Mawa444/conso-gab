@@ -100,8 +100,36 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           </div>
         )}
 
-        {/* File/Audio/Video */}
-        {(message.message_type === 'file' || message.message_type === 'audio' || message.message_type === 'video') && message.attachment_url && (
+        {/* Audio Player */}
+        {message.message_type === 'audio' && message.attachment_url && (
+          <div className="mb-2 min-w-[200px]">
+            <audio 
+              controls 
+              src={message.attachment_url}
+              className="w-full h-8"
+              preload="metadata"
+            >
+              Votre navigateur ne supporte pas l'élément audio.
+            </audio>
+          </div>
+        )}
+
+        {/* Video Player */}
+        {message.message_type === 'video' && message.attachment_url && (
+          <div className="mb-2 rounded-lg overflow-hidden max-w-xs">
+            <video 
+              controls 
+              src={message.attachment_url}
+              className="w-full h-auto"
+              preload="metadata"
+            >
+              Votre navigateur ne supporte pas l'élément vidéo.
+            </video>
+          </div>
+        )}
+
+        {/* File */}
+        {message.message_type === 'file' && message.attachment_url && (
           <a
             href={message.attachment_url}
             target="_blank"
