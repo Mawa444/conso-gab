@@ -84,8 +84,9 @@ describe('Order Management', () => {
         .from('order_items')
         .insert(mockOrderItems);
 
+      expect(result.data).toBeTruthy();
       expect(result.data).toHaveLength(2);
-      expect(result.data?.[0].quantity).toBe(2);
+      expect((result.data as any)?.[0]?.quantity).toBe(2);
     });
 
     it('devrait calculer le total correct', async () => {
@@ -326,7 +327,7 @@ describe('Order Management', () => {
         status: 'pending',
       };
 
-      const mockInsert = vi.fn().mockReturnValue({
+      const mockReservationInsert = vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           single: vi.fn().mockResolvedValue({
             data: mockReservation,
@@ -336,20 +337,7 @@ describe('Order Management', () => {
       });
 
       (supabase.from as any) = vi.fn(() => ({
-        insert: mockInsert,
-      }));
-
-      const mockInsert = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: mockReservation,
-            error: null,
-          }),
-        }),
-      });
-
-      (supabase.from as any) = vi.fn(() => ({
-        insert: mockInsert,
+        insert: mockReservationInsert,
       }));
 
       await supabase
@@ -359,13 +347,14 @@ describe('Order Management', () => {
           business_id: 'business-456',
           catalog_id: 'catalog-789',
           start_datetime: '2025-10-15T10:00:00Z',
+          end_datetime: '2025-10-15T11:00:00Z',
           service_name: 'Test Service',
           reservation_number: 'RES-001',
         }])
         .select()
         .single();
 
-      expect(mockInsert).toHaveBeenCalled();
+      expect(mockReservationInsert).toHaveBeenCalled();
     });
 
     it('devrait confirmer une réservation', async () => {
