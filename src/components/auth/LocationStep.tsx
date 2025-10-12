@@ -97,31 +97,38 @@ export const LocationStep = ({
     });
   };
   const getGPSLocation = async () => {
-    const result = await getDetailedLocation();
-    if (result) {
-      // Remplir automatiquement tous les champs avec les données détaillées
-      const newLocation: LocationData = {
-        country: result.country,
-        countryCode: result.countryCode,
-        region: result.region,
-        province: result.province,
-        city: result.city,
-        district: result.district,
-        neighborhood: result.neighborhood,
-        road: result.road,
-        houseNumber: result.houseNumber,
-        postcode: result.postcode,
-        address: result.road,
-        latitude: result.latitude,
-        longitude: result.longitude,
-        formattedAddress: result.formattedAddress,
-        displayName: result.displayName
-      };
-      setLocation(newLocation);
-      onLocationChange(newLocation);
-      setLocationMethod('gps');
-      setShowDetails(true);
-      toast.success("Position GPS détaillée récupérée avec succès ! 🌍");
+    try {
+      const result = await getDetailedLocation();
+      if (result) {
+        // Remplir automatiquement tous les champs avec les données détaillées
+        const newLocation: LocationData = {
+          country: result.country,
+          countryCode: result.countryCode,
+          region: result.region,
+          province: result.province,
+          city: result.city,
+          district: result.district,
+          neighborhood: result.neighborhood,
+          road: result.road,
+          houseNumber: result.houseNumber,
+          postcode: result.postcode,
+          address: result.road,
+          latitude: result.latitude,
+          longitude: result.longitude,
+          formattedAddress: result.formattedAddress,
+          displayName: result.displayName
+        };
+        setLocation(newLocation);
+        onLocationChange(newLocation);
+        setLocationMethod('gps');
+        setShowDetails(true);
+        toast.success("Position GPS détaillée récupérée avec succès ! 🌍");
+      } else {
+        toast.error("Impossible de récupérer votre position. Veuillez sélectionner manuellement.");
+      }
+    } catch (error) {
+      console.error('Erreur GPS:', error);
+      toast.error("Erreur lors de la récupération de votre position GPS");
     }
   };
   return <div className="space-y-3">

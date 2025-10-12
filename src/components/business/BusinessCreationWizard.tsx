@@ -139,16 +139,27 @@ export const BusinessCreationWizard = ({
     }
   };
   const handleCreate = async () => {
-    console.log('handleCreate called - user:', user, 'canNext:', canNext());
+    console.log('🚀 handleCreate called', { 
+      hasUser: !!user, 
+      canNext: canNext(),
+      businessName: data.businessName,
+      category: data.businessCategory 
+    });
     
     if (!user) {
-      console.error('No user found - authentication required');
+      console.error('❌ No user found - authentication required');
       toast.error("Vous devez être connecté pour créer une entreprise");
       return;
     }
     
     if (!canNext()) {
-      console.error('Cannot proceed - validation failed');
+      console.error('❌ Validation failed', { 
+        businessName: data.businessName,
+        category: data.businessCategory,
+        description: data.description,
+        province: data.province,
+        latitude: data.latitude
+      });
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
@@ -162,19 +173,23 @@ export const BusinessCreationWizard = ({
     }
     
     setLoading(true);
+    console.log('⏳ Starting business creation process...');
+    
     try {
       // ✅ VALIDATION ZOD - Sécurité + nettoyage des données
+      console.log('🔍 Validating data with Zod schema...');
       const validationResult = validateAndSanitize(createBusinessSchema, data);
       
       if (!validationResult.success) {
         const errors = 'errors' in validationResult ? validationResult.errors : null;
         const firstError = errors?.errors[0];
+        console.error('❌ Validation errors:', errors);
         toast.error(firstError?.message || "Données invalides");
-        console.error('Validation errors:', errors);
         setLoading(false);
         return;
       }
 
+      console.log('✅ Validation passed');
       const validatedData = validationResult.data;
 
       const businessData = {
@@ -202,7 +217,11 @@ export const BusinessCreationWizard = ({
         is_verified: false
       };
       
-      console.log('Creating business with validated data');
+      console.log('📤 Sending business data to Supabase:', {
+        businessName: businessData.business_name,
+        category: businessData.business_category,
+        hasLocation: !!(businessData.latitude && businessData.longitude)
+      });
       
       const {
         data: businessProfile,
@@ -210,25 +229,41 @@ export const BusinessCreationWizard = ({
       } = await supabase.from('business_profiles').insert(businessData).select().single();
       
       if (error) {
-        console.error('Supabase error:', error);
-        throw error;
+        console.error('❌ Supabase insertion error:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw new Error(`Erreur Supabase: ${error.message}`);
       }
       
-      console.log('Business created successfully:', businessProfile);
+      console.log('✅ Business created in database:', {
+        id: businessProfile.id,
+        name: businessProfile.business_name
+      });
       
       // ✅ ATTENDRE que refreshBusinessProfiles() complète AVANT de naviguer
+      console.log('🔄 Refreshing business profiles...');
       await refreshBusinessProfiles();
+      console.log('✅ Business profiles refreshed');
       
       toast.success("🎉 Entreprise créée avec succès !");
       
       // ✅ Maintenant, le business est garanti d'être dans businessProfiles
       if (onCreated) {
+        console.log('📍 Calling onCreated callback with business ID:', businessProfile.id);
         onCreated(businessProfile.id);
       }
     } catch (error: any) {
-      console.error('Erreur création entreprise:', error);
+      console.error('❌ Business creation failed:', {
+        error: error.message,
+        stack: error.stack,
+        data: data
+      });
       toast.error(error.message || "Erreur lors de la création de l'entreprise");
     } finally {
+      console.log('🏁 Business creation process completed, loading:', false);
       setLoading(false);
     }
   };
@@ -633,20 +668,62 @@ export const BusinessCreationWizard = ({
 
         {/* Navigation buttons */}
         <div className="flex justify-between mt-8 pt-6 border-t">
-          <Button variant="outline" onClick={handleBack} disabled={step === 1} className="px-6">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              console.log('⬅️ Back button clicked', { currentStep: step });
+              handleBack();
+            }} 
+            disabled={step === 1} 
+            className="px-6"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
 
           <div className="flex gap-3">
-            <Button variant="destructive" onClick={onCancel} className="rounded-3xl">
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                console.log('❌ Cancel button clicked');
+                if (onCancel) {
+                  onCancel();
+                } else {
+                  console.warn('⚠️ No onCancel callback provided');
+                  toast.info("Création annulée");
+                }
+              }} 
+              className="rounded-3xl"
+            >
               Annuler
             </Button>
 
-            {step < 6 ? <Button onClick={handleNext} disabled={!canNext()} className="px-6 rounded-3xl">
+            {step < 6 ? <Button 
+                onClick={() => {
+                  console.log('➡️ Next button clicked', { currentStep: step, canNext: canNext() });
+                  handleNext();
+                }} 
+                disabled={!canNext()} 
+                className="px-6 rounded-3xl"
+              >
                 Suivant
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Button> : <Button onClick={handleCreate} disabled={loading || !canNext()} className="px-8 bg-gradient-to-r from-primary to-accent text-white" size="lg">
+              </Button> : <Button 
+                onClick={(e) => {
+                  console.log('🚀 Launch button clicked', { 
+                    loading, 
+                    canNext: canNext(),
+                    event: e 
+                  });
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCreate();
+                }} 
+                disabled={loading || !canNext()} 
+                className="px-8 bg-gradient-to-r from-primary to-accent text-white" 
+                size="lg"
+                type="button"
+              >
                 {loading ? <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     Création en cours...
