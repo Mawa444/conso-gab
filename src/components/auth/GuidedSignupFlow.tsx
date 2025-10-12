@@ -78,12 +78,18 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
 
   const handleCreateAccount = async () => {
     setIsLoading(true);
+    console.log('🚀 Starting account creation...', {
+      email: signupData.email,
+      pseudo: signupData.pseudo,
+      hasLocation: !!(signupData.latitude && signupData.longitude)
+    });
     
     try {
       if (!signupData.email || !signupData.password || !signupData.pseudo) {
         throw new Error('Veuillez remplir tous les champs obligatoires');
       }
 
+      console.log('📤 Calling signUp API...');
       const { data, error } = await signUp(
         signupData.email,
         signupData.password,
@@ -93,7 +99,7 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
           first_name: signupData.firstName,
           last_name: signupData.lastName,
           phone: signupData.phone,
-          country: signupData.country,
+          country: signupData.country || 'Gabon',
           province: signupData.province,
           department: signupData.department,
           arrondissement: signupData.arrondissement,
@@ -105,6 +111,7 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
       );
 
       if (error) {
+        console.error('❌ SignUp error:', error);
         // Gérer le cas d'un utilisateur existant
         if (error.message === "EXISTING_USER") {
           toast.error('Un compte existe déjà avec cet email.');
@@ -118,15 +125,19 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
         throw error;
       }
 
-      toast.success('Compte créé avec succès ! Connexion en cours...');
-      // Connexion automatique après inscription
-      setTimeout(() => {
-        onComplete();
-      }, 500);
+      console.log('✅ Account created successfully:', data?.user?.id);
+      toast.success('Compte créé avec succès ! Redirection...');
+      
+      // Attendre un peu pour laisser le temps aux triggers de s'exécuter
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log('🔄 Completing signup flow...');
+      onComplete();
     } catch (error: any) {
-      console.error('Erreur inscription:', error);
+      console.error('❌ Signup error:', error);
       toast.error(error.message || "Erreur lors de l'inscription");
     } finally {
+      console.log('🏁 Account creation completed');
       setIsLoading(false);
     }
   };

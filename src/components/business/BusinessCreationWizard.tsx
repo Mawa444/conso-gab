@@ -669,12 +669,15 @@ export const BusinessCreationWizard = ({
         {/* Navigation buttons */}
         <div className="flex justify-between mt-8 pt-6 border-t">
           <Button 
+            type="button"
             variant="outline" 
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               console.log('⬅️ Back button clicked', { currentStep: step });
               handleBack();
             }} 
-            disabled={step === 1} 
+            disabled={step === 1 || loading} 
             className="px-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -683,9 +686,12 @@ export const BusinessCreationWizard = ({
 
           <div className="flex gap-3">
             <Button 
+              type="button"
               variant="destructive" 
-              onClick={() => {
-                console.log('❌ Cancel button clicked');
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('❌ Cancel button clicked', { hasOnCancel: !!onCancel });
                 if (onCancel) {
                   onCancel();
                 } else {
@@ -693,36 +699,41 @@ export const BusinessCreationWizard = ({
                   toast.info("Création annulée");
                 }
               }} 
+              disabled={loading}
               className="rounded-3xl"
             >
               Annuler
             </Button>
 
             {step < 6 ? <Button 
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   console.log('➡️ Next button clicked', { currentStep: step, canNext: canNext() });
                   handleNext();
                 }} 
-                disabled={!canNext()} 
+                disabled={!canNext() || loading} 
                 className="px-6 rounded-3xl"
               >
                 Suivant
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button> : <Button 
+                type="button"
                 onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   console.log('🚀 Launch button clicked', { 
                     loading, 
                     canNext: canNext(),
-                    event: e 
+                    businessName: data.businessName,
+                    category: data.businessCategory 
                   });
-                  e.preventDefault();
-                  e.stopPropagation();
                   handleCreate();
                 }} 
                 disabled={loading || !canNext()} 
                 className="px-8 bg-gradient-to-r from-primary to-accent text-white" 
                 size="lg"
-                type="button"
               >
                 {loading ? <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />

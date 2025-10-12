@@ -98,8 +98,13 @@ export const LocationStep = ({
   };
   const getGPSLocation = async () => {
     try {
+      console.log('📍 Starting GPS location request...');
+      toast.loading('Récupération de votre position GPS...');
+      
       const result = await getDetailedLocation();
+      
       if (result) {
+        console.log('✅ GPS location obtained:', result);
         // Remplir automatiquement tous les champs avec les données détaillées
         const newLocation: LocationData = {
           country: result.country,
@@ -122,13 +127,30 @@ export const LocationStep = ({
         onLocationChange(newLocation);
         setLocationMethod('gps');
         setShowDetails(true);
+        toast.dismiss();
         toast.success("Position GPS détaillée récupérée avec succès ! 🌍");
       } else {
+        console.error('❌ No location data returned');
+        toast.dismiss();
         toast.error("Impossible de récupérer votre position. Veuillez sélectionner manuellement.");
       }
-    } catch (error) {
-      console.error('Erreur GPS:', error);
-      toast.error("Erreur lors de la récupération de votre position GPS");
+    } catch (error: any) {
+      console.error('❌ GPS Error:', error);
+      toast.dismiss();
+      
+      let message = "Erreur lors de la récupération de votre position GPS";
+      
+      if (error.code === 1) {
+        message = "Accès refusé. Autorisez la géolocalisation dans les paramètres de votre navigateur.";
+      } else if (error.code === 2) {
+        message = "Position indisponible. Vérifiez votre connexion GPS.";
+      } else if (error.code === 3) {
+        message = "Délai d'attente dépassé. Réessayez.";
+      } else if (error.message) {
+        message = error.message;
+      }
+      
+      toast.error(message);
     }
   };
   return <div className="space-y-3">
