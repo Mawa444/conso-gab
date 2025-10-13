@@ -1,4 +1,4 @@
-import { Home, Map, QrCode, User } from "lucide-react";
+import { Home, Map, QrCode, User, MessageSquare } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 
@@ -28,6 +28,12 @@ export const BottomNavigationWithMode = ({
       } else {
         navigate('/consumer/profile');
       }
+    } else if (tab === 'messaging') {
+      navigate('/messaging');
+    } else if (tab === 'map') {
+      navigate('/consumer/map');
+    } else if (tab === 'home') {
+      navigate('/consumer/home');
     } else {
       onTabChange?.(tab);
     }
@@ -35,6 +41,9 @@ export const BottomNavigationWithMode = ({
 
   // Déterminer l'onglet actif selon l'URL
   const getCurrentTab = () => {
+    if (location.pathname.includes('/messaging')) {
+      return 'messaging';
+    }
     if (location.pathname.includes('/business/') && currentMode === 'business') {
       return 'profile';
     }
@@ -60,6 +69,16 @@ export const BottomNavigationWithMode = ({
         >
           <Home className="w-6 h-6 mb-1" />
           <span className="text-xs">Accueil</span>
+        </button>
+
+        <button
+          onClick={() => handleTabClick('messaging')}
+          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+            currentTab === 'messaging' ? 'text-primary' : 'text-gray-500'
+          }`}
+        >
+          <MessageSquare className="w-6 h-6 mb-1" />
+          <span className="text-xs">Messages</span>
         </button>
 
         <button

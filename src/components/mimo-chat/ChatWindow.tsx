@@ -3,14 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Mic, Video, Send } from 'lucide-react';
+import { Mic, Video, Send, Paperclip, Smile, Phone } from 'lucide-react';
 import { useMessaging } from '@/contexts/MessagingContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { VoiceRecorder } from './VoiceRecorder';
 import { VideoCallRoom } from './VideoCallRoom';
+import { useMessageFileUpload } from '@/hooks/use-message-file-upload';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface ChatWindowProps {
   conversationId: string;
@@ -26,10 +28,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
     subscribeToConversation,
     unsubscribeFromConversation 
   } = useMessaging();
+  const { uploadFile, uploading } = useMessageFileUpload();
 
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [showVideoCall, setShowVideoCall] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   useEffect(() => {
     if (conversationId) {
@@ -63,6 +67,29 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
     await sendMessage('📞 Appel vidéo démarré', 'video');
   };
 
+  const handleStartAudioCall = async () => {
+    await sendMessage('📞 Appel audio démarré', 'audio');
+  };
+
+  const handleFileUpload = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,video/*,audio/*,.pdf,.doc,.docx,.txt';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      toast.info('Upload en cours...');
+      const fileUrl = await uploadFile(file, 'document');
+      
+      if (fileUrl) {
+        await sendMessage(`📎 ${file.name}`, 'document', fileUrl);
+        toast.success('Fichier envoyé');
+      }
+    };
+    input.click();
+  };
+
   const renderMessageContent = (message: any) => {
     switch (message.message_type) {
       case 'text':
@@ -73,8 +100,39 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
             Votre navigateur ne supporte pas l'élément audio.
           </audio>
         );
+      case 'document':
+      case 'file':
+        return (
+          <div className="flex items-center gap-2">
+            <Paperclip className="w-4 h-4" />
+            <a 
+              href={message.attachment_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm underline hover:no-underline"
+            >
+              {message.content}
+            </a>
+          </div>
+        );
+      case 'image':
+        return message.attachment_url ? (
+          <img 
+            src={message.attachment_url} 
+            alt="Image" 
+            className="max-w-full rounded-lg"
+          />
+        ) : <p className="text-sm">{message.content}</p>;
       case 'video':
-        return <p className="text-primary font-semibold">📞 {message.content}</p>;
+        return message.attachment_url ? (
+          <video 
+            controls 
+            src={message.attachment_url} 
+            className="max-w-full rounded-lg"
+          >
+            Votre navigateur ne supporte pas la vidéo.
+          </video>
+        ) : <p className="text-primary font-semibold">📞 {message.content}</p>;
       default:
         return <p className="text-sm">{message.content}</p>;
     }
@@ -115,14 +173,26 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">{getConversationTitle()}</h2>
           
-          <Button
-            onClick={handleStartVideoCall}
-            size="sm"
-            variant="ghost"
-            className="rounded-full"
-          >
-            <Video className="w-5 h-5 text-primary" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleStartAudioCall}
+              size="sm"
+              variant="ghost"
+              className="rounded-full"
+              title="Appel audio"
+            >
+              <Phone className="w-5 h-5 text-primary" />
+            </Button>
+            <Button
+              onClick={handleStartVideoCall}
+              size="sm"
+              variant="ghost"
+              className="rounded-full"
+              title="Appel vidéo"
+            >
+              <Video className="w-5 h-5 text-primary" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -173,35 +243,67 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
         </div>
       </ScrollArea>
 
-      {/* Input Area */}
-      <div className="flex-shrink-0 border-t border-border bg-card p-4">
-        <div className="flex gap-2 items-center">
-          <Input
-            type="text"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendText()}
-            placeholder="Écrire un message..."
-            className="flex-1"
-          />
+      {/* Input Area - Enhanced */}
+      <div className="flex-shrink-0 border-t border-border bg-card p-3 sm:p-4">
+        <div className="flex gap-2 items-end">
+          {/* Boutons supplémentaires */}
+          <div className="flex flex-col gap-1">
+            <Button
+              onClick={handleFileUpload}
+              size="icon"
+              variant="ghost"
+              className="rounded-full h-9 w-9"
+              title="Joindre un fichier"
+            >
+              <Paperclip className="w-4 h-4 text-muted-foreground" />
+            </Button>
+          </div>
 
-          <Button
-            onClick={handleStartRecording}
-            size="icon"
-            variant="ghost"
-            className="rounded-full flex-shrink-0"
-          >
-            <Mic className="w-5 h-5 text-primary" />
-          </Button>
+          {/* Zone de saisie */}
+          <div className="flex-1 flex flex-col gap-1">
+            <div className="relative flex items-center gap-2 bg-muted rounded-2xl px-4 py-2">
+              <Input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendText()}
+                placeholder="Écrire un message..."
+                className="flex-1 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto min-h-[24px] max-h-[120px]"
+              />
+              <Button
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                size="icon"
+                variant="ghost"
+                className="rounded-full h-8 w-8 flex-shrink-0"
+                title="Emojis"
+              >
+                <Smile className="w-4 h-4 text-muted-foreground" />
+              </Button>
+            </div>
+          </div>
 
-          <Button
-            onClick={handleSendText}
-            size="icon"
-            className="rounded-full flex-shrink-0"
-            disabled={!inputText.trim()}
-          >
-            <Send className="w-4 h-4" />
-          </Button>
+          {/* Boutons d'envoi */}
+          <div className="flex gap-1">
+            <Button
+              onClick={handleStartRecording}
+              size="icon"
+              variant="ghost"
+              className="rounded-full h-9 w-9"
+              title="Note vocale"
+            >
+              <Mic className="w-4 h-4 text-primary" />
+            </Button>
+
+            <Button
+              onClick={handleSendText}
+              size="icon"
+              className="rounded-full h-9 w-9"
+              disabled={!inputText.trim()}
+              title="Envoyer"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

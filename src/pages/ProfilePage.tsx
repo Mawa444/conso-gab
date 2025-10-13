@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2 } from "lucide-react";
+import { User, Star, MapPin, Trophy, QrCode, Shield, History, Award, Bell, Filter, TrendingUp, Trash2, LogOut, Building2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -309,65 +309,107 @@ export const ProfilePage = ({
                 )}
               </div>
 
-              {/* Infos utilisateur */}
-              <div className="flex-1 sm:pb-2">
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{userProfile.name}</h1>
-                <p className="text-sm text-muted-foreground mt-1">{userProfile.email}</p>
-                <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <Badge variant="secondary" className="font-medium">{userProfile.level}</Badge>
+          {/* Infos utilisateur */}
+              <div className="flex-1 sm:pb-2 space-y-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">{userProfile.name}</h1>
+                <p className="text-sm sm:text-base text-muted-foreground">{userProfile.email}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary" className="font-medium text-xs sm:text-sm">{userProfile.level}</Badge>
                   <Badge variant="outline" className="text-xs">Membre depuis {userProfile.joinDate}</Badge>
                 </div>
               </div>
             </div>
 
-            {/* Actions rapides - Alignées à droite */}
-            <div className="flex items-center gap-2 sm:pb-2">
-              <Button size="sm" variant="default" className="gap-2">
+            {/* Actions rapides - Mobile optimisé */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:pb-2 mt-4 sm:mt-0">
+              {/* Bouton Messagerie - Visible et accessible */}
+              <Button 
+                size="sm" 
+                variant="default" 
+                className="gap-2 flex-1 sm:flex-initial"
+                onClick={() => navigate('/messaging')}
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Messagerie</span>
+              </Button>
+              
+              <Button size="sm" variant="outline" className="gap-2 flex-1 sm:flex-initial">
                 <Star className="w-4 h-4" />
-                <span className="hidden sm:inline">Favoris</span>
+                <span className="sm:inline">Favoris</span>
               </Button>
-              <Button variant="outline" size="icon" onClick={handleDeleteAccount} title="Supprimer le compte">
-                <Trash2 className="w-4 h-4" />
-              </Button>
-              <Button variant="destructive" size="icon" onClick={handleLogout} title="Se déconnecter">
-                <LogOut className="w-4 h-4" />
-              </Button>
+              
+              {/* Boutons d'action - Regroupés sur mobile */}
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="flex-1 sm:flex-initial"
+                  onClick={handleDeleteAccount} 
+                  title="Supprimer le compte"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="icon" 
+                  className="flex-1 sm:flex-initial"
+                  onClick={handleLogout} 
+                  title="Se déconnecter"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Stats rapides */}
-          <div className="grid grid-cols-3 gap-3 mt-4 pb-4">
-            <Card className="border-border/50">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{userProfile.points}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground mt-1">Points ConsoGab</div>
+          {/* Stats rapides - Mobile optimisé */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4 pb-4 px-2 sm:px-0">
+            <Card className="border-border/50 hover:border-primary/50 transition-colors">
+              <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary">{userProfile.points}</div>
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1">Points</div>
               </CardContent>
             </Card>
-            <Card className="border-border/50">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{userProfile.scansCount}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground mt-1">Scans effectués</div>
+            <Card className="border-border/50 hover:border-primary/50 transition-colors">
+              <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary">{userProfile.scansCount}</div>
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1">Scans</div>
               </CardContent>
             </Card>
-            <Card className="border-border/50">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{userProfile.reviewsCount}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground mt-1">Avis publiés</div>
+            <Card className="border-border/50 hover:border-primary/50 transition-colors">
+              <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary">{userProfile.reviewsCount}</div>
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1">Avis</div>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex-1 p-6 bg-[f2f4f7] bg-[#f2f4f7]/[0.97] px-0">
+      {/* Tabs - Mobile optimisé */}
+      <div className="flex-1 bg-background sm:p-6 sm:bg-muted/20">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6 bg-white px-0 rounded-none">
-            <TabsTrigger value="overview" className="rounded-3xl bg-[3a75c4] text-center bg-inherit font-bold text-[#73767a]/[0.96] text-sm">Aperçu</TabsTrigger>
-            <TabsTrigger value="activity" className="rounded-3xl font-bold text-[73767a] text-[#73767a]/[0.97]">Activité</TabsTrigger>
-            <TabsTrigger value="favorites" className="rounded-3xl font-bold text-[#73767a]/[0.96] text-sm">Favoris</TabsTrigger>
-            <TabsTrigger value="businesses" className="rounded-3xl font-bold text-[#73767a]/[0.97] text-sm">Entreprises</TabsTrigger>
-            <TabsTrigger value="settings" className="rounded-3xl font-bold text-[73767a] text-[#73767a]/[0.96]">Paramètres</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 mb-4 sm:mb-6 bg-card border-b sm:border sm:rounded-lg px-1 sm:px-2 h-auto py-1 sm:py-2">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm font-medium px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="hidden sm:inline">Aperçu</span>
+              <span className="sm:hidden">Info</span>
+            </TabsTrigger>
+            <TabsTrigger value="activity" className="text-xs sm:text-sm font-medium px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="hidden sm:inline">Activité</span>
+              <span className="sm:hidden">Act.</span>
+            </TabsTrigger>
+            <TabsTrigger value="favorites" className="text-xs sm:text-sm font-medium px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="hidden sm:inline">Favoris</span>
+              <span className="sm:hidden">Fav.</span>
+            </TabsTrigger>
+            <TabsTrigger value="businesses" className="text-xs sm:text-sm font-medium px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="hidden sm:inline">Entreprises</span>
+              <span className="sm:hidden">Ent.</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs sm:text-sm font-medium px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="hidden sm:inline">Paramètres</span>
+              <span className="sm:hidden">Param.</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Aperçu */}
