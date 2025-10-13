@@ -266,104 +266,100 @@ export const ProfilePage = ({
 
         {/* Conteneur pour photo de profil et infos */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-4">
-            {/* Section gauche : Photo + Infos */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12 sm:-mt-14">
-              {/* Photo de profil avec contour blanc épais */}
-              <div 
-                className="relative cursor-pointer group"
-                onClick={() => userProfile.avatar_url && setImageViewModal({
-                  open: true,
-                  imageUrl: userProfile.avatar_url,
-                  imageType: 'avatar'
-                })}
-              >
-                <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl ring-4 ring-background transition-all group-hover:ring-primary/50">
-                  {userProfile.avatar_url ? (
-                    <OptimizedImage 
-                      src={userProfile.avatar_url} 
-                      alt={userProfile.name} 
-                      className="w-full h-full rounded-full"
-                      priority={true}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
-                      <User className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-                {userProfile.avatar_url && (
-                  <div 
-                    className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <ImageLikeButton
-                      likesCount={avatarLikes.likesCount}
-                      isLiked={avatarLikes.isLiked}
-                      isLoading={avatarLikes.isLoading}
-                      onToggle={avatarLikes.toggleLike}
-                      size="sm"
-                      className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full"
-                    />
+          {/* Photo de profil qui chevauche la couverture */}
+          <div className="flex items-end justify-between -mt-12 sm:-mt-16 mb-3">
+            <div 
+              className="relative cursor-pointer group"
+              onClick={() => userProfile.avatar_url && setImageViewModal({
+                open: true,
+                imageUrl: userProfile.avatar_url,
+                imageType: 'avatar'
+              })}
+            >
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-background bg-muted overflow-hidden shadow-xl ring-2 ring-background transition-all group-hover:ring-primary/50">
+                {userProfile.avatar_url ? (
+                  <OptimizedImage 
+                    src={userProfile.avatar_url} 
+                    alt={userProfile.name} 
+                    className="w-full h-full rounded-full"
+                    priority={true}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+                    <User className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground" />
                   </div>
                 )}
               </div>
-
-          {/* Infos utilisateur */}
-              <div className="flex-1 sm:pb-2 space-y-2">
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">{userProfile.name}</h1>
-                <p className="text-sm sm:text-base text-muted-foreground">{userProfile.email}</p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary" className="font-medium text-xs sm:text-sm">{userProfile.level}</Badge>
-                  <Badge variant="outline" className="text-xs">Membre depuis {userProfile.joinDate}</Badge>
+              {userProfile.avatar_url && (
+                <div 
+                  className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ImageLikeButton
+                    likesCount={avatarLikes.likesCount}
+                    isLiked={avatarLikes.isLiked}
+                    isLoading={avatarLikes.isLoading}
+                    onToggle={avatarLikes.toggleLike}
+                    size="sm"
+                    className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full"
+                  />
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Actions rapides - Mobile optimisé */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:pb-2 mt-4 sm:mt-0">
-              {/* Bouton Messagerie - Visible et accessible */}
+            {/* Boutons d'action - En haut à droite sur mobile */}
+            <div className="flex gap-2 mb-2">
               <Button 
-                size="sm" 
-                variant="default" 
-                className="gap-2 flex-1 sm:flex-initial"
-                onClick={() => navigate('/messaging')}
+                variant="outline" 
+                size="icon" 
+                className="h-9 w-9"
+                onClick={handleDeleteAccount} 
+                title="Supprimer le compte"
               >
-                <MessageSquare className="w-4 h-4" />
-                <span>Messagerie</span>
+                <Trash2 className="w-4 h-4" />
               </Button>
-              
-              <Button size="sm" variant="outline" className="gap-2 flex-1 sm:flex-initial">
-                <Star className="w-4 h-4" />
-                <span className="sm:inline">Favoris</span>
+              <Button 
+                variant="destructive" 
+                size="icon" 
+                className="h-9 w-9"
+                onClick={handleLogout} 
+                title="Se déconnecter"
+              >
+                <LogOut className="w-4 h-4" />
               </Button>
-              
-              {/* Boutons d'action - Regroupés sur mobile */}
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="flex-1 sm:flex-initial"
-                  onClick={handleDeleteAccount} 
-                  title="Supprimer le compte"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  size="icon" 
-                  className="flex-1 sm:flex-initial"
-                  onClick={handleLogout} 
-                  title="Se déconnecter"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
-              </div>
             </div>
           </div>
 
+          {/* Infos utilisateur - Compact */}
+          <div className="space-y-2 mb-3">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">{userProfile.name}</h1>
+            <p className="text-sm text-muted-foreground">{userProfile.email}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary" className="font-medium text-xs sm:text-sm">{userProfile.level}</Badge>
+              <Badge variant="outline" className="text-xs">Membre depuis {userProfile.joinDate}</Badge>
+            </div>
+          </div>
+
+          {/* Boutons d'action - Mobile optimisé */}
+          <div className="flex gap-2 mb-4">
+            <Button 
+              size="sm" 
+              variant="default" 
+              className="gap-2 flex-1"
+              onClick={() => navigate('/messaging')}
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Messagerie</span>
+            </Button>
+            
+            <Button size="sm" variant="outline" className="gap-2 flex-1">
+              <Star className="w-4 h-4" />
+              <span>Favoris</span>
+            </Button>
+          </div>
+
           {/* Stats rapides - Mobile optimisé */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4 pb-4 px-2 sm:px-0">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 pb-4">
             <Card className="border-border/50 hover:border-primary/50 transition-colors">
               <CardContent className="p-2 sm:p-3 md:p-4 text-center">
                 <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary">{userProfile.points}</div>
