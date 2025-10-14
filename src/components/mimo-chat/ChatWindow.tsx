@@ -8,6 +8,7 @@ import { useMessaging } from '@/contexts/MessagingContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { VoiceRecorder } from './VoiceRecorder';
 import { VideoCallRoom } from './VideoCallRoom';
+import { AudioCallRoom } from './AudioCallRoom';
 import { useMessageFileUpload } from '@/hooks/use-message-file-upload';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -33,7 +34,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [showVideoCall, setShowVideoCall] = useState(false);
+  const [showAudioCall, setShowAudioCall] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isCallInitiator, setIsCallInitiator] = useState(false);
 
   useEffect(() => {
     if (conversationId) {
@@ -63,12 +66,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
   };
 
   const handleStartVideoCall = async () => {
+    setIsCallInitiator(true);
     setShowVideoCall(true);
-    await sendMessage('📞 Appel vidéo démarré', 'video');
+    await sendMessage('📹 Appel vidéo démarré', 'system');
   };
 
   const handleStartAudioCall = async () => {
-    await sendMessage('📞 Appel audio démarré', 'audio');
+    setIsCallInitiator(true);
+    setShowAudioCall(true);
+    await sendMessage('📞 Appel audio démarré', 'system');
   };
 
   const handleFileUpload = async () => {
@@ -146,11 +152,37 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
     return 'Conversation';
   };
 
+  // Obtenir les infos de l'autre participant
+  const otherParticipant = activeConversation?.participants?.find(
+    p => p.user_id !== user?.id
+  );
+
   if (showVideoCall) {
     return (
       <VideoCallRoom
         conversationId={conversationId}
-        onEndCall={() => setShowVideoCall(false)}
+        userId={user?.id || ''}
+        isInitiator={isCallInitiator}
+        onEndCall={() => {
+          setShowVideoCall(false);
+          setIsCallInitiator(false);
+        }}
+      />
+    );
+  }
+
+  if (showAudioCall) {
+    return (
+      <AudioCallRoom
+        conversationId={conversationId}
+        userId={user?.id || ''}
+        otherUserName={otherParticipant?.profile?.display_name}
+        otherUserAvatar={otherParticipant?.profile?.avatar_url}
+        isInitiator={isCallInitiator}
+        onEndCall={() => {
+          setShowAudioCall(false);
+          setIsCallInitiator(false);
+        }}
       />
     );
   }

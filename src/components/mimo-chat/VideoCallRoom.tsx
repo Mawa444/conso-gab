@@ -1,92 +1,97 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Video, VideoOff, Mic, MicOff, PhoneOff } from 'lucide-react';
+import { useWebRTC } from '@/hooks/use-webrtc';
 import { toast } from 'sonner';
 
 interface VideoCallRoomProps {
   conversationId: string;
+  userId: string;
+  isInitiator: boolean;
   onEndCall: () => void;
 }
 
 export const VideoCallRoom: React.FC<VideoCallRoomProps> = ({
   conversationId,
+  userId,
+  isInitiator,
   onEndCall
 }) => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoEnabled, setIsVideoEnabled] = React.useState(true);
+  const [isAudioEnabled, setIsAudioEnabled] = React.useState(true);
+
+  const {
+    localStream,
+    remoteStream,
+    isConnected,
+    isConnecting,
+    toggleAudio,
+    toggleVideo,
+    endCall
+  } = useWebRTC({
+    conversationId,
+    userId,
+    isInitiator,
+    mediaType: 'video'
+  });
 
   useEffect(() => {
-    initializeMedia();
+    if (localStream && localVideoRef.current) {
+      localVideoRef.current.srcObject = localStream;
+    }
+  }, [localStream]);
 
-    return () => {
-      cleanupMedia();
-    };
-  }, []);
+  useEffect(() => {
+    if (remoteStream && remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = remoteStream;
+    }
+  }, [remoteStream]);
 
-  const initializeMedia = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      });
-
-      setLocalStream(stream);
-
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-
+  useEffect(() => {
+    if (isConnected) {
       toast.success('Appel vidéo connecté');
-    } catch (error) {
-      console.error('Erreur d\'accès aux médias:', error);
-      toast.error('Impossible d\'accéder à la caméra ou au microphone');
-      onEndCall();
     }
+  }, [isConnected]);
+
+  const handleToggleVideo = () => {
+    toggleVideo();
+    setIsVideoEnabled(prev => !prev);
   };
 
-  const cleanupMedia = () => {
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
-    }
-  };
-
-  const toggleVideo = () => {
-    if (localStream) {
-      const videoTrack = localStream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        setIsVideoEnabled(videoTrack.enabled);
-      }
-    }
-  };
-
-  const toggleAudio = () => {
-    if (localStream) {
-      const audioTrack = localStream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        setIsAudioEnabled(audioTrack.enabled);
-      }
-    }
+  const handleToggleAudio = () => {
+    toggleAudio();
+    setIsAudioEnabled(prev => !prev);
   };
 
   const handleEndCall = () => {
-    cleanupMedia();
+    endCall();
     onEndCall();
     toast.info('Appel terminé');
   };
 
   return (
     <div className="relative h-full w-full bg-black flex items-center justify-center">
-      {/* Remote Video (Placeholder for now - will be implemented with WebRTC) */}
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
-        <div className="text-center text-white">
-          <Video className="w-24 h-24 mx-auto mb-4 opacity-50" />
-          <p className="text-lg">En attente de connexion...</p>
-          <p className="text-sm opacity-70 mt-2">WebRTC sera implémenté prochainement</p>
-        </div>
+      {/* Remote Video */}
+      <div className="absolute inset-0">
+        {remoteStream ? (
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+            <div className="text-center text-white">
+              <Video className="w-24 h-24 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">
+                {isConnecting ? 'Connexion en cours...' : 'En attente de connexion...'}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Local Video */}
@@ -105,10 +110,18 @@ export const VideoCallRoom: React.FC<VideoCallRoomProps> = ({
         )}
       </div>
 
+      {/* Indicateur de connexion */}
+      {isConnected && (
+        <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/50 px-3 py-2 rounded-full">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <span className="text-white text-sm">Connecté</span>
+        </div>
+      )}
+
       {/* Controls */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
         <Button
-          onClick={toggleVideo}
+          onClick={handleToggleVideo}
           size="lg"
           variant={isVideoEnabled ? 'default' : 'destructive'}
           className="rounded-full w-14 h-14"
@@ -121,7 +134,7 @@ export const VideoCallRoom: React.FC<VideoCallRoomProps> = ({
         </Button>
 
         <Button
-          onClick={toggleAudio}
+          onClick={handleToggleAudio}
           size="lg"
           variant={isAudioEnabled ? 'default' : 'destructive'}
           className="rounded-full w-14 h-14"
@@ -142,8 +155,6 @@ export const VideoCallRoom: React.FC<VideoCallRoomProps> = ({
           <PhoneOff className="w-6 h-6" />
         </Button>
       </div>
-
-      {/* TODO: Implement WebRTC signaling for peer-to-peer connection */}
     </div>
   );
 };

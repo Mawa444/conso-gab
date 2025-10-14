@@ -30,6 +30,7 @@ import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
 import { ChatWindow } from "@/components/mimo-chat/ChatWindow";
 import { MessagingProvider } from "@/contexts/MessagingContext";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 interface BusinessDetail {
   id: string;
   name: string;
@@ -101,6 +102,7 @@ export const BusinessDetailPage = () => {
   const {
     secureSignOut
   } = useAuthCleanup();
+  const { startBusinessConversation } = useStartConversation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
@@ -336,7 +338,7 @@ export const BusinessDetailPage = () => {
               </Button>
             </div>
             
-            <Button onClick={() => window.location.href = "/messaging"} className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6">
+            <Button onClick={() => businessId && startBusinessConversation(businessId)} className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6">
               <MessageCircle className="w-4 h-4 mr-2" />
               Contacter
             </Button>

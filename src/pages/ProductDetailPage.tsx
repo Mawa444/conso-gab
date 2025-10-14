@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate, useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 
 interface ProductDetail {
   id: string;
@@ -93,6 +94,7 @@ const reviews = [
 export const ProductDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { startBusinessConversation } = useStartConversation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("");
@@ -361,7 +363,7 @@ export const ProductDetailPage = () => {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => window.location.href = "/messaging"}
+                onClick={() => startBusinessConversation(product.business.id)}
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Contacter

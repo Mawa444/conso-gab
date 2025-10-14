@@ -2858,6 +2858,10 @@ export type Database = {
         Args: { p_business_id: string; p_user_id: string }
         Returns: string
       }
+      get_or_create_direct_conversation: {
+        Args: { p_user_id_1: string; p_user_id_2: string }
+        Returns: string
+      }
       get_proj4_from_srid: {
         Args: { "": number }
         Returns: string

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 
 interface CommerceDetailsPopupProps {
   open: boolean;
@@ -24,6 +25,7 @@ export const CommerceDetailsPopup = ({
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isFavorite, setIsFavorite] = useState(commerce?.isFavorite || false);
+  const { startBusinessConversation } = useStartConversation();
 
   if (!open || !commerce) return null;
 
@@ -219,7 +221,7 @@ export const CommerceDetailsPopup = ({
               </div>
               
               <Button
-                onClick={() => window.location.href = "/messaging"}
+                onClick={() => startBusinessConversation(commerce?.id)}
                 className="bg-[hsl(var(--gaboma-green))] text-white hover:bg-[hsl(var(--gaboma-green))]/90 px-6"
               >
                 <MessageCircle className="w-4 h-4 mr-2" />

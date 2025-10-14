@@ -15,6 +15,7 @@ import { getAllBusinessCategories } from "@/data/businessCategories";
 import { toast } from "sonner";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { CommerceListSkeleton } from "@/components/ui/skeleton-screens";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 
 // Filtres et options de tri
 const sortOptions = [{
@@ -46,6 +47,7 @@ const CategoryPage = () => {
     loading,
     error
   } = useRealBusinesses();
+  const { startBusinessConversation } = useStartConversation();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("name");
   const [subcategoryFilter, setSubcategoryFilter] = useState("all");
@@ -279,7 +281,14 @@ const CategoryPage = () => {
                             </div>
 
                             <div className="flex items-center gap-2">
-                              {business.phone && <Button variant="outline" size="sm">
+                              {business.phone && <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  startBusinessConversation(business.id);
+                                }}
+                              >
                                   Contacter
                                 </Button>}
                             </div>
@@ -319,7 +328,14 @@ const CategoryPage = () => {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            {business.phone && <Button variant="outline" size="sm">
+                            {business.phone && <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startBusinessConversation(business.id);
+                              }}
+                            >
                                 Contacter
                               </Button>}
                           </div>
