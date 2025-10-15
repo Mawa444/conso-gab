@@ -16,6 +16,9 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { getAllBusinessCategories } from "@/data/businessCategories";
 import { createBusinessSchema, validateAndSanitize } from "@/lib/validation/business.validation";
 import { businessCreationLimiter, checkRateLimit } from "@/lib/validation/rate-limit";
+import { createDomainLogger } from "@/lib/logger";
+
+const logger = createDomainLogger('BusinessCreation');
 interface BusinessCreationWizardProps {
   onCancel?: () => void;
   onCreated?: (businessId: string) => void;
@@ -139,7 +142,7 @@ export const BusinessCreationWizard = ({
     }
   };
   const handleCreate = async () => {
-    console.log('🚀 handleCreate called', { 
+    logger.info('handleCreate called', { 
       hasUser: !!user, 
       canNext: canNext(),
       businessName: data.businessName,
@@ -147,13 +150,13 @@ export const BusinessCreationWizard = ({
     });
     
     if (!user) {
-      console.error('❌ No user found - authentication required');
+      logger.error('No user found - authentication required');
       toast.error("Vous devez être connecté pour créer une entreprise");
       return;
     }
     
     if (!canNext()) {
-      console.error('❌ Validation failed', { 
+      logger.error('Validation failed', { 
         businessName: data.businessName,
         category: data.businessCategory,
         description: data.description,
@@ -173,29 +176,32 @@ export const BusinessCreationWizard = ({
     }
     
     setLoading(true);
-    console.log('⏳ Starting business creation process...');
+    logger.info('Starting business creation process');
     
     try {
       // ✅ VALIDATION ZOD - Sécurité + nettoyage des données
-      console.log('🔍 Validating data with Zod schema...');
+      logger.debug('Validating data with Zod schema');
       const validationResult = validateAndSanitize(createBusinessSchema, data);
       
       if (!validationResult.success) {
         const errors = 'errors' in validationResult ? validationResult.errors : null;
         const firstError = errors?.errors[0];
-        console.error('❌ Validation errors:', errors);
+        logger.error('Validation errors', { errors });
         toast.error(firstError?.message || "Données invalides");
         setLoading(false);
         return;
       }
 
-      console.log('✅ Validation passed');
+      logger.info('Validation passed');
       const validatedData = validationResult.data;
+
+      // Cast business_category to the correct type from Supabase schema
+      type BusinessCategory = 'agriculture' | 'automotive' | 'beauty' | 'education' | 'entertainment' | 'finance' | 'fitness' | 'healthcare' | 'manufacturing' | 'other' | 'real_estate' | 'restaurant' | 'retail' | 'services' | 'technology';
 
       const businessData = {
         user_id: user.id,
         business_name: validatedData.businessName,
-        business_category: validatedData.businessCategory as any,
+        business_category: validatedData.businessCategory as BusinessCategory,
         description: validatedData.description || '',
         logo_url: validatedData.logoUrl,
         cover_image_url: validatedData.coverImageUrl,
@@ -217,7 +223,7 @@ export const BusinessCreationWizard = ({
         is_verified: false
       };
       
-      console.log('📤 Sending business data to Supabase:', {
+      logger.debug('Sending business data to Supabase', {
         businessName: businessData.business_name,
         category: businessData.business_category,
         hasLocation: !!(businessData.latitude && businessData.longitude)
@@ -226,10 +232,10 @@ export const BusinessCreationWizard = ({
       const {
         data: businessProfile,
         error
-      } = await supabase.from('business_profiles').insert(businessData).select().single();
+      } = await supabase.from('business_profiles').insert([businessData]).select().single();
       
       if (error) {
-        console.error('❌ Supabase insertion error:', {
+        logger.error('Supabase insertion error', {
           code: error.code,
           message: error.message,
           details: error.details,
@@ -238,32 +244,33 @@ export const BusinessCreationWizard = ({
         throw new Error(`Erreur Supabase: ${error.message}`);
       }
       
-      console.log('✅ Business created in database:', {
+      logger.info('Business created in database', {
         id: businessProfile.id,
         name: businessProfile.business_name
       });
       
       // ✅ ATTENDRE que refreshBusinessProfiles() complète AVANT de naviguer
-      console.log('🔄 Refreshing business profiles...');
+      logger.debug('Refreshing business profiles');
       await refreshBusinessProfiles();
-      console.log('✅ Business profiles refreshed');
+      logger.debug('Business profiles refreshed');
       
       toast.success("🎉 Entreprise créée avec succès !");
       
       // ✅ Maintenant, le business est garanti d'être dans businessProfiles
       if (onCreated) {
-        console.log('📍 Calling onCreated callback with business ID:', businessProfile.id);
+        logger.debug('Calling onCreated callback', { businessId: businessProfile.id });
         onCreated(businessProfile.id);
       }
-    } catch (error: any) {
-      console.error('❌ Business creation failed:', {
-        error: error.message,
-        stack: error.stack,
-        data: data
+    } catch (error) {
+      const err = error as Error;
+      logger.error('Business creation failed', { 
+        error: err.message,
+        stack: err.stack,
+        data
       });
-      toast.error(error.message || "Erreur lors de la création de l'entreprise");
+      toast.error(err.message || "Erreur lors de la création de l'entreprise");
     } finally {
-      console.log('🏁 Business creation process completed, loading:', false);
+      logger.debug('Business creation process completed');
       setLoading(false);
     }
   };
@@ -674,7 +681,7 @@ export const BusinessCreationWizard = ({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('⬅️ Back button clicked', { currentStep: step });
+              logger.debug('Back button clicked', { currentStep: step });
               handleBack();
             }} 
             disabled={step === 1 || loading} 
@@ -691,11 +698,11 @@ export const BusinessCreationWizard = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('❌ Cancel button clicked', { hasOnCancel: !!onCancel });
+                logger.debug('Cancel button clicked', { hasOnCancel: !!onCancel });
                 if (onCancel) {
                   onCancel();
                 } else {
-                  console.warn('⚠️ No onCancel callback provided');
+                  logger.warn('No onCancel callback provided');
                   toast.info("Création annulée");
                 }
               }} 
@@ -710,7 +717,7 @@ export const BusinessCreationWizard = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('➡️ Next button clicked', { currentStep: step, canNext: canNext() });
+                  logger.debug('Next button clicked', { currentStep: step, canNext: canNext() });
                   handleNext();
                 }} 
                 disabled={!canNext() || loading} 
@@ -723,7 +730,7 @@ export const BusinessCreationWizard = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('🚀 Launch button clicked', { 
+                  logger.debug('Launch button clicked', { 
                     loading, 
                     canNext: canNext(),
                     businessName: data.businessName,

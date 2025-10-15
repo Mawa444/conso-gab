@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { createDomainLogger } from '@/lib/logger';
+
+const logger = createDomainLogger('Auth');
 
 interface AuthContextType {
   user: User | null;
@@ -68,7 +71,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, userData: any) => {
+  const signUp = async (email: string, password: string, userData: Record<string, unknown>) => {
     // 1) Créer le compte
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
@@ -103,7 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (signInError) {
           // Pré-remplir l'email pour un fallback de connexion manuel
           try { localStorage.setItem('prefillEmail', email); } catch {}
-          console.warn('Auto-login après inscription impossible:', signInError.message);
+          logger.warn('Auto-login after signup failed', { message: signInError.message });
         } else {
           sessionUser = signInData.user ?? sessionUser;
         }
@@ -122,52 +125,52 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // Créer le profil consommateur (fallback si le trigger n'a pas tourné)
             const { error: profileError } = await supabase
               .from('user_profiles')
-              .insert({
+              .insert([{
                 user_id: sessionUser.id,
-                pseudo: userData.pseudo,
-                role: userData.role,
-                phone: userData.phone,
-                country: userData.country || 'Gabon',
-                province: userData.province,
-                department: userData.department,
-                arrondissement: userData.arrondissement,
-                quartier: userData.quartier,
-                address: userData.address,
-                latitude: userData.latitude,
-                longitude: userData.longitude,
+                pseudo: userData.pseudo as string,
+                role: userData.role as string,
+                phone: userData.phone as string,
+                country: (userData.country as string) || 'Gabon',
+                province: userData.province as string,
+                department: userData.department as string,
+                arrondissement: userData.arrondissement as string,
+                quartier: userData.quartier as string,
+                address: userData.address as string,
+                latitude: userData.latitude as number,
+                longitude: userData.longitude as number,
                 visibility: 'public'
-              });
+              }]);
 
             if (profileError) {
-              console.error('Erreur création profil utilisateur:', profileError);
+              logger.error('Error creating user profile', { error: profileError });
             }
           }
 
           // Si c'est un créateur (merchant), créer aussi le profil business
-          if (userData.role === 'merchant' && userData.businessName?.trim()) {
+          if (userData.role === 'merchant' && userData.businessName && typeof userData.businessName === 'string' && userData.businessName.trim()) {
             const { data: businessData, error: businessError } = await supabase
               .from('business_profiles')
-              .insert({
+              .insert([{
                 user_id: sessionUser.id,
-                business_name: userData.businessName,
-                business_category: userData.businessCategory || 'Services',
-                description: userData.businessDescription,
-                country: userData.country || 'Gabon',
-                province: userData.province,
-                department: userData.department,
-                arrondissement: userData.arrondissement,
-                quartier: userData.quartier,
-                address: userData.address,
-                latitude: userData.latitude,
-                longitude: userData.longitude,
+                business_name: userData.businessName as string,
+                business_category: (userData.businessCategory as string) || 'Services',
+                description: userData.businessDescription as string,
+                country: (userData.country as string) || 'Gabon',
+                province: userData.province as string,
+                department: userData.department as string,
+                arrondissement: userData.arrondissement as string,
+                quartier: userData.quartier as string,
+                address: userData.address as string,
+                latitude: userData.latitude as number,
+                longitude: userData.longitude as number,
                 is_primary: true, // Premier business = principal
                 is_active: true
-              })
+              }])
               .select('id')
               .single();
 
             if (businessError) {
-              console.error('Erreur création profil business:', businessError);
+              logger.error('Error creating business profile', { error: businessError });
             } else if (businessData) {
               // Initialiser le mode business pour les nouveaux marchands
               await supabase
@@ -181,7 +184,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
     } catch (err) {
-      console.error('Erreur lors du post-signup:', err);
+      logger.error('Error during post-signup', { error: err });
     }
 
     return { data: signUpData, error: signUpError };

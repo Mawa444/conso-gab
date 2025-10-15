@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
+import { createDomainLogger } from '@/lib/logger';
+
+const logger = createDomainLogger('RoleBasedRouter');
 
 interface UserProfile {
   role: 'consumer' | 'merchant' | null;
@@ -35,7 +38,7 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
           .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
-          console.error('Erreur récupération profil:', error);
+          logger.error('Error fetching profile', { error });
           setUserProfile({ role: 'consumer', pseudo: null });
           return;
         }
@@ -50,7 +53,7 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
           });
         }
       } catch (error) {
-        console.error('Erreur:', error);
+        logger.error('Unexpected error', { error });
         setUserProfile({ role: 'consumer', pseudo: null });
       } finally {
         setProfileLoading(false);
@@ -68,7 +71,7 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
       const currentPath = location.pathname;
       
       if (!currentPath.startsWith('/auth')) {
-        console.log("Utilisateur non connecté, redirection vers /auth");
+        logger.debug("User not authenticated, redirecting to /auth");
         navigate('/auth', { replace: true });
         return;
       }
@@ -105,7 +108,7 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
 
       // Si pas de business, aller en mode consommateur
       if (!collaborators || collaborators.length === 0) {
-        console.log('Pas de business, redirection vers /consumer/home');
+        logger.debug('No business found, redirecting to /consumer/home');
         navigate('/consumer/home', { replace: true });
         return;
       }
@@ -118,15 +121,15 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
         .single();
 
       if (userMode && userMode.current_mode === 'business' && userMode.current_business_id) {
-        console.log(`Redirection vers le dernier business: /business/${userMode.current_business_id}`);
+        logger.debug('Redirecting to last business', { businessId: userMode.current_business_id });
         navigate(`/business/${userMode.current_business_id}`, { replace: true });
       } else {
-        console.log('Redirection par défaut vers /consumer/home');
+        logger.debug('Redirecting to /consumer/home by default');
         navigate('/consumer/home', { replace: true });
       }
 
     } catch (error) {
-      console.error('Erreur lors de la redirection:', error);
+      logger.error('Error during redirection', { error });
       // Fallback vers consommateur en cas d'erreur
       navigate('/consumer/home', { replace: true });
     }

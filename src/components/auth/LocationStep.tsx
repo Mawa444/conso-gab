@@ -9,6 +9,9 @@ import { MapPin, Navigation, Loader2, CheckCircle, Globe, MapIcon } from "lucide
 import { toast } from "sonner";
 import { useProvinces, useDepartments, useArrondissements, useQuartiers } from "@/hooks/use-location-data";
 import { useGeocoding } from "@/hooks/use-geocoding";
+import { createDomainLogger } from "@/lib/logger";
+
+const logger = createDomainLogger('LocationStep');
 interface LocationData {
   country?: string;
   countryCode?: string;
@@ -98,13 +101,13 @@ export const LocationStep = ({
   };
   const getGPSLocation = async () => {
     try {
-      console.log('📍 Starting GPS location request...');
+      logger.info('Starting GPS location request');
       toast.loading('Récupération de votre position GPS...');
       
       const result = await getDetailedLocation();
       
       if (result) {
-        console.log('✅ GPS location obtained:', result);
+        logger.info('GPS location obtained', { location: result });
         // Remplir automatiquement tous les champs avec les données détaillées
         const newLocation: LocationData = {
           country: result.country,
@@ -130,24 +133,25 @@ export const LocationStep = ({
         toast.dismiss();
         toast.success("Position GPS détaillée récupérée avec succès ! 🌍");
       } else {
-        console.error('❌ No location data returned');
+        logger.error('No location data returned');
         toast.dismiss();
         toast.error("Impossible de récupérer votre position. Veuillez sélectionner manuellement.");
       }
-    } catch (error: any) {
-      console.error('❌ GPS Error:', error);
+    } catch (error) {
+      const err = error as GeolocationPositionError;
+      logger.error('GPS Error', { error: err });
       toast.dismiss();
       
       let message = "Erreur lors de la récupération de votre position GPS";
       
-      if (error.code === 1) {
+      if (err.code === 1) {
         message = "Accès refusé. Autorisez la géolocalisation dans les paramètres de votre navigateur.";
-      } else if (error.code === 2) {
+      } else if (err.code === 2) {
         message = "Position indisponible. Vérifiez votre connexion GPS.";
-      } else if (error.code === 3) {
+      } else if (err.code === 3) {
         message = "Délai d'attente dépassé. Réessayez.";
-      } else if (error.message) {
-        message = error.message;
+      } else if (err.message) {
+        message = err.message;
       }
       
       toast.error(message);

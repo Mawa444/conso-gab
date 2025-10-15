@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { createDomainLogger } from '@/lib/logger';
+
+const logger = createDomainLogger('Geocoding');
 
 interface DetailedLocation {
   country: string;
@@ -196,7 +199,7 @@ const formatAddress = (address: any): string => {
 const storeNewLocationData = async (location: DetailedLocation) => {
   try {
     // Pour l'instant, on enregistre seulement dans les logs en attendant la création des tables
-    console.log('Nouvelle localisation détectée:', {
+    logger.debug('Nouvelle localisation détectée', {
       country: location.country,
       region: location.region,
       city: location.city,
@@ -208,6 +211,6 @@ const storeNewLocationData = async (location: DetailedLocation) => {
     // Les tables geographic_* seront créées plus tard pour enrichir la base de données géographique
     // TODO: Implémenter le stockage en base une fois les tables créées
   } catch (error) {
-    console.warn('Erreur lors du stockage des données géographiques:', error);
+    logger.warn('Erreur lors du stockage des données géographiques', { error });
   }
 };
