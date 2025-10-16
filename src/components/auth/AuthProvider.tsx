@@ -148,12 +148,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           // Si c'est un créateur (merchant), créer aussi le profil business
           if (userData.role === 'merchant' && userData.businessName && typeof userData.businessName === 'string' && userData.businessName.trim()) {
+            // Valider que la catégorie est valide, sinon fallback à 'services'
+            const validCategories = ['agriculture', 'automotive', 'beauty', 'education', 'entertainment', 'finance', 'fitness', 'healthcare', 'manufacturing', 'other', 'real_estate', 'restaurant', 'retail', 'services', 'technology'] as const;
+            type BusinessCategory = typeof validCategories[number];
+            const category = (userData.businessCategory as string)?.toLowerCase() || 'services';
+            const businessCategory: BusinessCategory = validCategories.includes(category as BusinessCategory) ? category as BusinessCategory : 'services';
+            
             const { data: businessData, error: businessError } = await supabase
               .from('business_profiles')
               .insert([{
                 user_id: sessionUser.id,
                 business_name: userData.businessName as string,
-                business_category: (userData.businessCategory as string) || 'Services',
+                business_category: businessCategory,
                 description: userData.businessDescription as string,
                 country: (userData.country as string) || 'Gabon',
                 province: userData.province as string,
