@@ -2,6 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { createDomainLogger } from '@/lib/logger';
+
+const logger = createDomainLogger('StartConversation');
 
 /**
  * Hook unifié pour démarrer une conversation depuis n'importe quel point d'entrée
@@ -21,7 +24,7 @@ export const useStartConversation = () => {
     }
 
     try {
-      console.log('Starting conversation with user:', targetUserId);
+      logger.info('Starting direct conversation', { targetUserId });
 
       // Appel RPC pour obtenir ou créer la conversation unique
       const { data: conversationId, error } = await supabase.rpc(
@@ -34,7 +37,7 @@ export const useStartConversation = () => {
 
       if (error) throw error;
 
-      console.log('Conversation ID:', conversationId);
+      logger.info('Conversation created/retrieved', { conversationId });
 
       // Navigation directe vers la conversation
       navigate(`/messaging/${conversationId}`);
@@ -54,7 +57,7 @@ export const useStartConversation = () => {
     }
 
     try {
-      console.log('Starting business conversation:', businessId);
+      logger.info('Starting business conversation', { businessId });
 
       // Appel RPC pour obtenir ou créer la conversation business unique
       const { data: conversationId, error } = await supabase.rpc(
@@ -67,7 +70,7 @@ export const useStartConversation = () => {
 
       if (error) throw error;
 
-      console.log('Business conversation ID:', conversationId);
+      logger.info('Business conversation created/retrieved', { conversationId });
 
       // Navigation directe vers la conversation
       navigate(`/messaging/${conversationId}`);

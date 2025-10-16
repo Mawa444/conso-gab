@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { createDomainLogger } from '@/lib/logger';
+
+const logger = createDomainLogger('WebRTC');
 
 interface WebRTCConfig {
   conversationId: string;
@@ -62,7 +65,7 @@ export const useWebRTC = (config: WebRTCConfig) => {
 
       // Gérer le stream distant
       peerConnection.current.ontrack = (event) => {
-        console.log('Remote track received');
+        logger.info('Remote track received', { streamId: event.streams[0]?.id });
         setRemoteStream(event.streams[0]);
         setIsConnected(true);
         setIsConnecting(false);
@@ -78,7 +81,7 @@ export const useWebRTC = (config: WebRTCConfig) => {
       // Gérer la déconnexion
       peerConnection.current.oniceconnectionstatechange = () => {
         const state = peerConnection.current?.iceConnectionState;
-        console.log('ICE connection state:', state);
+        logger.info('ICE connection state changed', { state });
         
         if (state === 'disconnected' || state === 'failed' || state === 'closed') {
           setIsConnected(false);
@@ -109,7 +112,7 @@ export const useWebRTC = (config: WebRTCConfig) => {
         await handleSignal(payload);
       })
       .subscribe((status) => {
-        console.log('Signaling channel status:', status);
+        logger.info('Signaling channel status', { status });
       });
   };
 

@@ -2,6 +2,9 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
+import { createDomainLogger } from '@/lib/logger';
+
+const logger = createDomainLogger('MediaUpload');
 
 export type MediaType = 'image' | 'video' | 'audio' | 'document';
 
@@ -154,7 +157,10 @@ export const useMediaUpload = () => {
       if (mediaType === 'image' && DEFAULT_OPTIONS.image.compress) {
         setProgress(20);
         fileToUpload = await compressImage(file);
-        console.log(`📦 Image compressée : ${(file.size / 1024).toFixed(2)}KB → ${(fileToUpload.size / 1024).toFixed(2)}KB`);
+        logger.debug('Image compressed', { 
+          originalSize: `${(file.size / 1024).toFixed(2)}KB`,
+          compressedSize: `${(fileToUpload.size / 1024).toFixed(2)}KB`
+        });
       }
 
       setProgress(40);
@@ -185,14 +191,15 @@ export const useMediaUpload = () => {
         .getPublicUrl(data.path);
 
       setProgress(100);
-      console.log('✅ Fichier uploadé avec succès:', publicUrl);
+      logger.info('File uploaded successfully', { url: publicUrl });
       
       toast.success('Fichier uploadé avec succès');
       return publicUrl;
 
-    } catch (err: any) {
-      console.error('❌ Erreur lors de l\'upload:', err);
-      setError(err.message || 'Erreur lors de l\'upload');
+    } catch (err: unknown) {
+      logger.error('Upload failed', { error: err });
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de l\'upload';
+      setError(errorMessage);
       toast.error('Impossible d\'uploader le fichier');
       return null;
     } finally {

@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { createDomainLogger } from '@/lib/logger';
+
+const logger = createDomainLogger('MessagingContext');
 
 // Types
 export interface MimoMessage {
@@ -265,7 +268,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
 
       setConversations(transformedConversations as MimoConversation[]);
     } catch (err) {
-      console.error('Error fetching conversations:', err);
+      logger.error('Error fetching conversations', { error: err });
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des conversations');
     } finally {
       setLoading(false);
@@ -336,7 +339,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         setMessages(transformedMessages as MimoMessage[]);
       }
     } catch (err) {
-      console.error('Error fetching messages:', err);
+      logger.error('Error fetching messages', { error: err });
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des messages');
     } finally {
       setLoading(false);
@@ -397,7 +400,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
         .eq('id', activeConversation.id);
 
     } catch (err) {
-      console.error('Error sending message:', err);
+      logger.error('Error sending message', { error: err });
       setError(err instanceof Error ? err.message : 'Erreur lors de l\'envoi du message');
       // Remove failed message
       setMessages(prev => prev.filter(msg => !msg.id.startsWith('temp-')));
