@@ -2,18 +2,16 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { createDomainLogger } from '@/lib/logger';
+import type { 
+  AuthContextType, 
+  UserSignUpData, 
+  SignUpResult, 
+  SignInResult, 
+  ResetPasswordResult,
+  BusinessCategory 
+} from '@/types/auth.types';
 
 const logger = createDomainLogger('Auth');
-
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signUp: (email: string, password: string, userData: any) => Promise<any>;
-  signIn: (email: string, password: string) => Promise<any>;
-  signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<any>;
-}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -64,14 +62,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const resetPassword = async (email: string) => {
+  const resetPassword = async (email: string): Promise<ResetPasswordResult> => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth`
     });
-    return { error };
+    return { error: error ? { message: error.message } : null };
   };
 
-  const signUp = async (email: string, password: string, userData: Record<string, unknown>) => {
+  const signUp = async (email: string, password: string, userData: UserSignUpData): Promise<SignUpResult> => {
     // 1) Créer le compte
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
@@ -147,29 +145,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
 
           // Si c'est un créateur (merchant), créer aussi le profil business
-          if (userData.role === 'merchant' && userData.businessName && typeof userData.businessName === 'string' && userData.businessName.trim()) {
+          if (userData.role === 'merchant' && userData.businessName && userData.businessName.trim()) {
             // Valider que la catégorie est valide, sinon fallback à 'services'
-            const validCategories = ['agriculture', 'automotive', 'beauty', 'education', 'entertainment', 'finance', 'fitness', 'healthcare', 'manufacturing', 'other', 'real_estate', 'restaurant', 'retail', 'services', 'technology'] as const;
-            type BusinessCategory = typeof validCategories[number];
-            const category = (userData.businessCategory as string)?.toLowerCase() || 'services';
-            const businessCategory: BusinessCategory = validCategories.includes(category as BusinessCategory) ? category as BusinessCategory : 'services';
+            const validCategories: readonly BusinessCategory[] = [
+              'agriculture', 'automotive', 'beauty', 'education', 'entertainment', 
+              'finance', 'fitness', 'healthcare', 'manufacturing', 'other', 
+              'real_estate', 'restaurant', 'retail', 'services', 'technology'
+            ];
+            const category = userData.businessCategory?.toLowerCase() || 'services';
+            const businessCategory: BusinessCategory = validCategories.includes(category as BusinessCategory) 
+              ? category as BusinessCategory 
+              : 'services';
             
             const { data: businessData, error: businessError } = await supabase
               .from('business_profiles')
               .insert([{
                 user_id: sessionUser.id,
-                business_name: userData.businessName as string,
+                business_name: userData.businessName,
                 business_category: businessCategory,
-                description: userData.businessDescription as string,
-                country: (userData.country as string) || 'Gabon',
-                province: userData.province as string,
-                department: userData.department as string,
-                arrondissement: userData.arrondissement as string,
-                quartier: userData.quartier as string,
-                address: userData.address as string,
-                latitude: userData.latitude as number,
-                longitude: userData.longitude as number,
-                is_primary: true, // Premier business = principal
+                description: userData.businessDescription || '',
+                country: userData.country || 'Gabon',
+                province: userData.province,
+                department: userData.department,
+                arrondissement: userData.arrondissement,
+                quartier: userData.quartier,
+                address: userData.address,
+                latitude: userData.latitude,
+                longitude: userData.longitude,
+                is_primary: true,
                 is_active: true
               }])
               .select('id')
@@ -193,9 +196,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       logger.error('Error during post-signup', { error: err });
     }
 
-    return { data: signUpData, error: signUpError };
+    return { data: signUpData, error: signUpError ? { message: signUpError.message } : null };
   };
-  const signIn = async (email: string, password: string) => {
+
+  const signIn = async (email: string, password: string): Promise<SignInResult> => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -215,12 +219,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           error: { message: "Veuillez confirmer votre email avant de vous connecter." }
         };
       }
+      return { data, error: { message: error.message } };
     }
     
-    // La redirection post-connexion est gérée par RoleBasedRouter selon le schéma conceptuel
-    // consumer → /consumer/home
-    // merchant → /merchant/dashboard
-    return { data, error };
+    return { data, error: null };
   };
 
   const signOut = async () => {

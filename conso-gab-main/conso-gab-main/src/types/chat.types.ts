@@ -32,6 +32,9 @@ export interface UnifiedMessage {
   sender_profile?: SenderProfile;
 }
 
+// Alias for MessagingContext
+export type MimoMessage = UnifiedMessage;
+
 export interface ConversationParticipant {
   id?: string;
   user_id: string;
@@ -69,6 +72,22 @@ export interface UnifiedConversation {
   created_at: string;
   participants: ConversationParticipant[];
   business_context?: BusinessContext;
+}
+
+// Alias for MessagingContext
+export interface MimoConversation {
+  id: string;
+  title?: string;
+  type: 'private' | 'group' | 'business';
+  origin_type?: OriginType;
+  origin_id?: string;
+  created_at: string;
+  last_message?: MimoMessage;
+  last_activity: string;
+  unread_count: number;
+  participants: ConversationParticipant[];
+  business_context?: BusinessContext;
+  avatar_url?: string;
 }
 
 export interface ChatViewMode {

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createConversationSchema, validateRequest } from '../_shared/validation.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,7 +19,11 @@ serve(async (req) => {
     );
 
     // Get user from JWT
-    const authHeader = req.headers.get('Authorization')!;
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Authorization header missing');
+    }
+    
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
     
@@ -26,7 +31,9 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { origin_type, origin_id, participants, title } = await req.json();
+    // Validate request body with Zod
+    const validatedData = await validateRequest(req, createConversationSchema);
+    const { origin_type, origin_id, participants, title } = validatedData;
 
     console.log('Creating conversation:', { origin_type, origin_id, title, user_id: user.id });
 
