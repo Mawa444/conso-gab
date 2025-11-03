@@ -7,7 +7,7 @@ import { CategoriesSection } from "@/components/blocks/CategoriesSection";
 import { CommerceDetailsPopup } from "@/components/commerce/CommerceDetailsPopup";
 import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
 import { OperatorDashboardModal } from "@/components/business/OperatorDashboardModal";
-import { EnhancedBusinessCard } from "@/components/commerce/EnhancedBusinessCard";
+import { InteractiveBusinessCard } from "@/components/commerce/InteractiveBusinessCard";
 import { useGeoRecommendations } from "@/hooks/use-geo-recommendations";
 import { useGeoLocationContext } from "@/contexts/GeoLocationContext";
 import { useNavigate } from "react-router-dom";
@@ -179,19 +179,30 @@ export const HomePage = ({
             </div> : businesses.length === 0 ? <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center">
               <p className="text-gray-500 mb-2">Aucune entreprise active pour le moment</p>
               <p className="text-sm text-gray-400">Les nouvelles entreprises apparaîtront ici</p>
-            </div> : <div className="space-y-4">
-              {businesses.map(business => <EnhancedBusinessCard key={business.id} business={{
-              id: business.id,
-              name: business.name,
-              logo_url: business.logo_url,
-              business_category: business.type,
-              description: business.description,
-              distance: business.distance,
-              rating: business.rating,
-              verified: business.verified,
-              city: business.address,
-              whatsapp: business.whatsapp
-            }} />)}
+            </div> : <div className="space-y-6">
+              {businesses.map(business => <InteractiveBusinessCard 
+                key={business.id} 
+                business={{
+                  id: business.id,
+                  name: business.name,
+                  logo_url: business.logo_url,
+                  business_category: business.type,
+                  description: business.description,
+                  distance: business.distance,
+                  rating: business.rating,
+                  verified: business.verified,
+                  address: business.address,
+                  whatsapp: business.whatsapp,
+                  cover_image_url: business.cover_image_url
+                }}
+                onMessage={(biz) => onMessage?.(biz)}
+                onCall={(biz) => {
+                  if (biz.whatsapp) {
+                    window.open(`https://wa.me/${biz.whatsapp.replace(/\D/g, '')}`, '_blank');
+                  }
+                }}
+                onCatalog={(biz) => navigate(`/business/${biz.id}`)}
+              />)}
             </div>}
         </div>
 
