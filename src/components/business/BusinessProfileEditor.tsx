@@ -11,7 +11,6 @@ import { Separator } from "@/components/ui/separator";
 import { LocationStep } from "@/components/auth/LocationStep";
 import { ProfileImageUploader } from "@/components/profile/ProfileImageUploader";
 import { CoverImageUploader } from "@/components/profile/CoverImageUploader";
-import { CarouselImagesManager } from "@/components/business/CarouselImagesManager";
 import { BusinessImageViewModal } from "@/components/business/BusinessImageViewModal";
 import { Building2, MapPin, Clock, Share2, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -207,12 +206,6 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
             Images
           </TabsTrigger>
           <TabsTrigger 
-            value="carousel"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
-          >
-            Publicités
-          </TabsTrigger>
-          <TabsTrigger 
             value="location"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
           >
@@ -257,14 +250,6 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
             bucket="catalog-covers"
             folder="business-logos"
             label="Logo de l'entreprise"
-          />
-        </TabsContent>
-
-        <TabsContent value="carousel" className="space-y-6 mt-6">
-          <CarouselImagesManager
-            businessId={businessId}
-            currentImages={data.carousel_images || []}
-            onImagesUpdate={(images) => updateData({ carousel_images: images })}
           />
         </TabsContent>
 

@@ -1,11 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useProfileMode } from "@/hooks/use-profile-mode";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BusinessProfileEditor } from "@/components/business/BusinessProfileEditor";
+import { CarouselImagesManager } from "@/components/business/CarouselImagesManager";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Shield } from "lucide-react";
+import { ArrowLeft, Shield, Building2, Megaphone } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Onglet Pro - Visible uniquement pour le propriétaire du business
@@ -15,9 +18,32 @@ export const BusinessSettingsPage = () => {
   const { businessId } = useParams<{ businessId: string }>();
   const navigate = useNavigate();
   const { currentMode, currentBusinessId, isOwnerOfBusiness, getCurrentBusiness } = useProfileMode();
+  const [carouselImages, setCarouselImages] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState("profile");
 
   const currentBusiness = getCurrentBusiness();
   const isOwner = businessId ? isOwnerOfBusiness(businessId) : false;
+
+  useEffect(() => {
+    if (businessId) {
+      fetchCarouselImages();
+    }
+  }, [businessId]);
+
+  const fetchCarouselImages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('business_profiles')
+        .select('carousel_images')
+        .eq('id', businessId)
+        .single();
+
+      if (error) throw error;
+      setCarouselImages(Array.isArray(data.carousel_images) ? data.carousel_images as string[] : []);
+    } catch (error) {
+      console.error('Erreur:', error);
+    }
+  };
 
   // Vérification de sécurité stricte
   useEffect(() => {
@@ -78,7 +104,7 @@ export const BusinessSettingsPage = () => {
       </div>
 
       {/* Alert de sécurité */}
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto px-6 pt-6">
         <Card className="border-orange-200 bg-orange-50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -94,9 +120,44 @@ export const BusinessSettingsPage = () => {
         </Card>
       </div>
 
-      {/* Contenu des paramètres */}
-      <div className="container mx-auto p-6">
-        <BusinessProfileEditor businessId={businessId!} />
+      {/* Navigation par onglets */}
+      <div className="container mx-auto px-6 py-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-muted p-1 rounded-lg">
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <Building2 className="w-4 h-4" />
+              Profil
+            </TabsTrigger>
+            <TabsTrigger value="advertising" className="flex items-center gap-2">
+              <Megaphone className="w-4 h-4" />
+              Publicité
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile" className="mt-6">
+            <BusinessProfileEditor businessId={businessId!} />
+          </TabsContent>
+
+          <TabsContent value="advertising" className="mt-6 space-y-6">
+            <div>
+              <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                <Megaphone className="w-6 h-6" />
+                Gestion publicitaire
+              </h3>
+              <p className="text-muted-foreground">
+                Gérez les images publicitaires qui apparaîtront dans le carrousel de votre carte entreprise
+              </p>
+            </div>
+            
+            <CarouselImagesManager
+              businessId={businessId!}
+              currentImages={carouselImages}
+              onImagesUpdate={(images) => {
+                setCarouselImages(images);
+              }}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
