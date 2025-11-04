@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { LocationStep } from "@/components/auth/LocationStep";
 import { ProfileImageUploader } from "@/components/profile/ProfileImageUploader";
 import { CoverImageUploader } from "@/components/profile/CoverImageUploader";
+import { CarouselImagesManager } from "@/components/business/CarouselImagesManager";
 import { BusinessImageViewModal } from "@/components/business/BusinessImageViewModal";
 import { Building2, MapPin, Clock, Share2, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -24,10 +25,11 @@ interface BusinessProfileEditorProps {
 
 interface BusinessData {
   business_name: string;
-  business_category: any; // Type Union from Supabase
+  business_category: any;
   description: string;
   logo_url?: string;
   cover_image_url?: string;
+  carousel_images?: string[];
   logo_updated_at?: string | null;
   cover_updated_at?: string | null;
   phone?: string;
@@ -67,7 +69,15 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
         .single();
 
       if (error) throw error;
-      setData(businessData);
+      
+      const transformedData = {
+        ...businessData,
+        carousel_images: Array.isArray(businessData.carousel_images) 
+          ? businessData.carousel_images as string[] 
+          : []
+      };
+      
+      setData(transformedData);
     } catch (error) {
       console.error('Erreur lors du chargement:', error);
       toast.error("Erreur lors du chargement des données");
@@ -197,6 +207,12 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
             Images
           </TabsTrigger>
           <TabsTrigger 
+            value="carousel"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+          >
+            Publicités
+          </TabsTrigger>
+          <TabsTrigger 
             value="location"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
           >
@@ -241,6 +257,14 @@ export const BusinessProfileEditor = ({ businessId }: BusinessProfileEditorProps
             bucket="catalog-covers"
             folder="business-logos"
             label="Logo de l'entreprise"
+          />
+        </TabsContent>
+
+        <TabsContent value="carousel" className="space-y-6 mt-6">
+          <CarouselImagesManager
+            businessId={businessId}
+            currentImages={data.carousel_images || []}
+            onImagesUpdate={(images) => updateData({ carousel_images: images })}
           />
         </TabsContent>
 

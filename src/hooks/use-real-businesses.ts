@@ -13,6 +13,7 @@ export interface RealBusiness {
   website?: string;
   logo_url?: string;
   cover_image_url?: string;
+  carousel_images?: string[];
   is_verified: boolean;
   is_active: boolean;
   is_sleeping: boolean;
@@ -46,6 +47,7 @@ export const useRealBusinesses = () => {
             website,
             logo_url,
             cover_image_url,
+            carousel_images,
             is_verified,
             is_active,
             is_sleeping,
@@ -73,6 +75,7 @@ export const useRealBusinesses = () => {
           website: business.website,
           logo_url: business.logo_url,
           cover_image_url: business.cover_image_url,
+          carousel_images: Array.isArray(business.carousel_images) ? business.carousel_images as string[] : [],
           is_verified: business.is_verified,
           is_active: business.is_active,
           is_sleeping: business.is_sleeping,
@@ -114,6 +117,7 @@ export const useRealBusinesses = () => {
             website,
             logo_url,
             cover_image_url,
+            carousel_images,
             is_verified,
             is_active,
             is_sleeping,
@@ -141,6 +145,7 @@ export const useRealBusinesses = () => {
           website: business.website,
           logo_url: business.logo_url,
           cover_image_url: business.cover_image_url,
+          carousel_images: Array.isArray(business.carousel_images) ? business.carousel_images as string[] : [],
           is_verified: business.is_verified,
           is_active: business.is_active,
           is_sleeping: business.is_sleeping,

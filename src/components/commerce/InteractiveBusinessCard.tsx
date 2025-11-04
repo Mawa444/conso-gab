@@ -21,6 +21,7 @@ interface BusinessCardData {
   verified?: boolean;
   whatsapp?: string;
   cover_image_url?: string;
+  carousel_images?: string[];
 }
 
 interface InteractiveBusinessCardProps {
@@ -121,6 +122,9 @@ export const InteractiveBusinessCard = ({
   const businessDistance = business.distance || "3.2 km";
   const businessCategory = business.business_category || business.category || "Divertissement";
   const mockSchedule = "maintenant jusqu'à 19h";
+  
+  const carouselImages = business.carousel_images || [];
+  const totalSlides = 1 + carouselImages.length;
 
   return (
     <Card 
@@ -217,51 +221,67 @@ export const InteractiveBusinessCard = ({
             </CardContent>
           </div>
 
-          {/* Slide 2: Image publicitaire 1 */}
-          <div className="flex-[0_0_100%] min-w-0">
-            <div className="relative h-64 bg-gradient-to-br from-primary/20 to-primary/5">
-              {business.cover_image_url ? (
+          {/* Slides publicitaires dynamiques */}
+          {carouselImages.map((imageUrl, index) => (
+            <div key={index} className="flex-[0_0_100%] min-w-0">
+              <div className="relative h-64 bg-gradient-to-br from-primary/20 to-primary/5">
                 <img 
-                  src={business.cover_image_url} 
-                  alt={`Publicité ${business.name}`}
+                  src={imageUrl} 
+                  alt={`Publicité ${business.name} ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center p-8">
-                    <h3 className="text-2xl font-bold text-foreground mb-2">
-                      Offre spéciale
-                    </h3>
-                    <p className="text-lg text-muted-foreground">
-                      Découvrez nos promotions
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Slide 3: Image publicitaire 2 */}
-          <div className="flex-[0_0_100%] min-w-0">
-            <div className="relative h-64 bg-gradient-to-br from-secondary/20 to-secondary/5">
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center p-8">
-                  <h3 className="text-2xl font-bold text-foreground mb-2">
-                    Nouveauté
-                  </h3>
-                  <p className="text-lg text-muted-foreground">
-                    Venez découvrir nos nouveaux produits
-                  </p>
-                </div>
               </div>
             </div>
-          </div>
+          ))}
+
+          {/* Slide par défaut si pas d'images */}
+          {carouselImages.length === 0 && (
+            <>
+              <div className="flex-[0_0_100%] min-w-0">
+                <div className="relative h-64 bg-gradient-to-br from-primary/20 to-primary/5">
+                  {business.cover_image_url ? (
+                    <img 
+                      src={business.cover_image_url} 
+                      alt={`Publicité ${business.name}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-center p-8">
+                        <h3 className="text-2xl font-bold text-foreground mb-2">
+                          Offre spéciale
+                        </h3>
+                        <p className="text-lg text-muted-foreground">
+                          Découvrez nos promotions
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-[0_0_100%] min-w-0">
+                <div className="relative h-64 bg-gradient-to-br from-secondary/20 to-secondary/5">
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-center p-8">
+                      <h3 className="text-2xl font-bold text-foreground mb-2">
+                        Nouveauté
+                      </h3>
+                      <p className="text-lg text-muted-foreground">
+                        Venez découvrir nos nouveaux produits
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Indicateurs de slide */}
+      {/* Indicateurs de slide dynamiques */}
       <div className="flex justify-center gap-2 pb-4">
-        {[0, 1, 2].map((index) => (
+        {Array.from({ length: totalSlides }).map((_, index) => (
           <button
             key={index}
             onClick={(e) => {

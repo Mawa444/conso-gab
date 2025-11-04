@@ -10,6 +10,7 @@ export interface BusinessProfile {
   description?: string;
   logo_url?: string;
   cover_url?: string;
+  carousel_images?: string[];
   category: string;
   address?: string;
   city?: string;

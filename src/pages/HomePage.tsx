@@ -66,7 +66,8 @@ export const HomePage = ({
     rating: 4.5,
     verified: rec.item.is_verified,
     whatsapp: rec.item.phone,
-    cover_image_url: null
+    cover_image_url: rec.item.cover_image_url || null,
+    carousel_images: rec.item.carousel_images || []
   }));
   const handleScanResult = (result: string) => {
     try {
@@ -193,7 +194,8 @@ export const HomePage = ({
                   verified: business.verified,
                   address: business.address,
                   whatsapp: business.whatsapp,
-                  cover_image_url: business.cover_image_url
+                  cover_image_url: business.cover_image_url,
+                  carousel_images: business.carousel_images
                 }}
                 onMessage={(biz) => onMessage?.(biz)}
                 onCall={(biz) => {
