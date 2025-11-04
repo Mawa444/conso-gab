@@ -44,8 +44,8 @@ export const InteractiveBusinessCard = ({
   const autoplay = useCallback(() => {
     return Autoplay({ 
       delay: 4000, 
-      stopOnInteraction: true,
-      stopOnMouseEnter: true
+      stopOnInteraction: false,
+      stopOnMouseEnter: false
     });
   }, []);
 
@@ -57,22 +57,32 @@ export const InteractiveBusinessCard = ({
   useEffect(() => {
     if (!emblaApi) return;
 
-    const onPointerDown = () => setIsPaused(true);
-    const onPointerUp = () => setIsPaused(false);
     const onSelect = () => {
       setSelectedIndex(emblaApi.selectedScrollSnap());
     };
 
-    emblaApi.on('pointerDown', onPointerDown);
-    emblaApi.on('pointerUp', onPointerUp);
     emblaApi.on('select', onSelect);
 
     return () => {
-      emblaApi.off('pointerDown', onPointerDown);
-      emblaApi.off('pointerUp', onPointerUp);
       emblaApi.off('select', onSelect);
     };
   }, [emblaApi]);
+
+  const handleMouseEnter = () => {
+    if (emblaApi) {
+      const autoplayPlugin = emblaApi.plugins()?.autoplay;
+      if (autoplayPlugin) autoplayPlugin.stop();
+      setIsPaused(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (emblaApi) {
+      const autoplayPlugin = emblaApi.plugins()?.autoplay;
+      if (autoplayPlugin) autoplayPlugin.play();
+      setIsPaused(false);
+    }
+  };
 
   const handleCardClick = () => {
     if (!isPaused) {
@@ -116,6 +126,10 @@ export const InteractiveBusinessCard = ({
     <Card 
       className="overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg border-border/50"
       onClick={handleCardClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleMouseEnter}
+      onTouchEnd={handleMouseLeave}
     >
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
