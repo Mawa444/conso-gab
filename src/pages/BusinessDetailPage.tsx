@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Star, MapPin, Phone, Clock, Share, Heart, ThumbsUp, ThumbsDown, MessageCircle, Navigation, ExternalLink, Users, Award, Camera, Settings, Store, Bell, Shield, Headphones, FileText, HelpCircle, LogOut, Trash2, History, Moon, BarChart, Target, MessageSquare, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Phone, Clock, Share, Heart, ThumbsUp, ThumbsDown, MessageCircle, Navigation, ExternalLink, Users, Award, Camera, Settings, Store, Bell, Shield, Headphones, FileText, HelpCircle, LogOut, Trash2, History, Moon, BarChart, Target, MessageSquare, AlertTriangle, Megaphone } from "lucide-react";
 import { BusinessImageViewModal } from "@/components/business/BusinessImageViewModal";
 import { BusinessProfileEditor } from "@/components/business/BusinessProfileEditor";
 import { useBusinessImageLikes } from "@/hooks/use-business-image-likes";
@@ -31,6 +31,7 @@ import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
 import { ChatWindow } from "@/components/mimo-chat/ChatWindow";
 import { MessagingProvider } from "@/contexts/MessagingContext";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { CarouselImagesManager } from "@/components/business/CarouselImagesManager";
 interface BusinessDetail {
   id: string;
   name: string;
@@ -125,6 +126,7 @@ export const BusinessDetailPage = () => {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [logoUploadDate, setLogoUploadDate] = useState<string | null>(null);
   const [coverUploadDate, setCoverUploadDate] = useState<string | null>(null);
+  const [carouselImages, setCarouselImages] = useState<string[]>([]);
 
   // Vérifier si l'utilisateur peut accéder à l'onglet Pro
   const canAccessPro = businessId ? canAccessBusinessPro(businessId) : false;
@@ -145,7 +147,7 @@ export const BusinessDetailPage = () => {
       const {
         data,
         error
-      } = await supabase.from('business_profiles').select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url, logo_updated_at, cover_updated_at').eq('id', businessId).single();
+      } = await supabase.from('business_profiles').select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url, logo_updated_at, cover_updated_at, carousel_images').eq('id', businessId).single();
       if (error) {
         console.error('Erreur lors du chargement du profil business:', error);
         toast.error("Impossible de charger le profil business");
@@ -179,6 +181,10 @@ export const BusinessDetailPage = () => {
         setCoverUrl(data.cover_image_url || null);
         setLogoUploadDate(data.logo_updated_at || null);
         setCoverUploadDate(data.cover_updated_at || null);
+        
+        // Charger les images du carrousel
+        const carouselData = Array.isArray(data.carousel_images) ? data.carousel_images as string[] : [];
+        setCarouselImages(carouselData);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -502,13 +508,22 @@ export const BusinessDetailPage = () => {
 
                 {/* Sous-onglets Pro */}
                 <Tabs value={proSubTab} onValueChange={setProSubTab}>
-                  <TabsList className="grid w-full grid-cols-5">
-                    <TabsTrigger value="dashboard" className="text-xs">Tableau</TabsTrigger>
-                    <TabsTrigger value="tools" className="text-xs">Outils</TabsTrigger>
-                    <TabsTrigger value="analytics" className="text-xs">Analytics</TabsTrigger>
-                    <TabsTrigger value="activity" className="text-xs">Journal</TabsTrigger>
-                    <TabsTrigger value="settings" className="text-xs">Paramètres</TabsTrigger>
-                  </TabsList>
+                  <div className="space-y-2">
+                    <TabsList className="grid w-full grid-cols-5">
+                      <TabsTrigger value="dashboard" className="text-xs">Tableau</TabsTrigger>
+                      <TabsTrigger value="tools" className="text-xs">Outils</TabsTrigger>
+                      <TabsTrigger value="analytics" className="text-xs">Analytics</TabsTrigger>
+                      <TabsTrigger value="activity" className="text-xs">Journal</TabsTrigger>
+                      <TabsTrigger value="settings" className="text-xs">Paramètres</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsList className="grid w-full grid-cols-1">
+                      <TabsTrigger value="advertising" className="text-xs">
+                        <Megaphone className="w-4 h-4 mr-2" />
+                        Publicité
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
 
                   <TabsContent value="dashboard" className="space-y-6 mt-6">
                     <ProfessionalDashboard businessId={business.id} businessName={business.name} businessCategory={business.type} userType="owner" />
@@ -601,6 +616,26 @@ export const BusinessDetailPage = () => {
                         </Button>
                       </CardContent>
                     </Card>
+                  </TabsContent>
+
+                  <TabsContent value="advertising" className="space-y-6 mt-6">
+                    <div>
+                      <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                        <Megaphone className="w-6 h-6" />
+                        Gestion publicitaire
+                      </h3>
+                      <p className="text-muted-foreground mb-6">
+                        Gérez les images publicitaires qui apparaîtront dans le carrousel de votre carte entreprise
+                      </p>
+                    </div>
+                    
+                    <CarouselImagesManager
+                      businessId={business.id}
+                      currentImages={carouselImages}
+                      onImagesUpdate={(images) => {
+                        setCarouselImages(images);
+                      }}
+                    />
                   </TabsContent>
                 </Tabs>
               </div>
