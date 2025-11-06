@@ -177,7 +177,7 @@ export const InteractiveBusinessCard = ({
                     {businessCategory}
                   </Badge>
 
-                  <p className="text-lg text-muted-foreground mb-3">
+                  <p className="text-lg text-muted-foreground mb-3 line-clamp-2">
                     {business.description || "Explorez de nouveaux mondes"}
                   </p>
 

@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, X, MoveUp, MoveDown, Upload, Camera, AlertCircle } from "lucide-react";
+import { X, MoveUp, MoveDown, Upload, Camera, AlertCircle, Crop } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEnhancedImageUpload } from "@/hooks/use-enhanced-image-upload";
-import { useRef, useCallback } from "react";
+import { ImageCropDialog } from "./ImageCropDialog";
 
 interface ImageData {
   url: string;
@@ -31,8 +30,10 @@ export const CarouselImagesManager = ({
   const [dragOver, setDragOver] = useState(false);
   const [images, setImages] = useState<ImageData[]>([]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [selectedImageForCrop, setSelectedImageForCrop] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const queryClient = useQueryClient();
-  const { uploadProcessedImage, isUploading, isProcessing } = useEnhancedImageUpload();
 
   // Convertir les URLs actuelles en ImageData au montage
   useEffect(() => {
@@ -47,69 +48,95 @@ export const CarouselImagesManager = ({
   const handleFileSelect = useCallback(async (files: FileList) => {
     const fileArray = Array.from(files);
     const remainingSlots = 5 - images.length;
-    const filesToProcess = fileArray.slice(0, remainingSlots);
-
-    for (const file of filesToProcess) {
-      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    
+    if (fileArray.length > 0) {
+      const file = fileArray[0];
+      setPendingFile(file);
       
-      setUploadProgress(prev => ({ ...prev, [tempId]: 10 }));
+      // Créer URL temporaire pour preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setSelectedImageForCrop(e.target?.result as string);
+        setCropDialogOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [images]);
 
-      try {
-        const progressInterval = setInterval(() => {
-          setUploadProgress(prev => ({ 
-            ...prev, 
-            [tempId]: Math.min((prev[tempId] || 0) + 15, 90) 
-          }));
-        }, 500);
+  const handleCropComplete = useCallback(async (croppedBlob: Blob) => {
+    if (!pendingFile) return;
 
-        const result = await uploadProcessedImage(file, {
-          bucket: 'catalog-covers',
-          folder: 'carousel',
-          exactDimensions: { width: 1920, height: 1080 },
-          maxSize: 2097152
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    setUploadProgress(prev => ({ ...prev, [tempId]: 10 }));
+
+    try {
+      // Créer un fichier à partir du blob croppé
+      const croppedFile = new File([croppedBlob], pendingFile.name, {
+        type: 'image/jpeg'
+      });
+
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => ({ 
+          ...prev, 
+          [tempId]: Math.min((prev[tempId] || 0) + 15, 90) 
+        }));
+      }, 500);
+
+      // Upload direct sans retraitement
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+      const filePath = `carousel/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('catalog-covers')
+        .upload(filePath, croppedFile, {
+          cacheControl: '3600',
+          upsert: false
         });
 
-        clearInterval(progressInterval);
+      clearInterval(progressInterval);
 
-        if (result) {
-          const newImage: ImageData = {
-            url: result.url,
-            path: result.path,
-            id: `img-${Date.now()}-${Math.random().toString(36).slice(2)}`
-          };
+      if (uploadError) throw uploadError;
 
-          setImages(prev => {
-            const updated = [...prev, newImage];
-            const urls = updated.map(img => img.url);
-            saveImages(urls);
-            onImagesUpdate(urls);
-            return updated;
-          });
+      const { data: { publicUrl } } = supabase.storage
+        .from('catalog-covers')
+        .getPublicUrl(filePath);
 
-          setUploadProgress(prev => ({ ...prev, [tempId]: 100 }));
-          
-          setTimeout(() => {
-            setUploadProgress(prev => {
-              const { [tempId]: removed, ...rest } = prev;
-              return rest;
-            });
-          }, 1000);
-        } else {
-          setUploadProgress(prev => {
-            const { [tempId]: removed, ...rest } = prev;
-            return rest;
-          });
-        }
-      } catch (error) {
-        console.error('Erreur upload:', error);
-        toast.error("Erreur lors de l'ajout de l'image");
+      const newImage: ImageData = {
+        url: publicUrl,
+        path: filePath,
+        id: `img-${Date.now()}-${Math.random().toString(36).slice(2)}`
+      };
+
+      setImages(prev => {
+        const updated = [...prev, newImage];
+        const urls = updated.map(img => img.url);
+        saveImages(urls);
+        onImagesUpdate(urls);
+        return updated;
+      });
+
+      setUploadProgress(prev => ({ ...prev, [tempId]: 100 }));
+      
+      setTimeout(() => {
         setUploadProgress(prev => {
           const { [tempId]: removed, ...rest } = prev;
           return rest;
         });
-      }
+      }, 1000);
+
+      toast.success("Image ajoutée avec succès");
+    } catch (error) {
+      console.error('Erreur upload:', error);
+      toast.error("Erreur lors de l'ajout de l'image");
+      setUploadProgress(prev => {
+        const { [tempId]: removed, ...rest } = prev;
+        return rest;
+      });
+    } finally {
+      setPendingFile(null);
+      setSelectedImageForCrop(null);
     }
-  }, [uploadProcessedImage, businessId, onImagesUpdate, images]);
+  }, [pendingFile, businessId, onImagesUpdate]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -180,7 +207,7 @@ export const CarouselImagesManager = ({
     }
   };
 
-  const isProcessingOrUploading = isProcessing || isUploading;
+  const isProcessingOrUploading = Object.keys(uploadProgress).length > 0;
   const canAddMore = images.length < 5;
 
   return (
@@ -330,6 +357,20 @@ export const CarouselImagesManager = ({
             ✓ Limite atteinte (5 images maximum)
           </p>
         </div>
+      )}
+
+      {/* Crop Dialog */}
+      {selectedImageForCrop && (
+        <ImageCropDialog
+          open={cropDialogOpen}
+          imageUrl={selectedImageForCrop}
+          onCropComplete={handleCropComplete}
+          onClose={() => {
+            setCropDialogOpen(false);
+            setSelectedImageForCrop(null);
+            setPendingFile(null);
+          }}
+        />
       )}
     </div>
   );

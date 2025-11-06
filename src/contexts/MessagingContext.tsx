@@ -4,6 +4,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { createDomainLogger } from '@/lib/logger';
 import * as conversationService from '@/services/messaging/conversationService';
 import * as messageService from '@/services/messaging/messageService';
+import * as directConversationService from '@/services/messaging/directConversationService';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 const logger = createDomainLogger('MessagingContext');
@@ -24,6 +25,7 @@ interface MimoChatContextType {
   sendMessage: (content: string, type?: string, attachmentUrl?: string) => Promise<void>;
   createConversation: (participants: string[], title?: string, type?: string) => Promise<MimoConversation>;
   createBusinessConversation: (businessId: string) => Promise<MimoConversation | null>;
+  createDirectConversation: (targetUserId: string) => Promise<MimoConversation | null>;
   markAsRead: (conversationId: string) => Promise<void>;
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId: string) => Promise<void>;
@@ -175,21 +177,82 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     try {
       setLoading(true);
 
+      // Vérifier dans le state local d'abord
       const existingConversation = conversations.find(
         c => c.origin_type === 'business' && c.origin_id === businessId
       );
 
       if (existingConversation) {
+        logger.info('Business conversation already exists in state', { conversationId: existingConversation.id });
         return existingConversation;
       }
 
+      // Créer/récupérer via RPC atomique (Meta-style)
       const conversationId = await conversationService.getOrCreateBusinessConversation(businessId, user.id);
       const newConversation = await conversationService.fetchConversationById(conversationId);
       
-      setConversations(prev => [newConversation, ...prev]);
+      // Ajouter au state seulement si pas déjà présente
+      setConversations(prev => {
+        const alreadyExists = prev.some(c => c.id === newConversation.id);
+        if (alreadyExists) {
+          return prev;
+        }
+        return [newConversation, ...prev];
+      });
+      
       return newConversation;
     } catch (error) {
       logger.error('Error creating business conversation', { error, businessId, userId: user.id });
+      setError(error instanceof Error ? error.message : 'Erreur lors de la création de la conversation');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [user, conversations]);
+
+  const createDirectConversation = useCallback(async (targetUserId: string): Promise<MimoConversation | null> => {
+    if (!user) {
+      setError('Utilisateur non connecté');
+      return null;
+    }
+
+    if (user.id === targetUserId) {
+      setError('Impossible de créer une conversation avec soi-même');
+      return null;
+    }
+
+    try {
+      setLoading(true);
+
+      // Vérifier dans le state local d'abord
+      const existingConversation = conversations.find(c => {
+        const isDirectConv = c.origin_type === 'direct' || c.type === 'private';
+        const hasTargetUser = c.participants?.some(p => p.user_id === targetUserId);
+        const hasCurrentUser = c.participants?.some(p => p.user_id === user.id);
+        return isDirectConv && hasTargetUser && hasCurrentUser && c.participants.length === 2;
+      });
+
+      if (existingConversation) {
+        logger.info('Direct conversation already exists in state', { conversationId: existingConversation.id });
+        return existingConversation;
+      }
+
+      // Créer/récupérer via RPC atomique (Meta-style)
+      const conversationId = await directConversationService.getOrCreateDirectConversation(user.id, targetUserId);
+      const newConversation = await conversationService.fetchConversationById(conversationId);
+      
+      // Ajouter au state seulement si pas déjà présente
+      setConversations(prev => {
+        const alreadyExists = prev.some(c => c.id === newConversation.id);
+        if (alreadyExists) {
+          return prev;
+        }
+        return [newConversation, ...prev];
+      });
+      
+      return newConversation;
+    } catch (error) {
+      logger.error('Error creating direct conversation', { error, targetUserId, userId: user.id });
       setError(error instanceof Error ? error.message : 'Erreur lors de la création de la conversation');
       return null;
     } finally {
@@ -327,6 +390,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     sendMessage,
     createConversation,
     createBusinessConversation,
+    createDirectConversation,
     markAsRead,
     fetchConversations,
     fetchMessages,
