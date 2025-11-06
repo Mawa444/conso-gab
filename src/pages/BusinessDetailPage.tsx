@@ -32,6 +32,7 @@ import { ChatWindow } from "@/components/mimo-chat/ChatWindow";
 import { MessagingProvider } from "@/contexts/MessagingContext";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { CarouselImagesManager } from "@/components/business/CarouselImagesManager";
+import { AdvertisingDashboard } from "@/components/business/AdvertisingDashboard";
 interface BusinessDetail {
   id: string;
   name: string;
@@ -619,22 +620,14 @@ export const BusinessDetailPage = () => {
                   </TabsContent>
 
                   <TabsContent value="advertising" className="space-y-6 mt-6">
-                    <div>
-                      <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                        <Megaphone className="w-6 h-6" />
-                        Gestion publicitaire
-                      </h3>
-                      <p className="text-muted-foreground mb-6">
-                        Gérez les images publicitaires qui apparaîtront dans le carrousel de votre carte entreprise
-                      </p>
-                    </div>
-                    
-                    <CarouselImagesManager
+                    <AdvertisingDashboard
                       businessId={business.id}
+                      businessName={business.name}
                       currentImages={carouselImages}
                       onImagesUpdate={(images) => {
                         setCarouselImages(images);
                       }}
+                      businessData={businessData}
                     />
                   </TabsContent>
                 </Tabs>
