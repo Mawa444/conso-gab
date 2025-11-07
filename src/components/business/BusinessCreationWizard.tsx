@@ -699,11 +699,15 @@ export const BusinessCreationWizard = ({
                 e.preventDefault();
                 e.stopPropagation();
                 logger.debug('Cancel button clicked', { hasOnCancel: !!onCancel });
-                if (onCancel) {
-                  onCancel();
-                } else {
-                  logger.warn('No onCancel callback provided');
-                  toast.info("Création annulée");
+                
+                // Demander confirmation avant d'annuler
+                if (window.confirm("Êtes-vous sûr de vouloir annuler la création de votre entreprise ? Toutes les données saisies seront perdues.")) {
+                  if (onCancel) {
+                    onCancel();
+                  } else {
+                    logger.warn('No onCancel callback provided');
+                    toast.info("Création annulée");
+                  }
                 }
               }} 
               disabled={loading}

@@ -14,6 +14,7 @@ export const useBusinessCreation = () => {
 
   const closeBusinessCreation = () => {
     setShowCreateForm(false);
+    navigate('/entreprises');
   };
 
   const handleBusinessCreated = (businessId: string) => {
@@ -26,6 +27,7 @@ export const useBusinessCreation = () => {
 
   const handleBusinessCreationCancelled = () => {
     setShowCreateForm(false);
+    navigate('/entreprises');
   };
 
   return {

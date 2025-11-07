@@ -82,6 +82,8 @@ export class GeoLocationService {
         phone: business.phone,
         email: business.email,
         logo_url: business.logo_url,
+        cover_image_url: business.cover_image_url,
+        carousel_images: business.carousel_images || [],
         latitude: business.latitude,
         longitude: business.longitude,
         is_verified: business.is_verified,
