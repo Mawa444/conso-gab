@@ -698,18 +698,25 @@ export const BusinessCreationWizard = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                logger.debug('Cancel button clicked', { hasOnCancel: !!onCancel });
+                logger.debug('Cancel button clicked - forcing navigation to /entreprises');
                 
-                // Demander confirmation avant d'annuler
-                if (window.confirm("Êtes-vous sûr de vouloir annuler la création de votre entreprise ? Toutes les données saisies seront perdues.")) {
+                // Demander confirmation avec une meilleure UX
+                const confirmed = window.confirm(
+                  "Êtes-vous sûr de vouloir annuler la création de votre entreprise ?\n\n" +
+                  "⚠️ Toutes les données saisies seront perdues.\n" +
+                  "Vous serez redirigé vers votre liste d'entreprises."
+                );
+                
+                if (confirmed) {
+                  toast.info("Création annulée");
+                  // Force navigation même si onCancel n'est pas fourni
                   if (onCancel) {
                     onCancel();
-                  } else {
-                    logger.warn('No onCancel callback provided');
-                    toast.info("Création annulée");
                   }
+                  // Fallback : navigation forcée vers /entreprises
+                  window.location.href = '/entreprises';
                 }
-              }} 
+              }}
               disabled={loading}
               className="rounded-3xl"
             >

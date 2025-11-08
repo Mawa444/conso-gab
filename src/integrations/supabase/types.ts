@@ -89,6 +89,13 @@ export type Database = {
             foreignKeyName: "activity_log_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
@@ -191,6 +198,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "automation_workflows_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "automation_workflows_business_id_fkey"
             columns: ["business_id"]
@@ -334,6 +348,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "business_image_likes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "business_image_likes_business_id_fkey"
             columns: ["business_id"]
@@ -534,6 +555,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "catalog_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "catalog_business_id_fkey"
             columns: ["business_id"]
@@ -953,6 +981,13 @@ export type Database = {
             foreignKeyName: "catalogs_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalogs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
@@ -1017,6 +1052,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "favorites_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "favorites_business_id_fkey"
             columns: ["business_id"]
@@ -1247,6 +1289,13 @@ export type Database = {
             foreignKeyName: "message_templates_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_templates_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
@@ -1428,6 +1477,13 @@ export type Database = {
             foreignKeyName: "orders_seller_id_fkey"
             columns: ["seller_id"]
             isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
             referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
@@ -1551,6 +1607,13 @@ export type Database = {
             foreignKeyName: "product_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
@@ -1616,6 +1679,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "products_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_business_id_fkey"
             columns: ["business_id"]
@@ -1797,6 +1867,13 @@ export type Database = {
             foreignKeyName: "quotes_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
@@ -1883,6 +1960,13 @@ export type Database = {
             foreignKeyName: "reservations_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
@@ -1921,6 +2005,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "review_replies_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "review_replies_business_id_fkey"
             columns: ["business_id"]
@@ -1969,6 +2060,13 @@ export type Database = {
           rating?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reviews_business_id_fkey"
             columns: ["business_id"]
@@ -2083,6 +2181,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "support_tickets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "support_tickets_business_id_fkey"
             columns: ["business_id"]
@@ -2259,6 +2364,13 @@ export type Database = {
             foreignKeyName: "user_sessions_active_profile_fkey"
             columns: ["active_profile"]
             isOneToOne: false
+            referencedRelation: "business_cards_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_sessions_active_profile_fkey"
+            columns: ["active_profile"]
+            isOneToOne: false
             referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
@@ -2266,6 +2378,87 @@ export type Database = {
       }
     }
     Views: {
+      business_cards_view: {
+        Row: {
+          address: string | null
+          business_category:
+            | Database["public"]["Enums"]["business_category"]
+            | null
+          business_name: string | null
+          carousel_images: Json | null
+          city: string | null
+          country: string | null
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          email: string | null
+          id: string | null
+          is_active: boolean | null
+          is_deactivated: boolean | null
+          is_sleeping: boolean | null
+          is_verified: boolean | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          phone: string | null
+          province: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          business_category?:
+            | Database["public"]["Enums"]["business_category"]
+            | null
+          business_name?: string | null
+          carousel_images?: Json | null
+          city?: string | null
+          country?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          is_deactivated?: boolean | null
+          is_sleeping?: boolean | null
+          is_verified?: boolean | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          phone?: string | null
+          province?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_category?:
+            | Database["public"]["Enums"]["business_category"]
+            | null
+          business_name?: string | null
+          carousel_images?: Json | null
+          city?: string | null
+          country?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          is_deactivated?: boolean | null
+          is_sleeping?: boolean | null
+          is_verified?: boolean | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          phone?: string | null
+          province?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       geography_columns: {
         Row: {
           coord_dimension: number | null
@@ -2447,6 +2640,7 @@ export type Database = {
       }
       cleanup_expired_location_requests: { Args: never; Returns: undefined }
       cleanup_old_typing_indicators: { Args: never; Returns: undefined }
+      cleanup_orphaned_conversations: { Args: never; Returns: undefined }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {

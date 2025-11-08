@@ -145,7 +145,7 @@ export class AuthService {
       const validEmail = z.string().email().parse(email);
       
       const { error } = await supabase.auth.resetPasswordForEmail(validEmail, {
-        redirectTo: `${window.location.origin}/auth`
+        redirectTo: `${window.location.origin}/reset-password`
       });
       
       return { error };

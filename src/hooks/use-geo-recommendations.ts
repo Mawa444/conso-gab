@@ -55,7 +55,17 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
         GeoLocationService.getNearestCatalogs(position, stableOptions.geoOptions)
       ]);
 
-      setBusinesses(businessResults);
+      // S'assurer que les données incluent carousel_images et cover_image_url
+      const enrichedBusinesses = businessResults.map(result => ({
+        ...result,
+        item: {
+          ...result.item,
+          carousel_images: result.item.carousel_images || [],
+          cover_image_url: result.item.cover_image_url || null
+        }
+      }));
+
+      setBusinesses(enrichedBusinesses);
       setCatalogs(catalogResults);
       setLastUpdate(Date.now());
     } catch (err: any) {

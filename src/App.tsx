@@ -31,6 +31,7 @@ import { BusinessDetailPage } from "@/pages/BusinessDetailPage";
 
 // Pages Auth
 import { AuthFlowPage } from "@/pages/AuthFlowPage";
+import { ResetPasswordPage } from "@/pages/ResetPasswordPage";
 
 import "./App.css";
 
@@ -59,6 +60,7 @@ const App = () => {
                     <Routes>
                   {/* Routes publiques */}
                   <Route path="/auth" element={<AuthFlowPage onComplete={() => {}} />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
                   <Route path="/splash" element={<SplashScreen onStart={() => {}} />} />
                   
                   {/* Routes consommateur */}
