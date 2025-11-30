@@ -117,20 +117,6 @@ export const ProductDetailPage = () => {
     }
   };
 
-  const handleFindNearby = () => {
-    // Navigation vers une carte montrant tous les commerces qui vendent ce produit
-    navigate(`/product/${id}/nearby`);
-  };
-
-  const handleAddToCart = () => {
-    console.log("Ajouté au panier:", { product, quantity, selectedSize });
-    // Logique d'ajout au panier
-  };
-
-  const handleContactBusiness = () => {
-    navigate(`/business/${product.business.id}`);
-  };
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

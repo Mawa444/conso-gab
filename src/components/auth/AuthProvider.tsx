@@ -56,7 +56,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           localStorage.removeItem('gb_session_id');
           localStorage.removeItem('gb_welcome_shown');
         }
-      } catch {}
+      } catch {
+        // Ignore localStorage errors
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -84,7 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Améliorer les messages d'erreur pour les comptes existants
       if (signUpError.message.includes('already registered') || signUpError.message.includes('already been registered')) {
         // Stocker l'email pour la redirection vers la connexion
-        try { localStorage.setItem('prefillEmail', email); } catch {}
+        try { localStorage.setItem('prefillEmail', email); } catch { /* Ignore storage error */ }
         return { 
           data: signUpData, 
           error: { message: "EXISTING_USER", email }

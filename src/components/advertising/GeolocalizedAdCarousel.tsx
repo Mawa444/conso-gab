@@ -176,7 +176,7 @@ export const GeolocalizedAdCarousel = ({
                 {slide.subtitle}
               </p>
               
-              <Button variant="secondary" className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 transition-all duration-300 hover:scale-105" onClick={() => console.log(`CTA clicked for slide ${slide.id} in ${userLocation}`)}>
+              <Button variant="secondary" className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 transition-all duration-300 hover:scale-105" onClick={() => {}}>
                 {slide.cta}
               </Button>
             </div>

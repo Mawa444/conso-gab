@@ -39,7 +39,9 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
         setEmail(prefillEmail);
         localStorage.removeItem('prefillEmail');
       }
-    } catch {}
+    } catch {
+      // Ignore localStorage errors
+    }
   }, [step]);
 
   // Rediriger si déjà connecté

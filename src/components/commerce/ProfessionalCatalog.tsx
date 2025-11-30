@@ -366,7 +366,7 @@ export const ProfessionalCatalog = ({
           product={selectedProduct}
           open={!!selectedProduct}
           onClose={() => setSelectedProduct(null)}
-          onAddToCart={(product) => console.log("Ajouté au panier:", product)}
+          onAddToCart={(product) => {}}
           onMessage={() => onMessage?.({ id: commerceId, name: commerceName })}
         />
       )}

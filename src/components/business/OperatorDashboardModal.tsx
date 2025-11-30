@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -36,19 +36,18 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
   const [showMultiManager, setShowMultiManager] = useState(false);
   const currentBusiness = getCurrentBusiness();
 
-  const handleBusinessSwitch = async (businessId: string) => {
-    await switchMode('business', businessId);
+  const handleBusinessSwitch = (businessId: string) => {
+    switchMode('business', businessId);
     onOpenChange(false);
   };
 
   const quickActions = [
     {
-      title: "Créer nouveau profil",
-      description: "Nouvelle entreprise",
+      title: "Créer une entreprise",
+      description: "Nouveau profil",
       icon: Plus,
       action: () => {
         // TODO: Ouvrir wizard création business
-        console.log('Créer nouveau business');
       },
       variant: "default" as const
     },
@@ -57,17 +56,37 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Produits & services",
       icon: Package,
       action: () => {
-        console.log('Gérer catalogues');
+        // Navigation vers catalogues
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'
     },
     {
-      title: "Analytics",
-      description: "Performances",
+      title: "Statistiques",
+      description: "Performance",
       icon: BarChart3,
       action: () => {
-        console.log('Analytics');
+        // Navigation vers stats
+      },
+      variant: "outline" as const,
+      disabled: currentMode !== 'business'
+    },
+    {
+      title: "Messages",
+      description: "Conversations",
+      icon: MessageSquare,
+      action: () => {
+        // Navigation vers messages
+      },
+      variant: "outline" as const,
+      disabled: currentMode !== 'business'
+    },
+    {
+      title: "Paramètres",
+      description: "Configuration",
+      icon: Settings,
+      action: () => {
+        // Navigation vers paramètres
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'
@@ -178,7 +197,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Mes entreprises ({businessProfiles.length})</h3>
-              <Button size="sm" variant="outline" onClick={() => console.log('Créer nouveau')}>
+              <Button size="sm" variant="outline" onClick={() => {}}>
                 <Plus className="w-4 h-4 mr-2" />
                 Nouveau
               </Button>
@@ -212,7 +231,6 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {/* TODO: Ajouter role du collaborateur */}
                           Propriétaire
                         </p>
                       </div>
@@ -224,17 +242,6 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
                             Actuel
                           </Badge>
                         )}
-                        
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            console.log('Settings business', business.id);
-                          }}
-                        >
-                          <Settings className="w-4 h-4" />
-                        </Button>
                       </div>
                     </div>
                   </CardContent>

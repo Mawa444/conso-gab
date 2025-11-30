@@ -62,7 +62,9 @@ const CategoryPage = () => {
     if (savedLocation) {
       try {
         setUserLocation(JSON.parse(savedLocation));
-      } catch {}
+      } catch {
+        // Ignore invalid JSON in localStorage
+      }
     }
   }, []);
 

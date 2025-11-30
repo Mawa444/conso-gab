@@ -71,7 +71,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
         setTimeout(resolve, 100);
       });
       
-      console.log("Catalogue créé:", catalogData);
+
       setActiveView('managementPage');
     } catch (error) {
       console.error("Erreur lors de la création du catalogue:", error);

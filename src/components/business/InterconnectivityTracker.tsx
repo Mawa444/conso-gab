@@ -48,14 +48,6 @@ export const InterconnectivityTracker = ({
 
       if (error) {
         console.error('Error tracking action:', error);
-      } else {
-        console.log('Action tracked successfully:', {
-          actionType,
-          sourceEntityType,
-          sourceEntityId,
-          targetEntityType,
-          targetEntityId
-        });
       }
     } catch (error) {
       console.error('Error in InterconnectivityTracker:', error);
@@ -92,7 +84,6 @@ export const useTrackAction = () => {
 
       if (error) throw error;
 
-      console.log('Action tracked via hook:', params.actionType);
     } catch (error) {
       console.error('Error tracking action via hook:', error);
     }

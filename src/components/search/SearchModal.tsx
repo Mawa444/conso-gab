@@ -98,8 +98,8 @@ export const SearchModal = ({ open, onClose, onSelect, userLocation = "Librevill
                 onSelect?.(commerce);
                 onClose();
               }}
-              onFavorite={(commerce) => console.log("Favoris:", commerce)}
-              onMessage={(commerce) => console.log("Message:", commerce)}
+              onFavorite={(commerce) => {}}
+              onMessage={(commerce) => {}}
               showFilters={false}
               viewMode="list"
             />
@@ -107,7 +107,7 @@ export const SearchModal = ({ open, onClose, onSelect, userLocation = "Librevill
               <Button 
                 variant="outline" 
                 className="px-6 py-2"
-                onClick={() => console.log("Voir plus de commerces populaires")}
+                onClick={() => {}}
               >
                 Voir plus
               </Button>

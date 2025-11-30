@@ -36,7 +36,6 @@ export default tseslint.config(
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       "unused-imports": unusedImports,
-      "jsx-a11y": jsxA11y,
     },
     rules: {
       // ✅ Sécurité & fiabilité

@@ -151,7 +151,7 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
       timestamp: new Date().toISOString()
     };
     
-    console.log("Demande de renseignements:", inquiryData);
+
     
     // Reset form
     setInquiryMessage("");

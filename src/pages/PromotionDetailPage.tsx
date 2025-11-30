@@ -121,19 +121,6 @@ export const PromotionDetailPage = () => {
       });
     } else {
       // Fallback pour WhatsApp
-      const text = encodeURIComponent(`🔥 ${promotion.title}\n${promotion.description}\n\nDécouvrez cette promo sur ConsoGab: ${window.location.href}`);
-      window.open(`https://wa.me/?text=${text}`, '_blank');
-    }
-  };
-
-  const handleClaimPromo = () => {
-    // Logique pour "profiter" de la promo
-    console.log("Promo ajoutée aux favoris/wishlist");
-    // Navigation vers le commerce ou ajout à une wishlist
-    navigate(`/business/${promotion.business.id}`);
-  };
-
-  const handleVisitBusiness = () => {
     navigate(`/business/${promotion.business.id}`);
   };
 
