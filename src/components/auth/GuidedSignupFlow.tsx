@@ -112,13 +112,11 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
 
       if (error) {
         console.error('❌ SignUp error:', error);
-        // Gérer le cas d'un utilisateur existant
         if (error.message === "EXISTING_USER") {
           toast.error('Un compte existe déjà avec cet email.');
-          // Rediriger vers la connexion automatiquement après un délai
           setTimeout(() => {
             toast.info('Redirection vers la connexion...');
-            onBack(); // Retour au choix
+            onBack();
           }, 1500);
           return;
         }
@@ -128,7 +126,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
       console.log('✅ Account created successfully:', data?.user?.id);
       toast.success('Compte créé avec succès ! Redirection...');
       
-      // Attendre un peu pour laisser le temps aux triggers de s'exécuter
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       console.log('🔄 Completing signup flow...');
@@ -155,9 +152,24 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
     } catch (error: any) {
       toast.error(`Erreur de connexion ${provider}: ${error.message}`);
     }
+  };
+
+  const canProceed = () => {
+    switch (currentStep) {
+      case 'basic-info':
+        return !!(signupData.pseudo && signupData.firstName && signupData.lastName);
+      case 'contact-info':
+        return !!(signupData.email && signupData.password);
+      case 'location-info':
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  return (
     <div className="min-h-[100dvh] bg-background p-4 flex flex-col">
       <div className="max-w-md mx-auto w-full flex flex-col" style={{ maxHeight: 'calc(100dvh - 2rem)' }}>
-        {/* Header */}
         <div className="text-center space-y-3 py-4 flex-shrink-0">
           <Button
             variant="ghost"
@@ -177,7 +189,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
             <p className="text-muted-foreground text-xs">Rejoignez la communauté économique gabonaise</p>
           </div>
           
-          {/* Progress */}
           <div className="space-y-1.5">
             <Progress value={progress} className="h-2" />
             <p className="text-xs text-muted-foreground">
@@ -194,7 +205,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto space-y-3 pb-3">
 
-            {/* Basic Info Step */}
             {currentStep === 'basic-info' && (
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -236,7 +246,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
               </div>
             )}
 
-            {/* Contact Info Step */}
             {currentStep === 'contact-info' && (
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -287,7 +296,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
               </div>
             )}
 
-            {/* Location Step */}
             {currentStep === 'location-info' && (
               <div className="space-y-3">
                 <Badge variant="secondary" className="w-fit">
@@ -314,7 +322,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
 
           </CardContent>
           
-          {/* Navigation Buttons - Outside CardContent so always visible */}
           <div className="border-t p-4 flex-shrink-0 bg-card">
             <div className="flex justify-between">
               <Button
