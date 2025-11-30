@@ -155,22 +155,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
     } catch (error: any) {
       toast.error(`Erreur de connexion ${provider}: ${error.message}`);
     }
-  };
-
-  const canProceed = () => {
-    switch (currentStep) {
-      case 'basic-info':
-        return signupData.pseudo && signupData.firstName && signupData.lastName;
-      case 'contact-info':
-        return signupData.email && signupData.password;
-      case 'location-info':
-        return signupData.province || (signupData.latitude && signupData.longitude);
-      default:
-        return true;
-    }
-  };
-
-  return (
     <div className="min-h-[100dvh] bg-background p-4 flex flex-col">
       <div className="max-w-md mx-auto w-full flex flex-col" style={{ maxHeight: 'calc(100dvh - 2rem)' }}>
         {/* Header */}
