@@ -59,10 +59,13 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const nextStep = () => {
+    console.log('👉 nextStep called', { currentStep, stepIndex: currentStepIndex, totalSteps: steps.length });
     const currentIndex = steps.findIndex(step => step.id === currentStep);
     if (currentIndex < steps.length - 1) {
+      console.log('➡️ Moving to next step');
       setCurrentStep(steps[currentIndex + 1].id as SignupStep);
     } else {
+      console.log('🏁 Triggering account creation');
       handleCreateAccount();
     }
   };
