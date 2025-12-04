@@ -95,8 +95,7 @@ const App = () => {
                   {/* Routes Messagerie */}
                   <Route path="/messaging" element={<LazyMessagingPage />} />
                   <Route path="/messaging/:conversationId" element={<LazyConversationPage />} />
-                  <Route path="/mimo-chat" element={<Navigate to="/messaging" replace />} />
-                  <Route path="/mimo-chat/:conversationId" element={<Navigate to="/messaging/:conversationId" replace />} />
+
                   
                   {/* Routes catégories */}
                   <Route path="/category/:categoryId" element={<LazyCategoryPage />} />

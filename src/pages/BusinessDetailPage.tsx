@@ -28,11 +28,11 @@ import { toast } from "sonner";
 import { ProfileModeSwitch } from "@/components/profile/ProfileModeSwitch";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
-import { ChatWindow } from "@/components/mimo-chat/ChatWindow";
-import { MessagingProvider } from "@/contexts/MessagingContext";
+import { BusinessChatLoader } from "@/features/chat/components/BusinessChatLoader";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { CarouselImagesManager } from "@/components/business/CarouselImagesManager";
 import { AdvertisingDashboard } from "@/components/business/AdvertisingDashboard";
+
 interface BusinessDetail {
   id: string;
   name: string;
@@ -454,9 +454,7 @@ export const BusinessDetailPage = () => {
             <TabsContent value="chat" className="mt-6">
               <Card>
                 <CardContent className="p-0">
-                  <MessagingProvider>
-                    <ChatWindow conversationId={businessId || business.id} />
-                  </MessagingProvider>
+                  <BusinessChatLoader businessId={businessId || business.id} />
                 </CardContent>
               </Card>
             </TabsContent>

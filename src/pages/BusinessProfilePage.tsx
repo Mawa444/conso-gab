@@ -10,8 +10,7 @@ import { ArrowLeft, Settings, Building2 } from "lucide-react";
 import { CatalogInventoryIntegration } from "@/components/business/CatalogInventoryIntegration";
 import { BusinessProfileEditor } from "@/components/business/BusinessProfileEditor";
 import { toast } from "sonner";
-import { MessagingProvider } from "@/contexts/MessagingContext";
-import { ChatWindow } from "@/components/mimo-chat/ChatWindow";
+import { BusinessChatLoader } from "@/features/chat/components/BusinessChatLoader";
 
 interface BusinessProfile {
   id: string;
@@ -182,9 +181,7 @@ export const BusinessProfilePage = () => {
           <TabsContent value="chat" className="space-y-6">
             <Card>
               <CardContent className="p-0 h-[600px]">
-                <MessagingProvider>
-                  <ChatWindow conversationId={businessId} />
-                </MessagingProvider>
+                <BusinessChatLoader businessId={businessId} />
               </CardContent>
             </Card>
           </TabsContent>
