@@ -12,7 +12,7 @@ import { Loader2, Building2, ArrowLeft, ArrowRight, CheckCircle2, Upload, MapPin
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/features/auth";
 import { getAllBusinessCategories } from "@/data/businessCategories";
 import { createBusinessSchema, validateAndSanitize } from "@/lib/validation/business.validation";
 import { businessCreationLimiter, checkRateLimit } from "@/lib/validation/rate-limit";

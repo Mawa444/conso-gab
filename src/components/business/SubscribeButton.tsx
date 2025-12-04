@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Bell, BellRing, Settings } from 'lucide-react';
 import { useBusinessSubscriptions } from '@/hooks/use-business-subscriptions';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/features/auth';
 import { cn } from '@/lib/utils';
 import {
   Popover,

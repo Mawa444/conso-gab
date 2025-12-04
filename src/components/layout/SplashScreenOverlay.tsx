@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/features/auth";
 import { supabase } from "@/integrations/supabase/client";
 import gabomaLogo from "@/assets/gaboma-logo.png";
 

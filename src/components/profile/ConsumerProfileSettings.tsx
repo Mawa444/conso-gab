@@ -9,7 +9,7 @@ import { CoverImageUploader } from "@/components/profile/CoverImageUploader";
 import { User, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/features/auth";
 
 export const ConsumerProfileSettings = () => {
   const { user } = useAuth();

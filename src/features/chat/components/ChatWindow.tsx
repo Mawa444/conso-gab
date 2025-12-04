@@ -7,7 +7,7 @@ import { Conversation } from '../types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Phone, Video, MoreVertical, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/features/auth';
 
 interface ChatWindowProps {
   conversation: Conversation;

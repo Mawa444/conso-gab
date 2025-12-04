@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Message } from '../types';
 import { MessageBubble } from './MessageBubble';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/features/auth';
 
 interface MessageListProps {
   messages: Message[];

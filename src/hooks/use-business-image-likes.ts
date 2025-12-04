@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/features/auth';
 import { toast } from 'sonner';
 
 export const useBusinessImageLikes = (businessId: string, imageType: 'logo' | 'cover') => {
