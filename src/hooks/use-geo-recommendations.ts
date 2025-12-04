@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useGeoLocationContext } from '@/contexts/GeoLocationContext';
+import { useGeoLocation } from '@/features/geolocation/hooks/useGeoLocation';
 import { GeoLocationService, GeoRecommendation, GeoRecommendationsOptions } from '@/services/geoLocationService';
 
 interface UseGeoRecommendationsOptions extends GeoRecommendationsOptions {
@@ -8,7 +8,7 @@ interface UseGeoRecommendationsOptions extends GeoRecommendationsOptions {
 }
 
 export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}) => {
-  const { position, loading: positionLoading } = useGeoLocationContext();
+  const { position, loading: positionLoading } = useGeoLocation();
   const [businesses, setBusinesses] = useState<GeoRecommendation<any>[]>([]);
   const [catalogs, setCatalogs] = useState<GeoRecommendation<any>[]>([]);
   const [loading, setLoading] = useState(true);

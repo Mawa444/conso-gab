@@ -9,7 +9,7 @@ import { ActionButtonsBlock } from "@/components/blocks/ActionButtonsBlock";
 import { OperatorDashboardModal } from "@/components/business/OperatorDashboardModal";
 import { InteractiveBusinessCard } from "@/components/commerce/InteractiveBusinessCard";
 import { useGeoRecommendations } from "@/hooks/use-geo-recommendations";
-import { useGeoLocationContext } from "@/contexts/GeoLocationContext";
+import { useGeoLocation } from "@/features/geolocation/hooks/useGeoLocation";
 import { useNavigate } from "react-router-dom";
 import { Loader2, RefreshCw, Grid3X3, Building2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ export const HomePage = ({
   const {
     permissionDenied,
     requestPosition
-  } = useGeoLocationContext();
+  } = useGeoLocation();
 
   // Transformer pour compatibilité avec le composant
   const businesses = geoBusinesses.map(rec => ({

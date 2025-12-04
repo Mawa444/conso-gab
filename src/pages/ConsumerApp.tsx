@@ -6,7 +6,7 @@ import { MapPage } from "@/pages/MapPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { QRScanner } from "@/components/scanner/QRScanner";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useLocation, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileMode } from "@/hooks/use-profile-mode";

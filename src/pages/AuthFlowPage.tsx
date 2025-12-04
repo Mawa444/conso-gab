@@ -9,7 +9,7 @@ import { Mail, Lock, Globe, Eye, EyeOff } from "lucide-react";
 import gabomaLogo from "@/assets/gaboma-logo.png";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { GuidedSignupFlow } from "@/components/auth/GuidedSignupFlow";
 import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 

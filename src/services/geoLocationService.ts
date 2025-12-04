@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { GeoPosition } from '@/contexts/GeoLocationContext';
+import { GeoPosition } from '@/features/geolocation/types';
 
 export interface GeoItem {
   id: string;

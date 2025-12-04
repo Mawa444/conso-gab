@@ -1,4 +1,4 @@
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "@/features/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User, LogOut } from "lucide-react";

@@ -9,7 +9,7 @@ import { ProfilePage } from "@/pages/ProfilePage";
 import { QRScanner } from "@/components/scanner/QRScanner";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { LoginModal } from "@/components/auth/LoginModal";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 const Index = () => {
   const {
     user,

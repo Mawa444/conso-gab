@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, User, Building, Mail, Phone, Lock, Globe } from "lucide-react";
 import gabomaLogo from "@/assets/gaboma-logo.png";
 import { toast } from "sonner";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { LocationStep } from "./LocationStep";
 

@@ -1,7 +1,7 @@
 import React, { lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/components/auth/AuthProvider";
+import { AuthProvider } from "@/features/auth/AuthContext";
 import { RoleBasedRouter } from "@/components/auth/RoleBasedRouter";
 import { ModeGuard } from "@/components/auth/ModeGuard";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -10,7 +10,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { SplashScreen } from "@/pages/SplashScreen";
 import ConsumerApp from "@/pages/ConsumerApp";
 import { ProductDetailPage } from "@/pages/ProductDetailPage";
-import { GeoLocationProvider } from "@/contexts/GeoLocationContext";
+import { GeoLocationProvider } from "@/features/geolocation/GeoContext";
 
 // Lazy loaded pages pour code splitting
 import {

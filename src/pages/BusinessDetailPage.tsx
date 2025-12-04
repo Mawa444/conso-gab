@@ -19,7 +19,7 @@ import { ActivityLog } from "@/components/business/ActivityLog";
 import { SleepModeToggle } from "@/components/business/SleepModeToggle";
 import { ReviewReplySection } from "@/components/reviews/ReviewReplySection";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useProfileMode } from "@/hooks/use-profile-mode";
 import { useAuthCleanup } from "@/hooks/use-auth-cleanup";
 import { supabase } from "@/integrations/supabase/client";

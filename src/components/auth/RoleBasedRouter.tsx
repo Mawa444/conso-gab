@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '@/features/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { createDomainLogger } from '@/lib/logger';
 
