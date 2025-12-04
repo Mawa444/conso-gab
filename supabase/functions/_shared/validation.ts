@@ -48,6 +48,46 @@ export const createOrderSchema = z.object({
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 
 // ============================================
+// QUOTE SCHEMAS
+// ============================================
+
+export const quoteItemSchema = z.object({
+  product_id: z.string().uuid('Invalid product ID').optional(),
+  description: z.string().max(500),
+  unit_price: z.number().positive('Unit price must be positive'),
+  quantity: z.number().int().positive('Quantity must be positive').max(1000, 'Quantity too large')
+});
+
+export const createQuoteSchema = z.object({
+  business_id: z.string().uuid('Invalid business ID'),
+  customer_id: z.string().uuid('Invalid customer ID'),
+  conversation_id: z.string().uuid('Invalid conversation ID').optional(),
+  items: z.array(quoteItemSchema).min(1, 'At least one item required').max(100, 'Too many items'),
+  discount_percentage: z.number().min(0).max(100).default(0),
+  valid_until: z.string().datetime().optional(),
+  notes: z.string().max(1000).optional()
+});
+
+export type CreateQuoteInput = z.infer<typeof createQuoteSchema>;
+
+// ============================================
+// RESERVATION SCHEMAS
+// ============================================
+
+export const createReservationSchema = z.object({
+  business_id: z.string().uuid('Invalid business ID'),
+  customer_id: z.string().uuid('Invalid customer ID'),
+  catalog_id: z.string().uuid('Invalid catalog ID').optional(),
+  service_name: z.string().max(255),
+  start_datetime: z.string().datetime(),
+  duration_minutes: z.number().int().positive().max(1440, 'Duration too long'),
+  guest_count: z.number().int().positive().max(100, 'Too many guests').default(1),
+  special_requests: z.string().max(1000).optional()
+});
+
+export type CreateReservationInput = z.infer<typeof createReservationSchema>;
+
+// ============================================
 // PROCESS PAYMENT SCHEMA
 // ============================================
 
@@ -60,6 +100,20 @@ export const processPaymentSchema = z.object({
 });
 
 export type ProcessPaymentInput = z.infer<typeof processPaymentSchema>;
+
+// ============================================
+// VALIDATION ERROR CLASS
+// ============================================
+
+export class ValidationError extends Error {
+  errors: z.ZodError;
+  
+  constructor(zodError: z.ZodError) {
+    super('Validation failed');
+    this.name = 'ValidationError';
+    this.errors = zodError;
+  }
+}
 
 // ============================================
 // HELPER: VALIDATE REQUEST
@@ -84,6 +138,18 @@ export async function validateRequest<T>(
     }
     throw error;
   }
+}
+
+/**
+ * Valide un objet avec un schéma Zod (sync)
+ * @throws ValidationError si validation échoue
+ */
+export function validateSync<T>(schema: z.ZodSchema<T>, data: unknown): T {
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    throw new ValidationError(result.error);
+  }
+  return result.data;
 }
 
 /**

@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { validateRequest, createReservationSchema, ValidationError } from '../_shared/validation.ts';
+import { createReservationSchema, ValidationError, validateSync } from '../_shared/validation.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,7 +28,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const validated = validateRequest(createReservationSchema, body);
+    const validated = validateSync(createReservationSchema, body);
 
     const startDate = new Date(validated.start_datetime);
     const endDate = new Date(startDate.getTime() + validated.duration_minutes * 60000);
@@ -58,7 +58,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ success: true, reservation: data }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof ValidationError) {
       return new Response(JSON.stringify({ error: 'Validation failed', details: error.errors.errors }), {
         status: 400,
@@ -66,7 +66,8 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

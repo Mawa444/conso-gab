@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { validateRequest, createQuoteSchema, ValidationError } from '../_shared/validation.ts';
+import { createQuoteSchema, ValidationError, validateSync } from '../_shared/validation.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,9 +28,10 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const validated = validateRequest(createQuoteSchema, body);
+    const validated = validateSync(createQuoteSchema, body);
 
-    const subtotal = validated.items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+    const subtotal = validated.items.reduce((sum: number, item: { unit_price: number; quantity: number }) => 
+      sum + (item.unit_price * item.quantity), 0);
     const discountAmount = subtotal * (validated.discount_percentage / 100);
     const total = subtotal - discountAmount;
 
@@ -60,7 +61,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ success: true, quote: data }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof ValidationError) {
       return new Response(JSON.stringify({ error: 'Validation failed', details: error.errors.errors }), {
         status: 400,
@@ -68,7 +69,8 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

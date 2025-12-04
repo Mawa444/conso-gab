@@ -115,8 +115,10 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
 
       if (error) {
         console.error('❌ SignUp error:', error);
-        if (error.message === "EXISTING_USER") {
+        if (error.message === "EXISTING_USER" || error.message?.includes("existe déjà")) {
           toast.error('Un compte existe déjà avec cet email.');
+          // Store email for login form pre-fill
+          localStorage.setItem('prefillEmail', signupData.email || '');
           setTimeout(() => {
             toast.info('Redirection vers la connexion...');
             onBack();
@@ -127,12 +129,28 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
       }
 
       console.log('✅ Account created successfully:', data?.user?.id);
-      toast.success('Compte créé avec succès ! Redirection...');
+      toast.success('Compte créé avec succès ! Connexion automatique...');
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log('🔄 Completing signup flow...');
-      onComplete();
+      // After successful signup, automatically sign in
+      if (signupData.email && signupData.password) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: signupData.email,
+          password: signupData.password
+        });
+        
+        if (signInError) {
+          console.error('Auto sign-in failed:', signInError);
+          // If auto-signin fails, redirect to login
+          localStorage.setItem('prefillEmail', signupData.email);
+          toast.info('Veuillez vous connecter avec vos identifiants.');
+          onComplete();
+        } else {
+          console.log('✅ Auto sign-in successful, redirecting...');
+          // onComplete will be called by AuthFlowPage when it detects the user
+        }
+      } else {
+        onComplete();
+      }
     } catch (error: any) {
       console.error('❌ Signup error:', error);
       toast.error(error.message || "Erreur lors de l'inscription");

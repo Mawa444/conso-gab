@@ -120,7 +120,13 @@ export const PromotionDetailPage = () => {
         url: window.location.href
       });
     } else {
-      // Fallback pour WhatsApp
+      // Fallback pour copier le lien
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const handleClaimPromo = () => {
+    // Rediriger vers la page du business
     navigate(`/business/${promotion.business.id}`);
   };
 

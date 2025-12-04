@@ -1,12 +1,15 @@
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { Tables, TablesInsert, TablesUpdate, Json } from '@/integrations/supabase/types';
+import type { CatalogData } from '@/lib/supabase-helpers';
 
-type Catalog = Tables<'catalogs'>;
-type CatalogInsert = TablesInsert<'catalogs'>;
-type CatalogUpdate = TablesUpdate<'catalogs'>;
+// Types temporaires car la table 'catalogs' n'existe pas encore dans les types générés
+type Catalog = CatalogData;
+type CatalogInsert = Partial<CatalogData> & { business_id: string };
+type CatalogUpdate = Partial<CatalogData>;
+
+// Helper pour requêtes non typées
+const catalogsTable = () => (supabase as any).from('catalogs');
 
 interface CatalogDataWithImages extends Omit<CatalogInsert, 'business_id' | 'images'> {
   images?: Json; // Json compatible with DB
@@ -25,14 +28,13 @@ export const useCatalogManagement = (businessId: string) => {
   } = useQuery({
     queryKey: ['catalogs', businessId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('catalogs')
+      const { data, error } = await catalogsTable()
         .select('*')
         .eq('business_id', businessId)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as Catalog[];
+      return (data || []) as Catalog[];
     },
     enabled: !!businessId
   });
@@ -55,8 +57,7 @@ export const useCatalogManagement = (businessId: string) => {
         name: title || catalogInsert.name || 'Catalogue sans nom'
       };
       
-      const { data, error } = await supabase
-        .from('catalogs')
+      const { data, error } = await catalogsTable()
         .insert(insertData)
         .select()
         .single();
@@ -87,8 +88,7 @@ export const useCatalogManagement = (businessId: string) => {
   // Update catalog mutation
   const updateCatalogMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: CatalogUpdate }) => {
-      const { data, error } = await supabase
-        .from('catalogs')
+      const { data, error } = await catalogsTable()
         .update(updates)
         .eq('id', id)
         .select()
@@ -117,8 +117,7 @@ export const useCatalogManagement = (businessId: string) => {
   // Delete catalog mutation
   const deleteCatalogMutation = useMutation({
     mutationFn: async (catalogId: string) => {
-      const { error } = await supabase
-        .from('catalogs')
+      const { error } = await catalogsTable()
         .delete()
         .eq('id', catalogId);
       
@@ -144,15 +143,14 @@ export const useCatalogManagement = (businessId: string) => {
   // Toggle catalog visibility
   const toggleVisibilityMutation = useMutation({
     mutationFn: async ({ catalogId, isPublic }: { catalogId: string; isPublic: boolean }) => {
-      const { data, error } = await supabase
-        .from('catalogs')
+      const { data, error } = await catalogsTable()
         .update({ is_public: isPublic })
         .eq('id', catalogId)
         .select()
         .single();
       
       if (error) throw error;
-      return data;
+      return data as Catalog & { is_public: boolean };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['catalogs', businessId] });
