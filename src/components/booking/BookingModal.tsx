@@ -79,7 +79,7 @@ export const BookingModal = ({ catalog, open, onClose }: BookingModalProps) => {
 
   const fetchBookingConfig = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('catalog_booking_config')
         .select('*')
         .eq('catalog_id', catalog.id)

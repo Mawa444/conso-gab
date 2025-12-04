@@ -47,9 +47,14 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
   // Rediriger si déjà connecté
   useEffect(() => {
     if (!loading && user) {
-      navigate('/consumer/home', { replace: true });
+      console.log('✅ User authenticated, redirecting to home...', user.email);
+      // Small delay to ensure state is fully updated
+      setTimeout(() => {
+        navigate('/consumer/home', { replace: true });
+        onComplete();
+      }, 100);
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, onComplete]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

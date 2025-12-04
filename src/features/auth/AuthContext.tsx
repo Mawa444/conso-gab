@@ -55,8 +55,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔐 Auth state change:', event, session?.user?.email);
+      
+      // Synchronous state update first
+      const user = session?.user ?? null;
       
       if (event === 'SIGNED_OUT') {
         SessionService.clearSession();
@@ -70,26 +73,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        const user = session?.user ?? null;
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        // Update state immediately with user info
+        setState(prev => ({
+          ...prev,
+          user,
+          session,
+          loading: false,
+          initialized: true
+        }));
         
         // Initialize session tracking
         if (user && event === 'SIGNED_IN') {
           SessionService.initSession(user.id);
         }
 
-        let profile = null;
+        // Defer profile fetch to avoid deadlock
         if (user) {
-          profile = await AuthService.getProfile(user.id);
+          setTimeout(async () => {
+            try {
+              const profile = await AuthService.getProfile(user.id);
+              setState(prev => ({
+                ...prev,
+                profile: profile || prev.profile
+              }));
+            } catch (error) {
+              console.error('Error fetching profile:', error);
+            }
+          }, 0);
         }
-        
-        setState(prev => ({
-          ...prev,
-          user,
-          session,
-          profile: profile || prev.profile,
-          loading: false
-        }));
       }
     });
 
