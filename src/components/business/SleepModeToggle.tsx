@@ -33,7 +33,7 @@ export const SleepModeToggle = ({
   const confirmToggle = async () => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.rpc('toggle_business_sleep_mode', {
+      const { error } = await (supabase as any).rpc('toggle_business_sleep_mode', {
         business_profile_id: businessId,
         sleep_mode: pendingState
       });
@@ -44,7 +44,7 @@ export const SleepModeToggle = ({
       }
 
       // Logger l'activité
-      await supabase.rpc('log_user_activity', {
+      await (supabase as any).rpc('log_user_activity', {
         action_type_param: pendingState ? 'BUSINESS_SLEEP_ENABLED' : 'BUSINESS_SLEEP_DISABLED',
         action_description_param: `Mode sommeil ${pendingState ? 'activé' : 'désactivé'} pour ${businessName}`,
         business_id_param: businessId,

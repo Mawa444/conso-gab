@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+// Helper pour tables non typées
+const table = (name: string) => (supabase as any).from(name);
+
 interface BusinessStats {
   orders: number;
   products: number;
@@ -34,52 +37,46 @@ export const useBusinessStats = (businessId: string | undefined) => {
         setError(null);
 
         // Récupérer les commandes
-        const { count: ordersCount } = await supabase
-          .from('orders')
+        const { count: ordersCount } = await table('orders')
           .select('*', { count: 'exact', head: true })
-          .eq('seller_id', businessId);
+          .eq('business_id', businessId);
 
-        // Récupérer les produits (via catalogues)
-        const { data: catalogsData } = await supabase
-          .from('catalogs')
+        // Récupérer les catalogues
+        const { data: catalogsData } = await table('catalogs')
           .select('id')
           .eq('business_id', businessId)
           .eq('is_active', true);
 
-        const catalogIds = catalogsData?.map(c => c.id) || [];
+        const catalogIds = catalogsData?.map((c: any) => c.id) || [];
         
-        const { count: productsCount } = await supabase
-          .from('product')
+        // Récupérer les produits
+        const { count: productsCount } = await table('products')
           .select('*', { count: 'exact', head: true })
-          .in('catalog_id', catalogIds.length > 0 ? catalogIds : ['00000000-0000-0000-0000-000000000000']);
+          .eq('business_id', businessId);
 
         // Récupérer les conversations
         const { count: messagesCount } = await supabase
           .from('conversations')
           .select('*', { count: 'exact', head: true })
-          .eq('origin_type', 'business')
-          .eq('origin_id', businessId);
+          .eq('business_id', businessId);
 
         // Récupérer les abonnés
-        const { count: subscribersCount } = await supabase
-          .from('business_subscriptions')
+        const { count: subscribersCount } = await table('business_subscriptions')
           .select('*', { count: 'exact', head: true })
           .eq('business_id', businessId)
           .eq('is_active', true);
 
         // Récupérer le nombre de catalogues
-        const { count: catalogsCount } = await supabase
-          .from('catalogs')
+        const { count: catalogsCount } = await table('catalogs')
           .select('*', { count: 'exact', head: true })
           .eq('business_id', businessId)
           .eq('is_active', true);
 
-        // Pour les vues, on peut utiliser activity_log si disponible
-        const { count: viewsCount } = await supabase
-          .from('activity_log')
+        // Pour les vues
+        const { count: viewsCount } = await table('activity_log')
           .select('*', { count: 'exact', head: true })
-          .eq('business_id', businessId)
-          .eq('action_type', 'view_business');
+          .eq('action_type', 'PROFILE_VIEWED')
+          .eq('business_id', businessId);
 
         setStats({
           orders: ordersCount || 0,
@@ -91,17 +88,13 @@ export const useBusinessStats = (businessId: string | undefined) => {
         });
       } catch (err) {
         console.error('Error fetching business stats:', err);
-        setError('Impossible de charger les statistiques');
+        setError('Erreur lors du chargement des statistiques');
       } finally {
         setLoading(false);
       }
     };
 
     fetchStats();
-
-    // Refresh stats every 30 seconds
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
   }, [businessId]);
 
   return { stats, loading, error };

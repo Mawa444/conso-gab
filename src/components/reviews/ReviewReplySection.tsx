@@ -46,11 +46,10 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
 
   const fetchReply = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('review_replies')
         .select('*')
         .eq('review_id', review.id)
-        .eq('business_id', businessId)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -59,7 +58,11 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
       }
 
       if (data) {
-        setReply(data);
+        setReply({
+          ...data,
+          reply_text: data.content || data.reply_text,
+          updated_at: data.created_at
+        } as ReviewReply);
       }
     } catch (error) {
       console.error('Erreur:', error);
@@ -74,12 +77,12 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('review_replies')
         .insert({
           review_id: review.id,
-          business_id: businessId,
-          reply_text: replyText.trim()
+          user_id: user?.id,
+          content: replyText.trim()
         })
         .select()
         .single();
@@ -89,20 +92,28 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
         return;
       }
 
-      // Logger l'activité
-      await supabase.rpc('log_user_activity', {
-        action_type_param: 'REVIEW_REPLIED',
-        action_description_param: `Réponse à un avis de ${review.user}`,
-        business_id_param: businessId,
-        metadata_param: {
-          review_id: review.id,
-          reviewer: review.user,
-          rating: review.rating,
-          business_name: businessName
-        }
-      });
+      // Logger l'activité (optionnel, peut échouer)
+      try {
+        await (supabase as any).rpc('log_user_activity', {
+          action_type_param: 'REVIEW_REPLIED',
+          action_description_param: `Réponse à un avis de ${review.user}`,
+          business_id_param: businessId,
+          metadata_param: {
+            review_id: review.id,
+            reviewer: review.user,
+            rating: review.rating,
+            business_name: businessName
+          }
+        });
+      } catch (e) {
+        // Ignorer les erreurs de log
+      }
 
-      setReply(data);
+      setReply({
+        ...data,
+        reply_text: data.content,
+        updated_at: data.created_at
+      } as ReviewReply);
       setReplyText("");
       setIsReplying(false);
       toast.success("Réponse publiée avec succès");

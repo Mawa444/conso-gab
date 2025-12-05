@@ -50,7 +50,7 @@ export const DeleteBusinessModal = ({
       }
 
       // Programmer la suppression
-      const { error } = await supabase.rpc('schedule_business_deletion', {
+      const { error } = await (supabase as any).rpc('schedule_business_deletion', {
         business_profile_id: businessId
       });
 
@@ -60,7 +60,7 @@ export const DeleteBusinessModal = ({
       }
 
       // Logger l'activité
-      await supabase.rpc('log_user_activity', {
+      await (supabase as any).rpc('log_user_activity', {
         action_type_param: 'BUSINESS_DELETE_SCHEDULED',
         action_description_param: `Suppression de l'entreprise ${businessName} programmée pour dans 72h`,
         business_id_param: businessId,

@@ -166,7 +166,7 @@ export const BookingModal = ({ catalog, open, onClose }: BookingModalProps) => {
         special_requests: specialRequests
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('catalog_bookings')
         .insert(bookingData)
         .select()

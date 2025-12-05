@@ -29,22 +29,21 @@ export const QuickMessageModal = ({ open, onClose, business }: QuickMessageModal
     setSending(true);
     try {
       // Créer ou récupérer la conversation
-      const { data: existingConv } = await supabase
+      const { data: existingConv } = await (supabase as any)
         .from('conversations')
         .select('id')
-        .eq('origin_type', 'business')
-        .eq('origin_id', business.id)
+        .eq('business_id', business.id)
         .single();
 
       let conversationId = existingConv?.id;
 
       if (!conversationId) {
-        const { data: newConv, error: convError } = await supabase
+        const { data: newConv, error: convError } = await (supabase as any)
           .from('conversations')
           .insert({
-            origin_type: 'business',
-            origin_id: business.id,
-            last_message_at: new Date().toISOString()
+            business_id: business.id,
+            title: `Conversation avec ${business.business_name || 'Commerce'}`,
+            type: 'direct'
           })
           .select('id')
           .single();
@@ -53,8 +52,8 @@ export const QuickMessageModal = ({ open, onClose, business }: QuickMessageModal
         conversationId = newConv.id;
 
         // Ajouter les participants
-        await supabase.from('participants').insert([
-          { conversation_id: conversationId, user_id: user.id, role: 'customer' }
+        await (supabase as any).from('participants').insert([
+          { conversation_id: conversationId, user_id: user.id }
         ]);
       }
 
@@ -65,7 +64,7 @@ export const QuickMessageModal = ({ open, onClose, business }: QuickMessageModal
           conversation_id: conversationId,
           sender_id: user.id,
           content: message,
-          message_type: 'text'
+          type: 'text'
         });
 
       if (msgError) throw msgError;
