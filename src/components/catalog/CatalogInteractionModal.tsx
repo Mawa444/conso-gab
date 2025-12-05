@@ -58,10 +58,11 @@ interface Catalog {
   businessName?: string;
 }
 
-interface CatalogInteractionModalProps {
+export interface CatalogInteractionModalProps {
   catalog: Catalog;
   open: boolean;
   onClose: () => void;
+  businessName?: string;
 }
 
 export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInteractionModalProps) => {

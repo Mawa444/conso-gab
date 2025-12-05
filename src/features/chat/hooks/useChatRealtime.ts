@@ -29,7 +29,7 @@ export function useChatRealtime(conversationId: string) {
           // For now, we'll just invalidate to be safe and simple, OR manually patch if we want instant speed.
           
           // Let's try to patch manually for instant feel
-          const { data: profileData } = await supabase.rpc('get_unified_profile', { p_user_id: newMessage.sender_id });
+          const { data: profileData } = await (supabase as any).rpc('get_unified_profile', { p_user_id: newMessage.sender_id });
           
           const enrichedMessage: Message = {
             ...newMessage,

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { CatalogData } from '@/lib/supabase-helpers';
+import type { Json } from '@/integrations/supabase/types';
 
 // Types temporaires car la table 'catalogs' n'existe pas encore dans les types générés
 type Catalog = CatalogData;

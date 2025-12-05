@@ -96,7 +96,7 @@ export const ActivityLog = () => {
     try {
       setLoading(true);
       
-      let query = supabase
+      let query = (supabase as any)
         .from('activity_log')
         .select('*')
         .eq('user_id', user.id)
@@ -115,7 +115,7 @@ export const ActivityLog = () => {
         return;
       }
 
-      setActivities(data || []);
+      setActivities((data || []) as ActivityLogEntry[]);
     } catch (error) {
       toast.error("Erreur lors du chargement");
     } finally {

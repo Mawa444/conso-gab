@@ -3,6 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/features/auth';
 import { toast } from 'sonner';
 
+// Helper pour table non typée
+const businessImageLikesTable = () => (supabase as any).from('business_image_likes');
+
 export const useBusinessImageLikes = (businessId: string, imageType: 'logo' | 'cover') => {
   const { user } = useAuth();
   const [likesCount, setLikesCount] = useState(0);
@@ -16,8 +19,7 @@ export const useBusinessImageLikes = (businessId: string, imageType: 'logo' | 'c
   const fetchLikes = async () => {
     try {
       // Compter les likes totaux
-      const { count, error: countError } = await supabase
-        .from('business_image_likes')
+      const { count, error: countError } = await businessImageLikesTable()
         .select('*', { count: 'exact', head: true })
         .eq('business_id', businessId)
         .eq('image_type', imageType);
@@ -27,8 +29,7 @@ export const useBusinessImageLikes = (businessId: string, imageType: 'logo' | 'c
 
       // Vérifier si l'utilisateur a déjà liké
       if (user) {
-        const { data, error: userLikeError } = await supabase
-          .from('business_image_likes')
+        const { data, error: userLikeError } = await businessImageLikesTable()
           .select('id')
           .eq('business_id', businessId)
           .eq('user_id', user.id)
@@ -55,8 +56,7 @@ export const useBusinessImageLikes = (businessId: string, imageType: 'logo' | 'c
     try {
       if (isLiked) {
         // Retirer le like
-        const { error } = await supabase
-          .from('business_image_likes')
+        const { error } = await businessImageLikesTable()
           .delete()
           .eq('business_id', businessId)
           .eq('user_id', user.id)
@@ -67,8 +67,7 @@ export const useBusinessImageLikes = (businessId: string, imageType: 'logo' | 'c
         setLikesCount(prev => Math.max(0, prev - 1));
       } else {
         // Ajouter le like
-        const { error } = await supabase
-          .from('business_image_likes')
+        const { error } = await businessImageLikesTable()
           .insert({
             business_id: businessId,
             user_id: user.id,

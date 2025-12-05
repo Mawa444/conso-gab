@@ -58,24 +58,26 @@ export const CatalogInventoryIntegration = ({
       // Fetch catalogs with basic info (avoiding metadata column issue)
       const { data: catalogsData, error: catalogsError } = await supabase
         .from('catalogs')
-        .select('id, name, description, category, visibility, created_at, business_id')
+        .select('id, name, description, is_active, created_at, business_id')
         .eq('business_id', businessId)
         .order('created_at', { ascending: false });
 
       if (catalogsError) throw catalogsError;
 
-      // Get product counts separately
-      const catalogIds = catalogsData?.map(c => c.id) || [];
+      // Get product counts separately (cast to any for non-typed query)
+      const catalogIds = (catalogsData as any[])?.map((c: any) => c.id) || [];
       let productCounts: Record<string, number> = {};
       
       if (catalogIds.length > 0) {
-        const { data: productData } = await supabase
+        const { data: productData } = await (supabase as any)
           .from('product')
           .select('catalog_id')
           .in('catalog_id', catalogIds);
         
-        productCounts = productData?.reduce((acc, p) => {
-          acc[p.catalog_id] = (acc[p.catalog_id] || 0) + 1;
+        productCounts = (productData as any[])?.reduce((acc: Record<string, number>, p: any) => {
+          if (p.catalog_id) {
+            acc[p.catalog_id] = (acc[p.catalog_id] || 0) + 1;
+          }
           return acc;
         }, {} as Record<string, number>) || {};
       }
@@ -104,8 +106,8 @@ export const CatalogInventoryIntegration = ({
       }
 
       // Merge data
-      const enrichedCatalogs = catalogsData?.map(catalog => {
-        const tracking = trackingData?.find(t => t.target_entity_id === catalog.id);
+      const enrichedCatalogs = (catalogsData as any[])?.map((catalog: any) => {
+        const tracking = (trackingData as any[])?.find((t: any) => t.target_entity_id === catalog.id);
         
         return {
           ...catalog,

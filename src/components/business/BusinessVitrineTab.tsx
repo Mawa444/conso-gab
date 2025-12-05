@@ -7,7 +7,7 @@ import { Eye, Star, Package, Calendar, ArrowUpDown } from "lucide-react";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { CatalogInteractionModal } from "@/components/catalog/CatalogInteractionModal";
 import { EnhancedCatalogDisplay } from "@/components/catalog/EnhancedCatalogDisplay";
-import type { Tables } from "@/integrations/supabase/types";
+import type { CatalogData } from "@/lib/supabase-helpers";
 
 interface BusinessVitrineTabProps {
   businessId: string;
@@ -20,7 +20,7 @@ interface ImageData {
   id?: string;
 }
 
-type Catalog = Tables<'catalogs'>;
+type Catalog = CatalogData;
 
 export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrineTabProps) => {
   const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null);

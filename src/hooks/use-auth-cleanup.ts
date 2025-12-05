@@ -38,7 +38,7 @@ export const useAuthCleanup = () => {
     try {
       // Logger l'activité de déconnexion
       try {
-        await supabase.rpc('log_user_activity', {
+        await (supabase as any).rpc('log_user_activity', {
           action_type_param: 'LOGOUT',
           action_description_param: 'Déconnexion sécurisée du compte',
           metadata_param: {

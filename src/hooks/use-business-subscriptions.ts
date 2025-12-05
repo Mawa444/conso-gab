@@ -3,6 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/features/auth';
 import { useToast } from '@/hooks/use-toast';
 
+// Helper pour table non typée
+const subscriptionsTable = () => (supabase as any).from('business_subscriptions');
+
 export interface BusinessSubscription {
   id: string;
   business_id: string;
@@ -27,16 +30,18 @@ export const useBusinessSubscriptions = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('business_subscriptions')
+      const { data, error } = await subscriptionsTable()
         .select('*')
         .eq('subscriber_user_id', user.id)
         .eq('is_active', true);
 
       if (error) throw error;
       
-      const formattedData = (data || []).map(item => ({
-        ...item,
+      const formattedData = ((data || []) as any[]).map((item: any) => ({
+        id: item.id,
+        business_id: item.business_id,
+        is_active: item.is_active,
+        created_at: item.created_at,
         notification_types: typeof item.notification_types === 'object' && item.notification_types !== null
           ? item.notification_types as BusinessSubscription['notification_types']
           : {
@@ -60,8 +65,7 @@ export const useBusinessSubscriptions = () => {
     if (!user) return false;
 
     try {
-      const { error } = await supabase
-        .from('business_subscriptions')
+      const { error } = await subscriptionsTable()
         .insert({
           subscriber_user_id: user.id,
           business_id: businessId,
@@ -71,22 +75,25 @@ export const useBusinessSubscriptions = () => {
             new_message: true,
             new_order: true,
             business_update: true
-          }
+          },
+          is_active: true
         });
 
       if (error) throw error;
 
-      await fetchSubscriptions();
       toast({
-        title: "Ajouté aux favoris",
-        description: "Vous recevrez les actualités de ce profil en priorité.",
+        title: "Abonnement réussi",
+        description: "Vous recevrez des notifications pour ce commerce"
       });
+
+      await fetchSubscriptions();
       return true;
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error subscribing:', error);
       toast({
         title: "Erreur",
-        description: error.message || "Impossible de s'abonner",
-        variant: "destructive",
+        description: "Impossible de s'abonner",
+        variant: "destructive"
       });
       return false;
     }
@@ -96,53 +103,26 @@ export const useBusinessSubscriptions = () => {
     if (!user) return false;
 
     try {
-      const { error } = await supabase
-        .from('business_subscriptions')
+      const { error } = await subscriptionsTable()
         .update({ is_active: false })
         .eq('subscriber_user_id', user.id)
         .eq('business_id', businessId);
 
       if (error) throw error;
 
-      await fetchSubscriptions();
       toast({
-        title: "Retiré des favoris",
-        description: "Vous ne recevrez plus les actualités de ce profil.",
+        title: "Désabonnement réussi",
+        description: "Vous ne recevrez plus de notifications"
       });
-      return true;
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message || "Impossible de se désabonner",
-        variant: "destructive",
-      });
-      return false;
-    }
-  };
-
-  const updateNotificationSettings = async (businessId: string, notificationTypes: BusinessSubscription['notification_types']) => {
-    if (!user) return false;
-
-    try {
-      const { error } = await supabase
-        .from('business_subscriptions')
-        .update({ notification_types: notificationTypes })
-        .eq('subscriber_user_id', user.id)
-        .eq('business_id', businessId);
-
-      if (error) throw error;
 
       await fetchSubscriptions();
-      toast({
-        title: "Paramètres mis à jour",
-        description: "Vos préférences de notification ont été sauvegardées.",
-      });
       return true;
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error unsubscribing:', error);
       toast({
         title: "Erreur",
-        description: error.message || "Impossible de mettre à jour les paramètres",
-        variant: "destructive",
+        description: "Impossible de se désabonner",
+        variant: "destructive"
       });
       return false;
     }
@@ -152,8 +132,30 @@ export const useBusinessSubscriptions = () => {
     return subscriptions.some(sub => sub.business_id === businessId && sub.is_active);
   };
 
-  const getSubscription = (businessId: string) => {
-    return subscriptions.find(sub => sub.business_id === businessId && sub.is_active);
+  const updateNotificationSettings = async (
+    businessId: string, 
+    settings: Partial<BusinessSubscription['notification_types']>
+  ) => {
+    if (!user) return false;
+
+    try {
+      const subscription = subscriptions.find(sub => sub.business_id === businessId);
+      if (!subscription) return false;
+
+      const newSettings = { ...subscription.notification_types, ...settings };
+      
+      const { error } = await subscriptionsTable()
+        .update({ notification_types: newSettings })
+        .eq('id', subscription.id);
+
+      if (error) throw error;
+
+      await fetchSubscriptions();
+      return true;
+    } catch (error) {
+      console.error('Error updating notification settings:', error);
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -165,9 +167,9 @@ export const useBusinessSubscriptions = () => {
     loading,
     subscribe,
     unsubscribe,
-    updateNotificationSettings,
     isSubscribed,
-    getSubscription,
-    refetch: fetchSubscriptions
+    updateNotificationSettings,
+    refetch: fetchSubscriptions,
+    getSubscription: (businessId: string) => subscriptions.find(sub => sub.business_id === businessId)
   };
 };

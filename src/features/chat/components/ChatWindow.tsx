@@ -31,12 +31,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, onBack }) 
 
   const { mutate: markAsRead } = useMarkAsRead();
 
-  React.useEffect(() => {
-    if (conversation.id && user) {
-      markAsRead(conversation.id);
-    }
-  }, [conversation.id, user, messages.length, markAsRead]);
-
   // Flatten pages for display
   // We want to display messages in chronological order (Old -> New) for the chat interface
   // The service returns New -> Old (DESC)
@@ -46,6 +40,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, onBack }) 
     if (!data) return [];
     return data.pages.flat().reverse();
   }, [data]);
+
+  React.useEffect(() => {
+    if (conversation.id && user) {
+      markAsRead(conversation.id);
+    }
+  }, [conversation.id, user, messages.length, markAsRead]);
 
   // Header Info
   const otherParticipant = conversation.participants.find(p => p.user_id !== user?.id);

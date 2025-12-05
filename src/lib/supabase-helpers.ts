@@ -38,6 +38,12 @@ export interface CatalogData {
   price_currency?: string;
   created_at?: string;
   updated_at?: string;
+  is_public?: boolean;
+  seo_score?: number;
+  is_active?: boolean;
+  display_order?: number;
+  visibility?: 'public' | 'private' | 'unlisted';
+  synonyms?: string[];
 }
 
 // Interface pour les activités
