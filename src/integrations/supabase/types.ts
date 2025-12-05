@@ -543,6 +543,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          rating: number | null
           user_id: string
         }
         Insert: {
@@ -550,6 +551,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          rating?: number | null
           user_id: string
         }
         Update: {
@@ -557,6 +559,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          rating?: number | null
           user_id?: string
         }
         Relationships: [
@@ -646,33 +649,93 @@ export type Database = {
       catalogs: {
         Row: {
           business_id: string
+          catalog_type: string | null
+          category: string | null
+          cover_url: string | null
           created_at: string
+          delivery_available: boolean | null
+          delivery_cost: number | null
+          delivery_zones: string[] | null
           description: string | null
           display_order: number | null
+          has_limited_quantity: boolean | null
           id: string
+          images: Json | null
           is_active: boolean | null
+          is_public: boolean | null
+          keywords: string[] | null
+          max_price: number | null
+          min_price: number | null
           name: string
+          price_currency: string | null
+          price_details: Json | null
+          price_type: string | null
+          quantity_available: number | null
+          seo_score: number | null
+          subcategory: string | null
+          synonyms: string[] | null
           updated_at: string
+          visibility: string | null
         }
         Insert: {
           business_id: string
+          catalog_type?: string | null
+          category?: string | null
+          cover_url?: string | null
           created_at?: string
+          delivery_available?: boolean | null
+          delivery_cost?: number | null
+          delivery_zones?: string[] | null
           description?: string | null
           display_order?: number | null
+          has_limited_quantity?: boolean | null
           id?: string
+          images?: Json | null
           is_active?: boolean | null
+          is_public?: boolean | null
+          keywords?: string[] | null
+          max_price?: number | null
+          min_price?: number | null
           name: string
+          price_currency?: string | null
+          price_details?: Json | null
+          price_type?: string | null
+          quantity_available?: number | null
+          seo_score?: number | null
+          subcategory?: string | null
+          synonyms?: string[] | null
           updated_at?: string
+          visibility?: string | null
         }
         Update: {
           business_id?: string
+          catalog_type?: string | null
+          category?: string | null
+          cover_url?: string | null
           created_at?: string
+          delivery_available?: boolean | null
+          delivery_cost?: number | null
+          delivery_zones?: string[] | null
           description?: string | null
           display_order?: number | null
+          has_limited_quantity?: boolean | null
           id?: string
+          images?: Json | null
           is_active?: boolean | null
+          is_public?: boolean | null
+          keywords?: string[] | null
+          max_price?: number | null
+          min_price?: number | null
           name?: string
+          price_currency?: string | null
+          price_details?: Json | null
+          price_type?: string | null
+          quantity_available?: number | null
+          seo_score?: number | null
+          subcategory?: string | null
+          synonyms?: string[] | null
           updated_at?: string
+          visibility?: string | null
         }
         Relationships: [
           {
@@ -753,49 +816,79 @@ export type Database = {
       }
       location_requests: {
         Row: {
+          conversation_id: string | null
           created_at: string
           expires_at: string | null
           id: string
+          purpose: string | null
           requested_by: string
+          requester_id: string | null
+          share_mode: string | null
           status: string | null
+          target_id: string | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
+          conversation_id?: string | null
           created_at?: string
           expires_at?: string | null
           id?: string
+          purpose?: string | null
           requested_by: string
+          requester_id?: string | null
+          share_mode?: string | null
           status?: string | null
+          target_id?: string | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
+          conversation_id?: string | null
           created_at?: string
           expires_at?: string | null
           id?: string
+          purpose?: string | null
           requested_by?: string
+          requester_id?: string | null
+          share_mode?: string | null
           status?: string | null
+          target_id?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
       }
       location_share_history: {
         Row: {
+          accuracy: number | null
           id: string
+          latitude: number | null
           location: unknown
+          longitude: number | null
+          request_id: string | null
           shared_at: string
           shared_with: string
           user_id: string
         }
         Insert: {
+          accuracy?: number | null
           id?: string
+          latitude?: number | null
           location?: unknown
+          longitude?: number | null
+          request_id?: string | null
           shared_at?: string
           shared_with: string
           user_id: string
         }
         Update: {
+          accuracy?: number | null
           id?: string
+          latitude?: number | null
           location?: unknown
+          longitude?: number | null
+          request_id?: string | null
           shared_at?: string
           shared_with?: string
           user_id?: string
@@ -1183,43 +1276,73 @@ export type Database = {
       }
       products: {
         Row: {
+          barcode: string | null
           business_id: string
           catalog_id: string | null
+          category: string | null
           created_at: string
           description: string | null
+          dimensions: Json | null
           id: string
           images: Json | null
+          is_active: boolean | null
           is_available: boolean | null
+          is_on_sale: boolean | null
           name: string
           price: number
+          sale_price: number | null
+          sku: string | null
           stock_quantity: number | null
+          subcategory: string | null
+          tags: string[] | null
           updated_at: string
+          weight: number | null
         }
         Insert: {
+          barcode?: string | null
           business_id: string
           catalog_id?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
+          dimensions?: Json | null
           id?: string
           images?: Json | null
+          is_active?: boolean | null
           is_available?: boolean | null
+          is_on_sale?: boolean | null
           name: string
           price: number
+          sale_price?: number | null
+          sku?: string | null
           stock_quantity?: number | null
+          subcategory?: string | null
+          tags?: string[] | null
           updated_at?: string
+          weight?: number | null
         }
         Update: {
+          barcode?: string | null
           business_id?: string
           catalog_id?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
+          dimensions?: Json | null
           id?: string
           images?: Json | null
+          is_active?: boolean | null
           is_available?: boolean | null
+          is_on_sale?: boolean | null
           name?: string
           price?: number
+          sale_price?: number | null
+          sku?: string | null
           stock_quantity?: number | null
+          subcategory?: string | null
+          tags?: string[] | null
           updated_at?: string
+          weight?: number | null
         }
         Relationships: [
           {
@@ -1261,29 +1384,50 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_updated_at: string | null
           avatar_url: string | null
           bio: string | null
+          cover_image_url: string | null
+          cover_updated_at: string | null
           created_at: string
           display_name: string | null
+          first_name: string | null
           id: string
+          last_name: string | null
+          phone: string | null
+          preferences: Json | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          avatar_updated_at?: string | null
           avatar_url?: string | null
           bio?: string | null
+          cover_image_url?: string | null
+          cover_updated_at?: string | null
           created_at?: string
           display_name?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
+          phone?: string | null
+          preferences?: Json | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          avatar_updated_at?: string | null
           avatar_url?: string | null
           bio?: string | null
+          cover_image_url?: string | null
+          cover_updated_at?: string | null
           created_at?: string
           display_name?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
+          phone?: string | null
+          preferences?: Json | null
           updated_at?: string
           user_id?: string
         }
@@ -1385,21 +1529,27 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          reply_text: string | null
           review_id: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
           content: string
           created_at?: string
           id?: string
+          reply_text?: string | null
           review_id: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
           content?: string
           created_at?: string
           id?: string
+          reply_text?: string | null
           review_id?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -1870,6 +2020,10 @@ export type Database = {
             }
             Returns: string
           }
+      cancel_business_deletion: {
+        Args: { p_business_id: string }
+        Returns: boolean
+      }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {
@@ -2001,6 +2155,63 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_businesses_in_bbox: {
+        Args: {
+          p_limit?: number
+          p_max_lat: number
+          p_max_lng: number
+          p_min_lat: number
+          p_min_lng: number
+        }
+        Returns: {
+          address: string | null
+          arrondissement: string | null
+          business_category: Database["public"]["Enums"]["business_category"]
+          business_name: string
+          carousel_images: Json | null
+          city: string | null
+          country: string | null
+          cover_image_url: string | null
+          cover_updated_at: string | null
+          created_at: string
+          deactivation_scheduled_at: string | null
+          department: string | null
+          description: string | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          is_deactivated: boolean | null
+          is_primary: boolean | null
+          is_sleeping: boolean | null
+          is_verified: boolean | null
+          latitude: number | null
+          location: unknown
+          logo_updated_at: string | null
+          logo_url: string | null
+          longitude: number | null
+          office_location: Json | null
+          office_location_type: string | null
+          office_location_updated_at: string | null
+          owner_id: string | null
+          phone: string | null
+          province: string | null
+          quartier: string | null
+          slug: string | null
+          social_media: Json | null
+          status: string | null
+          telegram: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+          whatsapp: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "business_profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_my_business_profiles: {
         Args: never
         Returns: {
@@ -2012,7 +2223,49 @@ export type Database = {
           role: string
         }[]
       }
+      get_nearest_businesses: {
+        Args: {
+          p_lat: number
+          p_limit?: number
+          p_lng: number
+          p_radius_km?: number
+        }
+        Returns: {
+          address: string
+          business_category: string
+          business_name: string
+          city: string
+          cover_image_url: string
+          description: string
+          distance_km: number
+          id: string
+          latitude: number
+          logo_url: string
+          longitude: number
+          phone: string
+          quartier: string
+          whatsapp: string
+        }[]
+      }
+      get_or_create_business_conversation: {
+        Args: { p_business_id: string; p_user_id: string }
+        Returns: string
+      }
+      get_or_create_direct_conversation: {
+        Args: { p_other_user_id: string; p_user_id: string }
+        Returns: string
+      }
+      get_user_context: { Args: { p_user_id: string }; Returns: Json }
       gettransactionid: { Args: never; Returns: unknown }
+      log_user_activity: {
+        Args: {
+          p_action_description: string
+          p_action_type: string
+          p_business_id?: string
+          p_metadata?: Json
+        }
+        Returns: string
+      }
       longtransactionsenabled: { Args: never; Returns: boolean }
       populate_geometry_columns:
         | { Args: { use_typmod?: boolean }; Returns: string }
@@ -2054,6 +2307,10 @@ export type Database = {
       }
       postgis_version: { Args: never; Returns: string }
       postgis_wagyu_version: { Args: never; Returns: string }
+      schedule_business_deletion: {
+        Args: { p_business_id: string; p_days_until_deletion?: number }
+        Returns: boolean
+      }
       st_3dclosestpoint: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
@@ -2636,6 +2893,10 @@ export type Database = {
         Returns: unknown
       }
       switch_user_profile: { Args: { profile_id?: string }; Returns: Json }
+      toggle_business_sleep_mode: {
+        Args: { p_business_id: string; p_is_sleeping: boolean }
+        Returns: boolean
+      }
       unlockrows: { Args: { "": string }; Returns: number }
       updategeometrysrid: {
         Args: {
