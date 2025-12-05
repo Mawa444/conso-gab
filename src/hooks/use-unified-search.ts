@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserLocation } from './use-user-location';
 
@@ -58,19 +58,10 @@ export const useUnifiedSearch = () => {
     try {
       const searchTerm = query.toLowerCase().trim();
       
-      // Recherche dans business_profiles avec jointure pour plus d'infos
+      // Recherche dans business_profiles
       let businessQuery = supabase
         .from('business_profiles')
-        .select(`
-          *,
-          catalogs!inner(
-            id,
-            name,
-            keywords,
-            synonyms,
-            category
-          )
-        `)
+        .select('*')
         .eq('is_active', true)
         .eq('is_sleeping', false)
         .eq('is_deactivated', false);
@@ -87,149 +78,38 @@ export const useUnifiedSearch = () => {
         businessQuery = businessQuery.or(`city.ilike.%${filters.location}%,quartier.ilike.%${filters.location}%,department.ilike.%${filters.location}%`);
       }
 
-      const { data: businessesWithCatalogs } = await businessQuery;
-      
-      // Recherche aussi les entreprises sans catalogues
-      let businessOnlyQuery = supabase
-        .from('business_profiles')
-        .select('*')
-        .eq('is_active', true)
-        .eq('is_sleeping', false)
-        .eq('is_deactivated', false);
-
-      if (filters?.verified) {
-        businessOnlyQuery = businessOnlyQuery.eq('is_verified', true);
-      }
-
-      if (filters?.category) {
-        businessOnlyQuery = businessOnlyQuery.eq('business_category', filters.category as any);
-      }
-
-      if (filters?.location) {
-        businessOnlyQuery = businessOnlyQuery.or(`city.ilike.%${filters.location}%,quartier.ilike.%${filters.location}%,department.ilike.%${filters.location}%`);
-      }
-
-      const { data: allBusinesses } = await businessOnlyQuery;
+      const { data: allBusinesses } = await businessQuery;
 
       const businessResults: SearchResult[] = [];
       
-      // Traiter les entreprises avec catalogues
-      businessesWithCatalogs?.forEach(business => {
+      allBusinesses?.forEach((business: any) => {
         let score = 0;
         
         // Recherche dans le nom de l'entreprise
-        if (business.business_name.toLowerCase().includes(searchTerm)) {
+        if (business.business_name?.toLowerCase().includes(searchTerm)) {
           score += 100;
         }
         
         // Recherche dans la description
-        if (business.description && business.description.toLowerCase().includes(searchTerm)) {
+        if (business.description?.toLowerCase().includes(searchTerm)) {
           score += 60;
         }
         
         // Recherche dans l'adresse et localisation
-        if (business.address && business.address.toLowerCase().includes(searchTerm)) {
+        if (business.address?.toLowerCase().includes(searchTerm)) {
           score += 40;
         }
         
-        if (business.quartier && business.quartier.toLowerCase().includes(searchTerm)) {
+        if (business.quartier?.toLowerCase().includes(searchTerm)) {
           score += 30;
         }
 
-        if (business.city && business.city.toLowerCase().includes(searchTerm)) {
+        if (business.city?.toLowerCase().includes(searchTerm)) {
           score += 25;
-        }
-        
-        // Recherche dans les catalogues associés
-        if (business.catalogs) {
-          business.catalogs.forEach((catalog: any) => {
-            if (catalog.name && catalog.name.toLowerCase().includes(searchTerm)) {
-              score += 70;
-            }
-            if (catalog.keywords) {
-              catalog.keywords.forEach((keyword: string) => {
-                if (keyword.toLowerCase().includes(searchTerm)) {
-                  score += 30;
-                }
-              });
-            }
-            if (catalog.synonyms) {
-              catalog.synonyms.forEach((synonym: string) => {
-                if (synonym.toLowerCase().includes(searchTerm)) {
-                  score += 25;
-                }
-              });
-            }
-          });
-        }
-        
-        // Recherche phonétique/floue améliorée
-        const businessWords = business.business_name.toLowerCase().split(' ');
-        const queryWords = searchTerm.split(' ');
-        
-        queryWords.forEach(queryWord => {
-          businessWords.forEach(businessWord => {
-            // Correspondance partielle (début de mot)
-            if (businessWord.startsWith(queryWord) || queryWord.startsWith(businessWord)) {
-              score += 15;
-            }
-            // Correspondance floue (Levenshtein distance approximative)
-            if (Math.abs(businessWord.length - queryWord.length) <= 2) {
-              const commonChars = queryWord.split('').filter(char => businessWord.includes(char)).length;
-              if (commonChars >= Math.min(3, queryWord.length * 0.7)) {
-                score += 10;
-              }
-            }
-          });
-        });
-        
-        // Bonus pour les entreprises vérifiées et actives
-        if (business.is_verified) score += 20;
-        
-        if (score > 0) {
-          businessResults.push({
-            id: business.id,
-            name: business.business_name,
-            type: 'business' as const,
-            title: business.business_name,
-            description: business.description,
-            category: business.business_category,
-            address: `${business.address || ''} ${business.quartier || ''} ${business.city || ''}`.trim(),
-            verified: business.is_verified,
-            score,
-            businessId: business.id,
-            latitude: business.latitude,
-            longitude: business.longitude
-          });
-        }
-      });
-
-      // Traiter toutes les autres entreprises (sans doublon)
-      const processedIds = new Set(businessResults.map(b => b.id));
-      allBusinesses?.forEach(business => {
-        if (processedIds.has(business.id)) return;
-        
-        let score = 0;
-        
-        // Même logique de scoring pour les entreprises sans catalogue
-        if (business.business_name.toLowerCase().includes(searchTerm)) {
-          score += 100;
-        }
-        
-        if (business.description && business.description.toLowerCase().includes(searchTerm)) {
-          score += 50;
-        }
-        
-        if (business.address && business.address.toLowerCase().includes(searchTerm)) {
-          score += 30;
-        }
-        
-        if (business.quartier && business.quartier.toLowerCase().includes(searchTerm)) {
-          score += 20;
         }
 
         // Recherche floue
-        const businessWords = business.business_name.toLowerCase().split(' ');
+        const businessWords = (business.business_name || '').toLowerCase().split(' ');
         const queryWords = searchTerm.split(' ');
         
         queryWords.forEach(queryWord => {
@@ -254,8 +134,8 @@ export const useUnifiedSearch = () => {
             verified: business.is_verified,
             score,
             businessId: business.id,
-            latitude: business.latitude,
-            longitude: business.longitude
+            latitude: business.latitude ? Number(business.latitude) : undefined,
+            longitude: business.longitude ? Number(business.longitude) : undefined
           });
         }
       });
@@ -274,11 +154,11 @@ export const useUnifiedSearch = () => {
     try {
       const searchTerm = query.toLowerCase().trim();
       
-      let catalogQuery = supabase
+      const { data: catalogs, error: catalogError } = await (supabase as any)
         .from('catalogs')
         .select(`
           *,
-          business_profiles!inner(
+          business_profiles (
             business_name,
             is_verified,
             city,
@@ -287,38 +167,35 @@ export const useUnifiedSearch = () => {
             longitude
           )
         `)
-        .eq('is_active', true)
-        .eq('is_public', true);
+        .eq('is_active', true);
 
-      if (filters?.category) {
-        catalogQuery = catalogQuery.eq('category', filters.category);
-      }
-
-      const { data: catalogs, error: catalogError } = await catalogQuery;
-      
       if (catalogError) throw catalogError;
 
-      return catalogs?.map(catalog => {
+      return catalogs?.map((catalog: any) => {
         let score = 0;
         
-        if (catalog.name.toLowerCase().includes(searchTerm)) {
+        if (catalog.name?.toLowerCase().includes(searchTerm)) {
           score += 90;
         }
         
-        if (catalog.description && catalog.description.toLowerCase().includes(searchTerm)) {
+        if (catalog.description?.toLowerCase().includes(searchTerm)) {
           score += 40;
         }
         
-        if (catalog.keywords && catalog.keywords.some((keyword: string) => 
-          keyword.toLowerCase().includes(searchTerm)
-        )) {
-          score += 30;
+        if (catalog.keywords && Array.isArray(catalog.keywords)) {
+          catalog.keywords.forEach((keyword: string) => {
+            if (keyword?.toLowerCase().includes(searchTerm)) {
+              score += 30;
+            }
+          });
         }
         
-        if (catalog.synonyms && catalog.synonyms.some((synonym: string) => 
-          synonym.toLowerCase().includes(searchTerm)
-        )) {
-          score += 25;
+        if (catalog.synonyms && Array.isArray(catalog.synonyms)) {
+          catalog.synonyms.forEach((synonym: string) => {
+            if (synonym?.toLowerCase().includes(searchTerm)) {
+              score += 25;
+            }
+          });
         }
         
         return {
@@ -332,10 +209,10 @@ export const useUnifiedSearch = () => {
           score,
           businessId: catalog.business_id,
           catalogId: catalog.id,
-          latitude: catalog.business_profiles?.latitude,
-          longitude: catalog.business_profiles?.longitude
+          latitude: catalog.business_profiles?.latitude ? Number(catalog.business_profiles.latitude) : undefined,
+          longitude: catalog.business_profiles?.longitude ? Number(catalog.business_profiles.longitude) : undefined
         } as SearchResult;
-      }).filter(item => item.score > 0) || [];
+      }).filter((item: SearchResult) => item.score > 0) || [];
       
     } catch (error) {
       console.error('Error searching catalogs:', error);
@@ -349,47 +226,38 @@ export const useUnifiedSearch = () => {
     try {
       const searchTerm = query.toLowerCase().trim();
       
-      let productQuery = supabase
+      const { data: products, error: productError } = await (supabase as any)
         .from('products')
         .select(`
           *,
-          catalogs!inner(
-            name,
-            category,
-            business_id,
-            business_profiles!inner(
-              business_name,
-              is_verified,
-              latitude,
-              longitude
-            )
+          business_profiles (
+            business_name,
+            is_verified,
+            latitude,
+            longitude
           )
         `)
-        .eq('is_active', true);
+        .eq('is_available', true);
 
-      if (filters?.category) {
-        productQuery = productQuery.eq('catalogs.category', filters.category);
-      }
-
-      const { data: products, error: productError } = await productQuery;
-      
       if (productError) throw productError;
 
-      return products?.map(product => {
+      return products?.map((product: any) => {
         let score = 0;
         
-        if (product.name.toLowerCase().includes(searchTerm)) {
+        if (product.name?.toLowerCase().includes(searchTerm)) {
           score += 80;
         }
         
-        if (product.description && product.description.toLowerCase().includes(searchTerm)) {
+        if (product.description?.toLowerCase().includes(searchTerm)) {
           score += 30;
         }
         
-        if (product.tags && product.tags.some((tag: string) => 
-          tag.toLowerCase().includes(searchTerm)
-        )) {
-          score += 20;
+        if (product.tags && Array.isArray(product.tags)) {
+          product.tags.forEach((tag: string) => {
+            if (tag?.toLowerCase().includes(searchTerm)) {
+              score += 20;
+            }
+          });
         }
         
         return {
@@ -398,15 +266,15 @@ export const useUnifiedSearch = () => {
           type: 'product' as const,
           title: product.name,
           description: product.description,
-          category: product.catalogs?.category,
-          verified: product.catalogs?.business_profiles?.is_verified,
+          category: product.category,
+          verified: product.business_profiles?.is_verified,
           score,
           businessId: product.business_id,
           catalogId: product.catalog_id,
-          latitude: product.catalogs?.business_profiles?.latitude,
-          longitude: product.catalogs?.business_profiles?.longitude
+          latitude: product.business_profiles?.latitude ? Number(product.business_profiles.latitude) : undefined,
+          longitude: product.business_profiles?.longitude ? Number(product.business_profiles.longitude) : undefined
         } as SearchResult;
-      }).filter(item => item.score > 0) || [];
+      }).filter((item: SearchResult) => item.score > 0) || [];
       
     } catch (error) {
       console.error('Error searching products:', error);
@@ -433,7 +301,7 @@ export const useUnifiedSearch = () => {
 
       // Calculer la distance pour chaque résultat
       const resultsWithDistance = [...businessResults, ...catalogResults, ...productResults].map(result => {
-        if (result.latitude && result.longitude) {
+        if (result.latitude && result.longitude && userLocation?.latitude && userLocation?.longitude) {
           const distance = calculateDistance(
             userLocation.latitude,
             userLocation.longitude,
@@ -467,7 +335,7 @@ export const useUnifiedSearch = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchBusinesses, searchCatalogs, searchProducts]);
+  }, [searchBusinesses, searchCatalogs, searchProducts, userLocation]);
 
   const clearResults = useCallback(() => {
     setResults([]);

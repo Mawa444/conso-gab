@@ -19,7 +19,7 @@ export const useUserContext = () => {
     queryFn: async (): Promise<UserContext> => {
       logger.time('user-context-fetch');
       
-      const { data, error } = await supabase.rpc('get_user_context');
+      const { data, error } = await (supabase as any).rpc('get_user_context');
       
       logger.timeEnd('user-context-fetch');
       

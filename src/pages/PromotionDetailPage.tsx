@@ -302,7 +302,7 @@ export const PromotionDetailPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleVisitBusiness}
+                  onClick={() => navigate(`/business/${promotion.business.id}`)}
                 >
                   Voir
                 </Button>

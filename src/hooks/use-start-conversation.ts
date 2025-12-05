@@ -27,11 +27,11 @@ export const useStartConversation = () => {
       logger.info('Starting direct conversation', { targetUserId });
 
       // Appel RPC pour obtenir ou créer la conversation unique
-      const { data: conversationId, error } = await supabase.rpc(
+      const { data: conversationId, error } = await (supabase as any).rpc(
         'get_or_create_direct_conversation',
         {
-          p_user_id_1: user.id,
-          p_user_id_2: targetUserId
+          p_user_id: user.id,
+          p_other_user_id: targetUserId
         }
       );
 
@@ -60,7 +60,7 @@ export const useStartConversation = () => {
       logger.info('Starting business conversation', { businessId });
 
       // Appel RPC pour obtenir ou créer la conversation business unique
-      const { data: conversationId, error } = await supabase.rpc(
+      const { data: conversationId, error } = await (supabase as any).rpc(
         'get_or_create_business_conversation',
         {
           p_business_id: businessId,
