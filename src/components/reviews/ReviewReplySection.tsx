@@ -21,9 +21,8 @@ interface Review {
 
 interface ReviewReply {
   id: string;
-  reply_text: string;
+  content: string;
   created_at: string;
-  updated_at: string;
 }
 
 interface ReviewReplySectionProps {
@@ -46,7 +45,7 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
 
   const fetchReply = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('review_replies')
         .select('*')
         .eq('review_id', review.id)
@@ -59,10 +58,10 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
 
       if (data) {
         setReply({
-          ...data,
-          reply_text: data.content || data.reply_text,
-          updated_at: data.created_at
-        } as ReviewReply);
+          id: data.id,
+          content: data.content,
+          created_at: data.created_at
+        });
       }
     } catch (error) {
       console.error('Erreur:', error);
@@ -77,7 +76,7 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
 
     setIsLoading(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('review_replies')
         .insert({
           review_id: review.id,
@@ -92,28 +91,11 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
         return;
       }
 
-      // Logger l'activité (optionnel, peut échouer)
-      try {
-        await (supabase as any).rpc('log_user_activity', {
-          action_type_param: 'REVIEW_REPLIED',
-          action_description_param: `Réponse à un avis de ${review.user}`,
-          business_id_param: businessId,
-          metadata_param: {
-            review_id: review.id,
-            reviewer: review.user,
-            rating: review.rating,
-            business_name: businessName
-          }
-        });
-      } catch (e) {
-        // Ignorer les erreurs de log
-      }
-
       setReply({
-        ...data,
-        reply_text: data.content,
-        updated_at: data.created_at
-      } as ReviewReply);
+        id: data.id,
+        content: data.content,
+        created_at: data.created_at
+      });
       setReplyText("");
       setIsReplying(false);
       toast.success("Réponse publiée avec succès");
@@ -134,7 +116,7 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
     try {
       const { data, error } = await supabase
         .from('review_replies')
-        .update({ reply_text: replyText.trim() })
+        .update({ content: replyText.trim() })
         .eq('id', reply.id)
         .select()
         .single();
@@ -144,19 +126,11 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
         return;
       }
 
-      // Logger l'activité
-      await supabase.rpc('log_user_activity', {
-        action_type_param: 'REVIEW_REPLY_UPDATED',
-        action_description_param: `Modification d'une réponse à l'avis de ${review.user}`,
-        business_id_param: businessId,
-        metadata_param: {
-          review_id: review.id,
-          reviewer: review.user,
-          reply_id: reply.id
-        }
+      setReply({
+        id: data.id,
+        content: data.content,
+        created_at: data.created_at
       });
-
-      setReply(data);
       setIsEditing(false);
       toast.success("Réponse modifiée avec succès");
     } catch (error) {
@@ -167,7 +141,7 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
   };
 
   const startEditing = () => {
-    setReplyText(reply?.reply_text || "");
+    setReplyText(reply?.content || "");
     setIsEditing(true);
   };
 
@@ -236,7 +210,6 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
                   </Badge>
                   <span className="text-xs text-muted-foreground">
                     {formatDate(reply.created_at)}
-                    {reply.updated_at !== reply.created_at && " (modifié)"}
                   </span>
                 </div>
                 <Button
@@ -249,7 +222,7 @@ export const ReviewReplySection = ({ review, businessId, businessName }: ReviewR
                   Modifier
                 </Button>
               </div>
-              <p className="text-sm">{reply.reply_text}</p>
+              <p className="text-sm">{reply.content}</p>
             </div>
           </>
         )}

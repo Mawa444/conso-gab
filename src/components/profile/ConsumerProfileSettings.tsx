@@ -16,12 +16,9 @@ export const ConsumerProfileSettings = () => {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [data, setData] = useState({
-    first_name: '',
-    last_name: '',
     display_name: '',
-    phone: '',
     avatar_url: '',
-    cover_image_url: ''
+    bio: ''
   });
 
   useEffect(() => {
@@ -38,16 +35,13 @@ export const ConsumerProfileSettings = () => {
         .eq('user_id', user.id)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') throw error;
       
       if (profileData) {
         setData({
-          first_name: profileData.first_name || '',
-          last_name: profileData.last_name || '',
           display_name: profileData.display_name || '',
-          phone: profileData.phone || '',
           avatar_url: profileData.avatar_url || '',
-          cover_image_url: profileData.cover_image_url || ''
+          bio: profileData.bio || ''
         });
       }
     } catch (error) {
@@ -63,12 +57,37 @@ export const ConsumerProfileSettings = () => {
     
     setLoading(true);
     try {
-      const { error } = await supabase
+      // First check if profile exists
+      const { data: existingProfile } = await supabase
         .from('profiles')
-        .update(data)
-        .eq('user_id', user.id);
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
 
-      if (error) throw error;
+      if (existingProfile) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            display_name: data.display_name,
+            avatar_url: data.avatar_url,
+            bio: data.bio
+          })
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: user.id,
+            display_name: data.display_name,
+            avatar_url: data.avatar_url,
+            bio: data.bio
+          });
+
+        if (error) throw error;
+      }
+      
       toast.success("Profil mis à jour avec succès !");
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
@@ -98,14 +117,6 @@ export const ConsumerProfileSettings = () => {
       <CardContent className="space-y-6">
         {/* Images Section */}
         <div className="space-y-6">
-          <CoverImageUploader
-            currentImageUrl={data.cover_image_url}
-            onImageUploaded={(url) => setData(prev => ({ ...prev, cover_image_url: url }))}
-            bucket="catalog-covers"
-            folder="profile-covers"
-            label="Image de couverture"
-          />
-
           <ProfileImageUploader
             currentImageUrl={data.avatar_url}
             onImageUploaded={(url) => setData(prev => ({ ...prev, avatar_url: url }))}
@@ -123,26 +134,6 @@ export const ConsumerProfileSettings = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="firstName">Prénom</Label>
-              <Input
-                id="firstName"
-                value={data.first_name}
-                onChange={e => setData(prev => ({ ...prev, first_name: e.target.value }))}
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="lastName">Nom</Label>
-              <Input
-                id="lastName"
-                value={data.last_name}
-                onChange={e => setData(prev => ({ ...prev, last_name: e.target.value }))}
-                className="mt-1"
-              />
-            </div>
-
-            <div>
               <Label htmlFor="displayName">Nom d'affichage</Label>
               <Input
                 id="displayName"
@@ -152,13 +143,13 @@ export const ConsumerProfileSettings = () => {
               />
             </div>
 
-            <div>
-              <Label htmlFor="phone">Téléphone</Label>
+            <div className="md:col-span-2">
+              <Label htmlFor="bio">Bio</Label>
               <Input
-                id="phone"
-                value={data.phone}
-                onChange={e => setData(prev => ({ ...prev, phone: e.target.value }))}
-                placeholder="+241 xx xx xx xx"
+                id="bio"
+                value={data.bio}
+                onChange={e => setData(prev => ({ ...prev, bio: e.target.value }))}
+                placeholder="Une courte description..."
                 className="mt-1"
               />
             </div>

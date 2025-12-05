@@ -113,13 +113,13 @@ export const useCatalogComments = (catalogId: string) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) throw new Error("Non authentifié");
 
+      // Use content field which exists in the table
       const { data, error } = await supabase
         .from('catalog_comments')
         .insert({
           catalog_id: catalogId,
           user_id: session.user.id,
-          comment: comment.trim(),
-          rating
+          content: comment.trim()
         })
         .select()
         .single();
@@ -160,15 +160,16 @@ export const useCatalogImageLikes = (catalogId: string, imageUrl: string) => {
   const likesQuery = useQuery({
     queryKey: ['catalog-image-likes', catalogId, imageUrl],
     queryFn: async () => {
+      // Use image_id instead of catalog_id + image_url
       const { data, error } = await supabase
         .from('catalog_image_likes')
         .select('*')
-        .eq('catalog_id', catalogId)
-        .eq('image_url', imageUrl);
+        .eq('image_id', imageUrl);
       
       if (error) throw error;
       return data || [];
-    }
+    },
+    enabled: !!imageUrl
   });
 
   const userLikeQuery = useQuery({
@@ -180,14 +181,14 @@ export const useCatalogImageLikes = (catalogId: string, imageUrl: string) => {
       const { data, error } = await supabase
         .from('catalog_image_likes')
         .select('*')
-        .eq('catalog_id', catalogId)
-        .eq('image_url', imageUrl)
+        .eq('image_id', imageUrl)
         .eq('user_id', session.user.id)
         .maybeSingle();
       
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: !!imageUrl
   });
 
   const toggleLike = useMutation({
@@ -200,8 +201,7 @@ export const useCatalogImageLikes = (catalogId: string, imageUrl: string) => {
         const { error } = await supabase
           .from('catalog_image_likes')
           .delete()
-          .eq('catalog_id', catalogId)
-          .eq('image_url', imageUrl)
+          .eq('image_id', imageUrl)
           .eq('user_id', session.user.id);
         
         if (error) throw error;
@@ -211,8 +211,7 @@ export const useCatalogImageLikes = (catalogId: string, imageUrl: string) => {
         const { error } = await supabase
           .from('catalog_image_likes')
           .insert({
-            catalog_id: catalogId,
-            image_url: imageUrl,
+            image_id: imageUrl,
             user_id: session.user.id
           });
         
@@ -251,16 +250,17 @@ export const useCatalogImageComments = (catalogId: string, imageUrl: string) => 
   const commentsQuery = useQuery({
     queryKey: ['catalog-image-comments', catalogId, imageUrl],
     queryFn: async () => {
+      // Use image_id field
       const { data, error } = await supabase
         .from('catalog_image_comments')
         .select('*')
-        .eq('catalog_id', catalogId)
-        .eq('image_url', imageUrl)
+        .eq('image_id', imageUrl)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data || [];
-    }
+    },
+    enabled: !!imageUrl
   });
 
   const addComment = useMutation({
@@ -268,13 +268,13 @@ export const useCatalogImageComments = (catalogId: string, imageUrl: string) => 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) throw new Error("Non authentifié");
 
+      // Use content and image_id fields
       const { data, error } = await supabase
         .from('catalog_image_comments')
         .insert({
-          catalog_id: catalogId,
-          image_url: imageUrl,
+          image_id: imageUrl,
           user_id: session.user.id,
-          comment: comment.trim()
+          content: comment.trim()
         })
         .select()
         .single();

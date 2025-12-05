@@ -19,6 +19,9 @@ export const useProfileImageLikes = (
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Create a unique image_id from profileUserId and imageType
+  const imageId = `${profileUserId}_${imageType}`;
+
   // Fetch likes count and user's like status
   const fetchLikes = async () => {
     try {
@@ -26,8 +29,7 @@ export const useProfileImageLikes = (
       const { count, error: countError } = await supabase
         .from('profile_image_likes')
         .select('*', { count: 'exact', head: true })
-        .eq('profile_user_id', profileUserId)
-        .eq('image_type', imageType);
+        .eq('image_id', imageId);
 
       if (countError) throw countError;
       setLikesCount(count || 0);
@@ -38,8 +40,7 @@ export const useProfileImageLikes = (
           .from('profile_image_likes')
           .select('id')
           .eq('user_id', user.id)
-          .eq('profile_user_id', profileUserId)
-          .eq('image_type', imageType)
+          .eq('image_id', imageId)
           .maybeSingle();
 
         if (likeError) throw likeError;
@@ -68,8 +69,7 @@ export const useProfileImageLikes = (
           .from('profile_image_likes')
           .delete()
           .eq('user_id', user.id)
-          .eq('profile_user_id', profileUserId)
-          .eq('image_type', imageType);
+          .eq('image_id', imageId);
 
         if (error) throw error;
         setIsLiked(false);
@@ -80,8 +80,7 @@ export const useProfileImageLikes = (
           .from('profile_image_likes')
           .insert({
             user_id: user.id,
-            profile_user_id: profileUserId,
-            image_type: imageType
+            image_id: imageId
           });
 
         if (error) throw error;

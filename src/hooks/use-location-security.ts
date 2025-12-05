@@ -11,24 +11,18 @@ interface LocationData {
 
 interface LocationRequest {
   id: string;
-  conversation_id?: string | null;
-  requester_id: string;
-  target_id: string;
+  user_id: string;
+  requested_by: string;
   status: string;
-  share_mode: string;
-  purpose: string;
   expires_at: string;
-  shared_location?: any;
-  shared_at?: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 export const useLocationSecurity = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [requests, setRequests] = useState<LocationRequest[]>([]);
 
-  // Chiffrement simple pour les coordonnées (en production, utiliser une bibliothèque crypto robuste)
+  // Chiffrement simple pour les coordonnées
   const encryptLocation = (location: LocationData): string => {
     return btoa(JSON.stringify(location));
   };
@@ -89,9 +83,9 @@ export const useLocationSecurity = () => {
   // Demander une position à quelqu'un
   const requestLocation = async (
     targetUserId: string,
-    conversationId: string,
-    purpose: LocationRequest['purpose'],
-    shareMode: LocationRequest['share_mode'] = 'one_time'
+    _conversationId?: string,
+    _purpose?: string,
+    _shareMode: string = 'one_time'
   ) => {
     setIsLoading(true);
     try {
@@ -101,12 +95,10 @@ export const useLocationSecurity = () => {
       const { data, error } = await supabase
         .from('location_requests')
         .insert({
-          conversation_id: conversationId,
-          requester_id: session.user.id,
-          target_id: targetUserId,
-          purpose,
-          share_mode: shareMode,
-          expires_at: new Date(Date.now() + (shareMode === 'one_time' ? 30 * 60 * 1000 : 2 * 60 * 60 * 1000)).toISOString()
+          user_id: targetUserId,
+          requested_by: session.user.id,
+          status: 'pending',
+          expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString()
         })
         .select()
         .single();
@@ -132,32 +124,26 @@ export const useLocationSecurity = () => {
   ) => {
     setIsLoading(true);
     try {
-      let updateData: any = {
-        status: action === 'accept' ? 'accepted' : 'declined',
-        shared_at: action === 'accept' ? new Date().toISOString() : null
+      const updateData: any = {
+        status: action === 'accept' ? 'accepted' : 'declined'
       };
 
       if (action === 'accept' && userLocation) {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) throw new Error("Non authentifié");
 
-        updateData.shared_location = {
-          encrypted_data: encryptLocation(userLocation),
-          shared_at: new Date().toISOString()
-        };
-
-        // Ajouter à l'historique
-        await supabase
-          .from('location_share_history')
-          .insert({
-            request_id: requestId,
-            shared_by: session.user.id,
-            shared_to: requests.find(r => r.id === requestId)?.requester_id,
-            share_mode: requests.find(r => r.id === requestId)?.share_mode || 'one_time',
-            purpose: requests.find(r => r.id === requestId)?.purpose || 'general',
-            location_data: { encrypted_data: encryptLocation(userLocation) },
-            expires_at: requests.find(r => r.id === requestId)?.expires_at || new Date().toISOString()
-          });
+        // Get the request to find who requested it
+        const request = requests.find(r => r.id === requestId);
+        
+        // Add to location share history
+        if (request) {
+          await supabase
+            .from('location_share_history')
+            .insert({
+              user_id: session.user.id,
+              shared_with: request.requested_by
+            });
+        }
       }
 
       const { error } = await supabase
@@ -168,7 +154,7 @@ export const useLocationSecurity = () => {
       if (error) throw error;
 
       toast.success(action === 'accept' ? 'Position partagée' : 'Demande refusée');
-      loadLocationRequests(); // Recharger les demandes
+      loadLocationRequests();
     } catch (error: any) {
       console.error('Erreur réponse demande:', error);
       toast.error('Erreur lors de la réponse');
@@ -186,7 +172,7 @@ export const useLocationSecurity = () => {
       const { data, error } = await supabase
         .from('location_requests')
         .select('*')
-        .or(`requester_id.eq.${session.user.id},target_id.eq.${session.user.id}`)
+        .or(`requested_by.eq.${session.user.id},user_id.eq.${session.user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -197,10 +183,10 @@ export const useLocationSecurity = () => {
   };
 
   // Obtenir la position déchiffrée d'une demande acceptée
-  const getSharedLocation = (request: LocationRequest): LocationData | null => {
+  const getSharedLocation = (request: any): LocationData | null => {
     if (request.status !== 'accepted' || !request.shared_location) return null;
     
-    const encrypted = (request.shared_location as any).encrypted_data;
+    const encrypted = request.shared_location?.encrypted_data;
     if (!encrypted) return null;
     
     return decryptLocation(encrypted);

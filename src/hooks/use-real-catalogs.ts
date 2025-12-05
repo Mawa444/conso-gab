@@ -5,14 +5,10 @@ export interface RealCatalog {
   id: string;
   name: string;
   description?: string;
-  cover_image_url?: string;
-  category?: string;
   business_id: string;
   business_name: string;
-  is_public: boolean;
   is_active: boolean;
-  base_price?: number;
-  price_currency: string;
+  display_order: number;
   created_at: string;
   updated_at: string;
 }
@@ -34,13 +30,9 @@ export const useRealCatalogs = (businessId?: string) => {
             id,
             name,
             description,
-            cover_image_url,
-            category,
             business_id,
-            is_public,
             is_active,
-            base_price,
-            price_currency,
+            display_order,
             created_at,
             updated_at,
             business_profiles!inner(
@@ -49,12 +41,8 @@ export const useRealCatalogs = (businessId?: string) => {
           `)
           .eq('is_active', true);
 
-        // Si businessId est fourni, filtrer par business
         if (businessId) {
           query = query.eq('business_id', businessId);
-        } else {
-          // Sinon, ne récupérer que les catalogues publics
-          query = query.eq('is_public', true);
         }
 
         const { data, error: fetchError } = await query.order('created_at', { ascending: false });
@@ -63,18 +51,14 @@ export const useRealCatalogs = (businessId?: string) => {
           throw fetchError;
         }
 
-        const transformedCatalogs: RealCatalog[] = (data || []).map(catalog => ({
+        const transformedCatalogs: RealCatalog[] = (data || []).map((catalog: any) => ({
           id: catalog.id,
           name: catalog.name,
           description: catalog.description,
-          cover_image_url: catalog.cover_image_url,
-          category: catalog.category,
           business_id: catalog.business_id,
-          business_name: (catalog.business_profiles as any)?.business_name || 'Entreprise inconnue',
-          is_public: catalog.is_public,
+          business_name: catalog.business_profiles?.business_name || 'Entreprise inconnue',
           is_active: catalog.is_active,
-          base_price: catalog.base_price,
-          price_currency: catalog.price_currency || 'FCFA',
+          display_order: catalog.display_order || 0,
           created_at: catalog.created_at,
           updated_at: catalog.updated_at
         }));
@@ -93,7 +77,6 @@ export const useRealCatalogs = (businessId?: string) => {
 
   const refreshCatalogs = () => {
     setLoading(true);
-    // Re-trigger useEffect
     const fetchCatalogs = async () => {
       try {
         setError(null);
@@ -104,13 +87,9 @@ export const useRealCatalogs = (businessId?: string) => {
             id,
             name,
             description,
-            cover_image_url,
-            category,
             business_id,
-            is_public,
             is_active,
-            base_price,
-            price_currency,
+            display_order,
             created_at,
             updated_at,
             business_profiles!inner(
@@ -121,8 +100,6 @@ export const useRealCatalogs = (businessId?: string) => {
 
         if (businessId) {
           query = query.eq('business_id', businessId);
-        } else {
-          query = query.eq('is_public', true);
         }
 
         const { data, error: fetchError } = await query.order('created_at', { ascending: false });
@@ -131,18 +108,14 @@ export const useRealCatalogs = (businessId?: string) => {
           throw fetchError;
         }
 
-        const transformedCatalogs: RealCatalog[] = (data || []).map(catalog => ({
+        const transformedCatalogs: RealCatalog[] = (data || []).map((catalog: any) => ({
           id: catalog.id,
           name: catalog.name,
           description: catalog.description,
-          cover_image_url: catalog.cover_image_url,
-          category: catalog.category,
           business_id: catalog.business_id,
-          business_name: (catalog.business_profiles as any)?.business_name || 'Entreprise inconnue',
-          is_public: catalog.is_public,
+          business_name: catalog.business_profiles?.business_name || 'Entreprise inconnue',
           is_active: catalog.is_active,
-          base_price: catalog.base_price,
-          price_currency: catalog.price_currency || 'FCFA',
+          display_order: catalog.display_order || 0,
           created_at: catalog.created_at,
           updated_at: catalog.updated_at
         }));

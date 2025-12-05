@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -9,8 +8,8 @@ type ProductInsert = TablesInsert<'products'>;
 type ProductUpdate = TablesUpdate<'products'>;
 
 export interface ProductWithCatalog extends Product {
-  catalog?: Tables<'catalogs'>;
-  business?: Tables<'business_profiles'>;
+  catalog?: Tables<'catalogs'> | null;
+  business?: Tables<'business_profiles'> | null;
 }
 
 export const useProductManagement = (businessId?: string, catalogId?: string) => {
@@ -45,7 +44,7 @@ export const useProductManagement = (businessId?: string, catalogId?: string) =>
       const { data, error } = await query;
       
       if (error) throw error;
-      return data as ProductWithCatalog[];
+      return (data || []) as ProductWithCatalog[];
     },
     enabled: !!(businessId || catalogId)
   });
@@ -64,12 +63,11 @@ export const useProductManagement = (businessId?: string, catalogId?: string) =>
           catalog:catalogs(*),
           business:business_profiles(*)
         `)
-        .eq('is_active', true)
-        .eq('catalogs.is_public', true)
+        .eq('is_available', true)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as ProductWithCatalog[];
+      return (data || []) as ProductWithCatalog[];
     }
   });
 
@@ -174,7 +172,7 @@ export const useProductManagement = (businessId?: string, catalogId?: string) =>
     mutationFn: async ({ productId, isActive }: { productId: string; isActive: boolean }) => {
       const { data, error } = await supabase
         .from('products')
-        .update({ is_active: isActive })
+        .update({ is_available: isActive })
         .eq('id', productId)
         .select()
         .single();
@@ -186,8 +184,8 @@ export const useProductManagement = (businessId?: string, catalogId?: string) =>
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['published-products'] });
       toast({
-        title: data.is_active ? "Produit publié" : "Produit retiré",
-        description: data.is_active 
+        title: data.is_available ? "Produit publié" : "Produit retiré",
+        description: data.is_available 
           ? "Votre produit est maintenant visible par tous."
           : "Votre produit n'est plus visible publiquement."
       });
