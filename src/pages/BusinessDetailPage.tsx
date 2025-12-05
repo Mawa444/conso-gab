@@ -489,8 +489,8 @@ export const BusinessDetailPage = () => {
                           </p>
                           <Button size="sm" variant="outline" className="border-red-600 text-red-600 hover:bg-red-100" onClick={async () => {
                           try {
-                            await supabase.rpc('cancel_business_deletion', {
-                              business_profile_id: business.id
+                            await (supabase as any).rpc('cancel_business_deletion', {
+                              p_business_id: business.id
                             });
                             toast.success("Suppression annulée");
                             fetchBusinessData();

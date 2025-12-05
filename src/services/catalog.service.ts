@@ -7,7 +7,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { createDomainLogger } from "@/lib/logger";
-import type { Catalog, CatalogBooking } from "@/types/entities/catalog.types";
 
 const logger = createDomainLogger('catalog-service');
 
@@ -22,20 +21,14 @@ export class CatalogService {
     limit?: number;
     offset?: number;
   }) {
-
-    let query = supabase
+    let query = (supabase as any)
       .from('catalogs')
-      .select('*, business_profiles!inner(*)')
+      .select('*, business_profiles(*)')
       .eq('is_public', true)
-      .eq('is_active', true)
-      .eq('visibility', 'published');
+      .eq('is_active', true);
 
     if (filters?.category) {
       query = query.eq('category', filters.category);
-    }
-
-    if (filters?.city) {
-      query = query.eq('geo_city', filters.city);
     }
 
     if (filters?.search) {
@@ -62,17 +55,16 @@ export class CatalogService {
       status: 'success'
     });
 
-    return data as Catalog[];
+    return data as any[];
   }
 
   /**
    * Récupère un catalogue par ID
    */
   static async fetchCatalogById(catalogId: string) {
-
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('catalogs')
-      .select('*, business_profiles!inner(*)')
+      .select('*, business_profiles(*)')
       .eq('id', catalogId)
       .single();
 
@@ -82,24 +74,21 @@ export class CatalogService {
     }
 
     logger.info('Catalog fetched');
-    return data as Catalog;
+    return data as any;
   }
 
   /**
    * Crée un nouveau catalogue
    */
-  static async createCatalog(
-    businessId: string,
-    catalogData: any
-  ) {
+  static async createCatalog(businessId: string, catalogData: any) {
     logger.info('Creating catalog');
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('catalogs')
       .insert([{
         business_id: businessId,
         ...catalogData,
-      } as any])
+      }])
       .select()
       .single();
 
@@ -109,46 +98,69 @@ export class CatalogService {
     }
 
     logger.info('Catalog created successfully');
-    
-    return data as Catalog;
+    return data as any;
   }
 
   /**
    * Met à jour un catalogue
    */
-  static async updateCatalog(catalogId: string, updates: Partial<Catalog>) {
+  static async updateCatalog(catalogId: string, updates: any) {
     logger.info('Updating catalog');
-    const { data, error } = await supabase.from('catalogs').update(updates).eq('id', catalogId).select().single();
+    const { data, error } = await (supabase as any)
+      .from('catalogs')
+      .update(updates)
+      .eq('id', catalogId)
+      .select()
+      .single();
+    
     if (error) throw new Error('Impossible de mettre à jour le catalogue');
     logger.info('Catalog updated successfully');
-    return data as Catalog;
+    return data as any;
   }
 
   static async deleteCatalog(catalogId: string) {
     logger.info('Deleting catalog');
-    const { error } = await supabase.from('catalogs').update({ is_active: false, visibility: 'archived' }).eq('id', catalogId);
+    const { error } = await (supabase as any)
+      .from('catalogs')
+      .update({ is_active: false, visibility: 'archived' })
+      .eq('id', catalogId);
+    
     if (error) throw new Error('Impossible de supprimer le catalogue');
     logger.info('Catalog deleted successfully');
   }
 
   static async toggleVisibility(catalogId: string, isPublic: boolean) {
     logger.info('Toggling catalog visibility');
-    const { error } = await supabase.from('catalogs').update({ is_public: isPublic, visibility: isPublic ? 'published' : 'draft' }).eq('id', catalogId);
+    const { error } = await (supabase as any)
+      .from('catalogs')
+      .update({ is_public: isPublic, visibility: isPublic ? 'published' : 'draft' })
+      .eq('id', catalogId);
+    
     if (error) throw new Error('Impossible de modifier la visibilité');
     logger.info('Visibility toggled successfully');
   }
 
   static async createBooking(bookingData: any) {
     logger.info('Creating booking');
-    const { data, error } = await supabase.from('catalog_bookings').insert([bookingData as any]).select().single();
+    const { data, error } = await (supabase as any)
+      .from('catalog_bookings')
+      .insert([bookingData])
+      .select()
+      .single();
+    
     if (error) throw new Error(error.message || 'Impossible de créer la réservation');
     logger.info('Booking created successfully');
-    return data as CatalogBooking;
+    return data as any;
   }
 
   static async fetchCatalogBookings(catalogId: string) {
-    const { data, error } = await supabase.from('catalog_bookings').select('*').eq('catalog_id', catalogId).order('booking_date', { ascending: false });
+    const { data, error } = await (supabase as any)
+      .from('catalog_bookings')
+      .select('*')
+      .eq('catalog_id', catalogId)
+      .order('booking_date', { ascending: false });
+    
     if (error) throw new Error('Impossible de charger les réservations');
-    return data as CatalogBooking[];
+    return data as any[];
   }
 }

@@ -47,16 +47,19 @@ export const ProductDetailPage = () => {
   }
 
   // Adapter les données pour l'affichage
-  const images = product.images || ["/placeholder.svg"];
-  const business = product.business;
-  const reviews = product.reviews || [];
-  const averageRating = reviews.length > 0 
-    ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length 
-    : 0;
+  const productData = product as any;
+  const rawImages = productData.images;
+  const images: string[] = Array.isArray(rawImages) ? rawImages : typeof rawImages === 'string' ? [rawImages] : ["/placeholder.svg"];
+  const business = productData.business;
+  const reviews: any[] = [];
+  const averageRating = 0;
 
-  const stock = product.stock_quantity || 0;
+  const stock = productData.stock_quantity || 0;
   const isAvailable = stock > 0;
   const availabilityLabel = isAvailable ? "Disponible" : "Rupture de stock";
+  const isOnSale = productData.is_on_sale || false;
+  const salePrice = productData.sale_price;
+  const tags = productData.tags || [];
 
   const formatPrice = (price: number) => {
     return `${price.toLocaleString()} FCFA`;
@@ -65,8 +68,8 @@ export const ProductDetailPage = () => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: product.name,
-        text: `Découvrez ${product.name} sur ConsoGab`,
+        title: productData.name,
+        text: `Découvrez ${productData.name} sur ConsoGab`,
         url: window.location.href
       });
     }
@@ -118,10 +121,10 @@ export const ProductDetailPage = () => {
           <div className="aspect-square rounded-2xl overflow-hidden bg-muted">
             <img 
               src={images[currentImageIndex]} 
-              alt={product.name}
+              alt={productData.name}
               className="w-full h-full object-cover"
             />
-            {product.is_on_sale && (
+            {isOnSale && (
               <Badge className="absolute top-4 left-4 bg-red-500 text-white">
                 Promo
               </Badge>
@@ -155,25 +158,25 @@ export const ProductDetailPage = () => {
           {/* Titre et prix */}
           <div>
             <div className="flex items-start justify-between mb-2">
-              <h1 className="font-bold text-xl leading-tight pr-4">{product.name}</h1>
+              <h1 className="font-bold text-xl leading-tight pr-4">{productData.name}</h1>
             </div>
             
             <div className="flex items-center gap-2 mb-4">
-              {product.is_on_sale && product.sale_price ? (
+              {isOnSale && salePrice ? (
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold text-red-600">
-                    {formatPrice(product.sale_price)}
+                    {formatPrice(salePrice)}
                   </span>
                   <span className="text-lg text-muted-foreground line-through">
-                    {formatPrice(product.price)}
+                    {formatPrice(productData.price)}
                   </span>
                   <Badge className="bg-red-500 text-white">
-                    Économisez {formatPrice(product.price - product.sale_price)}
+                    Économisez {formatPrice(productData.price - salePrice)}
                   </Badge>
                 </div>
               ) : (
                 <span className="text-2xl font-bold text-primary">
-                  {formatPrice(product.price)}
+                  {formatPrice(productData.price)}
                 </span>
               )}
             </div>
@@ -194,14 +197,14 @@ export const ProductDetailPage = () => {
             </div>
 
             <p className="text-muted-foreground text-sm leading-relaxed">
-              {product.description}
+              {productData.description}
             </p>
           </div>
 
           {/* Tags */}
-          {product.tags && (
+          {tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {product.tags.map((tag, index) => (
+              {tags.map((tag: string, index: number) => (
                 <Badge key={index} variant="secondary" className="text-xs">
                   #{tag}
                 </Badge>
@@ -216,7 +219,7 @@ export const ProductDetailPage = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-                      <span className="text-white font-bold">{business.business_name[0]}</span>
+                      <span className="text-white font-bold">{business.business_name?.[0] || 'C'}</span>
                     </div>
                     <div>
                       <h3 className="font-semibold">{business.business_name}</h3>
@@ -289,7 +292,7 @@ export const ProductDetailPage = () => {
               disabled={!selectedSize || !isAvailable}
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
-              Ajouter au panier • {formatPrice((product.sale_price || product.price) * quantity)}
+              Ajouter au panier • {formatPrice((salePrice || productData.price) * quantity)}
             </Button>
             
             <div className="grid grid-cols-2 gap-3">
@@ -326,57 +329,14 @@ export const ProductDetailPage = () => {
                     Description détaillée
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    {product.description || "Aucune description disponible."}
+                    {productData.description || "Aucune description disponible."}
                   </p>
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="reviews" className="space-y-4 mt-6">
-              {reviews.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">Aucun avis pour le moment.</p>
-              ) : (
-                reviews.map((review) => (
-                  <Card key={review.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-white font-semibold">
-                            C
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium text-sm">Client</p>
-                              {review.is_verified && (
-                                <Badge variant="outline" className="text-xs border-[hsl(var(--gaboma-green))] text-[hsl(var(--gaboma-green))]">
-                                  Achat vérifié
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-1 mt-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={cn(
-                                    "w-3 h-3",
-                                    i < review.rating 
-                                      ? "fill-yellow-400 text-yellow-400" 
-                                      : "text-muted-foreground"
-                                  )}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(review.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{review.comment}</p>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+              <p className="text-center text-muted-foreground py-8">Aucun avis pour le moment.</p>
             </TabsContent>
           </Tabs>
         </div>

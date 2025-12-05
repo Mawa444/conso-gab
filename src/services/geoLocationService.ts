@@ -48,11 +48,11 @@ export class GeoLocationService {
     // Élargir progressivement le rayon jusqu'à avoir suffisamment de résultats
     while (results.length < opts.minResults && currentRadius <= maxRadiusMeters) {
       try {
-        const { data, error } = await supabase.rpc('get_nearest_businesses', {
-          user_lat: userPosition.latitude,
-          user_lng: userPosition.longitude,
-          radius_meters: currentRadius,
-          limit_count: opts.limit
+        const { data, error } = await (supabase as any).rpc('get_nearest_businesses', {
+          p_lat: userPosition.latitude,
+          p_lng: userPosition.longitude,
+          p_radius_km: currentRadius / 1000,
+          p_limit: opts.limit
         });
 
         if (error) throw error;
