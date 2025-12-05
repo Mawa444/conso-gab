@@ -41,20 +41,41 @@ export const useMapBusinesses = (options: UseMapBusinessesOptions = {}) => {
       const sw = bounds.getSouthWest();
       const ne = bounds.getNorthEast();
 
-      const { data, error: fetchError } = await supabase.rpc(
-        "get_businesses_in_bbox",
-        {
-          min_lng: sw.lng,
-          min_lat: sw.lat,
-          max_lng: ne.lng,
-          max_lat: ne.lat,
-          limit_count: 500,
+      // Try RPC first, fallback to direct query
+      try {
+        const { data, error: fetchError } = await (supabase as any).rpc(
+          "get_businesses_in_bbox",
+          {
+            min_lng: sw.lng,
+            min_lat: sw.lat,
+            max_lng: ne.lng,
+            max_lat: ne.lat,
+            limit_count: 500,
+          }
+        );
+
+        if (!fetchError && data) {
+          setBusinesses(data as MapBusiness[]);
+          return;
         }
-      );
+      } catch {
+        // RPC doesn't exist, use fallback
+      }
+
+      // Fallback: query business_profiles directly
+      const { data, error: fetchError } = await supabase
+        .from('business_profiles')
+        .select('id, business_name, business_category, description, address, city, phone, email, logo_url, latitude, longitude, is_verified, is_active')
+        .eq('is_active', true)
+        .gte('longitude', sw.lng)
+        .lte('longitude', ne.lng)
+        .gte('latitude', sw.lat)
+        .lte('latitude', ne.lat)
+        .limit(500);
 
       if (fetchError) throw fetchError;
 
-      setBusinesses(data || []);
+      setBusinesses((data || []).filter(b => b.latitude && b.longitude) as MapBusiness[]);
     } catch (err: any) {
       console.error("Error fetching businesses:", err);
       setError(err.message || "Erreur lors du chargement des entreprises");
@@ -69,19 +90,38 @@ export const useMapBusinesses = (options: UseMapBusinessesOptions = {}) => {
       setError(null);
 
       try {
-        const { data, error: fetchError } = await supabase.rpc(
-          "get_nearest_businesses",
-          {
-            user_lat: lat,
-            user_lng: lng,
-            radius_meters: radiusMeters,
-            limit_count: 100,
+        // Try RPC first
+        try {
+          const { data, error: fetchError } = await (supabase as any).rpc(
+            "get_nearest_businesses",
+            {
+              user_lat: lat,
+              user_lng: lng,
+              radius_meters: radiusMeters,
+              limit_count: 100,
+            }
+          );
+
+          if (!fetchError && data) {
+            setBusinesses(data as MapBusiness[]);
+            return;
           }
-        );
+        } catch {
+          // RPC doesn't exist, use fallback
+        }
+
+        // Fallback: get all active businesses with coordinates
+        const { data, error: fetchError } = await supabase
+          .from('business_profiles')
+          .select('id, business_name, business_category, description, address, city, phone, email, logo_url, latitude, longitude, is_verified, is_active')
+          .eq('is_active', true)
+          .not('latitude', 'is', null)
+          .not('longitude', 'is', null)
+          .limit(100);
 
         if (fetchError) throw fetchError;
 
-        setBusinesses(data || []);
+        setBusinesses((data || []) as MapBusiness[]);
       } catch (err: any) {
         console.error("Error fetching nearest businesses:", err);
         setError(err.message || "Erreur lors du chargement des entreprises");

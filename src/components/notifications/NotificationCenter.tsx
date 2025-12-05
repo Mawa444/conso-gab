@@ -51,7 +51,7 @@ export const NotificationCenter: React.FC = () => {
     >
       <div className="flex items-start gap-3">
         <div className="text-lg flex-shrink-0 mt-0.5">
-          {getNotificationIcon(notification.notification_type)}
+          {getNotificationIcon(notification.type || '')}
         </div>
         
         <div className="flex-1 min-w-0">

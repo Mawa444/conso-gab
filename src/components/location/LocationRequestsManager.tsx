@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   MapPin, 
   Clock, 
-  User, 
   CheckCircle, 
   XCircle,
   ExternalLink,
@@ -27,7 +26,6 @@ interface LocationRequestsManagerProps {
 export const LocationRequestsManager = ({ className }: LocationRequestsManagerProps) => {
   const { 
     requests, 
-    isLoading, 
     loadLocationRequests, 
     respondToLocationRequest, 
     getSharedLocation, 
@@ -41,14 +39,10 @@ export const LocationRequestsManager = ({ className }: LocationRequestsManagerPr
     loadLocationRequests();
   }, []);
 
+  // Using request fields that exist in the actual table
   const pendingRequests = requests.filter(r => r.status === 'pending');
-  const sentRequests = requests.filter(r => r.target_id !== getCurrentUserId());
-  const receivedRequests = requests.filter(r => r.target_id === getCurrentUserId());
-
-  // Helper function - en production, obtenir depuis le contexte auth
-  function getCurrentUserId() {
-    return "current-user-id"; // À remplacer par l'ID utilisateur réel
-  }
+  const sentRequests = requests.filter(r => (r as any).is_sent);
+  const receivedRequests = requests.filter(r => !(r as any).is_sent);
 
   const handleAcceptRequest = async (requestId: string) => {
     setRespondingTo(requestId);
@@ -117,15 +111,6 @@ export const LocationRequestsManager = ({ className }: LocationRequestsManagerPr
     }
   };
 
-  const getPurposeIcon = (purpose: string) => {
-    switch (purpose) {
-      case 'delivery': return '🚚';
-      case 'meeting': return '🤝';
-      case 'visit': return '🏠';
-      default: return '📍';
-    }
-  };
-
   return (
     <div className={className}>
       <Tabs defaultValue="received" className="w-full">
@@ -160,12 +145,12 @@ export const LocationRequestsManager = ({ className }: LocationRequestsManagerPr
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <CardTitle className="flex items-center gap-2 text-base">
-                          <span className="text-lg">{getPurposeIcon(request.purpose)}</span>
+                          <span className="text-lg">📍</span>
                           Demande de position
                           {getStatusBadge(request.status, request.expires_at)}
                         </CardTitle>
                         <p className="text-sm text-muted-foreground">
-                          De: {request.requester_id} • {format(new Date(request.created_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
+                          De: {request.requested_by} • {format(new Date(request.created_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
                         </p>
                       </div>
                     </div>
@@ -175,7 +160,7 @@ export const LocationRequestsManager = ({ className }: LocationRequestsManagerPr
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span>Type: {request.share_mode === 'one_time' ? 'Unique' : 'En direct'}</span>
+                        <span>Type: Unique</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-muted-foreground" />
@@ -243,8 +228,8 @@ export const LocationRequestsManager = ({ className }: LocationRequestsManagerPr
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <CardTitle className="flex items-center gap-2 text-base">
-                          <span className="text-lg">{getPurposeIcon(request.purpose)}</span>
-                          À: {request.target_id}
+                          <span className="text-lg">📍</span>
+                          À: {request.user_id}
                           {getStatusBadge(request.status, request.expires_at)}
                         </CardTitle>
                         <p className="text-sm text-muted-foreground">
@@ -258,7 +243,7 @@ export const LocationRequestsManager = ({ className }: LocationRequestsManagerPr
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span>Type: {request.share_mode === 'one_time' ? 'Unique' : 'En direct'}</span>
+                        <span>Type: Unique</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-muted-foreground" />

@@ -42,7 +42,7 @@ export const QuickMessageModal = ({ open, onClose, business }: QuickMessageModal
           .from('conversations')
           .insert({
             business_id: business.id,
-            title: `Conversation avec ${business.business_name || 'Commerce'}`,
+            title: `Conversation avec ${business.name || 'Commerce'}`,
             type: 'direct'
           })
           .select('id')

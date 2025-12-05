@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Package, ShoppingBag, Eye, Edit, Trash2, ImageIcon } from 'lucide-react';
+import { Plus, Package, Edit, Trash2, ImageIcon } from 'lucide-react';
 import { useProductManagement } from '@/hooks/use-product-management';
 import { useCatalogManagement } from '@/hooks/use-catalog-management';
 import { EnhancedProductCreationWizard } from './EnhancedProductCreationWizard';
@@ -117,6 +117,15 @@ export const ProductListWithCatalogCreation = ({
     );
   }
 
+  // Helper function to safely get images
+  const getProductImages = (product: any): string[] => {
+    if (!product.images) return [];
+    if (Array.isArray(product.images)) {
+      return product.images.map((img: any) => typeof img === 'string' ? img : img?.url || '');
+    }
+    return [];
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -136,14 +145,17 @@ export const ProductListWithCatalogCreation = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProducts.map((product) => {
+        {filteredProducts.map((product: any) => {
           const catalog = catalogs.find(c => c.id === product.catalog_id);
+          const productImages = getProductImages(product);
+          const isActive = product.is_available !== false;
+          
           return (
             <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="aspect-square relative overflow-hidden">
-                {product.images && product.images.length > 0 ? (
+                {productImages.length > 0 ? (
                   <img 
-                    src={product.images[0]} 
+                    src={productImages[0]} 
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
@@ -153,13 +165,10 @@ export const ProductListWithCatalogCreation = ({
                   </div>
                 )}
                 <div className="absolute top-2 right-2 flex gap-1">
-                  {product.is_active ? (
+                  {isActive ? (
                     <Badge className="bg-green-100 text-green-800 text-xs">Actif</Badge>
                   ) : (
                     <Badge variant="secondary" className="text-xs">Inactif</Badge>
-                  )}
-                  {product.is_on_sale && (
-                    <Badge className="bg-orange-100 text-orange-800 text-xs">Promo</Badge>
                   )}
                 </div>
               </div>
@@ -177,18 +186,7 @@ export const ProductListWithCatalogCreation = ({
 
                   <div className="flex items-center justify-between text-sm">
                     <div className="font-medium">
-                      {product.is_on_sale && product.sale_price ? (
-                        <>
-                          <span className="text-muted-foreground line-through">
-                            {product.price} FCFA
-                          </span>
-                          <span className="text-primary ml-2">
-                            {product.sale_price} FCFA
-                          </span>
-                        </>
-                      ) : (
-                        <span>{product.price} FCFA</span>
-                      )}
+                      <span>{product.price} FCFA</span>
                     </div>
                     <div className="text-muted-foreground">
                       Stock: {product.stock_quantity || 0}
@@ -199,21 +197,6 @@ export const ProductListWithCatalogCreation = ({
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {product.description}
                     </p>
-                  )}
-
-                  {product.tags && product.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {product.tags.slice(0, 3).map((tag, i) => (
-                        <Badge key={i} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {product.tags.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{product.tags.length - 3}
-                        </Badge>
-                      )}
-                    </div>
                   )}
 
                   <div className="flex gap-2 pt-2 border-t">

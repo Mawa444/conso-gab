@@ -4,7 +4,6 @@ import type { Tables } from '@/integrations/supabase/types';
 
 export type ProductWithDetails = Tables<'products'> & {
   business: Tables<'business_profiles'> | null;
-  reviews: Tables<'reviews'>[];
 };
 
 export const useProduct = (productId: string | undefined) => {
@@ -17,8 +16,7 @@ export const useProduct = (productId: string | undefined) => {
         .from('products')
         .select(`
           *,
-          business:business_profiles(*),
-          reviews(*)
+          business:business_profiles(*)
         `)
         .eq('id', productId)
         .single();

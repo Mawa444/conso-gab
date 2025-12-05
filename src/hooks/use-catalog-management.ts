@@ -54,7 +54,6 @@ export const useCatalogManagement = (businessId: string) => {
       const insertData: CatalogInsert = { 
         ...catalogInsert, 
         business_id: businessId,
-        images: images || null,
         name: title || catalogInsert.name || 'Catalogue sans nom'
       };
       

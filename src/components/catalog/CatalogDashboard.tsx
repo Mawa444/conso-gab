@@ -40,7 +40,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
 
   // Stats calculation
   const totalProducts = allProducts.length;
-  const publishedProducts = allProducts.filter(p => p.is_active).length;
+  const publishedProducts = allProducts.filter(p => (p as any).is_active !== false && p.is_available !== false).length;
   
   // Approximate views and favorites (to be implemented with dedicated tables)
   const totalViews = 0;

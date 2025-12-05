@@ -5,7 +5,6 @@ import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 type Favorite = Tables<'favorites'>;
 type Review = Tables<'reviews'>;
-type FavoriteInsert = TablesInsert<'favorites'>;
 type ReviewInsert = TablesInsert<'reviews'>;
 
 export const useProductInteractions = (userId?: string) => {
@@ -25,28 +24,27 @@ export const useProductInteractions = (userId?: string) => {
         .from('favorites')
         .select(`
           *,
-          product:products(*),
           business:business_profiles(*)
         `)
         .eq('user_id', userId);
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!userId
   });
 
-  // Check if product is favorited
-  const isFavorited = (productId: string) => {
-    return favorites.some(fav => fav.product_id === productId);
+  // Check if business is favorited
+  const isFavorited = (businessId: string) => {
+    return favorites.some(fav => fav.business_id === businessId);
   };
 
   // Toggle favorite mutation
   const toggleFavoriteMutation = useMutation({
-    mutationFn: async ({ productId, businessId }: { productId: string; businessId: string }) => {
+    mutationFn: async ({ businessId }: { businessId: string }) => {
       if (!userId) throw new Error('User must be authenticated');
 
-      const existingFavorite = favorites.find(fav => fav.product_id === productId);
+      const existingFavorite = favorites.find(fav => fav.business_id === businessId);
 
       if (existingFavorite) {
         // Remove favorite
@@ -63,7 +61,6 @@ export const useProductInteractions = (userId?: string) => {
           .from('favorites')
           .insert({
             user_id: userId,
-            product_id: productId,
             business_id: businessId
           })
           .select()
@@ -78,8 +75,8 @@ export const useProductInteractions = (userId?: string) => {
       toast({
         title: result.action === 'added' ? "Ajouté aux favoris" : "Retiré des favoris",
         description: result.action === 'added' 
-          ? "Ce produit a été ajouté à vos favoris."
-          : "Ce produit a été retiré de vos favoris."
+          ? "Ce commerce a été ajouté à vos favoris."
+          : "Ce commerce a été retiré de vos favoris."
       });
     },
     onError: (error) => {
@@ -94,12 +91,12 @@ export const useProductInteractions = (userId?: string) => {
 
   // Add review mutation
   const addReviewMutation = useMutation({
-    mutationFn: async (reviewData: Omit<ReviewInsert, 'customer_id'>) => {
+    mutationFn: async (reviewData: Omit<ReviewInsert, 'user_id'>) => {
       if (!userId) throw new Error('User must be authenticated');
       
       const { data, error } = await supabase
         .from('reviews')
-        .insert({ ...reviewData, customer_id: userId })
+        .insert({ ...reviewData, user_id: userId })
         .select()
         .single();
       
@@ -123,32 +120,23 @@ export const useProductInteractions = (userId?: string) => {
     }
   });
 
-  // Get reviews for a product or business
-  const useReviews = (productId?: string, businessId?: string) => {
+  // Get reviews for a business
+  const useReviews = (businessId?: string) => {
     return useQuery({
-      queryKey: ['reviews', productId, businessId],
+      queryKey: ['reviews', businessId],
       queryFn: async () => {
-        let query = supabase
+        if (!businessId) return [];
+        
+        const { data, error } = await supabase
           .from('reviews')
-          .select(`
-            *,
-            customer:profiles(*)
-          `)
+          .select('*')
+          .eq('business_id', businessId)
           .order('created_at', { ascending: false });
 
-        if (productId) {
-          query = query.eq('product_id', productId);
-        }
-        if (businessId) {
-          query = query.eq('business_id', businessId);
-        }
-
-        const { data, error } = await query;
-        
         if (error) throw error;
-        return data;
+        return data || [];
       },
-      enabled: !!(productId || businessId)
+      enabled: !!businessId
     });
   };
 

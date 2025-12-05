@@ -403,7 +403,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                    <TabsContent value="comments" className="h-full m-0 overflow-hidden">
                      <ScrollArea className="h-full pr-4">
                        <div className="p-4 space-y-4 pb-8">
-                         {comments.map((comment) => (
+                         {comments.map((comment: any) => (
                            <div key={comment.id} className="flex gap-3">
                              <Avatar className="w-8 h-8">
                                <AvatarFallback>U</AvatarFallback>
@@ -412,12 +412,12 @@ export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInter
                                <div className="bg-muted p-3 rounded-lg">
                                  <div className="flex items-center gap-2 mb-1">
                                    <div className="font-medium text-sm">Utilisateur</div>
-                                   {comment.rating && (
+                                   {(comment.rating || comment.rating === 0) && (
                                      <div className="flex items-center gap-1">
                                        {[...Array(5)].map((_, i) => (
                                          <Star 
                                            key={i} 
-                                           className={`w-3 h-3 ${i < comment.rating! ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
+                                           className={`w-3 h-3 ${i < (comment.rating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
                                          />
                                        ))}
                                      </div>

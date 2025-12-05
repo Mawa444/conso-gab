@@ -5,14 +5,12 @@ import { useAuth } from '@/features/auth';
 export interface Notification {
   id: string;
   user_id: string;
-  business_id?: string;
-  notification_type: string;
   title: string;
   message: string;
-  data: any;
+  type: string | null;
   is_read: boolean;
+  metadata: any;
   created_at: string;
-  updated_at: string;
 }
 
 export const useNotifications = () => {
@@ -34,8 +32,20 @@ export const useNotifications = () => {
 
       if (error) throw error;
 
-      setNotifications(data || []);
-      setUnreadCount(data?.filter(n => !n.is_read).length || 0);
+      // Map data to our Notification interface
+      const mappedNotifications: Notification[] = (data || []).map(n => ({
+        id: n.id,
+        user_id: n.user_id,
+        title: n.title,
+        message: n.message,
+        type: n.type,
+        is_read: n.is_read ?? false,
+        metadata: n.metadata,
+        created_at: n.created_at
+      }));
+
+      setNotifications(mappedNotifications);
+      setUnreadCount(mappedNotifications.filter(n => !n.is_read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     } finally {
@@ -45,7 +55,7 @@ export const useNotifications = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('notifications')
         .update({ is_read: true })
         .eq('id', notificationId)
@@ -64,7 +74,7 @@ export const useNotifications = () => {
 
   const markAllAsRead = async () => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('notifications')
         .update({ is_read: true })
         .eq('user_id', user?.id)
@@ -83,7 +93,7 @@ export const useNotifications = () => {
 
   const deleteNotification = async (notificationId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('notifications')
         .delete()
         .eq('id', notificationId)
@@ -121,7 +131,16 @@ export const useNotifications = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          const newNotification = payload.new as Notification;
+          const newNotification: Notification = {
+            id: payload.new.id,
+            user_id: payload.new.user_id,
+            title: payload.new.title,
+            message: payload.new.message,
+            type: payload.new.type,
+            is_read: payload.new.is_read ?? false,
+            metadata: payload.new.metadata,
+            created_at: payload.new.created_at
+          };
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
         }
@@ -135,7 +154,16 @@ export const useNotifications = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          const updatedNotification = payload.new as Notification;
+          const updatedNotification: Notification = {
+            id: payload.new.id,
+            user_id: payload.new.user_id,
+            title: payload.new.title,
+            message: payload.new.message,
+            type: payload.new.type,
+            is_read: payload.new.is_read ?? false,
+            metadata: payload.new.metadata,
+            created_at: payload.new.created_at
+          };
           setNotifications(prev => 
             prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
           );
