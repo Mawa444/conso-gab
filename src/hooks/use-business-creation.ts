@@ -6,7 +6,8 @@ import { toast } from 'sonner';
 export const useBusinessCreation = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const navigate = useNavigate();
-  const { switchMode } = useProfileMode();
+  // const { switchMode } = useProfileMode(); // Unused
+
 
   const openBusinessCreation = () => {
     setShowCreateForm(true);
@@ -19,7 +20,7 @@ export const useBusinessCreation = () => {
 
   const handleBusinessCreated = (businessId: string) => {
     setShowCreateForm(false);
-    toast.success("Entreprise créée avec succès !");
+    toast.success('Entreprise créée avec succès !');
     
     // Redirection directe - l'utilisateur vient de créer le business donc il en est propriétaire
     navigate(`/business/${businessId}/profile`);
@@ -35,6 +36,6 @@ export const useBusinessCreation = () => {
     openBusinessCreation,
     closeBusinessCreation,
     handleBusinessCreated,
-    handleBusinessCreationCancelled
+    handleBusinessCreationCancelled,
   };
 };

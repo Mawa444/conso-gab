@@ -1,10 +1,11 @@
-import { useNavigate } from "react-router-dom";
-import { BusinessCreationWizard } from "@/components/business/BusinessCreationWizard";
-import { useProfileMode } from "@/hooks/use-profile-mode";
+import { useNavigate } from 'react-router-dom';
+import { BusinessCreationWizard } from '@/components/business/BusinessCreationWizard';
+import { useProfileMode } from '@/hooks/use-profile-mode';
 
 export const BusinessCreationPage = () => {
   const navigate = useNavigate();
-  const { switchMode } = useProfileMode();
+  // const { switchMode } = useProfileMode(); // Unused
+
 
   const handleCreated = (businessId: string) => {
     // Redirection directe après création - l'utilisateur est forcément propriétaire
@@ -12,7 +13,7 @@ export const BusinessCreationPage = () => {
   };
 
   const handleCancel = () => {
-    navigate("/entreprises");
+    navigate('/entreprises');
   };
 
   return (

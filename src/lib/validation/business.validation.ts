@@ -11,44 +11,44 @@ import { z } from 'zod';
 // Validation des emails
 const emailSchema = z.string()
   .trim()
-  .email("Email invalide")
-  .max(255, "Email trop long (max 255 caractères)")
+  .email('Email invalide')
+  .max(255, 'Email trop long (max 255 caractères)')
   .transform(val => val.toLowerCase());
 
 // Validation des téléphones (format international)
 const phoneSchema = z.string()
   .trim()
-  .regex(/^\+?[1-9]\d{1,14}$/, "Format de téléphone invalide (format international requis)")
-  .min(8, "Téléphone trop court")
-  .max(20, "Téléphone trop long");
+  .regex(/^\+?[1-9]\d{1,14}$/, 'Format de téléphone invalide (format international requis)')
+  .min(8, 'Téléphone trop court')
+  .max(20, 'Téléphone trop long');
 
 // Validation des URLs
 const urlSchema = z.string()
   .trim()
-  .url("URL invalide")
-  .max(500, "URL trop longue");
+  .url('URL invalide')
+  .max(500, 'URL trop longue');
 
 // Validation du nom d'entreprise
 const businessNameSchema = z.string()
   .trim()
-  .min(2, "Le nom doit contenir au moins 2 caractères")
-  .max(100, "Le nom ne peut dépasser 100 caractères")
-  .regex(/^[a-zA-Z0-9À-ÿ\s\-'&.]+$/, "Caractères invalides dans le nom");
+  .min(2, 'Le nom doit contenir au moins 2 caractères')
+  .max(100, 'Le nom ne peut dépasser 100 caractères')
+  .regex(/^[a-zA-Z0-9À-ÿ\s\-'&.]+$/, 'Caractères invalides dans le nom');
 
 // Validation de la description
 const descriptionSchema = z.string()
   .trim()
-  .min(10, "La description doit contenir au moins 10 caractères")
-  .max(1000, "La description ne peut dépasser 1000 caractères");
+  .min(10, 'La description doit contenir au moins 10 caractères')
+  .max(1000, 'La description ne peut dépasser 1000 caractères');
 
 // Validation des coordonnées GPS
 const latitudeSchema = z.number()
-  .min(-90, "Latitude invalide")
-  .max(90, "Latitude invalide");
+  .min(-90, 'Latitude invalide')
+  .max(90, 'Latitude invalide');
 
 const longitudeSchema = z.number()
-  .min(-180, "Longitude invalide")
-  .max(180, "Longitude invalide");
+  .min(-180, 'Longitude invalide')
+  .max(180, 'Longitude invalide');
 
 /**
  * Schema pour la création d'une entreprise
@@ -56,7 +56,7 @@ const longitudeSchema = z.number()
 export const createBusinessSchema = z.object({
   businessName: businessNameSchema,
   businessCategory: z.string()
-    .min(1, "Catégorie requise"),
+    .min(1, 'Catégorie requise'),
   description: descriptionSchema,
   
   // Optionnels mais validés si présents
@@ -106,25 +106,25 @@ export const updateBusinessSchema = createBusinessSchema.partial();
 export const createCatalogSchema = z.object({
   name: z.string()
     .trim()
-    .min(3, "Le nom doit contenir au moins 3 caractères")
-    .max(200, "Le nom ne peut dépasser 200 caractères"),
+    .min(3, 'Le nom doit contenir au moins 3 caractères')
+    .max(200, 'Le nom ne peut dépasser 200 caractères'),
   
   description: z.string()
     .trim()
-    .min(10, "La description doit contenir au moins 10 caractères")
-    .max(2000, "La description ne peut dépasser 2000 caractères")
+    .min(10, 'La description doit contenir au moins 10 caractères')
+    .max(2000, 'La description ne peut dépasser 2000 caractères')
     .optional(),
   
-  category: z.string().min(1, "Catégorie requise").optional(),
+  category: z.string().min(1, 'Catégorie requise').optional(),
   subcategory: z.string().max(100).optional(),
   
   basePrice: z.number()
-    .min(0, "Le prix ne peut être négatif")
-    .max(100000000, "Prix trop élevé")
+    .min(0, 'Le prix ne peut être négatif')
+    .max(100000000, 'Prix trop élevé')
     .optional(),
   
   images: z.array(urlSchema)
-    .max(10, "Maximum 10 images")
+    .max(10, 'Maximum 10 images')
     .optional(),
   
   contactPhone: phoneSchema.optional(),
@@ -132,7 +132,7 @@ export const createCatalogSchema = z.object({
   contactEmail: emailSchema.optional(),
   
   keywords: z.array(z.string().max(50))
-    .max(20, "Maximum 20 mots-clés")
+    .max(20, 'Maximum 20 mots-clés')
     .optional(),
   
   isPublic: z.boolean().default(true),
@@ -145,33 +145,33 @@ export const createCatalogSchema = z.object({
 export const createProductSchema = z.object({
   name: z.string()
     .trim()
-    .min(2, "Le nom doit contenir au moins 2 caractères")
-    .max(200, "Le nom ne peut dépasser 200 caractères"),
+    .min(2, 'Le nom doit contenir au moins 2 caractères')
+    .max(200, 'Le nom ne peut dépasser 200 caractères'),
   
   description: z.string()
     .trim()
-    .max(5000, "La description ne peut dépasser 5000 caractères")
+    .max(5000, 'La description ne peut dépasser 5000 caractères')
     .optional(),
   
   price: z.number()
-    .min(0, "Le prix ne peut être négatif")
-    .max(100000000, "Prix trop élevé"),
+    .min(0, 'Le prix ne peut être négatif')
+    .max(100000000, 'Prix trop élevé'),
   
   compareAtPrice: z.number()
-    .min(0, "Le prix ne peut être négatif")
+    .min(0, 'Le prix ne peut être négatif')
     .optional(),
   
   stock: z.number()
-    .int("Le stock doit être un nombre entier")
-    .min(0, "Le stock ne peut être négatif")
+    .int('Le stock doit être un nombre entier')
+    .min(0, 'Le stock ne peut être négatif')
     .optional(),
   
   sku: z.string()
-    .max(100, "SKU trop long")
+    .max(100, 'SKU trop long')
     .optional(),
   
   images: z.array(urlSchema)
-    .max(10, "Maximum 10 images")
+    .max(10, 'Maximum 10 images')
     .optional(),
   
   isActive: z.boolean().default(true),
@@ -190,7 +190,7 @@ export type CreateProductInput = z.infer<typeof createProductSchema>;
  */
 export function validateAndSanitize<T>(
   schema: z.ZodSchema<T>,
-  data: unknown
+  data: unknown,
 ): { success: true; data: T } | { success: false; errors: z.ZodError } {
   try {
     const validated = schema.parse(data);

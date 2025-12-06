@@ -61,7 +61,7 @@ export const businessProfileSchema = z.object({
     .nullable(),
   
   logo_url: z.string().url('URL invalide').optional().nullable(),
-  cover_image_url: z.string().url('URL invalide').optional().nullable()
+  cover_image_url: z.string().url('URL invalide').optional().nullable(),
 });
 
 export const bookingSchema = z.object({
@@ -72,7 +72,7 @@ export const bookingSchema = z.object({
   customer_name: z.string().trim().min(2).max(100),
   customer_phone: z.string().trim().regex(/^\+?[0-9]{8,15}$/).optional().nullable(),
   customer_email: z.string().email().max(255).optional().nullable(),
-  special_requests: z.string().trim().max(1000).optional().nullable()
+  special_requests: z.string().trim().max(1000).optional().nullable(),
 });
 
 export type BusinessProfileInput = z.infer<typeof businessProfileSchema>;
