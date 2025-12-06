@@ -32,22 +32,45 @@ export class AuthService {
   }
 
   static async signUp(email: string, password: string, userData: UserSignUpData) {
+    // Validate email format before sending to Supabase
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return { 
+        data: null, 
+        error: { message: "Format d'email invalide" } 
+      };
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return { 
+        data: null, 
+        error: { message: "Le mot de passe doit contenir au moins 6 caractères" } 
+      };
+    }
+
+    // Get redirect URL for email confirmation
+    const redirectUrl = `${window.location.origin}/auth`;
+
     // 1. Sign up with Supabase Auth
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: email.trim().toLowerCase(),
       password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           pseudo: userData.pseudo,
           role: userData.role,
           phone: userData.phone,
-          full_name: userData.pseudo // Standard field
+          full_name: userData.pseudo
         }
       }
     });
 
     if (error) {
-      // Handle existing user error
+      console.error('Supabase signup error:', error);
+      
+      // Handle specific error codes
       if (error.message.includes('already registered') || error.message.includes('already been registered')) {
         try { localStorage.setItem('prefillEmail', email); } catch { /* Ignore */ }
         return { 
@@ -55,6 +78,15 @@ export class AuthService {
           error: { message: "EXISTING_USER", email } 
         };
       }
+      
+      // Handle invalid email error from Supabase
+      if (error.message.includes('invalid') || error.message.includes('Invalid')) {
+        return { 
+          data, 
+          error: { message: "L'adresse email n'est pas valide. Utilisez une adresse email réelle." } 
+        };
+      }
+      
       return { data, error: { message: error.message } };
     }
 

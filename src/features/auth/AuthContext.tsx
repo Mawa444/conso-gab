@@ -113,9 +113,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string): Promise<SignInResult> => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      // Normalize email
+      const normalizedEmail = email.trim().toLowerCase();
+      
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email: normalizedEmail, 
+        password 
+      });
       
       if (error) {
+        console.error('Sign in error:', error);
+        
         // Improved French error messages
         if (error.message.includes('Invalid login credentials')) {
           return {
@@ -129,11 +137,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             error: { message: "Veuillez confirmer votre email avant de vous connecter." }
           };
         }
+        if (error.message.includes('Invalid email')) {
+          return {
+            data,
+            error: { message: "Format d'email invalide." }
+          };
+        }
         return { data, error: { message: error.message } };
       }
 
       return { data, error: null };
     } catch (error: any) {
+      console.error('Sign in exception:', error);
       return { data: null, error: { message: error.message || "Erreur de connexion" } };
     }
   };

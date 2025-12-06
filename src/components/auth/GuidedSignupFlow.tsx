@@ -88,13 +88,28 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
     });
     
     try {
+      // Validate required fields
       if (!signupData.email || !signupData.password || !signupData.pseudo) {
-        throw new Error('Veuillez remplir tous les champs obligatoires');
+        toast.error('Veuillez remplir tous les champs obligatoires');
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(signupData.email)) {
+        toast.error("Format d'email invalide");
+        return;
+      }
+
+      // Validate password length
+      if (signupData.password.length < 6) {
+        toast.error('Le mot de passe doit contenir au moins 6 caractères');
+        return;
       }
 
       console.log('📤 Calling signUp API...');
       const { data, error } = await signUp(
-        signupData.email,
+        signupData.email.trim().toLowerCase(),
         signupData.password,
         {
           pseudo: signupData.pseudo,
@@ -117,7 +132,6 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
         console.error('❌ SignUp error:', error);
         if (error.message === "EXISTING_USER" || error.message?.includes("existe déjà")) {
           toast.error('Un compte existe déjà avec cet email.');
-          // Store email for login form pre-fill
           localStorage.setItem('prefillEmail', signupData.email || '');
           setTimeout(() => {
             toast.info('Redirection vers la connexion...');
@@ -125,28 +139,40 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
           }, 1500);
           return;
         }
-        throw error;
+        toast.error(error.message || "Erreur lors de l'inscription");
+        return;
       }
 
       console.log('✅ Account created successfully:', data?.user?.id);
+      
+      // Check if email confirmation is required
+      if (data?.user && !data?.session) {
+        toast.success('Compte créé ! Vérifiez votre email pour confirmer votre inscription.');
+        localStorage.setItem('prefillEmail', signupData.email);
+        onComplete();
+        return;
+      }
+
       toast.success('Compte créé avec succès ! Connexion automatique...');
       
-      // After successful signup, automatically sign in
-      if (signupData.email && signupData.password) {
+      // After successful signup with auto-confirm, automatically sign in
+      if (signupData.email && signupData.password && data?.session) {
+        console.log('✅ Auto sign-in successful, redirecting...');
+        // Session already exists, AuthContext will handle the redirect
+      } else if (signupData.email && signupData.password) {
+        // Try to sign in if no session exists
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: signupData.email,
+          email: signupData.email.trim().toLowerCase(),
           password: signupData.password
         });
         
         if (signInError) {
           console.error('Auto sign-in failed:', signInError);
-          // If auto-signin fails, redirect to login
           localStorage.setItem('prefillEmail', signupData.email);
           toast.info('Veuillez vous connecter avec vos identifiants.');
           onComplete();
         } else {
-          console.log('✅ Auto sign-in successful, redirecting...');
-          // onComplete will be called by AuthFlowPage when it detects the user
+          console.log('✅ Auto sign-in successful');
         }
       } else {
         onComplete();
