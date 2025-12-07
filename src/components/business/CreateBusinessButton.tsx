@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useBusinessCreation } from "@/hooks/use-business-creation";
-import { BusinessCreationWizard } from "@/components/business/BusinessCreationWizard";
 
 interface CreateBusinessButtonProps {
   variant?: "default" | "outline" | "ghost" | "destructive" | "secondary" | "link";
@@ -20,36 +19,17 @@ export const CreateBusinessButton = ({
   fullWidth = false,
   showIcon = true
 }: CreateBusinessButtonProps) => {
-  const { 
-    showCreateForm, 
-    openBusinessCreation, 
-    handleBusinessCreated, 
-    handleBusinessCreationCancelled 
-  } = useBusinessCreation();
+  const { goToCreationPage } = useBusinessCreation();
 
   return (
-    <>
-      <Button 
-        variant={variant}
-        size={size}
-        className={`${fullWidth ? 'w-full' : ''} ${className}`}
-        onClick={openBusinessCreation}
-      >
-        {showIcon && <Plus className="w-4 h-4 mr-2" />}
-        {children || "Créer mon entreprise"}
-      </Button>
-
-      {/* Modal de création */}
-      {showCreateForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center animate-fade-in" style={{ zIndex: 1040 }}>
-          <div className="w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <BusinessCreationWizard 
-              onCancel={handleBusinessCreationCancelled}
-              onCreated={handleBusinessCreated}
-            />
-          </div>
-        </div>
-      )}
-    </>
+    <Button 
+      variant={variant}
+      size={size}
+      className={`${fullWidth ? 'w-full' : ''} ${className}`}
+      onClick={goToCreationPage}
+    >
+      {showIcon && <Plus className="w-4 h-4 mr-2" />}
+      {children || "Créer mon entreprise"}
+    </Button>
   );
 };

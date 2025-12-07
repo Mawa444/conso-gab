@@ -41,8 +41,11 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
   ]);
 
   const fetchRecommendations = useCallback(async () => {
+    // Utiliser la position disponible (même par défaut)
     if (!position) {
       setLoading(false);
+      setBusinesses([]);
+      setCatalogs([]);
       return;
     }
 
@@ -78,7 +81,8 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
 
   // Récupérer les recommandations au montage et quand la position change
   useEffect(() => {
-    if (!positionLoading && position && stableOptions.autoRefresh) {
+    // Toujours essayer de charger, même avec la position par défaut
+    if (!positionLoading && stableOptions.autoRefresh) {
       fetchRecommendations();
     }
   }, [position?.latitude, position?.longitude, positionLoading, stableOptions.autoRefresh, fetchRecommendations]);
