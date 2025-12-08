@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGeoLocation } from '@/features/geolocation/hooks/useGeoLocation';
 import { GeoLocationService, GeoRecommendation, GeoRecommendationsOptions } from '@/services/geoLocationService';
+import { DEFAULT_POSITION } from '@/features/geolocation/geo.service';
 
 interface UseGeoRecommendationsOptions extends GeoRecommendationsOptions {
   autoRefresh?: boolean;
@@ -14,49 +15,34 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<number>(0);
+  const isMounted = useRef(true);
+  const hasInitialFetch = useRef(false);
 
-  // Stabiliser les options avec useMemo pour éviter les re-renders infinis
-  const stableOptions = useMemo(() => {
-    const {
-      autoRefresh = true,
-      refreshInterval = 0,
-      initialRadius = 2,
-      maxRadius = 50,
-      minResults = 5,
-      limit = 50
-    } = options;
+  const {
+    autoRefresh = true,
+    refreshInterval = 0,
+    initialRadius = 2,
+    maxRadius = 50,
+    minResults = 5,
+    limit = 50
+  } = options;
 
-    return {
-      autoRefresh,
-      refreshInterval,
-      geoOptions: { initialRadius, maxRadius, minResults, limit }
-    };
-  }, [
-    options.autoRefresh,
-    options.refreshInterval,
-    options.initialRadius,
-    options.maxRadius,
-    options.minResults,
-    options.limit
-  ]);
+  const geoOptions = { initialRadius, maxRadius, minResults, limit };
 
   const fetchRecommendations = useCallback(async () => {
-    // Utiliser la position disponible (même par défaut)
-    if (!position) {
-      setLoading(false);
-      setBusinesses([]);
-      setCatalogs([]);
-      return;
-    }
+    // Utiliser la position réelle ou la position par défaut
+    const effectivePosition = position || DEFAULT_POSITION;
 
     setLoading(true);
     setError(null);
 
     try {
       const [businessResults, catalogResults] = await Promise.all([
-        GeoLocationService.getNearestBusinesses(position, stableOptions.geoOptions),
-        GeoLocationService.getNearestCatalogs(position, stableOptions.geoOptions)
+        GeoLocationService.getNearestBusinesses(effectivePosition, geoOptions),
+        GeoLocationService.getNearestCatalogs(effectivePosition, geoOptions)
       ]);
+
+      if (!isMounted.current) return;
 
       // S'assurer que les données incluent carousel_images et cover_image_url
       const enrichedBusinesses = businessResults.map(result => ({
@@ -71,32 +57,46 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
       setBusinesses(enrichedBusinesses);
       setCatalogs(catalogResults);
       setLastUpdate(Date.now());
+      hasInitialFetch.current = true;
     } catch (err: any) {
+      if (!isMounted.current) return;
       console.error('Erreur lors de la récupération des recommandations:', err);
       setError(err.message || 'Erreur lors du chargement des recommandations');
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
-  }, [position, stableOptions.geoOptions]);
+  }, [position?.latitude, position?.longitude, initialRadius, maxRadius, minResults, limit]);
 
-  // Récupérer les recommandations au montage et quand la position change
+  // Effet principal : charger les données au montage
   useEffect(() => {
-    // Toujours essayer de charger, même avec la position par défaut
-    if (!positionLoading && stableOptions.autoRefresh) {
+    isMounted.current = true;
+
+    // Ne pas attendre la géolocalisation - charger immédiatement
+    if (!hasInitialFetch.current) {
       fetchRecommendations();
     }
-  }, [position?.latitude, position?.longitude, positionLoading, stableOptions.autoRefresh, fetchRecommendations]);
+
+    return () => {
+      isMounted.current = false;
+    };
+  }, []); // Seulement au montage
+
+  // Recharger quand la position change (après le premier chargement)
+  useEffect(() => {
+    if (hasInitialFetch.current && position && !positionLoading) {
+      fetchRecommendations();
+    }
+  }, [position?.latitude, position?.longitude, positionLoading]);
 
   // Rafraîchissement automatique si activé
   useEffect(() => {
-    if (stableOptions.refreshInterval > 0) {
-      const interval = setInterval(() => {
-        fetchRecommendations();
-      }, stableOptions.refreshInterval);
-
+    if (refreshInterval > 0) {
+      const interval = setInterval(fetchRecommendations, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [stableOptions.refreshInterval, fetchRecommendations]);
+  }, [refreshInterval, fetchRecommendations]);
 
   const refresh = useCallback(() => {
     fetchRecommendations();
@@ -105,7 +105,7 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
   return {
     businesses,
     catalogs,
-    loading: loading || positionLoading,
+    loading,
     error,
     refresh,
     lastUpdate,
