@@ -84,9 +84,12 @@ export const HomePage = ({
   const handleCategoryClick = (category: any) => {
     navigate(`/category/${category.id}`);
   };
-  // Ne montrer le squelette complet que si on n'a vraiment aucune donnée et qu'on charge pour la première fois
-  // Si on a des données (même par défaut), on affiche la page
-  const showFullSkeleton = loading && businesses.length === 0;
+  // Debug: afficher l'état du chargement
+  console.log('[HomePage] Loading state:', { loading, businessesCount: businesses.length });
+  
+  // NE JAMAIS bloquer l'affichage - toujours montrer le contenu
+  // Le skeleton ne doit s'afficher que très brièvement au tout premier chargement
+  const showFullSkeleton = false; // Désactivé pour debug
 
   return <PageWithSkeleton isLoading={showFullSkeleton} skeleton={<HomePageSkeleton />}>
       <div className="min-h-screen bg-background">
