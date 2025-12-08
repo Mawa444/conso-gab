@@ -2212,6 +2212,21 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_conversations_for_user: {
+        Args: { p_user_id?: string }
+        Returns: {
+          business_id: string
+          business_name: string
+          id: string
+          last_message_at: string
+          last_message_content: string
+          other_participant_avatar: string
+          other_participant_name: string
+          title: string
+          type: string
+          unread_count: number
+        }[]
+      }
       get_my_business_profiles: {
         Args: never
         Returns: {
