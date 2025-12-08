@@ -13,15 +13,11 @@ export const PageWithSkeleton = ({
   children, 
   className = ""
 }: PageWithSkeletonProps) => {
-  return (
-    <div className={className}>
-      {/* Skeleton persistant pendant le chargement - transition douce */}
-      <div className={`transition-opacity duration-300 ${isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none absolute inset-0'}`}>
-        {skeleton}
-      </div>
-      <div className={`transition-opacity duration-300 ${isLoading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        {children}
-      </div>
-    </div>
-  );
+  // Si loading est false, afficher directement le contenu
+  if (!isLoading) {
+    return <div className={className}>{children}</div>;
+  }
+
+  // Sinon afficher le skeleton
+  return <div className={className}>{skeleton}</div>;
 };
