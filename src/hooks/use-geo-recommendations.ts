@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGeoLocation } from '@/features/geolocation/hooks/useGeoLocation';
 import { GeoLocationService, GeoRecommendation, GeoRecommendationsOptions } from '@/services/geoLocationService';
 import { DEFAULT_POSITION } from '@/features/geolocation/geo.service';
@@ -15,46 +15,34 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<number>(0);
-  const hasFetched = useRef(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMounted = useRef(true);
+  const hasInitialFetch = useRef(false);
 
-  // Stabiliser les options avec useMemo pour éviter les re-renders infinis
-  const stableOptions = useMemo(() => {
-    const {
-      autoRefresh = true,
-      refreshInterval = 0,
-      initialRadius = 2,
-      maxRadius = 50,
-      minResults = 5,
-      limit = 50
-    } = options;
+  const {
+    autoRefresh = true,
+    refreshInterval = 0,
+    initialRadius = 2,
+    maxRadius = 50,
+    minResults = 5,
+    limit = 50
+  } = options;
 
-    return {
-      autoRefresh,
-      refreshInterval,
-      geoOptions: { initialRadius, maxRadius, minResults, limit }
-    };
-  }, [
-    options.autoRefresh,
-    options.refreshInterval,
-    options.initialRadius,
-    options.maxRadius,
-    options.minResults,
-    options.limit
-  ]);
+  const geoOptions = { initialRadius, maxRadius, minResults, limit };
 
-  const fetchRecommendations = useCallback(async (pos: typeof position) => {
-    // Utiliser la position fournie ou la position par défaut
-    const effectivePosition = pos || DEFAULT_POSITION;
+  const fetchRecommendations = useCallback(async () => {
+    // Utiliser la position réelle ou la position par défaut
+    const effectivePosition = position || DEFAULT_POSITION;
 
     setLoading(true);
     setError(null);
 
     try {
       const [businessResults, catalogResults] = await Promise.all([
-        GeoLocationService.getNearestBusinesses(effectivePosition, stableOptions.geoOptions),
-        GeoLocationService.getNearestCatalogs(effectivePosition, stableOptions.geoOptions)
+        GeoLocationService.getNearestBusinesses(effectivePosition, geoOptions),
+        GeoLocationService.getNearestCatalogs(effectivePosition, geoOptions)
       ]);
+
+      if (!isMounted.current) return;
 
       // S'assurer que les données incluent carousel_images et cover_image_url
       const enrichedBusinesses = businessResults.map(result => ({
@@ -69,70 +57,55 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
       setBusinesses(enrichedBusinesses);
       setCatalogs(catalogResults);
       setLastUpdate(Date.now());
-      hasFetched.current = true;
+      hasInitialFetch.current = true;
     } catch (err: any) {
+      if (!isMounted.current) return;
       console.error('Erreur lors de la récupération des recommandations:', err);
       setError(err.message || 'Erreur lors du chargement des recommandations');
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
-  }, [stableOptions.geoOptions]);
+  }, [position?.latitude, position?.longitude, initialRadius, maxRadius, minResults, limit]);
 
-  // Récupérer les recommandations au montage et quand la position change
+  // Effet principal : charger les données au montage
   useEffect(() => {
-    // Clear any existing timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    isMounted.current = true;
 
-    // Si on a une position valide (pas la position par défaut), charger immédiatement
-    if (position && position !== DEFAULT_POSITION) {
-      fetchRecommendations(position);
-      return;
-    }
-
-    // Si le chargement de position est terminé ou si on attend trop longtemps
-    // utiliser la position par défaut après 2 secondes max
-    if (!positionLoading) {
-      fetchRecommendations(position);
-    } else {
-      // Timeout de sécurité : charger avec position par défaut après 2s
-      timeoutRef.current = setTimeout(() => {
-        if (!hasFetched.current) {
-          fetchRecommendations(DEFAULT_POSITION);
-        }
-      }, 2000);
+    // Ne pas attendre la géolocalisation - charger immédiatement
+    if (!hasInitialFetch.current) {
+      fetchRecommendations();
     }
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      isMounted.current = false;
     };
-  }, [position?.latitude, position?.longitude, positionLoading, fetchRecommendations]);
+  }, []); // Seulement au montage
+
+  // Recharger quand la position change (après le premier chargement)
+  useEffect(() => {
+    if (hasInitialFetch.current && position && !positionLoading) {
+      fetchRecommendations();
+    }
+  }, [position?.latitude, position?.longitude, positionLoading]);
 
   // Rafraîchissement automatique si activé
   useEffect(() => {
-    if (stableOptions.refreshInterval > 0) {
-      const interval = setInterval(() => {
-        fetchRecommendations(position);
-      }, stableOptions.refreshInterval);
-
+    if (refreshInterval > 0) {
+      const interval = setInterval(fetchRecommendations, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [stableOptions.refreshInterval, fetchRecommendations, position]);
+  }, [refreshInterval, fetchRecommendations]);
 
   const refresh = useCallback(() => {
-    fetchRecommendations(position);
-  }, [fetchRecommendations, position]);
-
-  // Ne montrer loading que si on n'a pas encore chargé les données
-  const isLoading = loading && !hasFetched.current;
+    fetchRecommendations();
+  }, [fetchRecommendations]);
 
   return {
     businesses,
     catalogs,
-    loading: isLoading,
+    loading,
     error,
     refresh,
     lastUpdate,
