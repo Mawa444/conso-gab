@@ -8,7 +8,7 @@ import { useCatalogManagement } from '@/hooks/use-catalog-management';
 import { ProductManager } from './ProductManager';
 import { ProductListWithCatalogCreation } from '../products/ProductListWithCatalogCreation';
 import { SEOScoreCoach } from './SEOScoreCoach';
-import { CatalogCreateForm } from './CatalogCreateForm';
+import { EnhancedCatalogCreateForm } from './EnhancedCatalogCreateForm';
 
 interface EnhancedCatalogManagerProps {
   businessId: string;
@@ -67,7 +67,7 @@ export const EnhancedCatalogManager = ({ businessId }: EnhancedCatalogManagerPro
   if (showCreateWizard) {
     return (
       <div className="max-w-3xl mx-auto">
-        <CatalogCreateForm
+        <EnhancedCatalogCreateForm
           businessId={businessId}
           onCancel={() => setShowCreateWizard(false)}
           onCreated={() => setShowCreateWizard(false)}
