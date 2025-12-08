@@ -84,7 +84,11 @@ export const HomePage = ({
   const handleCategoryClick = (category: any) => {
     navigate(`/category/${category.id}`);
   };
-  return <PageWithSkeleton isLoading={loading} skeleton={<HomePageSkeleton />}>
+  // Ne montrer le squelette complet que si on n'a vraiment aucune donnée et qu'on charge pour la première fois
+  // Si on a des données (même par défaut), on affiche la page
+  const showFullSkeleton = loading && businesses.length === 0;
+
+  return <PageWithSkeleton isLoading={showFullSkeleton} skeleton={<HomePageSkeleton />}>
       <div className="min-h-screen bg-background">
         {/* Contenu principal */}
         <div className="space-y-6 p-4 bg-background px-0 py-0">

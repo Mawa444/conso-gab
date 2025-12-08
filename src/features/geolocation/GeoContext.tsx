@@ -30,7 +30,7 @@ export const GeoLocationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
     return {
       position: DEFAULT_POSITION,
-      loading: true,
+      loading: false, // Optimistic UI: Don't block app start
       error: null,
       permissionDenied: false,
       isTracking: false
