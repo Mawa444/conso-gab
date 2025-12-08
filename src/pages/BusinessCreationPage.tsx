@@ -1,14 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { BusinessCreationWizard } from '@/components/business/BusinessCreationWizard';
-import { useProfileMode } from '@/hooks/use-profile-mode';
+import { Header } from '@/components/layout/Header';
+import { NewBusinessCreationWizard } from '@/components/business/creation/NewBusinessCreationWizard';
 
 export const BusinessCreationPage = () => {
   const navigate = useNavigate();
-  // const { switchMode } = useProfileMode(); // Unused
-
 
   const handleCreated = (businessId: string) => {
-    // Redirection directe après création - l'utilisateur est forcément propriétaire
     navigate(`/business/${businessId}/profile`);
   };
 
@@ -18,8 +15,15 @@ export const BusinessCreationPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
-      <div className="container mx-auto p-6">
-        <BusinessCreationWizard
+      <Header 
+        title="Créer une entreprise" 
+        showBack 
+        onBack={handleCancel}
+        showNotifications={false}
+      />
+      
+      <div className="container mx-auto px-4 pt-20 pb-8">
+        <NewBusinessCreationWizard
           onCancel={handleCancel}
           onCreated={handleCreated}
         />

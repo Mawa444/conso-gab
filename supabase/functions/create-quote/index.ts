@@ -32,7 +32,7 @@ serve(async (req) => {
 
     const subtotal = validated.items.reduce((sum: number, item: { unit_price: number; quantity: number }) => 
       sum + (item.unit_price * item.quantity), 0);
-    const discountAmount = subtotal * (validated.discount_percentage / 100);
+    const discountAmount = subtotal * ((validated.discount_percentage ?? 0) / 100);
     const total = subtotal - discountAmount;
 
     const quoteNumber = `Q-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;

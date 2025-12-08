@@ -15,12 +15,6 @@ vi.mock('sonner', () => ({
   }
 }));
 
-vi.mock('@/hooks/use-profile-mode', () => ({
-  useProfileMode: () => ({
-    switchMode: vi.fn()
-  })
-}));
-
 describe('useBusinessCreation', () => {
   const mockNavigate = vi.fn();
 
@@ -61,6 +55,16 @@ describe('useBusinessCreation', () => {
     expect(result.current.showCreateForm).toBe(false);
   });
 
+  it('should navigate to creation page', () => {
+    const { result } = renderHook(() => useBusinessCreation());
+    
+    act(() => {
+      result.current.goToCreationPage();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith('/entreprises/create');
+  });
+
   it('should handle business created successfully', () => {
     const { result } = renderHook(() => useBusinessCreation());
     const businessId = 'test-business-id';
@@ -90,5 +94,6 @@ describe('useBusinessCreation', () => {
     });
 
     expect(result.current.showCreateForm).toBe(false);
+    expect(mockNavigate).toHaveBeenCalledWith('/entreprises');
   });
 });
