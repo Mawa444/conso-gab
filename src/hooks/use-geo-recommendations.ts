@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useGeoLocation } from '@/features/geolocation/hooks/useGeoLocation';
 import { GeoLocationService, GeoRecommendation, GeoRecommendationsOptions } from '@/services/geoLocationService';
+import { DEFAULT_POSITION } from '@/features/geolocation/geo.service';
 
 interface UseGeoRecommendationsOptions extends GeoRecommendationsOptions {
   autoRefresh?: boolean;
@@ -14,6 +15,8 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<number>(0);
+  const hasFetched = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Stabiliser les options avec useMemo pour éviter les re-renders infinis
   const stableOptions = useMemo(() => {
@@ -40,22 +43,17 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
     options.limit
   ]);
 
-  const fetchRecommendations = useCallback(async () => {
-    // Utiliser la position disponible (même par défaut)
-    if (!position) {
-      setLoading(false);
-      setBusinesses([]);
-      setCatalogs([]);
-      return;
-    }
+  const fetchRecommendations = useCallback(async (pos: typeof position) => {
+    // Utiliser la position fournie ou la position par défaut
+    const effectivePosition = pos || DEFAULT_POSITION;
 
     setLoading(true);
     setError(null);
 
     try {
       const [businessResults, catalogResults] = await Promise.all([
-        GeoLocationService.getNearestBusinesses(position, stableOptions.geoOptions),
-        GeoLocationService.getNearestCatalogs(position, stableOptions.geoOptions)
+        GeoLocationService.getNearestBusinesses(effectivePosition, stableOptions.geoOptions),
+        GeoLocationService.getNearestCatalogs(effectivePosition, stableOptions.geoOptions)
       ]);
 
       // S'assurer que les données incluent carousel_images et cover_image_url
@@ -71,41 +69,70 @@ export const useGeoRecommendations = (options: UseGeoRecommendationsOptions = {}
       setBusinesses(enrichedBusinesses);
       setCatalogs(catalogResults);
       setLastUpdate(Date.now());
+      hasFetched.current = true;
     } catch (err: any) {
       console.error('Erreur lors de la récupération des recommandations:', err);
       setError(err.message || 'Erreur lors du chargement des recommandations');
     } finally {
       setLoading(false);
     }
-  }, [position, stableOptions.geoOptions]);
+  }, [stableOptions.geoOptions]);
 
   // Récupérer les recommandations au montage et quand la position change
   useEffect(() => {
-    // Toujours essayer de charger, même avec la position par défaut
-    if (!positionLoading && stableOptions.autoRefresh) {
-      fetchRecommendations();
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-  }, [position?.latitude, position?.longitude, positionLoading, stableOptions.autoRefresh, fetchRecommendations]);
+
+    // Si on a une position valide (pas la position par défaut), charger immédiatement
+    if (position && position !== DEFAULT_POSITION) {
+      fetchRecommendations(position);
+      return;
+    }
+
+    // Si le chargement de position est terminé ou si on attend trop longtemps
+    // utiliser la position par défaut après 2 secondes max
+    if (!positionLoading) {
+      fetchRecommendations(position);
+    } else {
+      // Timeout de sécurité : charger avec position par défaut après 2s
+      timeoutRef.current = setTimeout(() => {
+        if (!hasFetched.current) {
+          fetchRecommendations(DEFAULT_POSITION);
+        }
+      }, 2000);
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [position?.latitude, position?.longitude, positionLoading, fetchRecommendations]);
 
   // Rafraîchissement automatique si activé
   useEffect(() => {
     if (stableOptions.refreshInterval > 0) {
       const interval = setInterval(() => {
-        fetchRecommendations();
+        fetchRecommendations(position);
       }, stableOptions.refreshInterval);
 
       return () => clearInterval(interval);
     }
-  }, [stableOptions.refreshInterval, fetchRecommendations]);
+  }, [stableOptions.refreshInterval, fetchRecommendations, position]);
 
   const refresh = useCallback(() => {
-    fetchRecommendations();
-  }, [fetchRecommendations]);
+    fetchRecommendations(position);
+  }, [fetchRecommendations, position]);
+
+  // Ne montrer loading que si on n'a pas encore chargé les données
+  const isLoading = loading && !hasFetched.current;
 
   return {
     businesses,
     catalogs,
-    loading: loading || positionLoading,
+    loading: isLoading,
     error,
     refresh,
     lastUpdate,
