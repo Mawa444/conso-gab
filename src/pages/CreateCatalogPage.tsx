@@ -9,7 +9,7 @@ export const CreateCatalogPage = () => {
   const { businessId } = useParams<{ businessId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [business, setBusiness] = useState<{ name: string; business_category: string } | null>(null);
+  const [business, setBusiness] = useState<{ business_name: string; business_category: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export const CreateCatalogPage = () => {
       try {
         const { data, error } = await supabase
           .from('business_profiles')
-          .select('name, business_category')
+          .select('business_name, business_category')
           .eq('id', businessId)
           .single();
 
@@ -56,8 +56,9 @@ export const CreateCatalogPage = () => {
     <div className="container mx-auto py-8 px-4">
       <CatalogDashboard 
         businessId={businessId}
-        businessName={business.name}
+        businessName={business.business_name}
         businessCategory={business.business_category}
+        onBack={() => navigate(`/business/${businessId}`)}
       />
     </div>
   );

@@ -21,9 +21,8 @@ import {
 } from "@/data/professionalTools";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EnhancedProductCreationWizard } from "@/components/products/EnhancedProductCreationWizard";
-import { useCatalogManagement } from "@/hooks/use-catalog-management";
+import { useCatalogs } from "@/hooks/use-catalogs";
 import { CatalogManager } from "@/components/catalog/CatalogManager";
-import { EnhancedCatalogCreateForm } from "@/components/catalog/EnhancedCatalogCreateForm";
 
 interface ProfessionalDashboardProps {
   businessId: string;
