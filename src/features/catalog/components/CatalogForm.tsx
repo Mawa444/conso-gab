@@ -52,7 +52,7 @@ export const CatalogForm = ({ businessId, initialData, onSuccess, onCancel }: Ca
       const filePath = `${businessId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('catalog_images')
+        .from('catalogs')
         .upload(filePath, file);
 
       if (uploadError) {
@@ -60,7 +60,7 @@ export const CatalogForm = ({ businessId, initialData, onSuccess, onCancel }: Ca
       }
 
       const { data } = supabase.storage
-        .from('catalog_images')
+        .from('catalogs')
         .getPublicUrl(filePath);
 
       setCoverUrl(data.publicUrl);
@@ -68,13 +68,7 @@ export const CatalogForm = ({ businessId, initialData, onSuccess, onCancel }: Ca
     } catch (error) {
        console.error("Error uploading image:", error);
        // Check if bucket exists, if not, maybe try 'catalogs' or handle error
-       // For now assuming 'catalog_images' or 'catalogs' exists. 
-       // The previous code used an edge function 'initiate-upload', strictly speaking I should maybe use that or just direct upload if policies allow.
-       // I'll try direct upload to 'catalogs' bucket as a fallback or primary if 'catalog_images' fails, but let's stick to a simple path.
-       // Actually, the user's previous code used `supabase.functions.invoke('initiate-upload')`.
-       // I should probably stick to that if RLS requires it, BUT direct storage upload is standard if policies are set.
-       // Let's assume direct upload for simplicity in this "reconstruction" unless it fails. 
-       // I'll assume a bucket named 'catalogs' exists based on the context.
+       // We now favor 'catalogs' bucket.
     } finally {
       setUploading(false);
     }

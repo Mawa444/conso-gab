@@ -34,7 +34,10 @@ export const CreateCatalogPage = () => {
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <CatalogForm 
                 businessId={businessId} 
-                onSuccess={() => setIsCreating(false)} 
+                onSuccess={() => {
+                  setIsCreating(false);
+                  navigate(`/business/${businessId}`);
+                }} 
                 onCancel={() => setIsCreating(false)}
               />
             </DialogContent>
