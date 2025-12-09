@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useToast } from "@/hooks/use-toast";
-import { CatalogCreateForm } from "./CatalogCreateForm";
+import { CatalogFormModal } from "./CatalogFormModal";
 
 interface CatalogManagementPageProps {
   businessId: string;
@@ -144,16 +144,6 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
     });
   };
 
-  if (showCreateWizard) {
-    return (
-      <CatalogCreateForm
-        businessId={businessId}
-        onCancel={() => setShowCreateWizard(false)}
-        onCreated={() => setShowCreateWizard(false)}
-        isModal={false}
-      />
-    );
-  }
 
   if (isLoading) {
     return (
@@ -506,6 +496,12 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
           ))}
         </div>
       )}
+
+      <CatalogFormModal
+        businessId={businessId}
+        isOpen={showCreateWizard}
+        onClose={() => setShowCreateWizard(false)}
+      />
     </div>
   );
 };
