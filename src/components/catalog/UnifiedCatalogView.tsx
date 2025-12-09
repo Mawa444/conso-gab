@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useCatalogManagement } from '@/hooks/use-catalog-management';
 import { useBusinessList } from '@/hooks/use-business-list';
-import { EnhancedCatalogCreateForm } from './EnhancedCatalogCreateForm';
+import { CatalogCreateForm } from './CatalogCreateForm';
 import { CatalogInteractionModal } from './CatalogInteractionModal';
 
 interface UnifiedCatalogViewProps {
@@ -377,7 +377,7 @@ export const UnifiedCatalogView = ({ userId }: UnifiedCatalogViewProps) => {
                   ×
                 </Button>
               </div>
-              <EnhancedCatalogCreateForm
+              <CatalogCreateForm
                 businessId={selectedBusinessId}
                 onCancel={() => setSelectedBusinessId(null)}
                 onCreated={() => setSelectedBusinessId(null)}

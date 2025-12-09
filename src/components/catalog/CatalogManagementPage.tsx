@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useToast } from "@/hooks/use-toast";
-import { EnhancedCatalogCreateForm } from "./EnhancedCatalogCreateForm";
+import { CatalogCreateForm } from "./CatalogCreateForm";
 
 interface CatalogManagementPageProps {
   businessId: string;
@@ -146,7 +146,7 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
 
   if (showCreateWizard) {
     return (
-      <EnhancedCatalogCreateForm
+      <CatalogCreateForm
         businessId={businessId}
         onCancel={() => setShowCreateWizard(false)}
         onCreated={() => setShowCreateWizard(false)}

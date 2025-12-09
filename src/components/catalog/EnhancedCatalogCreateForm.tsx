@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTrackAction } from '@/components/business/InterconnectivityTracker';
 import { CatalogCreationWizard } from './CatalogCreationWizard';
-import { useCreateCatalog } from '@/hooks/use-create-catalog';
 
 interface EnhancedCatalogCreateFormProps {
   businessId: string;
@@ -35,7 +34,6 @@ export const EnhancedCatalogCreateForm = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const { trackAction } = useTrackAction();
-  const { createCatalog, isCreating } = useCreateCatalog();
   const [showWizard, setShowWizard] = useState(false);
   const [quickCreateMode, setQuickCreateMode] = useState(false);
   
@@ -82,19 +80,24 @@ export const EnhancedCatalogCreateForm = ({
     }
 
     setLoading(true);
-    setLoading(true);
     try {
-      const catalog = await createCatalog({
-        name: formData.name,
-        description: formData.description,
-        category: formData.category,
-        isPublic: false,
-        // Default values for quick create
-        catalog_type: 'products',
-        visibility: 'draft'
-      });
+      const { data: catalog, error } = await supabase
+        .from('catalogs')
+        .insert({
+          business_id: businessId,
+          name: formData.name,
+          description: formData.description,
+          category: formData.category,
+          visibility: 'draft',
+          // Store conversation context for interconnectivity
+          ...(conversationId && {
+            metadata: { conversation_id: conversationId }
+          })
+        })
+        .select()
+        .single();
 
-      if (!catalog?.id) throw new Error("Erreur lors de la création");
+      if (error) throw error;
 
       // Track interconnectivity
       if (conversationId) {
@@ -126,17 +129,19 @@ export const EnhancedCatalogCreateForm = ({
         });
       }
 
+      toast({
+        title: "Catalogue créé",
+        description: `Le catalogue "${formData.name}" a été créé avec succès`,
+      });
+
       onCreated?.(catalog.id);
     } catch (error) {
       console.error('Error creating catalog:', error);
-      // Toast is already handled by the hook for success/error
-      if (!isCreating) { // Fallback if hook didn't catch it
-        toast({
-          title: "Erreur",
-          description: "Impossible de créer le catalogue",
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer le catalogue",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }

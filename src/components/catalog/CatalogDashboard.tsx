@@ -10,7 +10,7 @@ import { CatalogVisibilityManager } from "./CatalogVisibilityManager";
 import { CatalogManagementPage } from "./CatalogManagementPage";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useProductManagement } from "@/hooks/use-product-management";
-import { EnhancedCatalogCreateForm } from "./EnhancedCatalogCreateForm";
+import { CatalogCreateForm } from "./CatalogCreateForm";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -93,7 +93,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
 
   if (activeView === 'create') {
     return (
-      <EnhancedCatalogCreateForm
+      <CatalogCreateForm
         businessId={businessId}
         onCancel={handleWizardCancel}
         onCreated={() => setActiveView('managementPage')}

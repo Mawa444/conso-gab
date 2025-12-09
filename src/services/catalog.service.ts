@@ -5,8 +5,6 @@
  * Logique métier pour les opérations catalog
  */
 
-import { CreateCatalogInput } from "@/types/entities/catalog.types";
-
 import { supabase } from "@/integrations/supabase/client";
 import { createDomainLogger } from "@/lib/logger";
 
@@ -82,63 +80,15 @@ export class CatalogService {
   /**
    * Crée un nouveau catalogue
    */
-  /**
-   * Crée un nouveau catalogue avec mapping complet des données
-   */
-  static async createCatalog(businessId: string, payload: CreateCatalogInput) {
-    logger.info('Creating catalog', { businessId });
-
-    // Build the insert data with all necessary fields (Centralized logic)
-    const insertData = {
-      business_id: businessId,
-      name: payload.name?.trim() || "Catalogue sans nom",
-      description: payload.description?.trim(),
-      category: payload.category,
-      subcategory: payload.subcategory,
-      catalog_type: payload.catalog_type,
-      is_public: payload.isPublic ?? false,
-      visibility: payload.isPublic ? 'published' : 'draft',
-
-      // Images handling
-      // Cast images to string/json if needed by DB, or let Supabase client handle it if defined as Json in types
-      // Using 'any' cast for images to avoid TS conflicts with Json type
-      images: payload.images ? JSON.parse(JSON.stringify(payload.images)) : null,
-      cover_url: payload.cover_image_url || payload.cover_url,
-
-      // Location & SEO
-      geo_city: payload.geo_city,
-      geo_district: payload.geo_district,
-      keywords: payload.keywords,
-      synonyms: payload.synonyms,
-
-      // Commerce settings
-      has_limited_quantity: payload.has_limited_quantity,
-      on_sale: payload.on_sale,
-      sale_percentage: payload.sale_percentage,
-      delivery_available: payload.delivery_available,
-      delivery_zones: payload.delivery_zones,
-      delivery_cost: payload.delivery_cost,
-
-      // Contact
-      contact_whatsapp: payload.contact_whatsapp,
-      contact_phone: payload.contact_phone,
-      contact_email: payload.contact_email,
-      business_hours: payload.business_hours,
-
-      // Pricing
-      min_price: payload.base_price,
-      max_price: payload.base_price,
-      price_type: payload.price_type,
-      price_currency: payload.price_currency || 'FCFA',
-      price_details: payload.price_details ? JSON.parse(JSON.stringify(payload.price_details)) : null,
-
-      is_active: true,
-      display_order: 0
-    };
+  static async createCatalog(businessId: string, catalogData: any) {
+    logger.info('Creating catalog');
 
     const { data, error } = await (supabase as any)
       .from('catalogs')
-      .insert(insertData)
+      .insert([{
+        business_id: businessId,
+        ...catalogData,
+      }])
       .select()
       .single();
 
@@ -148,9 +98,8 @@ export class CatalogService {
     }
 
     logger.info('Catalog created successfully');
-    return data;
+    return data as any;
   }
-
 
   /**
    * Met à jour un catalogue

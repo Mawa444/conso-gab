@@ -1,8 +1,37 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { CatalogService } from "@/services/catalog.service";
-import { CreateCatalogInput } from "@/types/entities/catalog.types";
+
+export interface CreateCatalogInput {
+  name: string;
+  description?: string;
+  category?: string;
+  subcategory?: string;
+  catalog_type?: 'products' | 'services';
+  isPublic?: boolean;
+  images?: any[];
+  cover_url?: string;
+  cover_image_url?: string;
+  geo_city?: string;
+  geo_district?: string;
+  availability_zone?: string;
+  keywords?: string[];
+  synonyms?: string[];
+  has_limited_quantity?: boolean;
+  on_sale?: boolean;
+  sale_percentage?: number;
+  delivery_available?: boolean;
+  delivery_zones?: string[];
+  delivery_cost?: number;
+  contact_whatsapp?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  business_hours?: any;
+  base_price?: number;
+  price_type?: 'fixed' | 'from' | 'variable';
+  price_currency?: string;
+  price_details?: any[];
+}
 
 export const useCreateCatalog = (businessId: string) => {
   const { toast } = useToast();
@@ -15,12 +44,27 @@ export const useCreateCatalog = (businessId: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilisateur non authentifié");
 
+      // Use only the fields that exist in the catalogs table
+      const insertData = {
+        business_id: businessId,
+        name: payload.name?.trim() || "Catalogue sans nom",
+        description: payload.description?.trim() || null,
+        is_active: true,
+        display_order: 0
+      };
 
-      // Delegate to CatalogService which handles all mapping and validation
-      const data = await CatalogService.createCatalog(businessId, payload);
-      return { data, error: null };
+      const { data, error } = await supabase
+        .from('catalogs')
+        .insert(insertData)
+        .select()
+        .maybeSingle();
 
+      if (error) {
+        console.error('Create catalog error:', error);
+        throw new Error(error.message);
+      }
 
+      return data;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['catalogs', businessId] });

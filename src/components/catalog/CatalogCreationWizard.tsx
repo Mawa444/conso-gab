@@ -1012,7 +1012,7 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
 
         <Button 
           onClick={currentStep === totalSteps ? () => onCompleted?.(createdCatalogId) : nextStep}
-          disabled={(!canProceedToNext() && currentStep !== totalSteps) || (currentStep === totalSteps && !createdCatalogId) || isCreating}
+          disabled={!canProceedToNext() || isCreating}
         >
           {currentStep === totalSteps ? 'Terminer' : (
             <>
