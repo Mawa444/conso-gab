@@ -1,13 +1,3 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Upload, X } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -143,62 +133,6 @@ export const CatalogForm = ({ businessId, initialData, onSuccess, onCancel }: Ca
                 <Textarea placeholder="Décrivez le contenu de ce catalogue..." {...field} />
               </FormControl>
               <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Catégorie</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="produits">Produits</SelectItem>
-                    <SelectItem value="services">Services</SelectItem>
-                    <SelectItem value="alimentaire">Alimentaire</SelectItem>
-                    <SelectItem value="immobilier">Immobilier</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Prix de base (optionnel)</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Image Upload Section */}
-        <div className="space-y-2">
-          <FormLabel>Images</FormLabel>
-          <div className="grid grid-cols-4 gap-4">
-            {previews.map((url, index) => (
-              <div key={index} className="relative aspect-square border rounded-md overflow-hidden group">
-                <img src={url} alt="Preview" className="w-full h-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
                   <X className="w-4 h-4" />
                 </button>
               </div>
