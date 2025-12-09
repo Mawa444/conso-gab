@@ -19,28 +19,29 @@ export const useProfileImageLikes = (
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Create a unique image_id from profileUserId and imageType
-  const imageId = `${profileUserId}_${imageType}`;
+
 
   // Fetch likes count and user's like status
   const fetchLikes = async () => {
     try {
       // Get total likes count
-      const { count, error: countError } = await supabase
+      const { count, error: countError } = await (supabase as any)
         .from('profile_image_likes')
         .select('*', { count: 'exact', head: true })
-        .eq('image_id', imageId);
+        .eq('profile_user_id', profileUserId)
+        .eq('image_type', imageType);
 
       if (countError) throw countError;
       setLikesCount(count || 0);
 
       // Check if current user has liked
       if (user) {
-        const { data, error: likeError } = await supabase
+        const { data, error: likeError } = await (supabase as any)
           .from('profile_image_likes')
           .select('id')
           .eq('user_id', user.id)
-          .eq('image_id', imageId)
+          .eq('profile_user_id', profileUserId)
+          .eq('image_type', imageType)
           .maybeSingle();
 
         if (likeError) throw likeError;
@@ -65,22 +66,24 @@ export const useProfileImageLikes = (
     try {
       if (isLiked) {
         // Unlike
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('profile_image_likes')
           .delete()
           .eq('user_id', user.id)
-          .eq('image_id', imageId);
+          .eq('profile_user_id', profileUserId)
+          .eq('image_type', imageType);
 
         if (error) throw error;
         setIsLiked(false);
         setLikesCount(prev => Math.max(0, prev - 1));
       } else {
         // Like
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('profile_image_likes')
           .insert({
             user_id: user.id,
-            image_id: imageId
+            profile_user_id: profileUserId,
+            image_type: imageType
           });
 
         if (error) throw error;
