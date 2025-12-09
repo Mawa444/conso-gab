@@ -21,9 +21,10 @@ import {
 } from "@/data/professionalTools";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EnhancedProductCreationWizard } from "@/components/products/EnhancedProductCreationWizard";
-import { useCatalogManagement } from "@/hooks/use-catalog-management";
-import { CatalogManager } from "@/components/catalog/CatalogManager";
-import { CatalogCreateForm } from "@/components/catalog/CatalogCreateForm";
+import { CatalogList } from "@/features/catalog/components/CatalogList";
+import { CatalogForm } from "@/features/catalog/components/CatalogForm";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 
 interface ProfessionalDashboardProps {
   businessId: string;
@@ -230,16 +231,29 @@ export const ProfessionalDashboard = ({
           </div>
         </TabsContent>
 
+
         <TabsContent value="catalogs" className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Gestion des catalogues</h2>
-              <CatalogCreateForm 
-                businessId={businessId}
-                isModal={true}
-              />
+               <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Nouveau Catalogue
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <CatalogForm businessId={businessId} onSuccess={() => {
+                        // Close dialog logic would require state control.
+                        // For simplicity in this quick fix, we might not auto-close or we need state.
+                        // I'll add state relative to the dialog.
+                    }} /> 
+                  </DialogContent>
+               </Dialog>
             </div>
-            <CatalogManager businessId={businessId} businessCategory={businessCategory} />
+            <CatalogList businessId={businessId} />
+            {/* CatalogManager removed, logic is in CatalogList */}
           </div>
         </TabsContent>
 

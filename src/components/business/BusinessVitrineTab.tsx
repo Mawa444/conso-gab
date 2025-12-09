@@ -4,9 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, Star, Package, Calendar, ArrowUpDown } from "lucide-react";
-import { useCatalogManagement } from "@/hooks/use-catalog-management";
-import { CatalogInteractionModal } from "@/components/catalog/CatalogInteractionModal";
-import { EnhancedCatalogDisplay } from "@/components/catalog/EnhancedCatalogDisplay";
+import { useCatalogs, CatalogInteractionModal } from "@/features/catalog";
+
 import type { CatalogData } from "@/lib/supabase-helpers";
 
 interface BusinessVitrineTabProps {
@@ -25,9 +24,10 @@ type Catalog = CatalogData;
 export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrineTabProps) => {
   const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null);
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'name' | 'category'>('recent');
-  const [viewMode, setViewMode] = useState<'grid' | 'detailed'>('grid');
+
   
-  const { catalogs, isLoading } = useCatalogManagement(businessId);
+  const { data: catalogsRaw, isLoading } = useCatalogs(businessId);
+  const catalogs = (catalogsRaw || []) as unknown as Catalog[];
 
   // Convert catalogs to products format for enhanced display
   const convertCatalogsToProducts = (catalogs: Catalog[]) => {
@@ -161,22 +161,7 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-            >
-              Grille
-            </Button>
-            <Button
-              variant={viewMode === 'detailed' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('detailed')}
-            >
-              Détaillé
-            </Button>
-          </div>
+
           
           <div className="flex items-center gap-2">
             <ArrowUpDown className="w-4 h-4" />
@@ -195,20 +180,7 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
         </div>
       </div>
 
-      {viewMode === 'detailed' ? (
-        <EnhancedCatalogDisplay 
-          products={products}
-          catalogName={`Vitrine de ${businessName}`}
-          businessInfo={{
-            name: businessName,
-            contact_phone: catalogs[0]?.contact_phone,
-            contact_whatsapp: catalogs[0]?.contact_whatsapp,
-            contact_email: catalogs[0]?.contact_email,
-            location: catalogs[0]?.geo_city
-          }}
-        />
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {sortedCatalogs.map((catalog) => {
             // Safely parse images JSON
             let images: ImageData[] = [];
@@ -302,7 +274,7 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
             );
           })}
         </div>
-      )}
+
 
       {/* Modal d'interaction */}
       {selectedCatalog && (

@@ -4,8 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Eye, Star, Package, Calendar, Store } from "lucide-react";
-import { useCatalogManagement } from "@/hooks/use-catalog-management";
-import { CatalogInteractionModal } from "@/components/catalog/CatalogInteractionModal";
+import { useCatalogs, CatalogInteractionModal } from "@/features/catalog";
 import type { CatalogData } from "@/lib/supabase-helpers";
 
 interface BusinessCatalogViewProps {
@@ -17,7 +16,8 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
   const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({});
   const [selectedCatalog, setSelectedCatalog] = useState<CatalogData | null>(null);
   
-  const { catalogs, isLoading } = useCatalogManagement(businessId);
+  const { data: catalogsRaw, isLoading } = useCatalogs(businessId);
+  const catalogs = catalogsRaw || [];
 
   const nextImage = (catalogId: string, totalImages: number) => {
     setCurrentImageIndex(prev => ({
