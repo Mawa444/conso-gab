@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useCatalogManagement } from '@/hooks/use-catalog-management';
 import { useBusinessList } from '@/hooks/use-business-list';
-import { CatalogFormModal } from "./CatalogFormModal";
+import { CatalogCreateForm } from './CatalogCreateForm';
 import { CatalogInteractionModal } from './CatalogInteractionModal';
 
 interface UnifiedCatalogViewProps {
@@ -367,11 +367,26 @@ export const UnifiedCatalogView = ({ userId }: UnifiedCatalogViewProps) => {
       </Tabs>
 
       {/* Creation Modal */}
-      <CatalogFormModal
-        businessId={selectedBusinessId || ''}
-        isOpen={!!selectedBusinessId}
-        onClose={() => setSelectedBusinessId(null)}
-      />
+      {selectedBusinessId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold">Créer un nouveau catalogue</h3>
+                <Button variant="ghost" onClick={() => setSelectedBusinessId(null)}>
+                  ×
+                </Button>
+              </div>
+              <CatalogCreateForm
+                businessId={selectedBusinessId}
+                onCancel={() => setSelectedBusinessId(null)}
+                onCreated={() => setSelectedBusinessId(null)}
+                isModal={false}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Interaction Modal */}
       {selectedCatalog && (

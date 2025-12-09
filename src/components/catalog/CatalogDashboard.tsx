@@ -10,7 +10,7 @@ import { CatalogVisibilityManager } from "./CatalogVisibilityManager";
 import { CatalogManagementPage } from "./CatalogManagementPage";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useProductManagement } from "@/hooks/use-product-management";
-import { CatalogForm } from "./CatalogForm";
+import { CatalogCreateForm } from "./CatalogCreateForm";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -93,14 +93,12 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
 
   if (activeView === 'create') {
     return (
-      <div className="p-4 border rounded-lg bg-background">
-        <h2 className="text-xl font-bold mb-4">Nouveau Catalogue</h2>
-        <CatalogForm
-          businessId={businessId}
-          onCancel={handleWizardCancel}
-          onSuccess={() => setActiveView('managementPage')}
-        />
-      </div>
+      <CatalogCreateForm
+        businessId={businessId}
+        onCancel={handleWizardCancel}
+        onCreated={() => setActiveView('managementPage')}
+        isModal={false}
+      />
     );
   }
 
@@ -129,6 +127,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
         </div>
         <CatalogManager
           businessId={businessId}
+          businessCategory={businessCategory}
         />
       </div>
     );
