@@ -96,34 +96,3 @@ export type CatalogType = 'products' | 'services' | 'mixed';
 export type CatalogVisibility = 'draft' | 'published' | 'archived';
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 export type PaymentStatus = 'unpaid' | 'partial' | 'paid';
-
-export interface CreateCatalogInput {
-  name: string;
-  description?: string;
-  category?: string;
-  subcategory?: string;
-  catalog_type?: 'products' | 'services';
-  isPublic?: boolean;
-  images?: any[];
-  cover_url?: string;
-  cover_image_url?: string;
-  geo_city?: string;
-  geo_district?: string;
-  availability_zone?: string;
-  keywords?: string[];
-  synonyms?: string[];
-  has_limited_quantity?: boolean;
-  on_sale?: boolean;
-  sale_percentage?: number;
-  delivery_available?: boolean;
-  delivery_zones?: string[];
-  delivery_cost?: number;
-  contact_whatsapp?: string;
-  contact_phone?: string;
-  contact_email?: string;
-  business_hours?: any;
-  base_price?: number;
-  price_type?: 'fixed' | 'from' | 'variable';
-  price_currency?: string;
-  price_details?: any[];
-}

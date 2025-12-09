@@ -1,11 +1,7 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Plus, Package } from 'lucide-react';
-import { RealProductCreationWizard } from '@/components/products/RealProductCreationWizard';
-import { useProductManagement } from '@/hooks/use-product-management';
-import { adaptProductFormDataToSupabase } from '@/lib/adapters/product-adapter';
 
 interface ProductManagerProps {
   catalogId: string;
@@ -14,20 +10,6 @@ interface ProductManagerProps {
 
 export const ProductManager = ({ catalogId, businessId }: ProductManagerProps) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const { createProduct, isCreating } = useProductManagement(businessId, catalogId);
-
-  const handleCreateProduct = async (formData: any) => {
-    try {
-      const productData = adaptProductFormDataToSupabase(formData, businessId, catalogId);
-      await createProduct(productData, {
-        onSuccess: () => {
-          setShowCreateForm(false);
-        }
-      });
-    } catch (error) {
-      console.error('Error creating product:', error);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -44,7 +26,7 @@ export const ProductManager = ({ catalogId, businessId }: ProductManagerProps) =
         </Button>
       </div>
 
-      {/* Liste des produits - à implémenter plus tard avec useProductManagement */}
+      {/* Liste des produits - à implémenter */}
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Package className="w-12 h-12 text-muted-foreground mb-4" />
@@ -58,16 +40,6 @@ export const ProductManager = ({ catalogId, businessId }: ProductManagerProps) =
           </Button>
         </CardContent>
       </Card>
-
-      <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
-        <DialogContent className="max-w-3xl p-0 overflow-hidden">
-          <RealProductCreationWizard 
-            onSubmit={handleCreateProduct}
-            onCancel={() => setShowCreateForm(false)}
-            isLoading={isCreating}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

@@ -21,8 +21,9 @@ import {
 } from "@/data/professionalTools";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EnhancedProductCreationWizard } from "@/components/products/EnhancedProductCreationWizard";
-import { useCatalogs } from "@/hooks/use-catalogs";
+import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { CatalogManager } from "@/components/catalog/CatalogManager";
+import { CatalogCreateForm } from "@/components/catalog/CatalogCreateForm";
 
 interface ProfessionalDashboardProps {
   businessId: string;
@@ -233,7 +234,7 @@ export const ProfessionalDashboard = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Gestion des catalogues</h2>
-              <EnhancedCatalogCreateForm 
+              <CatalogCreateForm 
                 businessId={businessId}
                 isModal={true}
               />

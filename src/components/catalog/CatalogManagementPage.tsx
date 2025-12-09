@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Grid3X3, List, Folder, FolderPlus, Trash2, Edit, Move, Copy, Archive, Eye, EyeOff, MoreHorizontal, Search, Filter, SortAsc, CheckSquare, Square, ArrowLeft } from "lucide-react";
+import { Plus, Grid3X3, List, Folder, FolderPlus, Trash2, Edit, Move, Copy, Archive, Eye, EyeOff, MoreHorizontal, Search, Filter, SortAsc, CheckSquare, Square } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +11,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useCatalogs } from "@/hooks/use-catalogs";
+import { useCatalogManagement } from "@/hooks/use-catalog-management";
 import { useToast } from "@/hooks/use-toast";
-import { CatalogForm } from "./CatalogForm";
+import { CatalogCreateForm } from "./CatalogCreateForm";
 
 interface CatalogManagementPageProps {
   businessId: string;
@@ -37,7 +37,7 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'products'>('date');
   const [filterStatus, setFilterStatus] = useState<'all' | 'public' | 'draft'>('all');
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showFolderDialog, setShowFolderDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
@@ -47,10 +47,12 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
   const {
     catalogs,
     isLoading,
+    createCatalog,
     deleteCatalog,
     toggleVisibility,
-    isDeleting
-  } = useCatalogs(businessId);
+    isDeleting,
+    isToggling
+  } = useCatalogManagement(businessId);
 
   // Filter and sort catalogs
   const filteredCatalogs = catalogs
@@ -68,7 +70,7 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
       switch (sortBy) {
         case 'name': return a.name.localeCompare(b.name);
         case 'date': return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case 'products': return 0;
+        case 'products': return 0; // TODO: Sort by product count
         default: return 0;
       }
     });
@@ -111,10 +113,10 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
     });
   };
 
-  const handleBulkDelete = async () => {
-    for (const catalogId of selectedCatalogs) {
-      await deleteCatalog(catalogId);
-    }
+  const handleBulkDelete = () => {
+    selectedCatalogs.forEach(catalogId => {
+      deleteCatalog(catalogId);
+    });
     setSelectedCatalogs([]);
     setShowDeleteDialog(false);
     
@@ -124,22 +126,31 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
     });
   };
 
-  const handleBulkToggleVisibility = async (makePublic: boolean) => {
-    for (const catalogId of selectedCatalogs) {
+  const handleBulkToggleVisibility = (makePublic: boolean) => {
+    selectedCatalogs.forEach(catalogId => {
       const catalog = catalogs.find(c => c.id === catalogId);
       if (catalog && catalog.is_public !== makePublic) {
-        await toggleVisibility(catalogId, makePublic);
+        toggleVisibility({ catalogId, isPublic: makePublic });
       }
-    }
+    });
     setSelectedCatalogs([]);
   };
 
-  if (showCreateForm) {
+  const handleCreateComplete = () => {
+    setShowCreateWizard(false);
+    toast({
+      title: "Catalogue créé",
+      description: "Votre nouveau catalogue a été créé avec succès."
+    });
+  };
+
+  if (showCreateWizard) {
     return (
-      <CatalogForm
+      <CatalogCreateForm
         businessId={businessId}
-        onCancel={() => setShowCreateForm(false)}
-        onSuccess={() => setShowCreateForm(false)}
+        onCancel={() => setShowCreateWizard(false)}
+        onCreated={() => setShowCreateWizard(false)}
+        isModal={false}
       />
     );
   }
