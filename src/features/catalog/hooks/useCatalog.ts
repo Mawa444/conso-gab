@@ -11,10 +11,12 @@ export const useCatalogs = (businessId: string) => {
         .from('catalogs')
         .select('*')
         .eq('business_id', businessId)
+        .eq('is_active', true) // Exclure les archivés
+        .neq('visibility', 'archived') // Double check
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Catalog[];
+      return (data || []) as Catalog[];
     }
   });
 };
