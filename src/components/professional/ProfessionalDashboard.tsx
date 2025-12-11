@@ -24,7 +24,6 @@ import { EnhancedProductCreationWizard } from "@/components/products/EnhancedPro
 import { CatalogList } from "@/features/catalog/components/CatalogList";
 import { CatalogForm } from "@/features/catalog/components/CatalogForm";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
 
 interface ProfessionalDashboardProps {
   businessId: string;

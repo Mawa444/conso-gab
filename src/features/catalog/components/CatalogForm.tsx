@@ -8,7 +8,9 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Catalog, CatalogInsert } from "../types";
 import { useCreateCatalog, useUpdateCatalog } from "../hooks/useCatalog";
-import { Loader2 } from "lucide-react";
+import { Loader2, X, Plus, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface CatalogFormProps {
   businessId: string;
