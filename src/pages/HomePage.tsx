@@ -18,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { HomePageSkeleton, CommerceCardSkeleton } from "@/components/ui/skeleton-screens";
 import { getAllBusinessCategories } from "@/data/businessCategories";
+import { StoriesCarousel } from "@/features/stories";
 interface HomePageProps {
   onNavigate: (tab: string) => void;
   onMessage?: (commerce: any) => void;
@@ -126,8 +127,12 @@ export const HomePage = ({
           }} placeholder="Que recherchez-vous ?" variant="minimal" size="lg" currentLocation={userLocation} showFilters={false} showResults={false} />
         </div>
 
-        {/* Actions rapides pour les entreprises */}
-        
+        {/* Stories/Annonces éphémères 24h */}
+        <StoriesCarousel 
+          title="🔥 Annonces du jour" 
+          limit={10}
+          onStoryClick={(id) => console.log('Story clicked:', id)}
+        />
 
         {/* Catégories rapides */}
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide rounded-3xl bg-inherit my-[20px] py-0">
