@@ -449,6 +449,106 @@ export type Database = {
         }
         Relationships: []
       }
+      business_stories: {
+        Row: {
+          business_id: string
+          catalog_id: string | null
+          cover_url: string | null
+          created_at: string | null
+          description: string | null
+          discount_percentage: number | null
+          expires_at: string | null
+          geo_city: string | null
+          geo_district: string | null
+          id: string
+          images: Json | null
+          is_active: boolean | null
+          latitude: number | null
+          location: unknown
+          longitude: number | null
+          original_price: number | null
+          product_id: string | null
+          promo_code: string | null
+          promo_price: number | null
+          story_type: string
+          title: string | null
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          business_id: string
+          catalog_id?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          expires_at?: string | null
+          geo_city?: string | null
+          geo_district?: string | null
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          latitude?: number | null
+          location?: unknown
+          longitude?: number | null
+          original_price?: number | null
+          product_id?: string | null
+          promo_code?: string | null
+          promo_price?: number | null
+          story_type?: string
+          title?: string | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          business_id?: string
+          catalog_id?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          expires_at?: string | null
+          geo_city?: string | null
+          geo_district?: string | null
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          latitude?: number | null
+          location?: unknown
+          longitude?: number | null
+          original_price?: number | null
+          product_id?: string | null
+          promo_code?: string | null
+          promo_price?: number | null
+          story_type?: string
+          title?: string | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_stories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_stories_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalogs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_stories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_subscriptions: {
         Row: {
           auto_renew: boolean | null
@@ -1693,6 +1793,38 @@ export type Database = {
         }
         Relationships: []
       }
+      story_views: {
+        Row: {
+          id: string
+          ip_hash: string | null
+          story_id: string
+          user_id: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          id?: string
+          ip_hash?: string | null
+          story_id: string
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          id?: string
+          ip_hash?: string | null
+          story_id?: string
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_views_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "business_stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           assigned_to: string | null
@@ -2093,6 +2225,7 @@ export type Database = {
         Args: { p_business_id: string }
         Returns: boolean
       }
+      cleanup_expired_stories: { Args: never; Returns: undefined }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {
