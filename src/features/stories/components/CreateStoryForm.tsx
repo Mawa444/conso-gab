@@ -103,6 +103,10 @@ export const CreateStoryForm = ({ businessId, onSuccess, onCancel }: CreateStory
         <p className="text-sm text-muted-foreground">
           Publiez une annonce visible pendant 24h
         </p>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 p-2 rounded-md">
+          <span className="text-primary">📍</span> 
+          Votre story sera automatiquement géolocalisée à l'adresse de votre commerce pour apparaître dans le radar des clients à proximité.
+        </div>
       </div>
 
       {/* Type de story */}

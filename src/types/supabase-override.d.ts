@@ -185,6 +185,25 @@ declare global {
           distance_meters: number;
         }[];
       };
+      get_unified_feed: {
+        Args: {
+          lat: number;
+          lng: number;
+          radius_meters?: number;
+          limit_count?: number;
+          offset_count?: number;
+        };
+        Returns: {
+          item_type: 'story' | 'listing' | 'business';
+          id: string;
+          title: string;
+          subtitle: string;
+          image_url: string;
+          distance_meters: number;
+          created_at: string;
+          data: any; // JSONB
+        }[];
+      };
     };
   };
 }

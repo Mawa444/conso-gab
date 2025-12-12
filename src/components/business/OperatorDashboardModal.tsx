@@ -14,10 +14,12 @@ import {
   MessageSquare,
   Eye,
   Zap,
-  Crown
+  Crown,
+  Megaphone
 } from 'lucide-react';
 import { useProfileMode } from '@/hooks/use-profile-mode';
 import { MultiBusinessManager } from './MultiBusinessManager';
+import { CreateStoryDialog } from '@/features/stories/components/CreateStoryDialog';
 
 interface OperatorDashboardModalProps {
   open: boolean;
@@ -34,6 +36,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
   } = useProfileMode();
 
   const [showMultiManager, setShowMultiManager] = useState(false);
+  const [showCreateStory, setShowCreateStory] = useState(false);
   const currentBusiness = getCurrentBusiness();
 
   const handleBusinessSwitch = (businessId: string) => {
@@ -50,6 +53,14 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
         // TODO: Ouvrir wizard création business
       },
       variant: "default" as const
+    },
+    {
+      title: "Marketing / Story",
+      description: "Publier une annonce",
+      icon: Megaphone,
+      action: () => setShowCreateStory(true),
+      variant: "default" as const,
+      disabled: currentMode !== 'business'
     },
     {
       title: "Gérer catalogues",
@@ -262,6 +273,14 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
             </Button>
           )}
         </div>
+        
+        {currentBusinessId && (
+          <CreateStoryDialog 
+            businessId={currentBusinessId} 
+            open={showCreateStory} 
+            onOpenChange={setShowCreateStory} 
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
