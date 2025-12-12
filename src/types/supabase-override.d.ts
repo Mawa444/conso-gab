@@ -30,7 +30,73 @@ declare global {
           };
           Update: Partial<Database['public']['Tables']['business_visits']['Insert']>;
         };
-        // Add other new tables here if needed
+      };
+    };
+    Functions: {
+      get_nearest_businesses: {
+        Args: {
+          lat: number;
+          lng: number;
+          radius_meters?: number;
+          limit_count?: number;
+          offset_count?: number;
+          search_query?: string | null;
+          category_filter?: string | null;
+        };
+        Returns: {
+          id: string;
+          business_name: string;
+          business_category: string;
+          logo_url: string;
+          cover_image_url: string;
+          city: string;
+          slug: string;
+          latitude: number;
+          longitude: number;
+          distance_meters: number;
+        }[];
+      };
+      get_nearest_catalogs: {
+        Args: {
+          lat: number;
+          lng: number;
+          radius_meters?: number;
+          limit_count?: number;
+          offset_count?: number;
+          search_query?: string | null;
+        };
+        Returns: {
+          id: string;
+          title: string;
+          description: string;
+          cover_image: string;
+          business_id: string;
+          business_name: string;
+          business_city: string;
+          distance_meters: number;
+          product_count: number;
+        }[];
+      };
+      get_nearest_products: {
+        Args: {
+          lat: number;
+          lng: number;
+          radius_meters?: number;
+          limit_count?: number;
+          offset_count?: number;
+          search_query?: string | null;
+        };
+        Returns: {
+          id: string;
+          name: string;
+          description: string;
+          price: number;
+          image_url: string;
+          catalog_id: string;
+          business_id: string;
+          business_name: string;
+          distance_meters: number;
+        }[];
       };
     };
   };
