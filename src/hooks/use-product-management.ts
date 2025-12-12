@@ -8,8 +8,8 @@ type ProductInsert = TablesInsert<'products'>;
 type ProductUpdate = TablesUpdate<'products'>;
 
 export interface ProductWithCatalog extends Product {
-  catalog?: Tables<'catalogs'> | null;
-  business?: Tables<'business_profiles'> | null;
+  catalog?: any | null;
+  business?: any | null;
 }
 
 export const useProductManagement = (businessId?: string, catalogId?: string) => {
@@ -26,11 +26,7 @@ export const useProductManagement = (businessId?: string, catalogId?: string) =>
     queryFn: async () => {
       let query = supabase
         .from('products')
-        .select(`
-          *,
-          catalog:catalogs(*),
-          business:business_profiles(*)
-        `);
+        .select('*');
 
       if (businessId) {
         query = query.eq('business_id', businessId);
@@ -58,11 +54,7 @@ export const useProductManagement = (businessId?: string, catalogId?: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select(`
-          *,
-          catalog:catalogs(*),
-          business:business_profiles(*)
-        `)
+        .select('*')
         .eq('is_available', true)
         .order('created_at', { ascending: false });
       
@@ -79,11 +71,7 @@ export const useProductManagement = (businessId?: string, catalogId?: string) =>
       const { data, error } = await supabase
         .from('products')
         .insert({ ...productData, business_id: businessId })
-        .select(`
-          *,
-          catalog:catalogs(*),
-          business:business_profiles(*)
-        `)
+        .select('*')
         .single();
       
       if (error) throw error;
@@ -113,11 +101,7 @@ export const useProductManagement = (businessId?: string, catalogId?: string) =>
         .from('products')
         .update(updates)
         .eq('id', id)
-        .select(`
-          *,
-          catalog:catalogs(*),
-          business:business_profiles(*)
-        `)
+        .select('*')
         .single();
       
       if (error) throw error;

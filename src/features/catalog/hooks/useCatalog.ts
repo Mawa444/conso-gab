@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Catalog, CatalogInsert, CatalogUpdate } from '../types';
-import { useToast } from '@/hooks/use-toast';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Catalog, CatalogInsert, CatalogUpdate } from "../types";
+import { useToast } from "@/hooks/use-toast";
 
 export const useCatalogs = (businessId: string) => {
   return useQuery({
@@ -11,11 +11,13 @@ export const useCatalogs = (businessId: string) => {
         .from('catalogs')
         .select('*')
         .eq('business_id', businessId)
+        .eq('is_active', true) // Exclure les archivés
+        .neq('visibility', 'archived') // Double check
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Catalog[];
-    },
+      return (data || []) as Catalog[];
+    }
   });
 };
 
@@ -32,7 +34,7 @@ export const useCatalog = (catalogId: string) => {
       if (error) throw error;
       return data as Catalog;
     },
-    enabled: !!catalogId,
+    enabled: !!catalogId
   });
 };
 
@@ -54,18 +56,18 @@ export const useCreateCatalog = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['catalogs', data.business_id] });
       toast({
-        title: 'Catalogue créé',
-        description: 'Le catalogue a été créé avec succès.',
+        title: "Catalogue créé",
+        description: "Le catalogue a été créé avec succès."
       });
     },
     onError: (error) => {
       console.error('Error creating catalog:', error);
       toast({
-        title: 'Erreur',
-        description: 'Impossible de créer le catalogue.',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Impossible de créer le catalogue.",
+        variant: "destructive"
       });
-    },
+    }
   });
 };
 
@@ -89,18 +91,18 @@ export const useUpdateCatalog = () => {
       queryClient.invalidateQueries({ queryKey: ['catalogs', data.business_id] });
       queryClient.invalidateQueries({ queryKey: ['catalog', data.id] });
       toast({
-        title: 'Catalogue mis à jour',
-        description: 'Les modifications ont été enregistrées.',
+        title: "Catalogue mis à jour",
+        description: "Les modifications ont été enregistrées."
       });
     },
     onError: (error) => {
       console.error('Error updating catalog:', error);
       toast({
-        title: 'Erreur',
-        description: 'Impossible de mettre à jour le catalogue.',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Impossible de mettre à jour le catalogue.",
+        variant: "destructive"
       });
-    },
+    }
   });
 };
 
@@ -125,18 +127,18 @@ export const useDeleteCatalog = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['catalogs', data.business_id] });
       toast({
-        title: 'Catalogue supprimé',
-        description: 'Le catalogue a été archivé.',
+        title: "Catalogue supprimé",
+        description: "Le catalogue a été archivé."
       });
     },
     onError: (error) => {
       console.error('Error deleting catalog:', error);
       toast({
-        title: 'Erreur',
-        description: 'Impossible de supprimer le catalogue.',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Impossible de supprimer le catalogue.",
+        variant: "destructive"
       });
-    },
+    }
   });
 };
 
@@ -173,6 +175,6 @@ export const usePublicCatalogs = (filters?: { search?: string; city?: string; ca
       const { data, error } = await query;
       if (error) throw error;
       return data;
-    },
+    }
   });
 };
