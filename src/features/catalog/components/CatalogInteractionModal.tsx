@@ -1,6 +1,6 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface CatalogInteractionModalProps {
   open: boolean;
@@ -18,8 +18,8 @@ export const CatalogInteractionModal = ({ open, onClose, catalog, businessName }
         <DialogHeader>
           <DialogTitle>{catalog.name}</DialogTitle>
           <DialogDescription>
-             {businessName && <span className="font-medium text-primary block mb-2">{businessName}</span>}
-             {catalog.category && <Badge variant="outline">{catalog.category}</Badge>}
+            {businessName && <span className="font-medium text-primary block mb-2">{businessName}</span>}
+            {catalog.category && <Badge variant="outline">{catalog.category}</Badge>}
           </DialogDescription>
         </DialogHeader>
 
@@ -27,11 +27,11 @@ export const CatalogInteractionModal = ({ open, onClose, catalog, businessName }
           {/* Cover Image */}
           {(catalog.cover_url || catalog.cover_image_url) && (
             <div className="aspect-video w-full rounded-md overflow-hidden bg-gray-100">
-               <img 
-                 src={catalog.cover_url || catalog.cover_image_url} 
-                 alt={catalog.name} 
-                 className="w-full h-full object-cover"
-               />
+              <img 
+                src={catalog.cover_url || catalog.cover_image_url} 
+                alt={catalog.name} 
+                className="w-full h-full object-cover"
+              />
             </div>
           )}
 
@@ -39,25 +39,25 @@ export const CatalogInteractionModal = ({ open, onClose, catalog, businessName }
           <div>
             <h3 className="font-semibold mb-2">Description</h3>
             <p className="text-sm text-gray-600 whitespace-pre-wrap">
-              {catalog.description || "Aucune description fournie."}
+              {catalog.description || 'Aucune description fournie.'}
             </p>
           </div>
 
           {catalog.price && (
-             <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                <span className="font-medium">Prix</span>
-                <span className="font-bold text-lg">{catalog.price} FCFA</span>
-             </div>
+            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+              <span className="font-medium">Prix</span>
+              <span className="font-bold text-lg">{catalog.price} FCFA</span>
+            </div>
           )}
 
           {/* Action Buttons (Stub) */}
           <div className="flex gap-2 pt-4">
-             <Button className="w-full" onClick={() => {
-                 // Placeholder for booking/contact logic
-                 alert("Fonctionnalité de contact bientôt disponible");
-             }}>
+            <Button className="w-full" onClick={() => {
+              // Placeholder for booking/contact logic
+              alert('Fonctionnalité de contact bientôt disponible');
+            }}>
                 Contacter / Réserver
-             </Button>
+            </Button>
           </div>
         </div>
       </DialogContent>

@@ -1,4 +1,3 @@
-import { Database } from "@/integrations/supabase/types";
 
 // Fallback since 'catalogs' might not be in generated types yet
 export interface Catalog {

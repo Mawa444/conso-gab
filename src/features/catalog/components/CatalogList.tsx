@@ -1,9 +1,9 @@
-import { useCatalogs } from "../hooks/useCatalog";
-import { CatalogCard } from "./CatalogCard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useCatalogs } from '../hooks/useCatalog';
+import { CatalogCard } from './CatalogCard';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface CatalogListProps {
   businessId: string;

@@ -1,7 +1,7 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Eye, MapPin, Store } from "lucide-react";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Eye, MapPin, Store } from 'lucide-react';
 
 interface PublicCatalogCardProps {
   catalog: any; // Using any to handle the joined data structure easily
@@ -34,26 +34,26 @@ export const PublicCatalogCard = ({ catalog, onSelect }: PublicCatalogCardProps)
       
       <CardHeader className="p-4 pb-2">
         <div className="flex justify-between items-start gap-2">
-            <CardTitle className="truncate text-lg">{catalog.name}</CardTitle>
+          <CardTitle className="truncate text-lg">{catalog.name}</CardTitle>
         </div>
         {business && (
-            <div className="flex items-center text-sm text-muted-foreground gap-1">
-                <Store className="w-3 h-3" />
-                <span className="truncate max-w-[150px]">{business.business_name}</span>
-            </div>
+          <div className="flex items-center text-sm text-muted-foreground gap-1">
+            <Store className="w-3 h-3" />
+            <span className="truncate max-w-[150px]">{business.business_name}</span>
+          </div>
         )}
       </CardHeader>
       
       <CardContent className="p-4 py-2">
         <CardDescription className="line-clamp-2 text-sm">
-          {catalog.description || "Aucune description"}
+          {catalog.description || 'Aucune description'}
         </CardDescription>
         
         {business?.city && (
-            <div className="flex items-center text-xs text-muted-foreground mt-2 gap-1">
-                <MapPin className="w-3 h-3" />
-                {business.city}
-            </div>
+          <div className="flex items-center text-xs text-muted-foreground mt-2 gap-1">
+            <MapPin className="w-3 h-3" />
+            {business.city}
+          </div>
         )}
       </CardContent>
 

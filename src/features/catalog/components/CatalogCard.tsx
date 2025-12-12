@@ -1,13 +1,13 @@
-import { Catalog } from "../types";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Eye, Edit, Trash2, ImageIcon } from "lucide-react";
-import { useState } from "react";
-import { useDeleteCatalog } from "../hooks/useCatalog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { CatalogForm } from "./CatalogForm";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Catalog } from '../types';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Eye, Edit, Trash2, ImageIcon } from 'lucide-react';
+import { useState } from 'react';
+import { useDeleteCatalog } from '../hooks/useCatalog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { CatalogForm } from './CatalogForm';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface CatalogCardProps {
   catalog: Catalog;
@@ -21,8 +21,8 @@ export const CatalogCard = ({ catalog, businessId }: CatalogCardProps) => {
   const handleDelete = async () => {
     try {
       await deleteCatalog.mutateAsync(catalog.id);
-    } catch (error) {
-       // handled by hook
+    } catch {
+      // handled by hook
     }
   };
 
@@ -51,13 +51,13 @@ export const CatalogCard = ({ catalog, businessId }: CatalogCardProps) => {
         <CardHeader className="p-4">
           <CardTitle className="truncate">{catalog.name}</CardTitle>
           <CardDescription className="line-clamp-2 min-h-[40px]">
-            {catalog.description || "Aucune description"}
+            {catalog.description || 'Aucune description'}
           </CardDescription>
         </CardHeader>
         
         <CardContent className="p-4 pt-0 text-sm text-gray-500">
-           {catalog.category && <span className="block">Catégorie: {catalog.category}</span>}
-           {/* Add stats or other info here */}
+          {catalog.category && <span className="block">Catégorie: {catalog.category}</span>}
+          {/* Add stats or other info here */}
         </CardContent>
 
         <CardFooter className="p-4 bg-gray-50 flex justify-between">
