@@ -204,6 +204,37 @@ declare global {
           data: any; // JSONB
         }[];
       };
+      get_business_customers: {
+        Args: {
+          p_business_id: string;
+          p_search?: string;
+          p_status?: string;
+          p_limit?: number;
+          p_offset?: number;
+        };
+        Returns: {
+          id: string;
+          customer_id: string;
+          full_name: string;
+          avatar_url: string;
+          email: string;
+          status: string;
+          tags: string[];
+          notes: string;
+          total_spent: number;
+          total_orders: number;
+          last_interaction_at: string;
+          created_at: string;
+        }[];
+      };
+      toggle_business_feature: {
+        Args: {
+          p_business_id: string;
+          p_feature_key: string;
+          p_is_enabled: boolean;
+        };
+        Returns: any; // JSONB
+      };
     };
   };
 }

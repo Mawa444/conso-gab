@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import {
+  Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -7,7 +9,6 @@ import React, { useState } from 'react';
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
 import { CreateStoryForm } from './CreateStoryForm';
 
 interface CreateStoryDialogProps {
