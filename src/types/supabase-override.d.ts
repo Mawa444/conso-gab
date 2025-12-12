@@ -30,6 +30,43 @@ declare global {
           };
           Update: Partial<Database['public']['Tables']['business_visits']['Insert']>;
         };
+        user_listings: {
+          Row: {
+            id: string;
+            user_id: string;
+            title: string;
+            description: string | null;
+            price: number;
+            currency: string | null;
+            images: string[] | null;
+            category: string;
+            condition: string | null;
+            location: unknown | null;
+            city: string | null;
+            is_active: boolean | null;
+            view_count: number | null;
+            created_at: string;
+            updated_at: string;
+          };
+          Insert: {
+            id?: string;
+            user_id: string;
+            title: string;
+            description?: string | null;
+            price: number;
+            currency?: string | null;
+            images?: string[] | null;
+            category: string;
+            condition?: string | null;
+            location?: unknown | null;
+            city?: string | null;
+            is_active?: boolean | null;
+            view_count?: number | null;
+            created_at?: string;
+            updated_at?: string;
+          };
+          Update: Partial<Database['public']['Tables']['user_listings']['Insert']>;
+        };
       };
     };
     Functions: {
@@ -116,6 +153,35 @@ declare global {
           caption: string;
           created_at: string;
           expires_at: string;
+          distance_meters: number;
+        }[];
+      };
+      get_nearest_user_listings: {
+        Args: {
+          lat: number;
+          lng: number;
+          radius_meters?: number;
+          limit_count?: number;
+          offset_count?: number;
+          search_query?: string | null;
+          category_filter?: string | null;
+          min_price?: number | null;
+          max_price?: number | null;
+        };
+        Returns: {
+          id: string;
+          title: string;
+          description: string;
+          price: number;
+          currency: string;
+          images: string[];
+          category: string;
+          condition: string;
+          city: string;
+          user_id: string;
+          user_full_name: string;
+          user_avatar_url: string;
+          created_at: string;
           distance_meters: number;
         }[];
       };

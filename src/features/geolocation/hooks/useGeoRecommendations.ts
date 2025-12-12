@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useGeoLocation } from '@/features/geolocation/hooks/useGeoLocation';
 
-type RecommendationType = 'business' | 'catalog' | 'product' | 'story';
+type RecommendationType = 'business' | 'catalog' | 'product' | 'story' | 'user_listing';
 
 interface UseGeoRecommendationsOptions {
   type: RecommendationType;
@@ -29,7 +29,7 @@ export const useGeoRecommendations = ({
     queryFn: async () => {
       if (!position) throw new Error('Position not available');
 
-      let rpcName: 'get_nearest_businesses' | 'get_nearest_catalogs' | 'get_nearest_products' | 'get_nearest_stories';
+      let rpcName: 'get_nearest_businesses' | 'get_nearest_catalogs' | 'get_nearest_products' | 'get_nearest_stories' | 'get_nearest_user_listings';
       const params: any = {
         lat: position.latitude,
         lng: position.longitude,
@@ -52,6 +52,10 @@ export const useGeoRecommendations = ({
           break;
         case 'story':
           rpcName = 'get_nearest_stories';
+          break;
+        case 'user_listing':
+          rpcName = 'get_nearest_user_listings';
+          params.category_filter = categoryFilter || null;
           break;
       }
 

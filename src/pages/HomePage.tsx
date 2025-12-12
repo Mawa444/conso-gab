@@ -15,6 +15,7 @@ import { PageWithSkeleton } from '@/components/layout/PageWithSkeleton';
 import { HomePageSkeleton, CommerceCardSkeleton } from '@/components/ui/skeleton-screens';
 import { getAllBusinessCategories } from '@/data/businessCategories';
 import { StoriesCarousel } from '@/features/stories';
+import { UserListingsSection } from '@/features/listings/components/UserListingsSection';
 interface HomePageProps {
   onNavigate: (tab: string) => void;
   onMessage?: (commerce: any) => void;
@@ -135,6 +136,9 @@ export const HomePage = ({
           limit={10}
           onStoryClick={(id) => console.log('Story clicked:', id)}
         />
+
+        {/* Petites Annonces C2C */}
+        <UserListingsSection />
 
         {/* Catégories rapides */}
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide rounded-3xl bg-inherit my-[20px] py-0">
