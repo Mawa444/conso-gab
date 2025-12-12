@@ -2,13 +2,14 @@
  * Carousel horizontal des stories business sur la page d'accueil
  */
 
-import { useRef } from "react";
-import { usePublicStories } from "../hooks/useStories";
-import { StoryCard } from "./StoryCard";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { useRef } from 'react';
+// import { usePublicStories } from "../hooks/useStories"; // Deprecated for public feed
+import { useGeoRecommendations } from '@/features/geolocation/hooks/useGeoRecommendations';
+import { StoryCard } from './StoryCard';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { BusinessStory, StoryType } from '../types';
 
 interface StoriesCarouselProps {
   city?: string;
@@ -20,22 +21,62 @@ interface StoriesCarouselProps {
 }
 
 export const StoriesCarousel = ({ 
-  city, 
   limit = 10, 
-  title = "Annonces du jour",
+  title = 'Annonces du jour',
   showViewAll = true,
   onViewAll,
-  onStoryClick
+  onStoryClick,
 }: StoriesCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { data: stories, isLoading } = usePublicStories({ city, limit });
+  
+  // New Geolocation Hook
+  const { data: geoStories, isLoading } = useGeoRecommendations({
+    type: 'story',
+    limit,
+    enabled: true,
+  });
+
+  // Map RPC result to BusinessStory type
+  const stories: BusinessStory[] = (geoStories || []).map(s => ({
+    id: s.id,
+    business_id: s.business_id,
+    title: s.caption || 'Story', // Caption is title for now
+    description: s.caption,
+    images: s.media_url ? [s.media_url] : [],
+    cover_url: s.media_url,
+    // Cast or default to 'announcement' if strictly typed
+    story_type: (s.media_type as StoryType) || 'announcement', 
+    original_price: null,
+    promo_price: null,
+    discount_percentage: null,
+    promo_code: null,
+    latitude: null, // Not needed for card display
+    longitude: null,
+    geo_city: null,
+    geo_district: null,
+    catalog_id: null,
+    product_id: null,
+    is_active: true,
+    view_count: 0,
+    created_at: s.created_at,
+    expires_at: s.expires_at,
+    updated_at: s.created_at,
+    business_profiles: {
+      id: s.business_id,
+      business_name: s.business_name,
+      logo_url: s.business_logo_url,
+      business_category: 'Commerce', // Default
+      city: null,
+      quartier: null,
+    },
+  }));
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
       const scrollAmount = 300;
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };

@@ -98,6 +98,27 @@ declare global {
           distance_meters: number;
         }[];
       };
+      get_nearest_stories: {
+        Args: {
+          lat: number;
+          lng: number;
+          radius_meters?: number;
+          limit_count?: number;
+          offset_count?: number;
+        };
+        Returns: {
+          id: string;
+          business_id: string;
+          business_name: string;
+          business_logo_url: string;
+          media_url: string;
+          media_type: string;
+          caption: string;
+          created_at: string;
+          expires_at: string;
+          distance_meters: number;
+        }[];
+      };
     };
   };
 }
