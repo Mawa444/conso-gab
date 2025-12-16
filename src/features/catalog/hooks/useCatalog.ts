@@ -51,6 +51,24 @@ export const useCreateCatalog = () => {
         .single();
 
       if (error) throw error;
+
+      // Log activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_log').insert({
+          user_id: user.id,
+          business_id: data.business_id,
+          action_type: 'CATALOG_CREATED',
+          action_description: `Catalogue "${data.name}" créé`,
+          metadata: {
+            catalog_id: data.id,
+            catalog_name: data.name,
+            catalog_type: data.catalog_type,
+            is_public: data.is_public
+          }
+        });
+      }
+
       return data;
     },
     onSuccess: (data) => {
@@ -85,6 +103,23 @@ export const useUpdateCatalog = () => {
         .single();
 
       if (error) throw error;
+
+      // Log activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_log').insert({
+          user_id: user.id,
+          business_id: data.business_id,
+          action_type: 'CATALOG_UPDATED',
+          action_description: `Catalogue "${data.name}" modifié`,
+          metadata: {
+            catalog_id: data.id,
+            catalog_name: data.name,
+            updated_fields: Object.keys(updates)
+          }
+        });
+      }
+
       return data;
     },
     onSuccess: (data) => {
@@ -122,6 +157,22 @@ export const useDeleteCatalog = () => {
         .single();
 
       if (error) throw error;
+
+      // Log activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('activity_log').insert({
+          user_id: user.id,
+          business_id: data.business_id,
+          action_type: 'CATALOG_DELETED',
+          action_description: `Catalogue "${data.name}" supprimé`,
+          metadata: {
+            catalog_id: data.id,
+            catalog_name: data.name
+          }
+        });
+      }
+
       return data;
     },
     onSuccess: (data) => {

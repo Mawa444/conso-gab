@@ -146,6 +146,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { data, error: { message: error.message } };
       }
 
+      // Log successful login
+      if (data.user) {
+        await supabase.from('activity_log').insert({
+          user_id: data.user.id,
+          action_type: 'USER_LOGIN',
+          action_description: `Connexion réussie`,
+          metadata: {
+            email: normalizedEmail,
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+
       return { data, error: null };
     } catch (error: any) {
       console.error('Sign in exception:', error);
@@ -174,6 +187,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       }
 
+      // Log successful signup
+      if (result.data?.user) {
+        await supabase.from('activity_log').insert({
+          user_id: result.data.user.id,
+          action_type: 'USER_SIGNUP',
+          action_description: `Inscription réussie`,
+          metadata: {
+            email: email.trim().toLowerCase(),
+            full_name: String(userData.full_name || ''),
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+
       return { data: result.data, error: null };
     } catch (error: any) {
       return { 
@@ -185,6 +212,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
+      const currentUser = state.user;
+      
+      // Log logout before signing out
+      if (currentUser) {
+        await supabase.from('activity_log').insert({
+          user_id: currentUser.id,
+          action_type: 'USER_LOGOUT',
+          action_description: `Déconnexion`,
+          metadata: {
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+
       await supabase.auth.signOut();
       SessionService.clearSession();
       toast.success('Déconnexion réussie');
