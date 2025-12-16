@@ -32,61 +32,12 @@ import { BusinessChatLoader } from "@/features/chat/components/BusinessChatLoade
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { CarouselImagesManager } from "@/components/business/CarouselImagesManager";
 import { AdvertisingDashboard } from "@/components/business/AdvertisingDashboard";
+import { useBusinessDetail, defaultBusiness } from "@/hooks/useBusinessDetail";
 
-interface BusinessDetail {
-  id: string;
-  name: string;
-  type: string;
-  owner: string;
-  address: string;
-  rating: number;
-  verified: boolean;
-  employees: string[];
-  image?: string;
-  distance?: string;
-  reviewCount: number;
-  phone: string;
-  whatsapp?: string;
-  website?: string;
-  email?: string;
-  description: string;
-  openingHours: string;
-  socialMedia: {
-    facebook?: string;
-    instagram?: string;
-    telegram?: string;
-  };
-  certifications: string[];
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-}
-const defaultBusiness: BusinessDetail = {
-  id: "",
-  name: "",
-  type: "",
-  owner: "",
-  address: "",
-  rating: 4.5,
-  verified: false,
-  employees: [],
-  reviewCount: 0,
-  phone: "",
-  whatsapp: "",
-  website: "",
-  email: "",
-  description: "",
-  openingHours: "Lundi à Vendredi : 8h00 - 18h00",
-  socialMedia: {},
-  certifications: [],
-  coordinates: {
-    lat: 0.4162,
-    lng: 9.4673
-  }
-};
+// Local interfaces removed, using imported types
 const reviews: any[] = [];
-const images = ["/placeholder.svg?height=300&width=400", "/placeholder.svg?height=300&width=400&text=Intérieur", "/placeholder.svg?height=300&width=400&text=Équipe", "/placeholder.svg?height=300&width=400&text=Spécialités"];
+// Images constant removed as it was unused/mock
+
 export const BusinessDetailPage = () => {
   const navigate = useNavigate();
   const {
@@ -110,89 +61,32 @@ export const BusinessDetailPage = () => {
   const [isDisliked, setIsDisliked] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState("catalog");
-  const [proSubTab, setProSubTab] = useState("dashboard");
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [businessData, setBusinessData] = useState({
-    isSleeping: false,
-    isScheduledForDeletion: false,
-    deletionDate: null as string | null
-  });
-  const [business, setBusiness] = useState<BusinessDetail | null>(null);
+  /* 
+   * REFACTOR: Using custom hook for better separation of concerns 
+   */
+  const { 
+    business, 
+    isLoading, 
+    businessData, 
+    images: { logoUrl, coverUrl, carouselImages, logoUploadDate, coverUploadDate },
+    refresh: fetchBusinessData,
+    updateBusinessData
+  } = useBusinessDetail(businessId);
+
+  // Still keeping local UI state
   const [viewingImage, setViewingImage] = useState<{
     url: string;
     type: 'logo' | 'cover';
     title: string;
   } | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [coverUrl, setCoverUrl] = useState<string | null>(null);
-  const [logoUploadDate, setLogoUploadDate] = useState<string | null>(null);
-  const [coverUploadDate, setCoverUploadDate] = useState<string | null>(null);
-  const [carouselImages, setCarouselImages] = useState<string[]>([]);
 
-  // Vérifier si l'utilisateur peut accéder à l'onglet Pro
-  const canAccessPro = businessId ? canAccessBusinessPro(businessId) : false;
-
-  // Hooks pour les likes des images
+  // Hooks for likes remain separate as they are specific interactions
   const logoLikes = useBusinessImageLikes(businessId || '', 'logo');
   const coverLikes = useBusinessImageLikes(businessId || '', 'cover');
-  useEffect(() => {
-    fetchBusinessData();
-  }, [businessId, user]);
-  const fetchBusinessData = async () => {
-    if (!user || !businessId) {
-      setIsLoading(false);
-      return;
-    }
-    try {
-      setIsLoading(true);
-      const {
-        data,
-        error
-      } = await supabase.from('business_profiles').select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url, logo_updated_at, cover_updated_at, carousel_images').eq('id', businessId).single();
-      if (error) {
-        console.error('Erreur lors du chargement du profil business:', error);
-        toast.error("Impossible de charger le profil business");
-        setIsLoading(false);
-        return;
-      }
-      if (data) {
-        // Créer l'objet business avec les vraies données de la DB
-        setBusiness({
-          ...defaultBusiness,
-          id: data.id,
-          name: data.business_name || 'Commerce sans nom',
-          type: data.business_category || 'Activité non spécifiée',
-          address: data.address || 'Adresse non renseignée',
-          phone: data.phone || '',
-          whatsapp: data.whatsapp || undefined,
-          website: data.website || undefined,
-          email: data.email || undefined,
-          description: data.description || 'Aucune description disponible'
-        });
 
-        // Mettre à jour l'état d'activité
-        setBusinessData({
-          isSleeping: data.is_sleeping || false,
-          isScheduledForDeletion: !!data.deactivation_scheduled_at,
-          deletionDate: data.deactivation_scheduled_at
-        });
-
-        // Stocker les URLs des images
-        setLogoUrl(data.logo_url || null);
-        setCoverUrl(data.cover_image_url || null);
-        setLogoUploadDate(data.logo_updated_at || null);
-        setCoverUploadDate(data.cover_updated_at || null);
-        
-        // Charger les images du carrousel
-        const carouselData = Array.isArray(data.carousel_images) ? data.carousel_images as string[] : [];
-        setCarouselImages(carouselData);
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
-      toast.error("Une erreur est survenue");
-    } finally {
-      setIsLoading(false);
-    }
+  // Helper function to update sleeping state locally
+  const handleSleepStateChange = (newState: boolean) => {
+    updateBusinessData({ isSleeping: newState });
   };
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -568,12 +462,12 @@ export const BusinessDetailPage = () => {
 
                   <TabsContent value="settings" className="space-y-6 mt-6">
                     {/* Mode Sommeil */}
-                    <SleepModeToggle businessId={business.id} businessName={business.name} currentSleepState={businessData.isSleeping} onStateChange={newState => {
-                      setBusinessData(prev => ({
-                        ...prev,
-                        isSleeping: newState
-                      }));
-                    }} />
+                    <SleepModeToggle 
+                      businessId={business.id} 
+                      businessName={business.name} 
+                      currentSleepState={businessData.isSleeping} 
+                      onStateChange={handleSleepStateChange} 
+                    />
 
                     {/* Gestion du profil */}
                     <BusinessProfileEditor businessId={business.id} />
@@ -622,9 +516,7 @@ export const BusinessDetailPage = () => {
                       businessId={business.id}
                       businessName={business.name}
                       currentImages={carouselImages}
-                      onImagesUpdate={(images) => {
-                        setCarouselImages(images);
-                      }}
+                      onImagesUpdate={updateCarouselImages}
                       businessData={businessData}
                     />
                   </TabsContent>
