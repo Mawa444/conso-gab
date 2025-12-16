@@ -3,6 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useGeoLocation } from "@/features/geolocation/hooks/useGeoLocation";
 import { useEffect, useState } from "react";
 
+export interface UnifiedFeedItem {
+  item_type: 'story' | 'listing' | 'business';
+  id: string;
+  title: string;
+  subtitle: string;
+  image_url: string;
+  distance_meters: number;
+  created_at: string;
+  data: Record<string, any>;
+}
+
 export const useRoamingFeed = (radiusMeters = 50000) => {
   const { position } = useGeoLocation();
   const [lastFetchPosition, setLastFetchPosition] = useState<{lat: number, lng: number} | null>(null);
@@ -28,7 +39,8 @@ export const useRoamingFeed = (radiusMeters = 50000) => {
   const shouldRefresh = getDistanceFromLastFetch() > 100; // Refresh if moved 100m
 
   const query = useInfiniteQuery({
-    queryKey: ['roaming-feed', position?.latitude, position?.longitude], // Key changes with position, but we debounce manually if needed
+    queryKey: ['roaming-feed', position?.latitude, position?.longitude],
+    initialPageParam: 0,
     queryFn: async ({ pageParam = 0 }) => {
       if (!position) throw new Error("No position");
       
@@ -37,13 +49,13 @@ export const useRoamingFeed = (radiusMeters = 50000) => {
         lng: position.longitude,
         radius_meters: radiusMeters,
         limit_count: 10,
-        offset_count: pageParam
+        offset_count: pageParam as number
       });
 
       if (error) throw error;
-      return data;
+      return data as UnifiedFeedItem[];
     },
-    getNextPageParam: (lastPage, allPages) => {
+    getNextPageParam: (lastPage: UnifiedFeedItem[], allPages) => {
       if (!lastPage || lastPage.length < 10) return undefined;
       return allPages.length * 10;
     },

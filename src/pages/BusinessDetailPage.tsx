@@ -61,6 +61,8 @@ interface BusinessDetail {
     lat: number;
     lng: number;
   };
+  city?: string;
+  district?: string;
 }
 const defaultBusiness: BusinessDetail = {
   id: "",
@@ -148,7 +150,7 @@ export const BusinessDetailPage = () => {
       const {
         data,
         error
-      } = await supabase.from('business_profiles').select('id, business_name, business_category, address, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url, logo_updated_at, cover_updated_at, carousel_images').eq('id', businessId).single();
+      } = await supabase.from('business_profiles').select('id, business_name, business_category, address, city, district, phone, whatsapp, website, email, description, is_sleeping, deactivation_scheduled_at, is_deactivated, logo_url, cover_image_url, logo_updated_at, cover_updated_at, carousel_images').eq('id', businessId).single();
       if (error) {
         console.error('Erreur lors du chargement du profil business:', error);
         toast.error("Impossible de charger le profil business");
@@ -163,6 +165,11 @@ export const BusinessDetailPage = () => {
           name: data.business_name || 'Commerce sans nom',
           type: data.business_category || 'Activité non spécifiée',
           address: data.address || 'Adresse non renseignée',
+          // Store city/district for passing to children component (even if not displayed in main profile info yet)
+          // We can attach them to address or add new fields to BusinessDetail interface if needed.
+          // For now, I'll assume adding them to the BusinessDetail object is best.
+          city: data.city,
+          district: data.district,
           phone: data.phone || '',
           whatsapp: data.whatsapp || undefined,
           website: data.website || undefined,
@@ -448,7 +455,15 @@ export const BusinessDetailPage = () => {
             </TabsContent>
 
             <TabsContent value="catalog" className="mt-6">
-              <BusinessCatalogView businessId={businessId || business.id} businessName={business.name} />
+              <BusinessCatalogView 
+                businessId={businessId || business.id} 
+                businessName={business.name} 
+                businessLocation={{
+                   coordinates: business.coordinates,
+                   city: business.city,
+                   district: business.district
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="chat" className="mt-6">
