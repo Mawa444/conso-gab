@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import { Eye, Star, Package, Calendar, Store } from "lucide-react";
-import { useCatalogs, CatalogInteractionModal } from "@/features/catalog";
+import { Eye, Package, Calendar, Store } from "lucide-react";
+import { useCatalogs, CatalogInteractionModal, CatalogCard } from "@/features/catalog";
 import type { CatalogData } from "@/lib/supabase-helpers";
+import { Catalog } from "@/features/catalog/types";
 
 interface BusinessCatalogViewProps {
   businessId: string;
@@ -13,46 +13,10 @@ interface BusinessCatalogViewProps {
 }
 
 export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalogViewProps) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({});
   const [selectedCatalog, setSelectedCatalog] = useState<CatalogData | null>(null);
   
   const { data: catalogsRaw, isLoading } = useCatalogs(businessId);
   const catalogs = catalogsRaw || [];
-
-  const nextImage = (catalogId: string, totalImages: number) => {
-    setCurrentImageIndex(prev => ({
-      ...prev,
-      [catalogId]: ((prev[catalogId] || 0) + 1) % totalImages
-    }));
-  };
-
-  const prevImage = (catalogId: string, totalImages: number) => {
-    setCurrentImageIndex(prev => ({
-      ...prev,
-      [catalogId]: ((prev[catalogId] || 0) - 1 + totalImages) % totalImages
-    }));
-  };
-
-  const setImageIndex = (catalogId: string, index: number) => {
-    setCurrentImageIndex(prev => ({
-      ...prev,
-      [catalogId]: index
-    }));
-  };
-
-  const getImageUrl = (catalog: CatalogData) => {
-    const images = catalog.images || [];
-    const index = currentImageIndex[catalog.id] || 0;
-    if (images.length > 0 && images[index]) {
-      return images[index].url;
-    }
-    return catalog.cover_url || catalog.cover_image_url || '/placeholder.svg';
-  };
-
-  const formatPrice = (price?: number, currency?: string) => {
-    if (!price) return 'Prix sur demande';
-    return `${price.toLocaleString()} ${currency || 'XAF'}`;
-  };
 
   if (isLoading) {
     return (
@@ -93,160 +57,86 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
   const products = catalogList.filter(c => c.catalog_type === 'products');
   const services = catalogList.filter(c => c.catalog_type === 'services');
 
-  const renderCatalogCard = (catalog: CatalogData) => {
-    const images = catalog.images || [];
-    const imageCount = images.length || 1;
-    const currentIndex = currentImageIndex[catalog.id] || 0;
+  // Adapter function to convert CatalogData to Catalog type expected by CatalogCard
+  const adaptCatalog = (c: CatalogData): Catalog => {
+    // Extract string URLs from object array if needed
+    let images: string[] = [];
+    if (Array.isArray(c.images)) {
+      images = c.images.map((img: any) => typeof img === 'string' ? img : img.url).filter(Boolean);
+    }
 
-    return (
-      <Card 
-        key={catalog.id} 
-        className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
-        onClick={() => setSelectedCatalog(catalog)}
-      >
-        {/* Image avec carousel */}
-        <div className="relative aspect-square bg-muted">
-          <img
-            src={getImageUrl(catalog)}
-            alt={catalog.name}
-            className="w-full h-full object-cover"
-          />
-          
-          {/* Overlay de hover */}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <Button variant="secondary" size="sm">
-              <Eye className="h-4 w-4 mr-2" />
-              Voir détails
-            </Button>
-          </div>
-
-          {/* Navigation d'images */}
-          {imageCount > 1 && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white h-8 w-8"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  prevImage(catalog.id, imageCount);
-                }}
-              >
-                ‹
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white h-8 w-8"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  nextImage(catalog.id, imageCount);
-                }}
-              >
-                ›
-              </Button>
-              
-              {/* Indicateurs */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                {images.map((_, idx) => (
-                  <button
-                    key={idx}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      idx === currentIndex ? 'bg-white' : 'bg-white/50'
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setImageIndex(catalog.id, idx);
-                    }}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* Badges */}
-          <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-            <Badge variant="secondary" className="bg-white/90">
-              {catalog.catalog_type === 'services' ? (
-                <Calendar className="h-3 w-3 mr-1" />
-              ) : (
-                <Package className="h-3 w-3 mr-1" />
-              )}
-              {catalog.catalog_type === 'services' ? 'Service' : 'Produit'}
-            </Badge>
-            {catalog.on_sale && (
-              <Badge className="bg-red-500 text-white">
-                -{catalog.sale_percentage}%
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        <CardContent className="p-4">
-          <h3 className="font-semibold line-clamp-1">{catalog.name}</h3>
-          {catalog.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-              {catalog.description}
-            </p>
-          )}
-          
-          <div className="flex items-center justify-between mt-3">
-            <span className="font-bold text-primary">
-              {formatPrice(catalog.base_price, catalog.price_currency)}
-            </span>
-            {catalog.category && (
-              <Badge variant="outline" className="text-xs">
-                {catalog.category}
-              </Badge>
-            )}
-          </div>
-
-          {/* Tags */}
-          {catalog.keywords && catalog.keywords.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {catalog.keywords.slice(0, 3).map((keyword, idx) => (
-                <Badge key={idx} variant="secondary" className="text-xs">
-                  {keyword}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Livraison */}
-          {catalog.delivery_available && (
-            <p className="text-xs text-green-600 mt-2">
-              ✓ Livraison disponible
-            </p>
-          )}
-        </CardContent>
-      </Card>
-    );
+    return {
+      id: c.id,
+      business_id: c.business_id,
+      name: c.name,
+      description: c.description || null,
+      price: c.base_price || null,
+      price_currency: c.price_currency || 'XAF',
+      category: c.category || null,
+      subcategory: c.subcategory || null,
+      catalog_type: c.catalog_type || 'products',
+      cover_url: c.cover_url || c.cover_image_url || null,
+      images: images,
+      keywords: c.keywords || null,
+      is_public: c.is_public ?? true, // Default to true if undefined
+      is_active: c.is_active ?? true,
+      visibility: c.visibility || 'public',
+      seo_score: c.seo_score || null,
+      delivery_available: c.delivery_available || null,
+      delivery_cost: c.delivery_cost || null,
+      delivery_zones: c.delivery_zones || null,
+      on_sale: c.on_sale || null,
+      sale_percentage: c.sale_percentage || null,
+      contact_whatsapp: c.contact_whatsapp || null,
+      contact_phone: c.contact_phone || null,
+      contact_email: c.contact_email || null,
+      geo_city: c.geo_city || null,
+      geo_district: c.geo_district || null,
+      created_at: c.created_at || new Date().toISOString(),
+      updated_at: c.updated_at || new Date().toISOString(),
+    };
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Produits */}
       {products.length > 0 && (
-        <div>
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold flex items-center gap-2">
             <Package className="h-5 w-5" />
             Produits ({products.length})
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map(renderCatalogCard)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map(catalog => (
+              <CatalogCard 
+                key={catalog.id}
+                businessId={businessId}
+                catalog={adaptCatalog(catalog)}
+                showActions={false}
+                onClick={() => setSelectedCatalog(catalog)}
+              />
+            ))}
           </div>
         </div>
       )}
 
       {/* Services */}
       {services.length > 0 && (
-        <div>
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold flex items-center gap-2">
             <Calendar className="h-5 w-5" />
             Services ({services.length})
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {services.map(renderCatalogCard)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+             {services.map(catalog => (
+              <CatalogCard 
+                key={catalog.id}
+                businessId={businessId}
+                catalog={adaptCatalog(catalog)}
+                showActions={false}
+                onClick={() => setSelectedCatalog(catalog)}
+              />
+            ))}
           </div>
         </div>
       )}

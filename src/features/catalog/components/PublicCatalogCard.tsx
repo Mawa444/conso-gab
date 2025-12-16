@@ -1,68 +1,36 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Eye, MapPin, Store } from 'lucide-react';
+import { CatalogCard } from './CatalogCard';
+import { Catalog } from '../types';
 
 interface PublicCatalogCardProps {
-  catalog: any; // Using any to handle the joined data structure easily
+  catalog: any; // Using any to handle the joined data structure from usePublicCatalogs
   onSelect?: () => void;
 }
 
 export const PublicCatalogCard = ({ catalog, onSelect }: PublicCatalogCardProps) => {
   const business = catalog.business_profiles;
 
-  return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow group cursor-pointer" onClick={onSelect}>
-      <div className="aspect-video w-full bg-gray-100 relative overflow-hidden">
-        {catalog.cover_url ? (
-          <img 
-            src={catalog.cover_url} 
-            alt={catalog.name} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-200">
-            <Store className="h-12 w-12" />
-          </div>
-        )}
-        {catalog.category && (
-          <Badge className="absolute top-2 left-2 bg-black/50 hover:bg-black/70 backdrop-blur-sm">
-            {catalog.category}
-          </Badge>
-        )}
-      </div>
-      
-      <CardHeader className="p-4 pb-2">
-        <div className="flex justify-between items-start gap-2">
-          <CardTitle className="truncate text-lg">{catalog.name}</CardTitle>
-        </div>
-        {business && (
-          <div className="flex items-center text-sm text-muted-foreground gap-1">
-            <Store className="w-3 h-3" />
-            <span className="truncate max-w-[150px]">{business.business_name}</span>
-          </div>
-        )}
-      </CardHeader>
-      
-      <CardContent className="p-4 py-2">
-        <CardDescription className="line-clamp-2 text-sm">
-          {catalog.description || 'Aucune description'}
-        </CardDescription>
-        
-        {business?.city && (
-          <div className="flex items-center text-xs text-muted-foreground mt-2 gap-1">
-            <MapPin className="w-3 h-3" />
-            {business.city}
-          </div>
-        )}
-      </CardContent>
+  // Adapter to convert the joined data to the expected Catalog type
+  const adaptedCatalog: Catalog = {
+    ...catalog,
+    // Ensure we map the joined city to geo_city if not already present
+    geo_city: catalog.geo_city || business?.city,
+    // Ensure images is string[]
+    images: Array.isArray(catalog.images) ? catalog.images : [],
+    // Fallbacks for required fields if missing in raw data (should match * selection though)
+    id: catalog.id,
+    business_id: catalog.business_id,
+    catalog_type: catalog.catalog_type || 'products',
+    created_at: catalog.created_at || new Date().toISOString(),
+    updated_at: catalog.updated_at || new Date().toISOString(),
+  };
 
-      <CardFooter className="p-4 pt-2">
-        <Button variant="secondary" className="w-full" size="sm">
-          <Eye className="h-4 w-4 mr-2" />
-          Voir le catalogue
-        </Button>
-      </CardFooter>
-    </Card>
+  return (
+    <CatalogCard 
+      catalog={adaptedCatalog} 
+      businessId={catalog.business_id}
+      businessName={business?.business_name}
+      showActions={false}
+      onClick={onSelect}
+    />
   );
 };
