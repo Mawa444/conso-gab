@@ -186,6 +186,13 @@ export const BusinessDetailPage = () => {
         // Charger les images du carrousel
         const carouselData = Array.isArray(data.carousel_images) ? data.carousel_images as string[] : [];
         setCarouselImages(carouselData);
+
+        // 📊 Track profile view
+        const { AnalyticsService } = await import('@/services/analytics.service');
+        await AnalyticsService.trackProfileView(businessId, {
+          business_name: data.business_name,
+          business_category: data.business_category
+        });
       }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -211,18 +218,35 @@ export const BusinessDetailPage = () => {
       });
     }
   };
-  const handleGetDirections = () => {
+  const handleGetDirections = async () => {
     const {
       lat,
       lng
     } = business.coordinates;
+    
+    // Track click
+    const { AnalyticsService } = await import('@/services/analytics.service');
+    await AnalyticsService.trackClick(businessId || business.id, 'directions');
+    
     window.open(`https://maps.google.com/?q=${lat},${lng}`, '_blank');
   };
-  const handleCall = () => {
+  const handleCall = async () => {
+    // Track conversion
+    const { AnalyticsService } = await import('@/services/analytics.service');
+    await AnalyticsService.trackConversion(businessId || business.id, 'phone_call', {
+      phone: business.phone
+    });
+    
     window.open(`tel:${business.phone}`, '_self');
   };
-  const handleWhatsApp = () => {
+  const handleWhatsApp = async () => {
     if (business.whatsapp) {
+      // Track conversion
+      const { AnalyticsService } = await import('@/services/analytics.service');
+      await AnalyticsService.trackConversion(businessId || business.id, 'whatsapp_message', {
+        whatsapp: business.whatsapp
+      });
+      
       window.open(`https://wa.me/${business.whatsapp.replace(/\D/g, '')}`, '_blank');
     }
   };

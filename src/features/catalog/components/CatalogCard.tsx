@@ -83,6 +83,18 @@ export const CatalogCard = ({ catalog, businessId, businessName, showActions = t
     }
   };
 
+  const handleCardClick = async () => {
+    // Track catalog view
+    const { AnalyticsService } = await import('@/services/analytics.service');
+    await AnalyticsService.trackCatalogView(businessId, catalog.id, {
+      catalog_name: catalog.name,
+      catalog_type: catalog.catalog_type,
+      has_price: !!catalog.price
+    });
+    
+    onClick?.();
+  };
+
   const hasPromo = catalog.on_sale && catalog.sale_percentage && catalog.sale_percentage > 0;
   const hasDelivery = catalog.delivery_available;
 
@@ -90,7 +102,7 @@ export const CatalogCard = ({ catalog, businessId, businessName, showActions = t
     <>
       <Card 
         className="overflow-hidden group hover:shadow-xl transition-all duration-300 border-border/50 bg-card/50 backdrop-blur-sm"
-        onClick={onClick}
+        onClick={handleCardClick}
       >
         {/* Image carousel with Glassmorphism overlay */}
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/30">
