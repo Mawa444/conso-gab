@@ -1,16 +1,45 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-/* ... imports ... */
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { 
+  Building2, 
+  Plus, 
+  Settings, 
+  Users, 
+  BarChart3,
+  Package,
+  MessageSquare,
+  Eye,
+  Zap,
+  Crown
+} from 'lucide-react';
+import { useProfileMode } from '@/hooks/use-profile-mode';
+import { MultiBusinessManager } from './MultiBusinessManager';
+
+interface OperatorDashboardModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
 export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboardModalProps) => {
-  const navigate = useNavigate();
   const { 
     currentMode, 
     currentBusinessId, 
-    /* ... */
+    businessProfiles, 
+    switchMode, 
+    getCurrentBusiness 
   } = useProfileMode();
 
-  /* ... */
+  const [showMultiManager, setShowMultiManager] = useState(false);
+  const currentBusiness = getCurrentBusiness();
+
+  const handleBusinessSwitch = (businessId: string) => {
+    switchMode('business', businessId);
+    onOpenChange(false);
+  };
 
   const quickActions = [
     {
@@ -18,8 +47,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Nouveau profil",
       icon: Plus,
       action: () => {
-        navigate('/entreprises/create');
-        onOpenChange(false);
+        // TODO: Ouvrir wizard création business
       },
       variant: "default" as const
     },
@@ -28,10 +56,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Produits & services",
       icon: Package,
       action: () => {
-        if (currentBusinessId) {
-          navigate(`/business/${currentBusinessId}/dashboard`);
-          onOpenChange(false);
-        }
+        // Navigation vers catalogues
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'
@@ -41,10 +66,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Performance",
       icon: BarChart3,
       action: () => {
-        if (currentBusinessId) {
-          navigate(`/business/${currentBusinessId}/dashboard`);
-          onOpenChange(false);
-        }
+        // Navigation vers stats
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'
@@ -54,10 +76,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Conversations",
       icon: MessageSquare,
       action: () => {
-        if (currentBusinessId) {
-          navigate(`/messaging`); // Assuming global messaging route for now
-          onOpenChange(false);
-        }
+        // Navigation vers messages
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'
@@ -67,10 +86,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Configuration",
       icon: Settings,
       action: () => {
-        if (currentBusinessId) {
-          navigate(`/business/${currentBusinessId}/settings`); // Assuming separate settings route or dashboard tab
-          onOpenChange(false);
-        }
+        // Navigation vers paramètres
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'
