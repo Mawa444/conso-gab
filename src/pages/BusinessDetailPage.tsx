@@ -233,9 +233,20 @@ export const BusinessDetailPage = () => {
       window.open(`https://wa.me/${business.whatsapp.replace(/\D/g, '')}`, '_blank');
     }
   };
-  if (!business) {
+  if (isLoading) {
     return <ProfilePageSkeleton />;
   }
+
+  if (!business) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <h2 className="text-2xl font-bold mb-2">Commerce introuvable</h2>
+        <p className="text-muted-foreground mb-4">Le profil que vous recherchez n'existe pas ou vous n'y avez pas accès.</p>
+        <Button onClick={() => navigate('/consumer/home')}>Retour à l'accueil</Button>
+      </div>
+    );
+  }
+
   return <PageWithSkeleton isLoading={isLoading} skeleton={<ProfilePageSkeleton />}>
       <div className="min-h-screen bg-background">
       {/* Header avec image de couverture */}
