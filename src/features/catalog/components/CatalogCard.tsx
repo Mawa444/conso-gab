@@ -85,8 +85,8 @@ export const CatalogCard = ({ catalog, businessId, businessName, showActions = t
 
   const handleCardClick = async () => {
     // Track catalog view
-    const { AnalyticsService } = await import('@/services/analytics.service');
-    await AnalyticsService.trackCatalogView(businessId, catalog.id, {
+    const { Analytics } = await import('@/services/analytics');
+    Analytics.trackCatalogView(businessId, catalog.id, {
       catalog_name: catalog.name,
       catalog_type: catalog.catalog_type,
       has_price: !!catalog.price

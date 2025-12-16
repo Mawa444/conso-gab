@@ -188,8 +188,8 @@ export const BusinessDetailPage = () => {
         setCarouselImages(carouselData);
 
         // 📊 Track profile view
-        const { AnalyticsService } = await import('@/services/analytics.service');
-        await AnalyticsService.trackProfileView(businessId, {
+        const { Analytics } = await import('@/services/analytics');
+        Analytics.trackProfileView(businessId, {
           business_name: data.business_name,
           business_category: data.business_category
         });
@@ -225,15 +225,15 @@ export const BusinessDetailPage = () => {
     } = business.coordinates;
     
     // Track click
-    const { AnalyticsService } = await import('@/services/analytics.service');
-    await AnalyticsService.trackClick(businessId || business.id, 'directions');
+    const { Analytics } = await import('@/services/analytics');
+    Analytics.trackClick(businessId || business.id, 'directions');
     
     window.open(`https://maps.google.com/?q=${lat},${lng}`, '_blank');
   };
   const handleCall = async () => {
     // Track conversion
-    const { AnalyticsService } = await import('@/services/analytics.service');
-    await AnalyticsService.trackConversion(businessId || business.id, 'phone_call', {
+    const { Analytics } = await import('@/services/analytics');
+    Analytics.trackConversion(businessId || business.id, 'phone_call', {
       phone: business.phone
     });
     
@@ -242,8 +242,8 @@ export const BusinessDetailPage = () => {
   const handleWhatsApp = async () => {
     if (business.whatsapp) {
       // Track conversion
-      const { AnalyticsService } = await import('@/services/analytics.service');
-      await AnalyticsService.trackConversion(businessId || business.id, 'whatsapp_message', {
+      const { Analytics } = await import('@/services/analytics');
+      Analytics.trackConversion(businessId || business.id, 'whatsapp_message', {
         whatsapp: business.whatsapp
       });
       
