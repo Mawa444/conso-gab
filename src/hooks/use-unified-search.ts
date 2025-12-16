@@ -1,186 +1,22 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserLocation } from './use-user-location';
-import { useGeoLocation } from "@/features/geolocation/hooks/useGeoLocation";
 
-export interface SearchResult {
-  id: string;
-  name: string;
-  type: 'business' | 'catalog' | 'product';
-  title: string;
-  description?: string;
-  category?: string;
-  address?: string;
-  rating?: number;
-  verified?: boolean;
-  distance?: string;
-  score: number;
-  businessId?: string;
-  catalogId?: string;
-  latitude?: number;
-  longitude?: number;
-  distance_meters?: number;
-  cover_image_url?: string;
-}
+// Fonction pour calculer la distance entre deux points (Haversine)
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371e3; // Rayon de la Terre en mètres
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-export interface UnifiedSearchFilters {
-  location?: string;
-  category?: string;
-  verified?: boolean;
-  minRating?: number;
-  businessType?: string;
-  subcategory?: string;
-}
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-export const useUnifiedSearch = () => {
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const { position } = useGeoLocation();
-
-  const search = useCallback(async (query: string, filters?: UnifiedSearchFilters) => {
-    // If no position, we can't do geo-search effectively. 
-    // Fallback? Ideally we should have a default position or IP-based one, 
-    // but the RPCs require coords. 
-    // If position is null, we can pass 0,0 and large radius, or handle gracefully.
-    // For this implementation, let's assume position is available or use defaults (Libreville).
-    const lat = position?.latitude || 0.4162; // Libreville fallback
-    const lng = position?.longitude || 9.4673;
-
-    if (!query.trim() && !filters?.category) {
-      setResults([]);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const searchTerm = query.trim() || null;
-      
-      // 1. Search Businesses via RPC
-      const businessPromise = supabase.rpc('get_nearest_businesses' as any, {
-        lat,
-        lng,
-        radius_meters: 500000, // Large radius for search (500km)
-        limit_count: 10,
-        search_query: searchTerm,
-        category_filter: filters?.category || null
-      });
-
-      // 2. Search Catalogs via RPC
-      const catalogPromise = supabase.rpc('get_nearest_catalogs' as any, {
-        lat,
-        lng,
-        radius_meters: 500000,
-        limit_count: 10,
-        search_query: searchTerm
-      });
-
-      // 3. Search Products via RPC
-      const productPromise = supabase.rpc('get_nearest_products' as any, {
-        lat,
-        lng,
-        radius_meters: 500000,
-        limit_count: 10,
-        search_query: searchTerm
-      });
-
-      const [businessResponse, catalogResponse, productResponse] = await Promise.all([
-        businessPromise,
-        catalogPromise,
-        productPromise
-      ]);
-
-      if (businessResponse.error) throw businessResponse.error;
-      if (catalogResponse.error) throw catalogResponse.error;
-      if (productResponse.error) throw productResponse.error;
-
-      // Transform Results
-      const businessResults: SearchResult[] = (businessResponse.data || []).map((b: any) => ({
-        id: b.id,
-        name: b.business_name,
-        type: 'business',
-        title: b.business_name,
-        description: b.business_category, // RPC doesn't return description yet, using category
-        category: b.business_category,
-        address: b.city,
-        verified: true, // Assuming active businesses in RPC are verified enough
-        score: 1, // RPC already sorts by distance
-        businessId: b.id,
-        latitude: b.latitude,
-        longitude: b.longitude,
-        distance_meters: b.distance_meters,
-        cover_image_url: b.cover_image_url,
-        distance: b.distance_meters < 1000 
-          ? `${Math.round(b.distance_meters)}m` 
-          : `${(b.distance_meters / 1000).toFixed(1)}km`
-      }));
-
-      const catalogResults: SearchResult[] = (catalogResponse.data || []).map((c: any) => ({
-        id: c.id,
-        name: c.title,
-        type: 'catalog',
-        title: c.title,
-        description: c.description,
-        category: 'Catalogue',
-        verified: true,
-        score: 1,
-        businessId: c.business_id,
-        catalogId: c.id,
-        distance_meters: c.distance_meters,
-        distance: c.distance_meters < 1000 
-          ? `${Math.round(c.distance_meters)}m` 
-          : `${(c.distance_meters / 1000).toFixed(1)}km`
-      }));
-
-      const productResults: SearchResult[] = (productResponse.data || []).map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        type: 'product',
-        title: p.name,
-        description: p.description,
-        category: 'Produit',
-        verified: true,
-        score: 1,
-        businessId: p.business_id,
-        catalogId: p.catalog_id,
-        distance_meters: p.distance_meters,
-        distance: p.distance_meters < 1000 
-          ? `${Math.round(p.distance_meters)}m` 
-          : `${(p.distance_meters / 1000).toFixed(1)}km`
-      }));
-
-      // Combine and Sort by Distance (RPC sorts by distance each, but combining needs re-sort)
-      const combined = [...businessResults, ...catalogResults, ...productResults].sort((a, b) => 
-        (a.distance_meters || 0) - (b.distance_meters || 0)
-      );
-
-      setResults(combined);
-
-    } catch (error) {
-      console.error('Unified Search Error:', error);
-      setError("Une erreur est survenue lors de la recherche.");
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [position]);
-
-  const clearResults = useCallback(() => {
-    setResults([]);
-    setError(null);
-  }, []);
-
-  return {
-    search,
-    results,
-    loading,
-    error,
-    clearResults
-  };
+  return R * c; // Distance en mètres
 };
-
 
 export interface SearchResult {
   id: string;
