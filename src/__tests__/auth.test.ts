@@ -177,7 +177,7 @@ describe('AuthService', () => {
       expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledWith(
         'test@example.com',
         expect.objectContaining({
-          redirectTo: expect.stringContaining('/reset-password'),
+          redirectTo: expect.stringContaining('/auth'),
         })
       );
     });

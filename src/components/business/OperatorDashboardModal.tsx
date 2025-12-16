@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -24,8 +23,8 @@ interface OperatorDashboardModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
 export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboardModalProps) => {
-  const navigate = useNavigate();
   const { 
     currentMode, 
     currentBusinessId, 
@@ -48,8 +47,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Nouveau profil",
       icon: Plus,
       action: () => {
-         navigate('/entreprises/create');
-         onOpenChange(false);
+        // TODO: Ouvrir wizard création business
       },
       variant: "default" as const
     },
@@ -58,10 +56,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Produits & services",
       icon: Package,
       action: () => {
-        if (currentBusinessId) {
-             navigate(`/business/${currentBusinessId}/dashboard`);
-             onOpenChange(false);
-        }
+        // Navigation vers catalogues
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'
@@ -71,10 +66,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Performance",
       icon: BarChart3,
       action: () => {
-        if (currentBusinessId) {
-             navigate(`/business/${currentBusinessId}/dashboard`); // Opens dashboard (Overview tab has stats)
-             onOpenChange(false);
-        }
+        // Navigation vers stats
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'
@@ -84,10 +76,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Conversations",
       icon: MessageSquare,
       action: () => {
-        if (currentBusinessId) {
-           navigate(`/messaging`);
-           onOpenChange(false);
-        }
+        // Navigation vers messages
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'
@@ -97,10 +86,7 @@ export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboard
       description: "Configuration",
       icon: Settings,
       action: () => {
-        if (currentBusinessId) {
-             navigate(`/business/${currentBusinessId}/settings`);
-             onOpenChange(false);
-        }
+        // Navigation vers paramètres
       },
       variant: "outline" as const,
       disabled: currentMode !== 'business'

@@ -18,7 +18,6 @@ import {
   Heart
 } from "lucide-react";
 import { toast } from "sonner";
-import { ProfessionalDashboard } from "@/components/professional/ProfessionalDashboard";
 
 export const BusinessDashboardPage = () => {
   const { businessId } = useParams<{ businessId: string }>();
@@ -78,25 +77,118 @@ export const BusinessDashboardPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <div className="container mx-auto p-4 md:p-6 space-y-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/consumer/home')}
-          className="gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour au mode consommateur
-        </Button>
-        
-        <ProfessionalDashboard 
-          businessId={businessId || ''} 
-          businessName={currentBusiness.business_name}
-          businessCategory={currentBusiness.business_category}
-          userType={isOwner ? "owner" : "employee"}
-          business={currentBusiness}
-        />
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
+      {/* Header */}
+      <div className="bg-white border-b shadow-sm">
+        <div className="container mx-auto p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/consumer/home')}
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold">{currentBusiness.business_name}</h1>
+                <p className="text-sm text-muted-foreground">Tableau de bord Business</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/business/${businessId}`)}
+              >
+                Voir le profil public
+              </Button>
+              {isOwner && (
+                <Button
+                  onClick={() => navigate(`/business/${businessId}/settings`)}
+                  className="gap-2"
+                >
+                  <Settings className="w-4 h-4" />
+                  Onglet Pro
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {statsLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-8 w-16" />
+                    </div>
+                    <Skeleton className="w-10 h-10 rounded-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            statsDisplay.map((stat) => (
+              <Card key={stat.label}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                      <p className="text-3xl font-bold mt-1">{stat.value}</p>
+                    </div>
+                    <stat.icon className={`w-10 h-10 ${stat.color}`} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Actions rapides</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {quickActions.map((action) => (
+                <Button
+                  key={action.label}
+                  variant="outline"
+                  className="h-auto p-4 justify-start"
+                  onClick={action.onClick}
+                >
+                  <action.icon className="w-6 h-6 mr-3 flex-shrink-0" />
+                  <div className="text-left">
+                    <div className="font-semibold">{action.label}</div>
+                    <div className="text-xs text-muted-foreground">{action.description}</div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Activité récente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8 text-muted-foreground">
+              <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>Aucune activité récente</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

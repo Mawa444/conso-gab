@@ -24,23 +24,19 @@ import { EnhancedProductCreationWizard } from "@/components/products/EnhancedPro
 import { CatalogList } from "@/features/catalog/components/CatalogList";
 import { CatalogForm } from "@/features/catalog/components/CatalogForm";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { ClientsTab } from "@/features/dashboard/components/ClientsTab";
-import { useBusinessCRM } from "@/features/dashboard/hooks/useBusinessCRM";
 
 interface ProfessionalDashboardProps {
   businessId: string;
   businessName: string;
   businessCategory: string;
   userType: "owner" | "employee";
-  business?: any; // Add business object prop
 }
 
 export const ProfessionalDashboard = ({ 
   businessId, 
   businessName, 
   businessCategory, 
-  userType,
-  business 
+  userType 
 }: ProfessionalDashboardProps) => {
   const [activeTools, setActiveTools] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
@@ -110,12 +106,8 @@ export const ProfessionalDashboard = ({
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="clients">
-            <Users className="w-4 h-4 mr-2" />
-            Clients
-          </TabsTrigger>
           <TabsTrigger value="catalogs">
             <Package className="w-4 h-4 mr-2" />
             Catalogues
@@ -124,10 +116,6 @@ export const ProfessionalDashboard = ({
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="settings">Configuration</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="clients">
-           <ClientsTab business={business || { id: businessId }} />
-        </TabsContent>
 
         <TabsContent value="overview" className="space-y-6">
           {/* KPIs principaux */}
