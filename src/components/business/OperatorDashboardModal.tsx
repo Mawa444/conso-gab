@@ -1,12 +1,46 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { 
+  Building2, 
+  Plus, 
+  Settings, 
+  Users, 
+  BarChart3,
+  Package,
+  MessageSquare,
+  Eye,
+  Zap,
+  Crown
+} from 'lucide-react';
+import { useProfileMode } from '@/hooks/use-profile-mode';
+import { MultiBusinessManager } from './MultiBusinessManager';
 
-// ...
-
+interface OperatorDashboardModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 export const OperatorDashboardModal = ({ open, onOpenChange }: OperatorDashboardModalProps) => {
   const navigate = useNavigate();
-  // ... existing hooks
+  const { 
+    currentMode, 
+    currentBusinessId, 
+    businessProfiles, 
+    switchMode, 
+    getCurrentBusiness 
+  } = useProfileMode();
 
-  // ...
+  const [showMultiManager, setShowMultiManager] = useState(false);
+  const currentBusiness = getCurrentBusiness();
+
+  const handleBusinessSwitch = (businessId: string) => {
+    switchMode('business', businessId);
+    onOpenChange(false);
+  };
 
   const quickActions = [
     {
