@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import '../types'; // Import temporary type definitions
 
 export interface AnalyticsEventData {
   business_id: string;
