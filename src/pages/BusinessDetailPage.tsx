@@ -32,6 +32,7 @@ import { BusinessChatLoader } from "@/features/chat/components/BusinessChatLoade
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { CarouselImagesManager } from "@/components/business/CarouselImagesManager";
 import { AdvertisingDashboard } from "@/components/business/AdvertisingDashboard";
+import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
 
 interface BusinessDetail {
   id: string;
@@ -557,33 +558,10 @@ export const BusinessDetailPage = () => {
                   </TabsContent>
 
                   <TabsContent value="analytics" className="space-y-6 mt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <BarChart className="w-5 h-5" />
-                            Vues du profil
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-3xl font-bold text-primary mb-2">1,247</div>
-                          <p className="text-sm text-muted-foreground">+12% ce mois</p>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Target className="w-5 h-5" />
-                            Taux de conversion
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-3xl font-bold text-green-600 mb-2">23.4%</div>
-                          <p className="text-sm text-muted-foreground">+5.2% ce mois</p>
-                        </CardContent>
-                      </Card>
-                    </div>
+                    <AnalyticsDashboard 
+                      businessId={business.id}
+                      businessName={business.name}
+                    />
                   </TabsContent>
 
                   <TabsContent value="activity" className="space-y-6 mt-6">
