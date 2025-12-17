@@ -136,14 +136,6 @@ export const CatalogManagementPage = ({ businessId, businessName, businessCatego
     setSelectedCatalogs([]);
   };
 
-  const handleCreateComplete = () => {
-    setShowCreateWizard(false);
-    toast({
-      title: "Catalogue créé",
-      description: "Votre nouveau catalogue a été créé avec succès."
-    });
-  };
-
   if (showCreateWizard) {
     return (
       <CatalogCreateForm

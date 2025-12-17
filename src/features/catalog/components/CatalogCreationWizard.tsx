@@ -160,15 +160,15 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
       case 3:
         return keywords.length >= 3;
       case 4:
-        return true; // Toutes les options sont facultatives
+        return true; 
       case 5:
-        return true; // Toutes les options sont facultatives
+        return true; 
       case 6:
         return catalogImages.length >= 1 && coverImage;
       case 7:
         return priceType === 'variable' ? priceDetails.length > 0 : basePrice > 0;
       case 8:
-        return true; // Booking config is optional
+        return true; 
       case 9:
         return true;
       default:
@@ -212,7 +212,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
     if (catalog?.id) {
       setCreatedCatalogId(catalog.id);
       
-      // Create booking configuration if enabled
       if (bookingEnabled) {
         try {
           await supabase.from('catalog_booking_config').insert({
@@ -273,7 +272,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Progress bar */}
       <div className="space-y-4">
         <div className="flex items-center justify-between text-sm">
           <span>Étape {currentStep} sur {totalSteps}</span>
@@ -281,7 +279,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
         </div>
         <Progress value={(currentStep / totalSteps) * 100} />
         
-        {/* Step indicators */}
         <div className="flex items-center justify-between">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((step) => (
             <div 
@@ -321,7 +318,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Étape 1: Type et informations de base */}
           {currentStep === 1 && (
             <div className="space-y-6">
               <div className="space-y-4">
@@ -386,14 +382,13 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             </div>
           )}
 
-          {/* Étape 2: Catégories */}
           {currentStep === 2 && (
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label>Catégorie principale *</Label>
                 <Select value={categoryId} onValueChange={(value) => {
                   setCategoryId(value);
-                  setSubcategoryId(''); // Reset subcategory
+                  setSubcategoryId(''); 
                 }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choisir une catégorie" />
@@ -449,7 +444,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             </div>
           )}
 
-          {/* Étape 3: Métadonnées SEO */}
           {currentStep === 3 && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -520,7 +514,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             </div>
           )}
 
-          {/* Étape 4: Paramètres commerciaux */}
           {currentStep === 4 && (
             <div className="space-y-6">
               <div className="space-y-4">
@@ -621,7 +614,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             </div>
           )}
 
-          {/* Étape 5: Contact et horaires */}
           {currentStep === 5 && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -659,7 +651,7 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
                 </Label>
                 <div className="space-y-3">
                   {Object.entries(businessHours).map(([day, hours]) => {
-                    const dayNames = {
+                    const dayNamesShort = {
                       monday: 'Lundi',
                       tuesday: 'Mardi', 
                       wednesday: 'Mercredi',
@@ -672,7 +664,7 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
                     return (
                       <div key={day} className="flex items-center gap-4 p-3 border rounded-lg">
                         <div className="w-20 text-sm font-medium">
-                          {dayNames[day as keyof typeof dayNames]}
+                          {dayNamesShort[day as keyof typeof dayNamesShort]}
                         </div>
                         <Switch 
                           checked={!hours.closed}
@@ -721,7 +713,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             </div>
           )}
 
-          {/* Étape 6: Images du catalogue */}
           {currentStep === 6 && (
             <div className="space-y-6">
               <div className="space-y-4">
@@ -773,7 +764,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             </div>
           )}
 
-          {/* Étape 7: Paramètres de prix */}
           {currentStep === 7 && (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -924,20 +914,11 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
                       </Card>
                     ))}
                   </div>
-                  
-                  {priceDetails.length === 0 && (
-                    <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
-                      <p className="text-muted-foreground">
-                        Ajoutez au moins un prix pour continuer
-                      </p>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
           )}
 
-          {/* Étape 8: Configuration des réservations */}
           {currentStep === 8 && (
             <CatalogBookingStep 
               catalogType={catalogType}
@@ -970,7 +951,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
             />
           )}
 
-          {/* Étape 9: Gestion des produits/services */}
           {currentStep === 9 && (
             <div className="space-y-6">
               {createdCatalogId ? (
@@ -999,7 +979,6 @@ export const CatalogCreationWizard = ({ businessId, onCancel, onCompleted }: Cat
         </CardContent>
       </Card>
 
-      {/* Navigation buttons */}
       <div className="flex justify-between">
         <Button 
           variant="outline" 

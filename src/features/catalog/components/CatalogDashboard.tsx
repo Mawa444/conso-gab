@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { CatalogManager } from "./CatalogManager";
-import { EnhancedProductCreationWizard } from "../products/EnhancedProductCreationWizard";
 import { CatalogVisibilityManager } from "./CatalogVisibilityManager";
 import { CatalogManagementPage } from "./CatalogManagementPage";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
@@ -22,8 +21,6 @@ interface CatalogDashboardProps {
 
 export const CatalogDashboard = ({ businessId, businessName, businessCategory }: CatalogDashboardProps) => {
   const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'manage' | 'statistics' | 'createProduct' | 'visibility' | 'catalogs' | 'managementPage'>('dashboard');
-  const [selectedCatalogId, setSelectedCatalogId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'catalogs' | 'products'>('catalogs');
   
   // Real data hooks
   const {
@@ -40,75 +37,25 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
 
   // Stats calculation
   const totalProducts = allProducts.length;
-  const publishedProducts = allProducts.filter(p => (p as any).is_active !== false && p.is_available !== false).length;
   
   // Approximate views and favorites (to be implemented with dedicated tables)
   const totalViews = 0;
-  const totalFavorites = 0;
 
   const handleCreateCatalog = () => {
     setActiveView('create');
-  };
-
-  const handleManageCatalogs = () => {
-    setActiveView('manage');
   };
 
   const handleViewStatistics = () => {
     setActiveView('statistics');
   };
 
-  const handleAddProduct = () => {
-    setActiveView('createProduct');
-  };
-
-  const handleWizardComplete = async (catalogData: any) => {
-    try {
-      // Create the catalog using the hook
-      await new Promise((resolve, reject) => {
-        createCatalog(catalogData);
-        // Simulate async completion - in a real app this would be handled by the mutation callbacks
-        setTimeout(resolve, 100);
-      });
-      
-
-      setActiveView('managementPage');
-    } catch (error) {
-      console.error("Erreur lors de la création du catalogue:", error);
-      setActiveView('dashboard');
-    }
-  };
-
-  const handleWizardCancel = () => {
-    setActiveView('dashboard');
-  };
-
-  const handleProductComplete = () => {
-    setActiveView('dashboard');
-  };
-
-  const handleProductCancel = () => {
-    setActiveView('dashboard');
-  };
-
   if (activeView === 'create') {
     return (
       <CatalogCreateForm
         businessId={businessId}
-        onCancel={handleWizardCancel}
+        onCancel={() => setActiveView('dashboard')}
         onCreated={() => setActiveView('managementPage')}
         isModal={false}
-      />
-    );
-  }
-
-  if (activeView === 'createProduct') {
-    return (
-      <EnhancedProductCreationWizard
-        onComplete={handleProductComplete}
-        onCancel={handleProductCancel}
-        businessCategory={businessCategory}
-        businessId={businessId}
       />
     );
   }
@@ -235,7 +182,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
         </Card>
 
         {/* Ajouter un nouveau produit */}
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={handleAddProduct}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6 text-center">
             <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <ShoppingBag className="w-8 h-8 text-accent" />
@@ -245,7 +192,7 @@ export const CatalogDashboard = ({ businessId, businessName, businessCategory }:
               Ajoutez rapidement un produit à vos catalogues existants
             </p>
             <Button variant="outline" className="w-full">
-              Ajouter un produit
+              Ajouter un produit (Prochainement)
             </Button>
           </CardContent>
         </Card>

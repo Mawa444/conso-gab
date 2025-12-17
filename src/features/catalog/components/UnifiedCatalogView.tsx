@@ -12,10 +12,11 @@ import {
 import { useCatalogManagement } from '@/hooks/use-catalog-management';
 import { useBusinessList } from '@/hooks/use-business-list';
 import { CatalogCreateForm } from './CatalogCreateForm';
-import { CatalogInteractionModal } from './CatalogInteractionModal';
+import { CatalogCard } from './CatalogCard';
+import { Catalog } from '@/types/entities/catalog.types';
 
 interface UnifiedCatalogViewProps {
-  userId: string;
+  userId?: string;
 }
 
 export const UnifiedCatalogView = ({ userId }: UnifiedCatalogViewProps) => {
@@ -24,7 +25,7 @@ export const UnifiedCatalogView = ({ userId }: UnifiedCatalogViewProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'public' | 'draft'>('all');
   const [filterBusiness, setFilterBusiness] = useState<string>('all');
-  const [selectedCatalog, setSelectedCatalog] = useState(null);
+  const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null);
 
   // Get all catalogs from all businesses
   const allCatalogs = businesses.flatMap(business => {
@@ -198,80 +199,13 @@ export const UnifiedCatalogView = ({ userId }: UnifiedCatalogViewProps) => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCatalogs.map((catalog) => (
-                <Card 
+                <CatalogCard 
                   key={`${catalog.businessId}-${catalog.id}`}
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => setSelectedCatalog({
-                    id: catalog.id,
-                    name: catalog.name,
-                    description: catalog.description || '',
-                    images: catalog.images || [],
-                    business: {
-                      id: catalog.businessId,
-                      name: catalog.businessName
-                    },
-                    stats: {
-                      likes: Math.floor(Math.random() * 50) + 10,
-                      comments: Math.floor(Math.random() * 20) + 5,
-                      views: Math.floor(Math.random() * 200) + 50
-                    }
-                  })}
-                >
-                  <div className="relative">
-                    <div className="w-full h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-t-lg flex items-center justify-center">
-                      {catalog.cover_url ? (
-                        <img
-                          src={catalog.cover_url}
-                          alt={catalog.name}
-                          className="w-full h-full object-cover rounded-t-lg"
-                        />
-                      ) : (
-                        <Package className="w-16 h-16 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="absolute top-2 left-2">
-                      <Badge variant={catalog.is_public ? "default" : "secondary"}>
-                        {catalog.is_public ? "Public" : "Brouillon"}
-                      </Badge>
-                    </div>
-                    <div className="absolute top-2 right-2">
-                      <Badge variant="outline" className="bg-white/90">
-                        {catalog.businessName}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <div>
-                        <h3 className="font-semibold truncate">{catalog.name}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {catalog.description || "Aucune description"}
-                        </p>
-                      </div>
-
-                      {catalog.category && (
-                        <Badge variant="outline" className="text-xs">
-                          {catalog.category}
-                          {catalog.subcategory && ` • ${catalog.subcategory}`}
-                        </Badge>
-                      )}
-
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>{formatDate(catalog.created_at)}</span>
-                        </div>
-                        {catalog.geo_city && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            <span>{catalog.geo_city}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  catalog={catalog as Catalog}
+                  businessId={catalog.businessId}
+                  businessName={catalog.businessName}
+                  showActions={true}
+                />
               ))}
             </div>
           )}
@@ -386,15 +320,6 @@ export const UnifiedCatalogView = ({ userId }: UnifiedCatalogViewProps) => {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Interaction Modal */}
-      {selectedCatalog && (
-        <CatalogInteractionModal
-          open={!!selectedCatalog}
-          onClose={() => setSelectedCatalog(null)}
-          catalog={selectedCatalog}
-        />
       )}
     </div>
   );

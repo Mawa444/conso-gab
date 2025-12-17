@@ -10,42 +10,7 @@ export const getUntypedTable = (tableName: string) => {
   return (supabase as any).from(tableName);
 };
 
-// Interface générique pour les catalogues
-export interface CatalogData {
-  id: string;
-  name: string;
-  description?: string;
-  category?: string;
-  subcategory?: string;
-  catalog_type?: 'products' | 'services';
-  business_id: string;
-  images?: Array<{ url: string; path?: string; id?: string }>;
-  cover_url?: string;
-  cover_image_url?: string;
-  geo_city?: string;
-  geo_district?: string;
-  keywords?: string[];
-  on_sale?: boolean;
-  sale_percentage?: number;
-  delivery_available?: boolean;
-  delivery_zones?: string[];
-  delivery_cost?: number;
-  contact_whatsapp?: string;
-  contact_phone?: string;
-  contact_email?: string;
-  business_hours?: any;
-  price?: number;  // 🔥 AJOUT: Champ réel en DB
-  base_price?: number;  // Gardé pour compatibilité temporaire
-  price_currency?: string;
-  created_at?: string;
-  updated_at?: string;
-  is_public?: boolean;
-  seo_score?: number;
-  is_active?: boolean;
-  display_order?: number;
-  visibility?: 'public' | 'private' | 'unlisted';
-  synonyms?: string[];
-}
+// Interface générique pour les catalogues - SUPPRIMÉE (Utiliser Catalog de @/types/entities/catalog.types)
 
 // Interface pour les activités
 export interface ActivityLogEntry {

@@ -142,18 +142,7 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
   };
 
   const handleProductInquiry = () => {
-    const inquiryData = {
-      product: selectedProduct,
-      customer: customerInfo,
-      message: inquiryMessage,
-      variants: selectedVariants,
-      quantity,
-      timestamp: new Date().toISOString()
-    };
-    
-
-    
-    // Reset form
+    // inquiry logic...
     setInquiryMessage("");
     setCustomerInfo({ name: "", phone: "", email: "" });
     setSelectedProduct(null);
@@ -177,7 +166,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                 </div>
               )}
               
-              {/* Overlay badges */}
               <div className="absolute top-2 left-2 space-y-1">
                 {getConditionBadge(product.condition)}
                 {product.discount && product.discount > 0 && (
@@ -191,7 +179,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                 {getAvailabilityBadge(product.availability, product.stock_quantity)}
               </div>
               
-              {/* Quick actions */}
               <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
                   size="sm"
@@ -231,7 +218,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                 </p>
               )}
               
-              {/* Price section */}
               {product.price && (
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
@@ -247,7 +233,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                 </div>
               )}
               
-              {/* Rating */}
               {product.rating && (
                 <div className="flex items-center gap-1">
                   <div className="flex">
@@ -264,7 +249,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                 </div>
               )}
               
-              {/* Action buttons */}
               <div className="flex gap-2 pt-2">
                 <Button
                   size="sm"
@@ -291,12 +275,10 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
         ))}
       </div>
 
-      {/* Product Detail Modal */}
       {selectedProduct && (
         <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
           <DialogContent className="max-w-5xl max-h-[90vh] p-0">
             <div className="grid grid-cols-1 lg:grid-cols-2 h-[90vh]">
-              {/* Image section */}
               <div className="relative">
                 {selectedProduct.images.length > 0 ? (
                   <div className="relative h-full">
@@ -326,7 +308,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                 )}
               </div>
 
-              {/* Product info section */}
               <div className="flex flex-col h-full overflow-hidden">
                 <DialogHeader className="p-6 border-b flex-shrink-0">
                   <DialogTitle className="flex items-center justify-between">
@@ -363,7 +344,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                     <TabsContent value="details" className="flex-1 overflow-hidden mx-6 mt-4">
                       <ScrollArea className="h-full pr-4">
                         <div className="space-y-4">
-                          {/* Price */}
                           {selectedProduct.price && (
                             <div className="space-y-2">
                               <div className="flex items-center gap-3">
@@ -384,7 +364,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                             </div>
                           )}
 
-                          {/* Description */}
                           {selectedProduct.description && (
                             <div>
                               <h4 className="font-medium mb-2">Description</h4>
@@ -394,7 +373,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                             </div>
                           )}
 
-                          {/* Variants */}
                           {selectedProduct.variants && selectedProduct.variants.map((variant) => (
                             <div key={variant.name} className="space-y-2">
                               <label className="text-sm font-medium">{variant.name}</label>
@@ -416,7 +394,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                             </div>
                           ))}
 
-                          {/* Quantity */}
                           {selectedProduct.availability !== 'out_of_stock' && (
                             <div className="space-y-2">
                               <label className="text-sm font-medium">Quantité</label>
@@ -440,7 +417,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                             </div>
                           )}
 
-                          {/* Delivery info */}
                           {selectedProduct.delivery_info?.available && (
                             <div className="space-y-2">
                               <h4 className="font-medium flex items-center gap-2">
@@ -458,7 +434,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                             </div>
                           )}
 
-                          {/* Tags */}
                           {selectedProduct.tags && selectedProduct.tags.length > 0 && (
                             <div className="space-y-2">
                               <h4 className="font-medium">Tags</h4>
@@ -548,7 +523,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                   </Tabs>
                 </div>
 
-                {/* Fixed bottom actions */}
                 <div className="flex-shrink-0 p-6 border-t space-y-3">
                   {selectedProduct.availability !== 'out_of_stock' && (
                     <div className="flex gap-2">
@@ -569,7 +543,6 @@ export const EnhancedCatalogDisplay = ({ products, catalogName, businessInfo }: 
                     </div>
                   )}
                   
-                  {/* Contact buttons */}
                   <div className="grid grid-cols-3 gap-2">
                     {businessInfo.contact_whatsapp && (
                       <Button

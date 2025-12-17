@@ -51,16 +51,6 @@ export const CatalogManager = ({ businessId, businessCategory }: CatalogManagerP
     return matchesSearch && matchesFilter;
   });
 
-  const handleCreateCatalog = (catalogData: any) => {
-    createCatalog({
-      name: catalogData.name,
-      description: catalogData.description,
-      is_public: false, // Start as draft
-      is_active: true
-    });
-    setShowCreateWizard(false);
-  };
-
   const handleDeleteCatalog = (catalogId: string) => {
     deleteCatalog(catalogId);
   };

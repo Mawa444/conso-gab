@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, Check, Package, Tags, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { MultiImageEnforcer } from "../catalog/MultiImageEnforcer";
+import { MultiImageEnforcer } from "@/features/catalog";
 import { useProductManagement } from "@/hooks/use-product-management";
 import { useCatalogManagement } from "@/hooks/use-catalog-management";
 

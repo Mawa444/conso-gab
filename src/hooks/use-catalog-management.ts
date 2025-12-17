@@ -1,13 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { CatalogData } from '@/lib/supabase-helpers';
+import { Catalog, CatalogInsert, CatalogUpdate } from '@/types/entities/catalog.types';
 import type { Json } from '@/integrations/supabase/types';
-
-// Types temporaires car la table 'catalogs' n'existe pas encore dans les types générés
-type Catalog = CatalogData;
-type CatalogInsert = Partial<CatalogData> & { business_id: string };
-type CatalogUpdate = Partial<CatalogData>;
 
 // Helper pour requêtes non typées
 const catalogsTable = () => (supabase as any).from('catalogs');

@@ -3,15 +3,18 @@
  */
 
 import { useState, useEffect } from "react";
-import { Catalog } from "../types";
+import { Catalog } from "@/types/entities/catalog.types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   Eye, Edit, Trash2, MapPin, Truck, Percent, 
-  MoreVertical, Globe, GlobeLock, ShoppingCart, MessageCircle, Phone, Store
+  MoreVertical, Globe, GlobeLock, ShoppingCart, MessageCircle, Phone, Store,
+  ThumbsUp
 } from "lucide-react";
 import { useDeleteCatalog } from "../hooks/useCatalog";
+import { useCatalogLikes, useCatalogComments } from "@/hooks/use-catalog-interactions";
+import { CatalogInteractionModal } from "./CatalogInteractionModal";
 import { 
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, 
@@ -43,9 +46,14 @@ export const CatalogCard = ({ catalog, businessId, businessName, showActions = t
   const deleteCatalog = useDeleteCatalog();
   const [showEdit, setShowEdit] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showInteractionModal, setShowInteractionModal] = useState(false);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+
+  // Social Hooks
+  const { likesCount, isLiked } = useCatalogLikes(catalog.id);
+  const { commentsCount } = useCatalogComments(catalog.id);
 
   // Get images array
   const images: string[] = (() => {
@@ -83,15 +91,23 @@ export const CatalogCard = ({ catalog, businessId, businessName, showActions = t
     }
   };
 
-  const handleCardClick = async () => {
+  const handleCardClick = async (e: React.MouseEvent) => {
+    // Prevent double triggers if clicking on buttons
+    if ((e.target as HTMLElement).closest('button')) return;
+
     // Track catalog view
-    const { Analytics } = await import('@/services/analytics');
-    Analytics.trackCatalogView(businessId, catalog.id, {
-      catalog_name: catalog.name,
-      catalog_type: catalog.catalog_type,
-      has_price: !!catalog.price
-    });
+    try {
+      const { Analytics } = await import('@/services/analytics');
+      Analytics.trackCatalogView(businessId, catalog.id, {
+        catalog_name: catalog.name,
+        catalog_type: catalog.catalog_type,
+        has_price: !!catalog.price
+      });
+    } catch (err) {
+      console.error('Analytics error:', err);
+    }
     
+    setShowInteractionModal(true);
     onClick?.();
   };
 
@@ -229,6 +245,12 @@ export const CatalogCard = ({ catalog, businessId, businessName, showActions = t
                     {catalog.geo_city}
                   </span>
                 )}
+                {catalog.catalog_type === 'services' && (
+                  <span className="flex items-center text-blue-600 dark:text-blue-400 font-medium">
+                    <Store className="w-3 h-3 mr-1" />
+                    Service
+                  </span>
+                )}
               </div>
             </div>
 
@@ -358,6 +380,14 @@ export const CatalogCard = ({ catalog, businessId, businessName, showActions = t
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Interaction Modal */}
+      <CatalogInteractionModal 
+        open={showInteractionModal}
+        onClose={() => setShowInteractionModal(false)}
+        catalog={catalog}
+        businessName={businessName}
+      />
     </>
   );
 };

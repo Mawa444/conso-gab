@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, Star, Package, Calendar, ArrowUpDown } from "lucide-react";
 import { useCatalogs, CatalogInteractionModal } from "@/features/catalog";
-
-import type { CatalogData } from "@/lib/supabase-helpers";
+import { Catalog } from "@/types/entities/catalog.types";
 
 interface BusinessVitrineTabProps {
   businessId: string;
@@ -19,7 +18,7 @@ interface ImageData {
   id?: string;
 }
 
-type Catalog = CatalogData;
+// Internal type removed, using Catalog from master types
 
 export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrineTabProps) => {
   const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null);
@@ -27,7 +26,7 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
 
   
   const { data: catalogsRaw, isLoading } = useCatalogs(businessId);
-  const catalogs = (catalogsRaw || []) as unknown as Catalog[];
+  const catalogs = (catalogsRaw || []) as Catalog[];
 
   // Convert catalogs to products format for enhanced display
   const convertCatalogsToProducts = (catalogs: Catalog[]) => {

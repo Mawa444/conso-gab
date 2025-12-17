@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Eye, EyeOff, Edit, Trash2, Package, TrendingUp } from 'lucide-react';
 import { useCatalogManagement } from '@/hooks/use-catalog-management';
 import { ProductManager } from './ProductManager';
-import { ProductListWithCatalogCreation } from '../products/ProductListWithCatalogCreation';
 import { SEOScoreCoach } from './SEOScoreCoach';
 import { CatalogCreateForm } from './CatalogCreateForm';
 
@@ -31,15 +30,6 @@ export const EnhancedCatalogManager = ({ businessId }: EnhancedCatalogManagerPro
     isDeleting,
     isToggling
   } = useCatalogManagement(businessId);
-
-  const handleCreateCatalog = async (catalogData: any) => {
-    try {
-      await createCatalog(catalogData);
-      setShowCreateWizard(false);
-    } catch (error) {
-      console.error('Erreur création catalogue:', error);
-    }
-  };
 
   const handleToggleVisibility = async (catalogId: string, currentVisibility: string) => {
     const newVisibility = currentVisibility === 'public' ? 'draft' : 'public';
@@ -109,11 +99,10 @@ export const EnhancedCatalogManager = ({ businessId }: EnhancedCatalogManagerPro
           </TabsList>
 
           <TabsContent value="products">
-            <ProductListWithCatalogCreation 
-              catalogId={selectedCatalog} 
-              businessId={businessId}
-              showCatalogCreation={false}
-            />
+            <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+              <Package className="w-12 h-12 mx-auto mb-4 opacity-20" />
+              <p>Gestion des produits prochainement disponible pour ce catalogue</p>
+            </div>
           </TabsContent>
 
           <TabsContent value="seo">

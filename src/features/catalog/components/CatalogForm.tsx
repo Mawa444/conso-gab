@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Catalog, CatalogInsert } from "../types";
+import { Catalog, CatalogInsert } from "@/types/entities/catalog.types";
 import { useCreateCatalog, useUpdateCatalog } from "../hooks/useCatalog";
 import { Loader2, X, ImagePlus, Tag, Truck, Phone, Mail, Percent } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,8 +41,7 @@ const CATEGORIES = [
 
 const CATALOG_TYPES = [
   { value: 'products', label: 'Produits', icon: '📦' },
-  { value: 'services', label: 'Services', icon: '🔧' },
-  { value: 'mixed', label: 'Mixte', icon: '🎯' }
+  { value: 'services', label: 'Services', icon: '🔧' }
 ];
 
 export const CatalogForm = ({ businessId, initialData, onSuccess, onCancel }: CatalogFormProps) => {

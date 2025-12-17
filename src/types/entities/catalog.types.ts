@@ -6,44 +6,41 @@ export interface Catalog {
   id: string;
   business_id: string;
   name: string;
-  description?: string;
-  cover_url?: string;
-  cover_image_url?: string;
-  cover_blurhash?: string;
-  images?: string[] | Record<string, any>;
-  category?: string;
-  subcategory?: string;
-  catalog_type: 'products' | 'services' | 'mixed';
-  base_price?: number;
-  price_type: 'fixed' | 'range' | 'quote';
-  price_currency: string;
-  price_details?: Record<string, any>[];
-  has_limited_quantity: boolean;
-  on_sale: boolean;
-  sale_percentage?: number;
-  delivery_available: boolean;
-  delivery_cost?: number;
-  delivery_zones?: string[];
-  geo_city?: string;
-  geo_district?: string;
-  availability_zone: string;
-  business_hours?: Record<string, any>;
-  contact_phone?: string;
-  contact_email?: string;
-  contact_whatsapp?: string;
-  is_public: boolean;
-  is_active: boolean;
-  visibility: 'draft' | 'published' | 'archived';
-  display_order: number;
-  seo_score: number;
-  keywords?: string[];
-  synonyms?: string[];
-  phonetics?: string[];
-  language: string;
-  folder?: string;
+  description: string | null;
+  price: number | null;
+  price_currency: string | null;
+  category: string | null;
+  subcategory: string | null;
+  catalog_type: 'products' | 'services';
+  cover_url: string | null;
+  images: any; // JSONB
+  keywords: string[] | null;
+  is_public: boolean | null;
+  is_active: boolean | null;
+  visibility: 'draft' | 'published' | 'archived' | null;
+  seo_score: number | null;
+  delivery_available: boolean | null;
+  delivery_cost: number | null;
+  delivery_zones: string[] | null;
+  on_sale: boolean | null;
+  sale_percentage: number | null;
+  contact_whatsapp: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
+  geo_city: string | null;
+  geo_district: string | null;
   created_at: string;
   updated_at: string;
+  
+  // Virtual/Computed fields for UI (Optional)
+  business_name?: string;
+  likes_count?: number;
+  comments_count?: number;
+  is_liked?: boolean;
 }
+
+export type CatalogInsert = Omit<Catalog, 'id' | 'created_at' | 'updated_at'>;
+export type CatalogUpdate = Partial<CatalogInsert>;
 
 export interface CatalogBooking {
   id: string;
@@ -92,7 +89,7 @@ export interface CatalogBookingConfig {
   updated_at: string;
 }
 
-export type CatalogType = 'products' | 'services' | 'mixed';
+export type CatalogType = 'products' | 'services';
 export type CatalogVisibility = 'draft' | 'published' | 'archived';
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 export type PaymentStatus = 'unpaid' | 'partial' | 'paid';

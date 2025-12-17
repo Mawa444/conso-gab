@@ -4,8 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, Package, Calendar, Store } from "lucide-react";
 import { useCatalogs, CatalogInteractionModal, CatalogCard } from "@/features/catalog";
-import type { CatalogData } from "@/lib/supabase-helpers";
-import { Catalog } from "@/features/catalog/types";
+import { Catalog } from "@/types/entities/catalog.types";
 
 interface BusinessCatalogViewProps {
   businessId: string;
@@ -13,7 +12,7 @@ interface BusinessCatalogViewProps {
 }
 
 export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalogViewProps) => {
-  const [selectedCatalog, setSelectedCatalog] = useState<CatalogData | null>(null);
+  const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null);
   
   const { data: catalogsRaw, isLoading } = useCatalogs(businessId);
   const catalogs = catalogsRaw || [];
@@ -37,7 +36,7 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
     );
   }
 
-  const catalogList = (catalogs as unknown as CatalogData[]) || [];
+  const catalogList = (catalogs as Catalog[]) || [];
 
   if (catalogList.length === 0) {
     return (
@@ -57,45 +56,7 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
   const products = catalogList.filter(c => c.catalog_type === 'products');
   const services = catalogList.filter(c => c.catalog_type === 'services');
 
-  // Adapter function to convert CatalogData to Catalog type expected by CatalogCard
-  const adaptCatalog = (c: CatalogData): Catalog => {
-    // Extract string URLs from object array if needed
-    let images: string[] = [];
-    if (Array.isArray(c.images)) {
-      images = c.images.map((img: any) => typeof img === 'string' ? img : img.url).filter(Boolean);
-    }
-
-    return {
-      id: c.id,
-      business_id: c.business_id,
-      name: c.name,
-      description: c.description || null,
-      price: c.price || null,  // 🔥 CORRECTION: DB a 'price', pas 'base_price'
-      price_currency: c.price_currency || 'XAF',
-      category: c.category || null,
-      subcategory: c.subcategory || null,
-      catalog_type: c.catalog_type || 'products',
-      cover_url: c.cover_url || c.cover_image_url || null,
-      images: images,
-      keywords: c.keywords || null,
-      is_public: c.is_public ?? true, // Default to true if undefined
-      is_active: c.is_active ?? true,
-      visibility: c.visibility || 'public',
-      seo_score: c.seo_score || null,
-      delivery_available: c.delivery_available || null,
-      delivery_cost: c.delivery_cost || null,
-      delivery_zones: c.delivery_zones || null,
-      on_sale: c.on_sale || null,
-      sale_percentage: c.sale_percentage || null,
-      contact_whatsapp: c.contact_whatsapp || null,
-      contact_phone: c.contact_phone || null,
-      contact_email: c.contact_email || null,
-      geo_city: c.geo_city || null,
-      geo_district: c.geo_district || null,
-      created_at: c.created_at || new Date().toISOString(),
-      updated_at: c.updated_at || new Date().toISOString(),
-    };
-  };
+  // Adapter function removed as types are now unified
 
   return (
     <div className="space-y-8">
@@ -132,7 +93,7 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
               <CatalogCard 
                 key={catalog.id}
                 businessId={businessId}
-                catalog={adaptCatalog(catalog)}
+                catalog={catalog}
                 showActions={false}
                 onClick={() => setSelectedCatalog(catalog)}
               />
