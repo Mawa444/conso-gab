@@ -70,7 +70,7 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
       business_id: c.business_id,
       name: c.name,
       description: c.description || null,
-      price: c.base_price || null,
+      price: c.price || null,  // 🔥 CORRECTION: DB a 'price', pas 'base_price'
       price_currency: c.price_currency || 'XAF',
       category: c.category || null,
       subcategory: c.subcategory || null,

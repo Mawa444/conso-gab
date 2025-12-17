@@ -34,7 +34,8 @@ export interface CatalogData {
   contact_phone?: string;
   contact_email?: string;
   business_hours?: any;
-  base_price?: number;
+  price?: number;  // 🔥 AJOUT: Champ réel en DB
+  base_price?: number;  // Gardé pour compatibilité temporaire
   price_currency?: string;
   created_at?: string;
   updated_at?: string;
