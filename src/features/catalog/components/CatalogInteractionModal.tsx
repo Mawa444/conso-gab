@@ -1,4 +1,4 @@
-
+﻿
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,32 @@ import { MessageSheet } from '@/components/commerce/MessageSheet';
 import { useCatalogComments, useCatalogLikes, useCatalogImageComments, useCatalogImageLikes } from '@/hooks/use-catalog-interactions';
 import { useCatalogFavorites, useCatalogShares } from '@/hooks/use-catalog-favorites';
 import { supabase } from '@/integrations/supabase/client';
-import { Catalog } from '@/types/entities/catalog.types';
+
+interface Catalog {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  subcategory?: string;
+  catalog_type: 'products' | 'services';
+  images?: any[];
+  cover_url?: string;
+  cover_image_url?: string;
+  business_id: string;
+  geo_city?: string;
+  geo_district?: string;
+  keywords?: string[];
+  on_sale?: boolean;
+  sale_percentage?: number;
+  delivery_available?: boolean;
+  delivery_zones?: string[];
+  delivery_cost?: number;
+  contact_whatsapp?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  business_hours?: any;
+  businessName?: string;
+}
 
 export interface CatalogInteractionModalProps {
   catalog: Catalog;
@@ -40,7 +65,7 @@ export interface CatalogInteractionModalProps {
   businessName?: string;
 }
 
-export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }: CatalogInteractionModalProps) => {
+export const CatalogInteractionModal = ({ catalog, open, onClose }: CatalogInteractionModalProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [newComment, setNewComment] = useState('');
   const [newImageComment, setNewImageComment] = useState('');
@@ -64,10 +89,10 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
   const { isFavorited, toggleFavorite, isToggling: isTogglingFavorite } = useCatalogFavorites(currentUser?.id);
   const { shareCatalog } = useCatalogShares();
   
-  const images = Array.isArray(catalog.images) ? catalog.images as any[] : [];
+  const images = catalog.images || [];
   const selectedImage = images[selectedImageIndex];
   
-  // Hooks pour les interactions sur l'image sélectionnée
+  // Hooks pour les interactions sur l'image s├®lectionn├®e
   const { 
     likesCount: imageLikesCount, 
     isLiked: isImageLiked, 
@@ -126,13 +151,13 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
           <div className="relative bg-black">
             {images.length > 0 && selectedImage ? (
               <img 
-                src={selectedImage.url || selectedImage} 
+                src={selectedImage.url} 
                 alt={catalog.name}
                 className="w-full h-full object-cover"
               />
-            ) : catalog.cover_url ? (
+            ) : catalog.cover_image_url || catalog.cover_url ? (
               <img 
-                src={catalog.cover_url} 
+                src={catalog.cover_image_url || catalog.cover_url} 
                 alt={catalog.name}
                 className="w-full h-full object-cover"
               />
@@ -147,7 +172,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
               </div>
             )}
             
-            {/* Carousel avec swipe et plein écran */}
+            {/* Carousel avec swipe et plein ├®cran */}
             {images.length > 1 && (
               <div className="absolute inset-0">
                 <Carousel
@@ -168,11 +193,11 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
                     {images.map((image, index) => (
                       <CarouselItem key={index} className="pl-0">
                         <img
-                          src={image.url || image}
+                          src={image.url}
                           alt={catalog.name}
                           className="catalog-image-fullscreen w-full h-full object-contain cursor-pointer"
                           onClick={() => {
-                            // Mode plein écran au clic
+                            // Mode plein ├®cran au clic
                             const fullscreenElement = document.querySelector('.catalog-image-fullscreen');
                             if (fullscreenElement) {
                               if (document.fullscreenElement) {
@@ -219,7 +244,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
                   size="sm" 
                   variant="secondary" 
                   className="bg-white/90 hover:bg-white"
-                  onClick={() => setSelectedImageForComment(selectedImage?.url || selectedImage)}
+                  onClick={() => setSelectedImageForComment(selectedImage?.url || null)}
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span className="ml-1 text-xs">{imageComments.length}</span>
@@ -263,16 +288,16 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
               </DialogTitle>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />
-                <span>par {businessName || catalog.business_name || 'Professionnel'}</span>
+                <span>par {catalog.businessName || 'Professionnel'}</span>
                 {catalog.category && (
                   <>
-                    <span>•</span>
+                    <span>ÔÇó</span>
                     <span>{catalog.category}</span>
                   </>
                 )}
                 {catalog.geo_city && (
                   <>
-                    <span>•</span>
+                    <span>ÔÇó</span>
                     <span>{catalog.geo_city}</span>
                   </>
                 )}
@@ -290,7 +315,8 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
                 </div>
                 {/* Prix du service/produit */}
                 <div className="text-lg font-bold text-primary">
-                  {catalog.price ? `${catalog.price.toLocaleString()} ${catalog.price_currency || 'FCFA'}` : 'Prix sur demande'}
+                  {/* Prix simul├® - ├á remplacer par les vraies donn├®es */}
+                  {catalog.catalog_type === 'products' ? '15,000' : '8,500'} FCFA
                 </div>
               </div>
             </DialogHeader>
@@ -300,7 +326,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
               <Tabs defaultValue="details" className="flex-1 flex flex-col overflow-hidden">
                 {/* Tabs fixes */}
                 <TabsList className="grid w-full grid-cols-3 mx-4 mt-2 flex-shrink-0">
-                  <TabsTrigger value="details">Détails</TabsTrigger>
+                  <TabsTrigger value="details">D├®tails</TabsTrigger>
                   <TabsTrigger value="comments">Commentaires</TabsTrigger>
                   <TabsTrigger value="vitrine">Vitrine</TabsTrigger>
                 </TabsList>
@@ -331,7 +357,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
                               )}
                               {catalog.delivery_cost && catalog.delivery_cost > 0 && (
                                 <div>
-                                  <strong>Coût:</strong> {catalog.delivery_cost.toLocaleString()} FCFA
+                                  <strong>Co├╗t:</strong> {catalog.delivery_cost.toLocaleString()} FCFA
                                 </div>
                               )}
                             </div>
@@ -340,12 +366,32 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
                         
                         {catalog.keywords && catalog.keywords.length > 0 && (
                           <div>
-                            <h4 className="font-medium mb-2">Mots-clés</h4>
+                            <h4 className="font-medium mb-2">Mots-cl├®s</h4>
                             <div className="flex flex-wrap gap-2">
                               {catalog.keywords.map((keyword, index) => (
                                 <Badge key={index} variant="secondary" className="text-xs">
                                   {keyword}
                                 </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Horaires d'ouverture */}
+                        {catalog.business_hours && (
+                          <div>
+                            <h4 className="font-medium mb-3 flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              Horaires d'ouverture
+                            </h4>
+                            <div className="space-y-2 text-sm bg-muted/30 p-4 rounded-lg">
+                              {formatBusinessHours(catalog.business_hours).map((day, index) => (
+                                <div key={index} className="flex justify-between">
+                                  <span className="font-medium">{day.day}:</span>
+                                  <span className="text-muted-foreground">
+                                    {day.closed ? 'Ferm├®' : `${day.open} - ${day.close}`}
+                                  </span>
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -377,7 +423,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
                                      </div>
                                    )}
                                  </div>
-                                 <div className="text-sm">{comment.content || comment.comment}</div>
+                                 <div className="text-sm">{comment.comment}</div>
                                </div>
                                <div className="text-xs text-muted-foreground mt-1">
                                  {new Date(comment.created_at).toLocaleString('fr-FR')}
@@ -392,7 +438,7 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
                   <TabsContent value="vitrine" className="h-full m-0 overflow-hidden">
                     <ScrollArea className="h-full pr-4">
                       <div className="pb-8">
-                        <BusinessVitrineTab businessId={catalog.business_id} businessName={businessName || catalog.business_name || 'Commerce'} />
+                        <BusinessVitrineTab businessId={catalog.business_id} businessName={catalog.businessName || 'Commerce'} />
                       </div>
                     </ScrollArea>
                   </TabsContent>
@@ -400,94 +446,164 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
 
                 {/* Section contact fixe en bas - Toujours visible sur tous les onglets */}
                 <div className="flex-shrink-0 p-4 border-t bg-muted/30">
-                  <div className="w-full space-y-3">
-                    {(selectedImageForComment || newImageComment) && (
-                      <div className="bg-card p-3 rounded-lg border">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-medium">Commenter cette image</span>
-                        </div>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Votre commentaire sur l'image..."
-                            value={newImageComment}
-                            onChange={(e) => setNewImageComment(e.target.value)}
-                            className="text-sm"
-                          />
-                          <Button size="sm" onClick={handleSendImageComment} disabled={!newImageComment.trim()}>
-                            <Send className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Zone de saisie commentaire quand on est sur l'onglet commentaires */}
-                    <TabsContent value="comments" className="m-0 mb-3 border-none p-0">
-                        <div className="bg-card p-3 rounded-lg border space-y-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">Noter :</span>
-                            <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <button
-                                  key={i}
-                                  onClick={() => setCommentRating(i + 1)}
-                                  className={`${i < commentRating ? 'text-yellow-400' : 'text-gray-300'}`}
-                                >
-                                  <Star className={`w-4 h-4 ${i < commentRating ? 'fill-current' : ''}`} />
-                                </button>
-                              ))}
-                            </div>
+                  <Tabs defaultValue="details" className="w-full">
+                    <TabsContent value="details" className="m-0 space-y-3">
+                      {(selectedImageForComment || newImageComment) && (
+                        <div className="bg-card p-3 rounded-lg border">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm font-medium">Commenter cette image</span>
                           </div>
                           <div className="flex gap-2">
-                            <Textarea
-                              placeholder="Votre avis..."
-                              value={newComment}
-                              onChange={(e) => setNewComment(e.target.value)}
-                              className="text-sm resize-none"
-                              rows={2}
+                            <Input
+                              placeholder="Votre commentaire sur l'image..."
+                              value={newImageComment}
+                              onChange={(e) => setNewImageComment(e.target.value)}
+                              className="text-sm"
                             />
-                            <Button 
-                              size="sm" 
-                              onClick={handleSendComment} 
-                              disabled={isAdding || !newComment.trim()}
-                              className="self-end"
-                            >
+                            <Button size="sm" onClick={handleSendImageComment} disabled={!newImageComment.trim()}>
                               <Send className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
+                      )}
+
+                      {/* Boutons de contact toujours visibles */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {catalog.contact_whatsapp && (
+                          <Button 
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            size="sm"
+                          >
+                            WhatsApp
+                          </Button>
+                        )}
+                        {catalog.contact_phone && (
+                          <Button 
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            size="sm"
+                          >
+                            <Phone className="w-3 h-3 mr-1" />
+                            Appel
+                          </Button>
+                        )}
+                        <Button 
+                          className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white"
+                          onClick={handleSendMessage}
+                          size="sm"
+                        >
+                          <MessageCircle className="w-3 h-3 mr-1" />
+                          Message
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-2">
+                        <Button 
+                          className="bg-primary/10 text-primary hover:bg-primary/20"
+                          onClick={() => setShowAdvancedMessaging(true)}
+                          size="sm"
+                        >
+                          Options avanc├®es
+                        </Button>
+                      </div>
                     </TabsContent>
 
-                    {/* Boutons de contact toujours visibles */}
-                    <div className="grid grid-cols-3 gap-2">
-                      {catalog.contact_whatsapp && (
+                    <TabsContent value="comments" className="m-0 space-y-3">
+                      {/* Section pour ajouter un commentaire avec note */}
+                      <div className="bg-card p-3 rounded-lg border space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">Noter :</span>
+                          <div className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setCommentRating(i + 1)}
+                                className={`${i < commentRating ? 'text-yellow-400' : 'text-gray-300'}`}
+                              >
+                                <Star className={`w-4 h-4 ${i < commentRating ? 'fill-current' : ''}`} />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Textarea
+                            placeholder="Votre avis..."
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            className="text-sm resize-none"
+                            rows={2}
+                          />
+                          <Button 
+                            size="sm" 
+                            onClick={handleSendComment} 
+                            disabled={isAdding || !newComment.trim()}
+                            className="self-end"
+                          >
+                            <Send className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Boutons de contact toujours visibles */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {catalog.contact_whatsapp && (
+                          <Button 
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            size="sm"
+                          >
+                            WhatsApp
+                          </Button>
+                        )}
+                        {catalog.contact_phone && (
+                          <Button 
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            size="sm"
+                          >
+                            <Phone className="w-3 h-3 mr-1" />
+                            Appel
+                          </Button>
+                        )}
                         <Button 
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white"
+                          onClick={handleSendMessage}
                           size="sm"
-                          onClick={() => window.open(`https://wa.me/${catalog.contact_whatsapp.replace(/\D/g, '')}`, '_blank')}
                         >
-                          WhatsApp
+                          <MessageCircle className="w-3 h-3 mr-1" />
+                          Message
                         </Button>
-                      )}
-                      {catalog.contact_phone && (
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="vitrine" className="m-0">
+                      {/* Boutons de contact toujours visibles sur l'onglet vitrine aussi */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {catalog.contact_whatsapp && (
+                          <Button 
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            size="sm"
+                          >
+                            WhatsApp
+                          </Button>
+                        )}
+                        {catalog.contact_phone && (
+                          <Button 
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            size="sm"
+                          >
+                            <Phone className="w-3 h-3 mr-1" />
+                            Appel
+                          </Button>
+                        )}
                         <Button 
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white"
+                          onClick={handleSendMessage}
                           size="sm"
-                          onClick={() => window.location.href = `tel:${catalog.contact_phone}`}
                         >
-                          <Phone className="w-3 h-3 mr-1" />
-                          Appel
+                          <MessageCircle className="w-3 h-3 mr-1" />
+                          Message
                         </Button>
-                      )}
-                      <Button 
-                        className="bg-[hsl(var(--gaboma-green))] hover:bg-[hsl(var(--gaboma-green))]/90 text-white"
-                        onClick={handleSendMessage}
-                        size="sm"
-                      >
-                        <MessageCircle className="w-3 h-3 mr-1" />
-                        Message
-                      </Button>
-                    </div>
-                  </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </Tabs>
             </div>
@@ -500,14 +616,15 @@ export const CatalogInteractionModal = ({ catalog, open, onClose, businessName }
           onClose={() => setMessageSheetOpen(false)}
           commerce={{
             id: catalog.business_id,
-            name: businessName || catalog.business_name || catalog.name,
+            name: catalog.businessName || catalog.name,
             type: catalog.catalog_type,
             owner: 'Business Owner',
-            category: catalog.category || '',
-            subcategory: catalog.subcategory || ''
+            category: catalog.category,
+            subcategory: catalog.subcategory
           }}
         />
 
+        {/* Messaging functionality will be re-implemented */}
       </DialogContent>
     </Dialog>
   );
