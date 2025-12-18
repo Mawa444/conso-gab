@@ -4,7 +4,7 @@ import { useAuth } from '@/features/auth';
 import { useToast } from '@/hooks/use-toast';
 
 // Helper pour table non typée
-const subscriptionsTable = () => (supabase as any).from('business_subscriptions');
+const subscriptionsTable = () => (supabase as any).from('follower_subscriptions');
 
 export interface BusinessSubscription {
   id: string;
