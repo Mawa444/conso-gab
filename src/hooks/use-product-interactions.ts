@@ -1,11 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
-type Favorite = Tables<'favorites'>;
-type Review = Tables<'reviews'>;
-type ReviewInsert = TablesInsert<'reviews'>;
+// Use any for tables not in generated types or use inline type definitions
+interface FavoriteWithBusiness {
+  id: string;
+  user_id: string;
+  business_id: string;
+  created_at: string;
+  business?: any;
+}
+
+interface ReviewData {
+  id?: string;
+  user_id?: string;
+  business_id: string;
+  rating: number;
+  comment?: string;
+  created_at?: string;
+}
 
 export const useProductInteractions = (userId?: string) => {
   const { toast } = useToast();
@@ -29,7 +42,7 @@ export const useProductInteractions = (userId?: string) => {
         .eq('user_id', userId);
       
       if (error) throw error;
-      return data || [];
+      return (data || []) as FavoriteWithBusiness[];
     },
     enabled: !!userId
   });
@@ -91,7 +104,7 @@ export const useProductInteractions = (userId?: string) => {
 
   // Add review mutation
   const addReviewMutation = useMutation({
-    mutationFn: async (reviewData: Omit<ReviewInsert, 'user_id'>) => {
+    mutationFn: async (reviewData: Omit<ReviewData, 'user_id' | 'id' | 'created_at'>) => {
       if (!userId) throw new Error('User must be authenticated');
       
       const { data, error } = await supabase

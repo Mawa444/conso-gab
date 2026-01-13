@@ -112,7 +112,6 @@ export const EnhancedCatalogManager = ({ businessId }: EnhancedCatalogManagerPro
                 category: catalog.category,
                 subcategory: catalog.subcategory,
                 keywords: catalog.keywords,
-                synonyms: catalog.synonyms,
                 geo_city: catalog.geo_city,
                 geo_district: catalog.geo_district,
                 cover_url: catalog.cover_url
@@ -131,15 +130,15 @@ export const EnhancedCatalogManager = ({ businessId }: EnhancedCatalogManagerPro
                   <div>
                     <h4 className="font-medium">Visibilité</h4>
                     <p className="text-sm text-muted-foreground">
-                      {catalog.visibility === 'public' ? 'Visible par tous les utilisateurs' : 'Visible uniquement par vous'}
+                      {catalog.visibility === 'published' || catalog.is_public ? 'Visible par tous les utilisateurs' : 'Visible uniquement par vous'}
                     </p>
                   </div>
                   <Button
-                    variant={catalog.visibility === 'public' ? 'outline' : 'default'}
-                    onClick={() => handleToggleVisibility(catalog.id, catalog.visibility || 'draft')}
+                    variant={catalog.visibility === 'published' || catalog.is_public ? 'outline' : 'default'}
+                    onClick={() => handleToggleVisibility(catalog.id, catalog.is_public ? 'published' : 'draft')}
                     disabled={isToggling}
                   >
-                    {catalog.visibility === 'public' ? (
+                    {catalog.visibility === 'published' || catalog.is_public ? (
                       <>
                         <EyeOff className="w-4 h-4 mr-2" />
                         Retirer
@@ -287,17 +286,17 @@ export const EnhancedCatalogManager = ({ businessId }: EnhancedCatalogManagerPro
                       disabled={isToggling}
                       className="flex-1"
                     >
-                      {catalog.visibility === 'public' ? (
-                        <>
-                          <EyeOff className="w-3 h-3 mr-1" />
-                          Retirer
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="w-3 h-3 mr-1" />
-                          Publier
-                        </>
-                      )}
+                    {catalog.visibility === 'published' || catalog.is_public ? (
+                      <>
+                        <EyeOff className="w-3 h-3 mr-1" />
+                        Retirer
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-3 h-3 mr-1" />
+                        Publier
+                      </>
+                    )}
                     </Button>
                     
                     <Button

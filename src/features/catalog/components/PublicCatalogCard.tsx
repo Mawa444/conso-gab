@@ -1,5 +1,5 @@
 import { CatalogCard } from './CatalogCard';
-import { Catalog } from '../types';
+import { Catalog } from '@/types/entities/catalog.types';
 
 interface PublicCatalogCardProps {
   catalog: any; // Using any to handle the joined data structure from usePublicCatalogs
@@ -14,7 +14,7 @@ export const PublicCatalogCard = ({ catalog, onSelect }: PublicCatalogCardProps)
     ...catalog,
     // Ensure we map the joined city to geo_city if not already present
     geo_city: catalog.geo_city || business?.city,
-    // Ensure images is string[]
+    // Ensure images is any (JSON compatible)
     images: Array.isArray(catalog.images) ? catalog.images : [],
     // Fallbacks for required fields if missing in raw data (should match * selection though)
     id: catalog.id,

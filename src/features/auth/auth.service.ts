@@ -142,6 +142,7 @@ export class AuthService {
       .from('business_profiles')
       .insert([{
         user_id: userId,
+        owner_id: userId, // Important: set owner_id for RLS policies
         business_name: userData.businessName,
         business_category: businessCategory,
         description: userData.businessDescription || '',
@@ -165,6 +166,28 @@ export class AuthService {
     }
 
     if (businessData) {
+      // CRITICAL: Create business collaborator entry for RoleBasedRouter to detect businesses
+      const { error: collabError } = await supabase
+        .from('business_collaborators')
+        .insert({
+          user_id: userId,
+          business_id: businessData.id,
+          role: 'owner',
+          status: 'accepted',
+          accepted_at: new Date().toISOString(),
+          permissions: {
+            manage_products: true,
+            manage_orders: true,
+            manage_staff: true,
+            view_analytics: true,
+            edit_settings: true
+          }
+        });
+
+      if (collabError) {
+        console.error('Error creating business collaborator:', collabError);
+      }
+
       // Initialize business mode for new merchants
       await supabase
         .from('user_current_mode')

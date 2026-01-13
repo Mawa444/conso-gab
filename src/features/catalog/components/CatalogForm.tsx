@@ -154,7 +154,7 @@ export const CatalogForm = ({ businessId, initialData, onSuccess, onCancel }: Ca
       const payload: CatalogInsert = { 
         ...data, 
         business_id: businessId,
-        catalog_type: catalogType,
+        catalog_type: catalogType as 'products' | 'services',
         category: category,
         images: images,
         cover_url: images[0] || null
