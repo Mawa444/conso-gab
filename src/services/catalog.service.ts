@@ -169,7 +169,7 @@ export class CatalogService {
       name: catalogData.name 
     });
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('catalogs')
       .insert(catalogData)
       .select()
@@ -267,16 +267,25 @@ export class CatalogService {
    * @param bookingData - Données de la réservation
    * @returns Réservation créée
    * @throws Error si la création échoue
+   * 
+   * @note Utilise catalog_bookings table au lieu de bookings
    */
-  static async createBooking(bookingData: BookingData): Promise<BookingData> {
+  static async createBooking(bookingData: Omit<BookingData, 'id' | 'created_at'>): Promise<BookingData> {
     logger.info('Creating booking', { 
       catalogId: bookingData.catalog_id,
       customerEmail: bookingData.customer_email 
     });
 
-    const { data, error } = await supabase
-      .from('bookings')
-      .insert(bookingData)
+    // Use catalog_bookings table which exists
+    const { data, error } = await (supabase as any)
+      .from('catalog_bookings')
+      .insert({
+        catalog_id: bookingData.catalog_id,
+        user_id: bookingData.customer_id,
+        booking_date: bookingData.booking_date,
+        notes: bookingData.special_requests || null,
+        status: 'pending'
+      })
       .select()
       .single();
 
@@ -286,7 +295,7 @@ export class CatalogService {
     }
 
     logger.info('Booking created', { bookingId: data.id });
-    return data as BookingData;
+    return data as unknown as BookingData;
   }
 
   /**
@@ -298,8 +307,8 @@ export class CatalogService {
   static async fetchCatalogBookings(catalogId: string): Promise<BookingData[]> {
     logger.info('Fetching catalog bookings', { catalogId });
 
-    const { data, error } = await supabase
-      .from('bookings')
+    const { data, error } = await (supabase as any)
+      .from('catalog_bookings')
       .select('*')
       .eq('catalog_id', catalogId)
       .order('created_at', { ascending: false });
@@ -314,6 +323,6 @@ export class CatalogService {
       count: data?.length || 0 
     });
     
-    return data as BookingData[];
+    return (data || []) as unknown as BookingData[];
   }
 }

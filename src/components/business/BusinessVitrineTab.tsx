@@ -73,7 +73,7 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
           name: catalog.name || '',
           description: catalog.description,
           price: catalog.catalog_type === 'services' ? Math.floor(Math.random() * 100000) + 10000 : Math.floor(Math.random() * 50000) + 5000,
-          images: images.length > 0 ? images.map(img => img.url) : (catalog.cover_image_url || catalog.cover_url ? [catalog.cover_image_url || catalog.cover_url] : []),
+          images: images.length > 0 ? images.map(img => img.url) : (catalog.cover_url ? [catalog.cover_url] : []),
           category: catalog.category,
           subcategory: catalog.subcategory,
           condition: 'new' as const,
@@ -205,9 +205,9 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
                         alt={catalog.name}
                         className="w-full h-full object-cover"
                       />
-                    ) : catalog.cover_image_url || catalog.cover_url ? (
+                    ) : catalog.cover_url ? (
                       <img
-                        src={catalog.cover_image_url || catalog.cover_url}
+                        src={catalog.cover_url}
                         alt={catalog.name}
                         className="w-full h-full object-cover"
                       />
@@ -300,7 +300,6 @@ export const BusinessVitrineTab = ({ businessId, businessName }: BusinessVitrine
               return [];
             })(),
             cover_url: selectedCatalog.cover_url,
-            cover_image_url: selectedCatalog.cover_image_url,
             business_id: selectedCatalog.business_id,
             geo_city: selectedCatalog.geo_city,
             geo_district: selectedCatalog.geo_district,

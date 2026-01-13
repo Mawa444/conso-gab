@@ -72,7 +72,7 @@ export const BusinessCatalogView = ({ businessId, businessName }: BusinessCatalo
               <CatalogCard 
                 key={catalog.id}
                 businessId={businessId}
-                catalog={adaptCatalog(catalog)}
+                catalog={catalog}
                 showActions={false}
                 onClick={() => setSelectedCatalog(catalog)}
               />

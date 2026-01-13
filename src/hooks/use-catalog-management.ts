@@ -2,13 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Catalog, CatalogInsert, CatalogUpdate } from '@/types/entities/catalog.types';
-import type { Json } from '@/integrations/supabase/types';
 
 // Helper pour requêtes non typées
 const catalogsTable = () => (supabase as any).from('catalogs');
 
-interface CatalogDataWithImages extends Omit<CatalogInsert, 'business_id' | 'images'> {
-  images?: Json; // Json compatible with DB
+interface CatalogDataWithImages extends Omit<CatalogInsert, 'business_id'> {
   title?: string;
 }
 
@@ -38,7 +36,7 @@ export const useCatalogManagement = (businessId: string) => {
   // Create catalog mutation
   const createCatalogMutation = useMutation({
     mutationFn: async (catalogData: CatalogDataWithImages) => {
-      const { images, title, ...catalogInsert } = catalogData;
+      const { title, ...catalogInsert } = catalogData;
       
       // Ensure RLS will work by including the authenticated user
       const { data: { user } } = await supabase.auth.getUser();
@@ -46,10 +44,11 @@ export const useCatalogManagement = (businessId: string) => {
         throw new Error('Utilisateur non authentifié');
       }
       
-      const insertData: CatalogInsert = { 
+      const insertData = { 
         ...catalogInsert, 
         business_id: businessId,
-        name: title || catalogInsert.name || 'Catalogue sans nom'
+        name: title || catalogInsert.name || 'Catalogue sans nom',
+        images: catalogInsert.images || []
       };
       
       const { data, error } = await catalogsTable()

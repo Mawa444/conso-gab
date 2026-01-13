@@ -1,10 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { Tables } from '@/integrations/supabase/types';
 
-export type ProductWithDetails = Tables<'products'> & {
-  business: Tables<'business_profiles'> | null;
-};
+export interface ProductWithDetails {
+  id: string;
+  business_id: string;
+  catalog_id: string | null;
+  name: string;
+  description: string | null;
+  price: number;
+  sale_price: number | null;
+  is_on_sale: boolean | null;
+  is_active: boolean | null;
+  is_available: boolean | null;
+  category: string | null;
+  subcategory: string | null;
+  images: any;
+  sku: string | null;
+  barcode: string | null;
+  stock_quantity: number | null;
+  weight: number | null;
+  dimensions: any;
+  tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+  business: any | null;
+}
 
 export const useProduct = (productId: string | undefined) => {
   return useQuery({
