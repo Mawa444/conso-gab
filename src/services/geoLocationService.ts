@@ -48,14 +48,31 @@ export class GeoLocationService {
     // Élargir progressivement le rayon jusqu'à avoir suffisamment de résultats
     while (results.length < opts.minResults && currentRadius <= maxRadiusMeters) {
       try {
+        // La fonction RPC attend: lat, lng, radius_meters, limit_count
         const { data, error } = await (supabase as any).rpc('get_nearest_businesses', {
-          p_lat: userPosition.latitude,
-          p_lng: userPosition.longitude,
-          p_radius_km: currentRadius / 1000,
-          p_limit: opts.limit
+          lat: userPosition.latitude,
+          lng: userPosition.longitude,
+          radius_meters: Math.round(currentRadius),
+          limit_count: opts.limit
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('RPC Error:', error);
+          // Fallback: requête directe sans géolocalisation
+          const { data: fallbackData } = await supabase
+            .from('business_profiles')
+            .select('*')
+            .eq('is_active', true)
+            .eq('is_sleeping', false)
+            .order('created_at', { ascending: false })
+            .limit(opts.limit);
+          
+          results = (fallbackData || []).map(b => ({
+            ...b,
+            distance_meters: 0
+          }));
+          break;
+        }
 
         results = data || [];
 
