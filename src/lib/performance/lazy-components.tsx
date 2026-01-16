@@ -54,10 +54,6 @@ function PageSkeleton() {
  */
 
 // Pages Business (lourdes)
-export const LazyBusinessDashboard = lazyLoad(
-  () => import('@/pages/BusinessDashboardPage')
-);
-
 export const LazyBusinessSettings = lazyLoad(
   () => import('@/pages/BusinessSettingsPage')
 );

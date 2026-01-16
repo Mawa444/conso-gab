@@ -10,7 +10,7 @@ export const BusinessProfileEditPage = () => {
   useEffect(() => {
     // Rediriger si pas en mode business ou pas de business ID
     if (currentMode !== 'business' || !currentBusinessId) {
-      navigate('/business/dashboard');
+      navigate('/entreprises');
     }
   }, [currentMode, currentBusinessId, navigate]);
 

@@ -14,7 +14,6 @@ import { GeoLocationProvider } from "@/features/geolocation/GeoContext";
 
 // Lazy loaded pages pour code splitting
 import {
-  LazyBusinessDashboard,
   LazyBusinessSettings,
   LazyBusinessProfile,
   LazyBusinessCreation,
@@ -75,7 +74,6 @@ const App = () => {
                   <Route path="/business/:businessId" element={<BusinessDetailPage />} />
                   
                   {/* Routes Business privées (mode business uniquement) */}
-                  <Route path="/business/:businessId/dashboard" element={<LazyBusinessDashboard />} />
                   <Route path="/business/:businessId/settings" element={<LazyBusinessSettings />} />
                   <Route path="/business/:businessId/profile" element={<LazyBusinessProfile />} />
                   <Route path="/business/:businessId/catalogues" element={<LazyCreateCatalog />} />
