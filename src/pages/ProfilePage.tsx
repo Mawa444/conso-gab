@@ -443,12 +443,12 @@ export const ProfilePage = ({
             <div className="space-y-3">
               <h3 className="font-semibold">Actions rapides</h3>
               
-              {/* Bouton Dashboard Opérateur pour les marchands */}
-              {userProfile.role === 'merchant' && <Button onClick={() => window.location.href = '/merchant/dashboard'} className="w-full h-16 bg-gradient-to-r from-primary to-accent text-white mb-4 flex items-center gap-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300">
+              {/* Bouton Accéder à mes entreprises pour les marchands */}
+              {userProfile.role === 'merchant' && <Button onClick={() => window.location.href = '/entreprises'} className="w-full h-16 bg-gradient-to-r from-primary to-accent text-white mb-4 flex items-center gap-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300">
                   <Shield className="w-8 h-8" />
                   <div className="text-left">
-                    <div className="text-lg font-bold">Dashboard Opérateur</div>
-                    <div className="text-sm opacity-90">Gérer vos catalogues et commandes</div>
+                    <div className="text-lg font-bold">Mes Entreprises</div>
+                    <div className="text-sm opacity-90">Gérer vos profils business</div>
                   </div>
                 </Button>}
               

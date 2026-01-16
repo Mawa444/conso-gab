@@ -84,7 +84,7 @@ export const BusinessSettingsPage = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate(`/business/${businessId}/dashboard`)}
+                onClick={() => navigate(`/business/${businessId}`)}
                 className="text-white hover:bg-white/20"
               >
                 <ArrowLeft className="w-5 h-5" />
