@@ -146,12 +146,12 @@ export async function getOrCreateBusinessConversation(
   businessId: string, 
   userId: string
 ): Promise<string> {
-  // Vérifier si une conversation existe déjà
+  // Vérifier si une conversation existe déjà (type 'direct' avec business_id)
   const { data: existing } = await supabase
     .from('conversations')
     .select('id')
     .eq('business_id', businessId)
-    .eq('type', 'business')
+    .eq('type', 'direct')
     .single();
 
   if (existing) {
