@@ -7,6 +7,7 @@ interface HeaderProps {
   title?: string;
   showBack?: boolean;
   onBack?: () => void;
+  backLabel?: string;
   showNotifications?: boolean;
   onLocationClick?: () => void;
   onMessageClick?: () => void;
@@ -15,6 +16,7 @@ export const Header = ({
   title,
   showBack,
   onBack,
+  backLabel,
   showNotifications = true,
   onLocationClick,
   onMessageClick
@@ -23,9 +25,17 @@ export const Header = ({
         <div className="flex items-center justify-between rounded-none px-[15px] py-[12px] bg-primary">
         {/* Côté gauche - Logo et titre */}
         <div className="flex items-center gap-3">
-          {showBack ? <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20 transition-colors">
+          {showBack ? (
+            <Button 
+              variant="ghost" 
+              size={backLabel ? "sm" : "icon"} 
+              onClick={onBack} 
+              className="text-white hover:bg-white/20 transition-colors gap-1"
+            >
               <ArrowLeft className="w-5 h-5" />
-            </Button> : <div style={{
+              {backLabel && <span className="text-sm">{backLabel}</span>}
+            </Button>
+          ) : <div style={{
           letterSpacing: '0.1em'
         }} className="flex items-center my-0 mx-0">
                 <span style={{
