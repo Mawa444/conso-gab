@@ -117,21 +117,12 @@ export const EntreprisesPage = () => {
                       </div>
                       
                       <div className="flex gap-2">
-                        {!isActive ? (
-                          <Button 
-                            onClick={() => handleSwitchToBusiness(business.id)}
-                            variant="default"
-                          >
-                            Gérer
-                          </Button>
-                        ) : (
-                          <Button 
-                            onClick={() => navigate(`/business/${business.id}/dashboard`)}
-                            variant="default"
-                          >
-                            Tableau de bord
-                          </Button>
-                        )}
+                        <Button 
+                          onClick={() => handleSwitchToBusiness(business.id)}
+                          variant="default"
+                        >
+                          Gérer
+                        </Button>
                         
                         {business.is_owner && (
                           <Button 
