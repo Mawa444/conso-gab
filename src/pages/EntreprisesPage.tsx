@@ -26,12 +26,17 @@ export const EntreprisesPage = () => {
     }
   };
 
+  const handleQuit = () => {
+    navigate('/profil?tab=entreprises');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5">
       <Header 
         title="Mes Entreprises" 
         showBack 
-        onBack={() => navigate(-1)}
+        onBack={handleQuit}
+        backLabel="Quitter"
         showNotifications={false}
       />
       
