@@ -627,7 +627,13 @@ export const BusinessDetailPage = () => {
                       onImagesUpdate={(images) => {
                         setCarouselImages(images);
                       }}
-                      businessData={businessData}
+                      businessData={{
+                        logo_url: logoUrl,
+                        cover_image_url: coverUrl,
+                        business_category: business.type,
+                        description: business.description,
+                        is_verified: business.verified
+                      }}
                     />
                   </TabsContent>
                 </Tabs>
