@@ -23,7 +23,13 @@ interface AdvertisingDashboardProps {
   businessName: string;
   currentImages: string[];
   onImagesUpdate: (images: string[]) => void;
-  businessData: any;
+  businessData: {
+    logo_url?: string | null;
+    cover_image_url?: string | null;
+    business_category?: string;
+    description?: string;
+    is_verified?: boolean;
+  };
 }
 
 export const AdvertisingDashboard = ({
@@ -189,18 +195,19 @@ export const AdvertisingDashboard = ({
             <CardTitle className="text-sm">Aperçu de votre carte avec publicités</CardTitle>
           </CardHeader>
           <CardContent>
-            <InteractiveBusinessCard
-              business={{
-                id: businessId,
-                name: businessName,
-                logo_url: businessData?.logo_url,
-                business_category: businessData?.business_category,
-                description: businessData?.description,
-                carousel_images: currentImages,
-                rating: 4.5,
-                verified: businessData?.is_verified
-              }}
-            />
+             <InteractiveBusinessCard
+                business={{
+                  id: businessId,
+                  name: businessName,
+                  logo_url: businessData?.logo_url || undefined,
+                  cover_image_url: businessData?.cover_image_url || undefined,
+                  business_category: businessData?.business_category,
+                  description: businessData?.description,
+                  carousel_images: currentImages,
+                  rating: 4.5,
+                  verified: businessData?.is_verified
+                }}
+              />
           </CardContent>
         </Card>
       )}
