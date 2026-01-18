@@ -82,12 +82,12 @@ export const CarouselImagesManager = ({
         }));
       }, 500);
 
-      // Upload direct sans retraitement
+      // Upload direct sans retraitement - utiliser le bucket 'catalogs' qui existe
       const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
-      const filePath = `carousel/${fileName}`;
+      const filePath = `carousel/${businessId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('catalog-covers')
+        .from('catalogs')
         .upload(filePath, croppedFile, {
           cacheControl: '3600',
           upsert: false
@@ -98,7 +98,7 @@ export const CarouselImagesManager = ({
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('catalog-covers')
+        .from('catalogs')
         .getPublicUrl(filePath);
 
       const newImage: ImageData = {
