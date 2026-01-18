@@ -110,9 +110,9 @@ export const ProfileModeSwitch = ({ className }: ProfileModeSwitchProps) => {
             {businessProfiles.map((business) => (
               <DropdownMenuItem
                 key={business.id}
-                onClick={() => {
+              onClick={() => {
                   switchMode('business', business.id, () => {
-                    navigate(`/business/${business.id}/profile`);
+                    navigate(`/business/${business.id}`);
                   });
                 }}
                 disabled={loading}
