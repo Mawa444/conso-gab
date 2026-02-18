@@ -6,7 +6,7 @@ import { MessageInput } from './MessageInput';
 import { Conversation } from '../types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Phone, Video, MoreVertical, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/features/auth';
 
 interface ChatWindowProps {
@@ -31,11 +31,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, onBack }) 
 
   const { mutate: markAsRead } = useMarkAsRead();
 
-  // Flatten pages for display
-  // We want to display messages in chronological order (Old -> New) for the chat interface
-  // The service returns New -> Old (DESC)
-  // Infinite query pages: [Page 0 (Newest), Page 1 (Older), ...]
-  // We need to reverse the whole thing to get [Oldest ... Newest]
+  // Flatten pages - reverse for chronological display (service returns DESC)
   const messages = React.useMemo(() => {
     if (!data) return [];
     return data.pages.flat().reverse();
@@ -55,39 +51,25 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, onBack }) 
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-card/50 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          {onBack && (
-            <Button variant="ghost" size="icon" onClick={onBack} className="md:hidden -ml-2">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
+      <div className="flex items-center gap-3 px-4 py-3 border-b bg-card/50 backdrop-blur-sm">
+        {onBack && (
+          <Button variant="ghost" size="icon" onClick={onBack} className="md:hidden -ml-2">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        )}
+        
+        <Avatar className="h-9 w-9">
+          <AvatarImage src={avatarUrl} />
+          <AvatarFallback>{title.substring(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
+        
+        <div className="flex-1">
+          <h3 className="font-semibold text-sm">{title}</h3>
+          {conversation.business_context && (
+            <span className="text-xs text-muted-foreground px-1.5 py-0.5 bg-primary/10 text-primary rounded-full">
+              Business
+            </span>
           )}
-          
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={avatarUrl} />
-            <AvatarFallback>{title.substring(0, 2).toUpperCase()}</AvatarFallback>
-          </Avatar>
-          
-          <div>
-            <h3 className="font-semibold text-sm">{title}</h3>
-            {conversation.business_context && (
-              <span className="text-xs text-muted-foreground px-1.5 py-0.5 bg-primary/10 text-primary rounded-full">
-                Business
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
-            <Phone className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
-            <Video className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
-            <MoreVertical className="w-4 h-4" />
-          </Button>
         </div>
       </div>
 

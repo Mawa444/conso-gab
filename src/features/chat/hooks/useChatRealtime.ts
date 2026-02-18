@@ -3,10 +3,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { KEYS } from './useChatQueries';
 import { Message } from '../types';
-import { toast } from 'sonner';
+import { useAuth } from '@/features/auth';
 
 export function useChatRealtime(conversationId: string) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!conversationId) return;
@@ -23,41 +24,74 @@ export function useChatRealtime(conversationId: string) {
         },
         async (payload) => {
           const newMessage = payload.new as any;
-          
-          // Fetch profile for the new message sender to ensure UI is complete
-          // In a real app we might already have it in cache or the payload might be enriched via edge function
-          // For now, we'll just invalidate to be safe and simple, OR manually patch if we want instant speed.
-          
-          // Let's try to patch manually for instant feel
-          const { data: profileData } = await (supabase as any).rpc('get_unified_profile', { p_user_id: newMessage.sender_id });
-          
+
+          // If it's our own message, just replace temp message
+          if (newMessage.sender_id === user?.id) {
+            queryClient.setQueryData(KEYS.messages(conversationId), (old: any) => {
+              if (!old) return old;
+              return {
+                ...old,
+                pages: old.pages.map((page: Message[]) =>
+                  page.map((msg: Message) =>
+                    msg.id.startsWith('temp-') && msg.content === newMessage.content
+                      ? { ...msg, id: newMessage.id, status: 'sent' as const }
+                      : msg
+                  )
+                )
+              };
+            });
+            return;
+          }
+
+          // Fetch sender profile
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('user_id, display_name, avatar_url')
+            .eq('user_id', newMessage.sender_id)
+            .single();
+
           const enrichedMessage: Message = {
-            ...newMessage,
+            id: newMessage.id,
+            conversation_id: newMessage.conversation_id,
+            sender_id: newMessage.sender_id,
+            content: newMessage.content || '',
+            message_type: newMessage.type || 'text',
             status: 'sent',
-            sender_profile: profileData
+            created_at: newMessage.created_at,
+            sender_profile: profileData ? {
+              id: profileData.user_id,
+              display_name: profileData.display_name || 'Utilisateur',
+              avatar_url: profileData.avatar_url
+            } : undefined
           };
 
-          queryClient.setQueryData<Message[]>(KEYS.messages(conversationId), (old) => {
-            if (!old) return [enrichedMessage];
-            // Avoid duplicates (if optimistic update worked)
-            const exists = old.find(m => m.id === enrichedMessage.id || (m.id.startsWith('temp-') && m.content === enrichedMessage.content));
-            if (exists) return old.map(m => m.id.startsWith('temp-') && m.content === enrichedMessage.content ? enrichedMessage : m);
-            return [...old, enrichedMessage];
+          queryClient.setQueryData<any>(KEYS.messages(conversationId), (old: any) => {
+            if (!old) return { pages: [[enrichedMessage]], pageParams: [0] };
+
+            // Avoid duplicates
+            const allMessages = old.pages.flat();
+            if (allMessages.some((m: Message) => m.id === enrichedMessage.id)) {
+              return old;
+            }
+
+            const newPages = [...old.pages];
+            if (newPages.length > 0) {
+              newPages[0] = [enrichedMessage, ...newPages[0]];
+            } else {
+              newPages[0] = [enrichedMessage];
+            }
+
+            return { ...old, pages: newPages };
           });
-          
-          // Also invalidate conversations list to update last message/unread
-          // We need userId for the key, but we can invalidate all 'conversations' queries
+
+          // Refresh conversations list
           queryClient.invalidateQueries({ queryKey: ['conversations'] });
         }
       )
-      .subscribe((status) => {
-        if (status === 'CHANNEL_ERROR') {
-          toast.error("Erreur de connexion au chat");
-        }
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, queryClient]);
+  }, [conversationId, queryClient, user?.id]);
 }
