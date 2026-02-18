@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Conversation, Message, CreateMessageDTO } from './types';
 
 /**
- * Fetch profiles for a batch of user IDs using direct query
+ * Fetch profiles for a batch of user IDs
  */
 async function getProfilesBatch(userIds: string[]): Promise<Map<string, any>> {
   if (userIds.length === 0) return new Map();
@@ -27,7 +27,6 @@ async function getProfilesBatch(userIds: string[]): Promise<Map<string, any>> {
 
 export async function fetchConversations(userId: string): Promise<Conversation[]> {
   try {
-    // 1. Get all conversation IDs the user participates in
     const { data: participantRows, error: pError } = await supabase
       .from('participants')
       .select('conversation_id, last_read_at')
@@ -38,7 +37,6 @@ export async function fetchConversations(userId: string): Promise<Conversation[]
     const conversationIds = participantRows.map(p => p.conversation_id);
     const lastReadMap = new Map(participantRows.map(p => [p.conversation_id, p.last_read_at]));
 
-    // 2. Get conversations with business info
     const { data: conversations, error: cError } = await (supabase as any)
       .from('conversations')
       .select('*')
@@ -47,21 +45,17 @@ export async function fetchConversations(userId: string): Promise<Conversation[]
 
     if (cError || !conversations?.length) return [];
 
-    // 3. Get all participants for these conversations
     const { data: allParticipants } = await supabase
       .from('participants')
       .select('conversation_id, user_id, last_read_at, joined_at')
       .in('conversation_id', conversationIds);
 
-    // 4. Get last message for each conversation
-    // We'll get the most recent message per conversation
     const { data: recentMessages } = await (supabase as any)
       .from('messages')
       .select('*')
       .in('conversation_id', conversationIds)
       .order('created_at', { ascending: false });
 
-    // Build last message map (first message per conversation_id)
     const lastMessageMap = new Map<string, any>();
     (recentMessages || []).forEach((m: any) => {
       if (!lastMessageMap.has(m.conversation_id)) {
@@ -69,14 +63,12 @@ export async function fetchConversations(userId: string): Promise<Conversation[]
       }
     });
 
-    // 5. Collect all user IDs for profile fetching
     const allUserIds = new Set<string>();
     (allParticipants || []).forEach(p => allUserIds.add(p.user_id));
     lastMessageMap.forEach(m => allUserIds.add(m.sender_id));
 
     const profileMap = await getProfilesBatch(Array.from(allUserIds));
 
-    // 6. Get business profiles if needed
     const businessIds = conversations
       .filter((c: any) => c.business_id)
       .map((c: any) => c.business_id);
@@ -93,7 +85,6 @@ export async function fetchConversations(userId: string): Promise<Conversation[]
       });
     }
 
-    // 7. Build participant map per conversation
     const participantsByConv = new Map<string, any[]>();
     (allParticipants || []).forEach(p => {
       if (!participantsByConv.has(p.conversation_id)) {
@@ -107,13 +98,11 @@ export async function fetchConversations(userId: string): Promise<Conversation[]
       });
     });
 
-    // 8. Calculate unread counts
     return conversations.map((c: any) => {
       const lastRead = lastReadMap.get(c.id);
       const lastMsg = lastMessageMap.get(c.id);
       const participants = participantsByConv.get(c.id) || [];
 
-      // Count unread: messages after last_read_at that are not from current user
       let unreadCount = 0;
       if (lastRead && recentMessages) {
         unreadCount = (recentMessages as any[]).filter(
@@ -122,7 +111,6 @@ export async function fetchConversations(userId: string): Promise<Conversation[]
                        new Date(m.created_at) > new Date(lastRead)
         ).length;
       } else if (!lastRead && lastMsg) {
-        // Never read - count all messages from others
         unreadCount = (recentMessages as any[]).filter(
           (m: any) => m.conversation_id === c.id && m.sender_id !== userId
         ).length;
@@ -209,7 +197,6 @@ export async function sendMessage(dto: CreateMessageDTO): Promise<Message> {
 
   if (error) throw error;
 
-  // Update conversation updated_at
   await (supabase as any)
     .from('conversations')
     .update({ updated_at: new Date().toISOString() })
@@ -239,16 +226,14 @@ export async function markAsRead(conversationId: string, userId: string): Promis
     .eq('user_id', userId);
 }
 
-export async function getOrCreateBusinessConversation(businessId: string, userId: string): Promise<Conversation> {
-  // Check if conversation already exists
+export async function getOrCreateBusinessConversation(businessId: string, userId: string): Promise<string> {
+  // Check existing conversations with this business where user is participant
   const { data: existing } = await supabase
     .from('conversations')
     .select('id')
-    .eq('business_id', businessId)
-    .eq('type', 'direct');
+    .eq('business_id', businessId);
 
   if (existing && existing.length > 0) {
-    // Check if user is participant in any of them
     for (const conv of existing) {
       const { data: participant } = await supabase
         .from('participants')
@@ -257,9 +242,7 @@ export async function getOrCreateBusinessConversation(businessId: string, userId
         .eq('user_id', userId)
         .single();
 
-      if (participant) {
-        return fetchConversationById(conv.id);
-      }
+      if (participant) return conv.id;
     }
   }
 
@@ -285,7 +268,6 @@ export async function getOrCreateBusinessConversation(businessId: string, userId
 
   const businessOwnerId = business?.owner_id || business?.user_id;
 
-  // Add participants
   const participants = [{ conversation_id: newConv.id, user_id: userId }];
   if (businessOwnerId && businessOwnerId !== userId) {
     participants.push({ conversation_id: newConv.id, user_id: businessOwnerId });
@@ -293,60 +275,57 @@ export async function getOrCreateBusinessConversation(businessId: string, userId
 
   await (supabase as any).from('participants').insert(participants);
 
-  return fetchConversationById(newConv.id);
+  return newConv.id;
 }
 
-export async function fetchConversationById(conversationId: string): Promise<Conversation> {
-  const { data: conv, error } = await (supabase as any)
+export async function getOrCreateDirectConversation(userId: string, otherUserId: string): Promise<string> {
+  // Find existing direct conversation between the two users
+  const { data: userConvs } = await supabase
+    .from('participants')
+    .select('conversation_id')
+    .eq('user_id', userId);
+
+  const { data: otherConvs } = await supabase
+    .from('participants')
+    .select('conversation_id')
+    .eq('user_id', otherUserId);
+
+  if (userConvs && otherConvs) {
+    const userConvIds = new Set(userConvs.map(c => c.conversation_id));
+    const commonConvIds = otherConvs
+      .filter(c => userConvIds.has(c.conversation_id))
+      .map(c => c.conversation_id);
+
+    if (commonConvIds.length > 0) {
+      // Check it's a direct conversation (not business)
+      const { data: conv } = await supabase
+        .from('conversations')
+        .select('id, type, business_id')
+        .in('id', commonConvIds)
+        .eq('type', 'direct')
+        .is('business_id', null)
+        .limit(1)
+        .single();
+
+      if (conv) return conv.id;
+    }
+  }
+
+  // Create new direct conversation
+  const { data: newConv, error } = await (supabase as any)
     .from('conversations')
-    .select('*')
-    .eq('id', conversationId)
+    .insert({ type: 'direct' })
+    .select('id')
     .single();
 
   if (error) throw error;
 
-  // Get participants
-  const { data: parts } = await supabase
+  await (supabase as any)
     .from('participants')
-    .select('user_id, last_read_at, joined_at')
-    .eq('conversation_id', conversationId);
+    .insert([
+      { conversation_id: newConv.id, user_id: userId },
+      { conversation_id: newConv.id, user_id: otherUserId }
+    ]);
 
-  const userIds = (parts || []).map(p => p.user_id);
-  const profileMap = await getProfilesBatch(userIds);
-
-  // Get business context
-  let businessContext;
-  if (conv.business_id) {
-    const { data: business } = await supabase
-      .from('business_profiles')
-      .select('id, business_name, logo_url, business_category')
-      .eq('id', conv.business_id)
-      .single();
-
-    if (business) {
-      businessContext = {
-        business_id: business.id,
-        business_name: business.business_name,
-        logo_url: business.logo_url,
-        category: business.business_category
-      };
-    }
-  }
-
-  return {
-    id: conv.id,
-    title: conv.title,
-    type: conv.type || 'direct',
-    created_at: conv.created_at,
-    updated_at: conv.updated_at,
-    last_message_at: conv.updated_at,
-    unread_count: 0,
-    participants: (parts || []).map(p => ({
-      user_id: p.user_id,
-      last_read_at: p.last_read_at,
-      joined_at: p.joined_at,
-      profile: profileMap.get(p.user_id)
-    })),
-    business_context: businessContext
-  } as Conversation;
+  return newConv.id;
 }
