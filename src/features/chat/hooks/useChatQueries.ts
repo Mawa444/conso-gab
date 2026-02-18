@@ -116,6 +116,21 @@ export function useBusinessConversation() {
   });
 }
 
+export function useDirectConversation() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (otherUserId: string) => {
+      if (!user) throw new Error('Non authentifié');
+      return chatService.getOrCreateDirectConversation(user.id, otherUserId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: KEYS.conversations(user?.id || '') });
+    },
+  });
+}
+
 export function useMarkAsRead() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
