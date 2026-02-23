@@ -27,32 +27,17 @@ export const ChatLayout: React.FC = () => {
     const q = searchQuery.toLowerCase();
     return conversations.filter(c => {
       const title = c.title || c.business_context?.business_name || '';
-      const participantNames = c.participants
-        .map(p => p.profile?.display_name || '')
-        .join(' ');
-      const lastMsg = c.last_message?.content || '';
-      return title.toLowerCase().includes(q) ||
-        participantNames.toLowerCase().includes(q) ||
-        lastMsg.toLowerCase().includes(q);
+      const names = c.participants.map(p => p.profile?.display_name || '').join(' ');
+      const last = c.last_message?.content || '';
+      return title.toLowerCase().includes(q) || names.toLowerCase().includes(q) || last.toLowerCase().includes(q);
     });
   }, [conversations, searchQuery]);
 
   const handleSelectUser = async (userId: string) => {
-    try {
-      const convId = await createDirectConv(userId);
-      setActiveId(convId);
-    } catch {
-      toast.error('Erreur lors de la création de la conversation');
-    }
+    try { setActiveId(await createDirectConv(userId)); } catch { toast.error('Erreur de création'); }
   };
-
   const handleSelectBusiness = async (businessId: string) => {
-    try {
-      const convId = await createBusinessConv(businessId);
-      setActiveId(convId);
-    } catch {
-      toast.error('Erreur lors de la création de la conversation');
-    }
+    try { setActiveId(await createBusinessConv(businessId)); } catch { toast.error('Erreur de création'); }
   };
 
   if (!user) {
@@ -63,84 +48,55 @@ export const ChatLayout: React.FC = () => {
             <span className="text-2xl">🔒</span>
           </div>
           <p className="font-semibold text-foreground">Connectez-vous</p>
-          <p className="text-sm text-muted-foreground mt-1">Accédez à la messagerie</p>
+          <p className="text-sm text-muted-foreground mt-1">pour accéder à la messagerie</p>
         </div>
       </div>
     );
   }
 
-  // Mobile: show either list or chat
-  // Desktop: show both side by side
   return (
     <>
       <div className="flex h-full overflow-hidden bg-background">
-        {/* Conversations List Panel */}
+        {/* List panel */}
         <div className={cn(
           "w-full md:w-[340px] lg:w-[380px] md:border-r border-border flex flex-col bg-background",
           activeId ? "hidden md:flex" : "flex"
         )}>
-          {/* Signal-style Header */}
-          <div className="bg-primary px-4 py-3 flex items-center justify-between">
-            <h1 className="text-primary-foreground font-bold text-xl">Signal</h1>
+          {/* Header */}
+          <div className="bg-primary px-4 py-3 flex items-center justify-between flex-shrink-0">
+            <h1 className="text-primary-foreground font-bold text-xl">Messages</h1>
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => setShowSearch(!showSearch)}
-                className="p-2 rounded-full hover:bg-primary-foreground/10 transition-colors"
-              >
-                {showSearch ? (
-                  <X className="w-5 h-5 text-primary-foreground" />
-                ) : (
-                  <Search className="w-5 h-5 text-primary-foreground" />
-                )}
+              <button onClick={() => setShowSearch(!showSearch)} className="p-2 rounded-full hover:bg-primary-foreground/10 transition-colors">
+                {showSearch ? <X className="w-5 h-5 text-primary-foreground" /> : <Search className="w-5 h-5 text-primary-foreground" />}
               </button>
             </div>
           </div>
 
-          {/* Search bar (collapsible) */}
           {showSearch && (
             <div className="px-3 py-2 bg-background border-b border-border">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Rechercher..."
-                  className="pl-9 h-9 bg-muted border-0 rounded-full text-sm"
-                  autoFocus
-                />
+                <Input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Rechercher..." className="pl-9 h-9 bg-muted border-0 rounded-full text-sm" autoFocus />
               </div>
             </div>
           )}
 
-          {/* Conversations */}
           <div className="flex-1 overflow-y-auto">
-            <SignalConversationList
-              conversations={filteredConversations}
-              activeId={activeId || undefined}
-              onSelect={setActiveId}
-              isLoading={isLoading}
-            />
+            <SignalConversationList conversations={filteredConversations} activeId={activeId || undefined} onSelect={setActiveId} isLoading={isLoading} />
           </div>
 
-          {/* FAB - New conversation */}
-          <button
-            onClick={() => setShowNewConv(true)}
-            className="absolute bottom-20 right-4 md:relative md:bottom-auto md:right-auto md:mx-4 md:mb-4 w-14 h-14 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105 z-10 md:self-end"
-          >
+          {/* FAB */}
+          <button onClick={() => setShowNewConv(true)}
+            className="absolute bottom-20 right-4 md:relative md:bottom-auto md:right-auto md:mx-4 md:mb-4 w-14 h-14 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105 z-10 md:self-end">
             <Pencil className="w-5 h-5 text-primary-foreground" />
           </button>
         </div>
 
-        {/* Chat Window */}
-        <div className={cn(
-          "flex-1 flex flex-col",
-          !activeId ? "hidden md:flex" : "flex"
-        )}>
+        {/* Chat panel */}
+        <div className={cn("flex-1 flex flex-col", !activeId ? "hidden md:flex" : "flex")}>
           {activeConversation ? (
-            <SignalChatWindow
-              conversation={activeConversation}
-              onBack={() => setActiveId(null)}
-            />
+            <SignalChatWindow conversation={activeConversation} onBack={() => setActiveId(null)} />
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center bg-muted/20">
               <div className="w-24 h-24 rounded-full bg-muted/50 flex items-center justify-center mb-4">
@@ -154,12 +110,7 @@ export const ChatLayout: React.FC = () => {
         </div>
       </div>
 
-      <NewConversationDialog
-        open={showNewConv}
-        onOpenChange={setShowNewConv}
-        onSelectUser={handleSelectUser}
-        onSelectBusiness={handleSelectBusiness}
-      />
+      <NewConversationDialog open={showNewConv} onOpenChange={setShowNewConv} onSelectUser={handleSelectUser} onSelectBusiness={handleSelectBusiness} />
     </>
   );
 };
