@@ -28,7 +28,7 @@ import { toast } from "sonner";
 import { ProfileModeSwitch } from "@/components/profile/ProfileModeSwitch";
 import { PageWithSkeleton } from "@/components/layout/PageWithSkeleton";
 import { ProfilePageSkeleton } from "@/components/ui/skeleton-screens";
-import { BusinessChatLoader } from "@/features/chat/components/BusinessChatLoader";
+
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { CarouselImagesManager } from "@/components/business/CarouselImagesManager";
 import { AdvertisingDashboard } from "@/components/business/AdvertisingDashboard";
@@ -478,8 +478,10 @@ export const BusinessDetailPage = () => {
 
             <TabsContent value="chat" className="mt-6">
               <Card>
-                <CardContent className="p-0">
-                  <BusinessChatLoader businessId={businessId || business.id} />
+                <CardContent className="p-6 text-center">
+                  <MessageCircle className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground text-sm">Utilisez la messagerie pour contacter ce commerce</p>
+                  <Button variant="outline" className="mt-3" onClick={() => navigate('/messaging')}>Ouvrir la messagerie</Button>
                 </CardContent>
               </Card>
             </TabsContent>

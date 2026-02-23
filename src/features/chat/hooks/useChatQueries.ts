@@ -11,12 +11,11 @@ export const KEYS = {
 
 export function useConversations() {
   const { user } = useAuth();
-  
   return useQuery({
     queryKey: KEYS.conversations(user?.id || ''),
     queryFn: () => chatService.fetchConversations(user?.id || ''),
     enabled: !!user,
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: 60_000,
   });
 }
 
@@ -25,76 +24,41 @@ export function useMessages(conversationId: string) {
     queryKey: KEYS.messages(conversationId),
     queryFn: ({ pageParam = 0 }) => chatService.fetchMessages(conversationId, pageParam),
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      // If last page has fewer items than limit (50), we reached the end
-      if (lastPage.length < 50) return undefined;
-      return allPages.length;
-    },
+    getNextPageParam: (lastPage, allPages) => lastPage.length < 50 ? undefined : allPages.length,
     enabled: !!conversationId,
-    staleTime: Infinity, // Realtime will update this
+    staleTime: Infinity,
   });
 }
 
 export function useSendMessage(conversationId: string) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-
   return useMutation({
-    mutationFn: (data: Omit<CreateMessageDTO, 'conversation_id'>) => 
+    mutationFn: (data: Omit<CreateMessageDTO, 'conversation_id'>) =>
       chatService.sendMessage({ ...data, conversation_id: conversationId }),
-    
     onMutate: async (newMessage) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: KEYS.messages(conversationId) });
-
-      // Snapshot previous value
-      const previousMessages = queryClient.getQueryData(KEYS.messages(conversationId));
-
-      // Optimistic update
+      const prev = queryClient.getQueryData(KEYS.messages(conversationId));
       if (user) {
-        const optimisticMessage: Message = {
-          id: `temp-${Date.now()}`,
-          conversation_id: conversationId,
-          sender_id: user.id,
-          content: newMessage.content,
-          message_type: newMessage.message_type || 'text',
-          status: 'sending',
-          created_at: new Date().toISOString(),
-          attachment_url: newMessage.attachment_url,
-          sender_profile: {
-            id: user.id,
-            display_name: user.user_metadata?.display_name || 'Moi',
-            avatar_url: user.user_metadata?.avatar_url
-          }
+        const opt: Message = {
+          id: `temp-${Date.now()}`, conversation_id: conversationId,
+          sender_id: user.id, content: newMessage.content,
+          message_type: 'text', status: 'sending', created_at: new Date().toISOString(),
+          sender_profile: { id: user.id, display_name: user.user_metadata?.display_name || 'Moi', avatar_url: user.user_metadata?.avatar_url }
         };
-
-        // Update infinite query data
         queryClient.setQueryData(KEYS.messages(conversationId), (old: any) => {
-          if (!old) return { pages: [[optimisticMessage]], pageParams: [0] };
-          
-          // Add to the first page (newest messages)
-          const newPages = [...old.pages];
-          if (newPages.length > 0) {
-            newPages[0] = [optimisticMessage, ...newPages[0]];
-          } else {
-            newPages[0] = [optimisticMessage];
-          }
-          
-          return {
-            ...old,
-            pages: newPages
-          };
+          if (!old) return { pages: [[opt]], pageParams: [0] };
+          const pages = [...old.pages];
+          pages[0] = [opt, ...(pages[0] || [])];
+          return { ...old, pages };
         });
       }
-
-      return { previousMessages };
+      return { prev };
     },
-    
-    onError: (err, newTodo, context) => {
-      toast.error("Erreur lors de l'envoi du message");
-      queryClient.setQueryData(KEYS.messages(conversationId), context?.previousMessages);
+    onError: (_err, _v, ctx) => {
+      toast.error("Erreur lors de l'envoi");
+      if (ctx?.prev) queryClient.setQueryData(KEYS.messages(conversationId), ctx.prev);
     },
-    
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: KEYS.messages(conversationId) });
       queryClient.invalidateQueries({ queryKey: KEYS.conversations(user?.id || '') });
@@ -105,43 +69,51 @@ export function useSendMessage(conversationId: string) {
 export function useBusinessConversation() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-
   return useMutation({
-    mutationFn: async (businessId: string) => {
-      return chatService.getOrCreateBusinessConversation(businessId, user?.id || '');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.conversations(user?.id || '') });
-    },
+    mutationFn: (businessId: string) => chatService.getOrCreateBusinessConversation(businessId, user?.id || ''),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: KEYS.conversations(user?.id || '') }),
   });
 }
 
 export function useDirectConversation() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-
   return useMutation({
-    mutationFn: async (otherUserId: string) => {
+    mutationFn: (otherUserId: string) => {
       if (!user) throw new Error('Non authentifié');
       return chatService.getOrCreateDirectConversation(user.id, otherUserId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.conversations(user?.id || '') });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: KEYS.conversations(user?.id || '') }),
   });
 }
 
 export function useMarkAsRead() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-
   return useMutation({
-    mutationFn: async (conversationId: string) => {
-      if (!user) return;
+    mutationFn: (conversationId: string) => {
+      if (!user) return Promise.resolve();
       return chatService.markAsRead(conversationId, user.id);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.conversations(user?.id || '') });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: KEYS.conversations(user?.id || '') }),
+  });
+}
+
+export function useSearchUsers(query: string) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['search-users', query],
+    queryFn: () => chatService.searchUsers(query, user?.id || ''),
+    enabled: !!query && query.length >= 2 && !!user,
+    staleTime: 30_000,
+  });
+}
+
+export function useSearchBusinesses(query: string) {
+  return useQuery({
+    queryKey: ['search-businesses', query],
+    queryFn: () => chatService.searchBusinesses(query),
+    enabled: !!query && query.length >= 2,
+    staleTime: 30_000,
   });
 }

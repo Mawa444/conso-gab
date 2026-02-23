@@ -1,73 +1,47 @@
 import React from 'react';
 import { Message } from '../types';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
 import { Check, CheckCheck } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface Props {
   message: Message;
-  isMe: boolean;
-  showAvatar?: boolean;
-  isLastInGroup?: boolean;
+  isMine: boolean;
+  showTail: boolean;
 }
 
-export const SignalMessageBubble: React.FC<Props> = ({ message, isMe, showAvatar, isLastInGroup }) => {
+export const SignalMessageBubble: React.FC<Props> = ({ message, isMine, showTail }) => {
+  const time = format(new Date(message.created_at), 'HH:mm');
+
   const statusIcon = () => {
-    if (!isMe) return null;
-    if (message.status === 'sending') return <span className="text-[10px] opacity-50">•••</span>;
-    if (message.status === 'read') return <CheckCheck className="w-3.5 h-3.5 text-blue-400" />;
-    if (message.status === 'delivered') return <CheckCheck className="w-3.5 h-3.5 text-muted-foreground/50" />;
-    return <Check className="w-3.5 h-3.5 text-muted-foreground/50" />;
+    if (!isMine) return null;
+    switch (message.status) {
+      case 'sending': return <div className="w-3 h-3 rounded-full border-2 border-primary-foreground/40 border-t-transparent animate-spin" />;
+      case 'sent': return <Check className="w-3.5 h-3.5 text-primary-foreground/50" />;
+      case 'delivered': return <CheckCheck className="w-3.5 h-3.5 text-primary-foreground/50" />;
+      case 'read': return <CheckCheck className="w-3.5 h-3.5 text-primary-foreground/80" />;
+      default: return <Check className="w-3.5 h-3.5 text-primary-foreground/50" />;
+    }
   };
 
   return (
-    <div className={cn(
-      "flex w-full",
-      isMe ? "justify-end" : "justify-start",
-      isLastInGroup ? "mb-2" : "mb-0.5"
-    )}>
+    <div className={cn("flex mb-0.5 px-3", isMine ? "justify-end" : "justify-start")}>
       <div className={cn(
-        "max-w-[80%] sm:max-w-[70%]",
-        !isMe && showAvatar ? "ml-0" : !isMe ? "ml-0" : ""
+        "relative max-w-[80%] px-3 py-1.5 rounded-xl shadow-sm",
+        isMine
+          ? "bg-primary text-primary-foreground rounded-br-sm"
+          : "bg-card text-card-foreground border border-border/50 rounded-bl-sm",
+        showTail && (isMine ? "rounded-br-xl mt-1.5" : "rounded-bl-xl mt-1.5")
       )}>
-        {/* Sender name for received messages (first in group) */}
-        {!isMe && showAvatar && message.sender_profile?.display_name && (
-          <p className="text-xs font-semibold text-primary ml-2 mb-0.5">
-            {message.sender_profile.display_name}
-          </p>
-        )}
-
+        <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+          {message.content}
+        </p>
         <div className={cn(
-          "relative px-3 py-1.5 text-[15px] leading-relaxed shadow-sm",
-          isMe
-            ? "bg-primary text-primary-foreground rounded-2xl rounded-br-sm"
-            : "bg-card border border-border/60 text-card-foreground rounded-2xl rounded-bl-sm",
+          "flex items-center gap-1 justify-end mt-0.5 -mb-0.5",
+          isMine ? "text-primary-foreground/60" : "text-muted-foreground"
         )}>
-          {/* Text content */}
-          {message.message_type === 'text' && (
-            <p className="whitespace-pre-wrap break-words">
-              {message.content}
-              {/* Invisible spacer for timestamp */}
-              <span className="inline-block w-16 h-0" />
-            </p>
-          )}
-
-          {message.message_type === 'image' && message.attachment_url && (
-            <div className="rounded-lg overflow-hidden -mx-1 -mt-0.5 mb-1">
-              <img src={message.attachment_url} alt="" className="max-w-full" />
-            </div>
-          )}
-
-          {/* Timestamp + status (floating bottom-right like Signal) */}
-          <div className={cn(
-            "float-right relative -mb-1 ml-2 mt-1 flex items-center gap-0.5",
-            isMe ? "text-primary-foreground/60" : "text-muted-foreground/60"
-          )}>
-            <span className="text-[10px] leading-none">
-              {format(new Date(message.created_at), 'HH:mm')}
-            </span>
-            {statusIcon()}
-          </div>
+          <span className="text-[10px]">{time}</span>
+          {statusIcon()}
         </div>
       </div>
     </div>

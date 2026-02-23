@@ -10,7 +10,7 @@ import { ArrowLeft, Settings, Building2 } from "lucide-react";
 import { CatalogInventoryIntegration } from "@/components/business/CatalogInventoryIntegration";
 import { BusinessProfileEditor } from "@/components/business/BusinessProfileEditor";
 import { toast } from "sonner";
-import { BusinessChatLoader } from "@/features/chat/components/BusinessChatLoader";
+import { useNavigate as useNavForChat } from "react-router-dom";
 
 interface BusinessProfile {
   id: string;
@@ -180,8 +180,9 @@ export const BusinessProfilePage = () => {
 
           <TabsContent value="chat" className="space-y-6">
             <Card>
-              <CardContent className="p-0 h-[600px]">
-                <BusinessChatLoader businessId={businessId} />
+              <CardContent className="p-6 text-center">
+                <p className="text-muted-foreground text-sm mb-3">Accédez à vos conversations depuis la messagerie</p>
+                <Button variant="outline" onClick={() => window.location.href = '/messaging'}>Ouvrir la messagerie</Button>
               </CardContent>
             </Card>
           </TabsContent>
