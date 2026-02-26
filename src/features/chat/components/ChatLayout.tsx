@@ -5,7 +5,7 @@ import { SignalChatWindow } from './SignalChatWindow';
 import { NewConversationDialog } from './NewConversationDialog';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { Search, Pencil, X } from 'lucide-react';
+import { Search, Pencil, X, MoreVertical, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/features/auth';
 import { toast } from 'sonner';
 
@@ -44,11 +44,11 @@ export const ChatLayout: React.FC = () => {
     return (
       <div className="flex h-full items-center justify-center bg-background">
         <div className="text-center p-8">
-          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">🔒</span>
+          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageCircle className="w-10 h-10 text-primary/50" />
           </div>
-          <p className="font-semibold text-foreground">Connectez-vous</p>
-          <p className="text-sm text-muted-foreground mt-1">pour accéder à la messagerie</p>
+          <p className="font-semibold text-foreground text-lg">Messagerie</p>
+          <p className="text-sm text-muted-foreground mt-1">Connectez-vous pour accéder à vos messages</p>
         </div>
       </div>
     );
@@ -59,36 +59,60 @@ export const ChatLayout: React.FC = () => {
       <div className="flex h-full overflow-hidden bg-background">
         {/* List panel */}
         <div className={cn(
-          "w-full md:w-[340px] lg:w-[380px] md:border-r border-border flex flex-col bg-background",
+          "w-full md:w-[360px] lg:w-[400px] md:border-r border-border flex flex-col bg-background",
           activeId ? "hidden md:flex" : "flex"
         )}>
-          {/* Header */}
+          {/* Signal-style header */}
           <div className="bg-primary px-4 py-3 flex items-center justify-between flex-shrink-0">
-            <h1 className="text-primary-foreground font-bold text-xl">Messages</h1>
-            <div className="flex items-center gap-1">
-              <button onClick={() => setShowSearch(!showSearch)} className="p-2 rounded-full hover:bg-primary-foreground/10 transition-colors">
-                {showSearch ? <X className="w-5 h-5 text-primary-foreground" /> : <Search className="w-5 h-5 text-primary-foreground" />}
+            <h1 className="text-primary-foreground font-bold text-xl tracking-tight">Signal</h1>
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(''); }}
+                className="p-2 rounded-full hover:bg-primary-foreground/10 transition-colors"
+              >
+                {showSearch
+                  ? <X className="w-5 h-5 text-primary-foreground" />
+                  : <Search className="w-5 h-5 text-primary-foreground" />
+                }
+              </button>
+              <button className="p-2 rounded-full hover:bg-primary-foreground/10 transition-colors">
+                <MoreVertical className="w-5 h-5 text-primary-foreground" />
               </button>
             </div>
           </div>
 
+          {/* Search bar */}
           {showSearch && (
             <div className="px-3 py-2 bg-background border-b border-border">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Rechercher..." className="pl-9 h-9 bg-muted border-0 rounded-full text-sm" autoFocus />
+                <Input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Rechercher..."
+                  className="pl-9 h-10 bg-muted border-0 rounded-full text-sm"
+                  autoFocus
+                />
               </div>
             </div>
           )}
 
+          {/* Conversation list */}
           <div className="flex-1 overflow-y-auto">
-            <SignalConversationList conversations={filteredConversations} activeId={activeId || undefined} onSelect={setActiveId} isLoading={isLoading} />
+            <SignalConversationList
+              conversations={filteredConversations}
+              activeId={activeId || undefined}
+              onSelect={setActiveId}
+              isLoading={isLoading}
+            />
           </div>
 
-          {/* FAB */}
-          <button onClick={() => setShowNewConv(true)}
-            className="absolute bottom-20 right-4 md:relative md:bottom-auto md:right-auto md:mx-4 md:mb-4 w-14 h-14 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105 z-10 md:self-end">
+          {/* FAB - Signal style */}
+          <button
+            onClick={() => setShowNewConv(true)}
+            className="absolute bottom-24 right-5 md:bottom-6 w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg z-10 active:scale-95 transition-transform"
+            style={{ boxShadow: 'var(--shadow-lg)' }}
+          >
             <Pencil className="w-5 h-5 text-primary-foreground" />
           </button>
         </div>
@@ -98,19 +122,23 @@ export const ChatLayout: React.FC = () => {
           {activeConversation ? (
             <SignalChatWindow conversation={activeConversation} onBack={() => setActiveId(null)} />
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center bg-muted/20">
-              <div className="w-24 h-24 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-                <svg className="w-12 h-12 text-muted-foreground/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                </svg>
+            <div className="flex-1 flex flex-col items-center justify-center bg-muted/10">
+              <div className="w-28 h-28 rounded-full bg-muted/40 flex items-center justify-center mb-5">
+                <MessageCircle className="w-14 h-14 text-muted-foreground/30" />
               </div>
-              <p className="text-muted-foreground text-sm">Sélectionnez une conversation</p>
+              <p className="text-muted-foreground/80 font-medium">Vos messages</p>
+              <p className="text-muted-foreground/50 text-sm mt-1">Sélectionnez une conversation pour commencer</p>
             </div>
           )}
         </div>
       </div>
 
-      <NewConversationDialog open={showNewConv} onOpenChange={setShowNewConv} onSelectUser={handleSelectUser} onSelectBusiness={handleSelectBusiness} />
+      <NewConversationDialog
+        open={showNewConv}
+        onOpenChange={setShowNewConv}
+        onSelectUser={handleSelectUser}
+        onSelectBusiness={handleSelectBusiness}
+      />
     </>
   );
 };

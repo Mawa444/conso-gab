@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Paperclip, Smile, Mic, Send } from 'lucide-react';
+import { Paperclip, Smile, Mic, Send, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -29,13 +29,17 @@ export const SignalMessageInput: React.FC<Props> = ({ onSendMessage, isLoading }
   };
 
   return (
-    <div className="flex items-end gap-2 px-2 py-2 bg-background border-t border-border/50">
-      <button className="p-2 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 mb-0.5">
-        <Paperclip className="w-5 h-5" />
-      </button>
+    <div className="flex items-end gap-1.5 px-2 py-2 bg-background border-t border-border/40">
+      {/* Attachments */}
+      <div className="flex items-center gap-0.5 flex-shrink-0 mb-1">
+        <button className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted">
+          <Paperclip className="w-[22px] h-[22px]" />
+        </button>
+      </div>
 
-      <div className="flex-1 flex items-end bg-muted/50 border border-border/50 rounded-3xl px-4 py-2 min-h-[44px]">
-        <button className="text-muted-foreground hover:text-foreground transition-colors mr-2 flex-shrink-0 mb-0.5">
+      {/* Input container */}
+      <div className="flex-1 flex items-end bg-card border border-border/50 rounded-[22px] px-1 py-0.5 min-h-[44px]">
+        <button className="p-2 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
           <Smile className="w-5 h-5" />
         </button>
         <textarea
@@ -49,21 +53,31 @@ export const SignalMessageInput: React.FC<Props> = ({ onSendMessage, isLoading }
           onKeyDown={handleKeyDown}
           placeholder="Message"
           rows={1}
-          className="flex-1 bg-transparent border-0 outline-none resize-none text-[15px] leading-snug max-h-[120px] py-0.5 placeholder:text-muted-foreground/50"
+          className="flex-1 bg-transparent border-0 outline-none resize-none text-[15px] leading-snug max-h-[120px] py-2 px-1 placeholder:text-muted-foreground/50"
         />
+        {!hasContent && (
+          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
+            <Camera className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
+      {/* Send / Mic button */}
       <button
         onClick={hasContent ? handleSubmit : undefined}
         disabled={isLoading}
         className={cn(
-          "w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all mb-0.5",
+          "w-[44px] h-[44px] rounded-full flex items-center justify-center flex-shrink-0 transition-all mb-0.5",
           hasContent
-            ? "bg-primary text-primary-foreground shadow-md hover:shadow-lg active:scale-95"
+            ? "bg-primary text-primary-foreground active:scale-90"
             : "bg-primary/80 text-primary-foreground"
         )}
       >
-        {hasContent ? <Send className="w-5 h-5 ml-0.5" /> : <Mic className="w-5 h-5" />}
+        {hasContent ? (
+          <Send className="w-5 h-5 ml-0.5" />
+        ) : (
+          <Mic className="w-5 h-5" />
+        )}
       </button>
     </div>
   );
