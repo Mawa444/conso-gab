@@ -4,7 +4,7 @@ import { SignalMessageBubble } from './SignalMessageBubble';
 import { useAuth } from '@/features/auth';
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Lock } from 'lucide-react';
 
 interface Props {
   messages: Message[];
@@ -49,26 +49,17 @@ export const SignalMessageList: React.FC<Props> = ({ messages, isLoading, hasMor
 
   if (!messages.length) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center px-8">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-            <svg className="w-8 h-8 text-primary/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-            </svg>
-          </div>
-          <p className="text-muted-foreground text-sm">Envoyez votre premier message</p>
+      <div className="flex-1 flex flex-col items-center justify-center px-8">
+        {/* Signal-style encryption notice */}
+        <div className="bg-secondary/20 rounded-xl px-4 py-3 max-w-[280px] text-center">
+          <Lock className="w-4 h-4 text-secondary-foreground/60 mx-auto mb-1.5" />
+          <p className="text-[12px] text-secondary-foreground/70 leading-snug">
+            Les messages envoyés dans cette conversation sont chiffrés de bout en bout.
+          </p>
         </div>
       </div>
     );
   }
-
-  const renderDateSep = (dateStr: string) => (
-    <div className="flex items-center justify-center py-2 px-3">
-      <span className="text-[11px] bg-muted/80 text-muted-foreground px-3 py-1 rounded-full font-medium shadow-sm">
-        {formatDateSep(dateStr)}
-      </span>
-    </div>
-  );
 
   return (
     <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto py-2">
@@ -77,6 +68,15 @@ export const SignalMessageList: React.FC<Props> = ({ messages, isLoading, hasMor
           <Loader2 className="w-5 h-5 animate-spin text-primary/60" />
         </div>
       )}
+
+      {/* Encryption notice at the top */}
+      <div className="flex justify-center px-6 py-3 mb-1">
+        <div className="bg-secondary/15 rounded-lg px-3 py-1.5 flex items-center gap-1.5">
+          <Lock className="w-3 h-3 text-secondary-foreground/50" />
+          <span className="text-[10px] text-secondary-foreground/50">Chiffrement de bout en bout</span>
+        </div>
+      </div>
+
       {messages.map((msg, i) => {
         const isMine = msg.sender_id === user?.id;
         const prev = messages[i - 1];
@@ -85,12 +85,18 @@ export const SignalMessageList: React.FC<Props> = ({ messages, isLoading, hasMor
 
         return (
           <React.Fragment key={msg.id}>
-            {showDate && renderDateSep(msg.created_at)}
+            {showDate && (
+              <div className="flex items-center justify-center py-2.5 px-3">
+                <span className="text-[11px] bg-card/90 text-muted-foreground px-3.5 py-1 rounded-lg font-medium shadow-sm border border-border/30">
+                  {formatDateSep(msg.created_at)}
+                </span>
+              </div>
+            )}
             <SignalMessageBubble message={msg} isMine={isMine} showTail={showTail} />
           </React.Fragment>
         );
       })}
-      <div ref={bottomRef} />
+      <div ref={bottomRef} className="h-1" />
     </div>
   );
 };
