@@ -104,7 +104,7 @@ export function useSearchUsers(query: string) {
   return useQuery({
     queryKey: ['search-users', query],
     queryFn: () => chatService.searchUsers(query, user?.id || ''),
-    enabled: !!query && query.length >= 2 && !!user,
+    enabled: !!user,
     staleTime: 30_000,
   });
 }
@@ -113,7 +113,7 @@ export function useSearchBusinesses(query: string) {
   return useQuery({
     queryKey: ['search-businesses', query],
     queryFn: () => chatService.searchBusinesses(query),
-    enabled: !!query && query.length >= 2,
+    enabled: true,
     staleTime: 30_000,
   });
 }
