@@ -13,22 +13,34 @@ async function getProfilesBatch(userIds: string[]): Promise<Map<string, any>> {
 }
 
 export async function searchUsers(query: string, currentUserId: string) {
-  const { data } = await supabase
+  const q = query.trim();
+  const builder = supabase
     .from('profiles')
     .select('user_id, display_name, avatar_url')
-    .neq('user_id', currentUserId)
-    .ilike('display_name', `%${query}%`)
-    .limit(20);
+    .neq('user_id', currentUserId);
+  
+  if (q.length > 0) {
+    builder.ilike('display_name', `%${q}%`);
+  }
+  
+  const { data, error } = await builder.limit(30);
+  if (error) console.error('searchUsers error:', error);
   return data || [];
 }
 
 export async function searchBusinesses(query: string) {
-  const { data } = await supabase
+  const q = query.trim();
+  const builder = supabase
     .from('business_profiles')
-    .select('id, business_name, logo_url, business_category')
-    .eq('is_active', true)
-    .ilike('business_name', `%${query}%`)
-    .limit(20);
+    .select('id, business_name, logo_url, business_category, description')
+    .eq('is_active', true);
+  
+  if (q.length > 0) {
+    builder.ilike('business_name', `%${q}%`);
+  }
+  
+  const { data, error } = await builder.order('business_name').limit(30);
+  if (error) console.error('searchBusinesses error:', error);
   return data || [];
 }
 

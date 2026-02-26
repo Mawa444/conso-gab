@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSearchUsers, useSearchBusinesses } from '../hooks/useChatQueries';
-import { Search, ArrowLeft, User, Store, Loader2, Building2, MessageCirclePlus } from 'lucide-react';
+import { Search, ArrowLeft, User, Store, Loader2, Building2, MessageCirclePlus, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -21,7 +21,6 @@ export const NewConversationDialog: React.FC<Props> = ({ open, onOpenChange, onS
   const { data: users = [], isLoading: loadingUsers } = useSearchUsers(query);
   const { data: businesses = [], isLoading: loadingBiz } = useSearchBusinesses(query);
 
-  const isSearching = query.length >= 2;
   const isLoading = loadingUsers || loadingBiz;
   const hasResults = users.length > 0 || businesses.length > 0;
 
@@ -76,9 +75,9 @@ export const NewConversationDialog: React.FC<Props> = ({ open, onOpenChange, onS
         {/* Filter tabs */}
         <div className="flex gap-1.5 px-3 py-2 bg-background border-b border-border/50">
           {([
-            { key: 'all' as Tab, label: 'Tous', icon: null },
-            { key: 'users' as Tab, label: 'Contacts', icon: User },
-            { key: 'businesses' as Tab, label: 'Entreprises', icon: Store },
+            { key: 'all' as Tab, label: 'Tous', icon: null, count: users.length + businesses.length },
+            { key: 'users' as Tab, label: 'Contacts', icon: User, count: users.length },
+            { key: 'businesses' as Tab, label: 'Entreprises', icon: Store, count: businesses.length },
           ]).map(tab => (
             <button
               key={tab.key}
@@ -92,23 +91,21 @@ export const NewConversationDialog: React.FC<Props> = ({ open, onOpenChange, onS
             >
               {tab.icon && <tab.icon className="w-3.5 h-3.5" />}
               {tab.label}
+              {tab.count > 0 && (
+                <span className={cn(
+                  "ml-0.5 text-[10px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1",
+                  activeTab === tab.key ? "bg-primary-foreground/20" : "bg-muted-foreground/20"
+                )}>
+                  {tab.count}
+                </span>
+              )}
             </button>
           ))}
         </div>
 
         {/* Results */}
         <div className="flex-1 overflow-y-auto">
-          {!isSearching ? (
-            <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <MessageCirclePlus className="w-10 h-10 text-primary/60" />
-              </div>
-              <p className="font-medium text-foreground text-[15px]">Démarrer une conversation</p>
-              <p className="text-muted-foreground text-sm mt-1.5 max-w-[260px]">
-                Recherchez un contact ou une entreprise pour envoyer un message
-              </p>
-            </div>
-          ) : isLoading ? (
+          {isLoading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
@@ -117,7 +114,9 @@ export const NewConversationDialog: React.FC<Props> = ({ open, onOpenChange, onS
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-3">
                 <Search className="w-7 h-7 text-muted-foreground/40" />
               </div>
-              <p className="text-muted-foreground text-sm">Aucun résultat pour « {query} »</p>
+              <p className="text-muted-foreground text-sm">
+                {query.length > 0 ? `Aucun résultat pour « ${query} »` : 'Aucun contact disponible'}
+              </p>
             </div>
           ) : (
             <div className="py-1">
@@ -127,7 +126,7 @@ export const NewConversationDialog: React.FC<Props> = ({ open, onOpenChange, onS
                   <div className="px-4 py-2">
                     <p className="text-[11px] font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
                       <Building2 className="w-3.5 h-3.5" />
-                      Entreprises
+                      Entreprises ({filteredBusinesses.length})
                     </p>
                   </div>
                   {filteredBusinesses.map((b: any) => (
@@ -144,12 +143,15 @@ export const NewConversationDialog: React.FC<Props> = ({ open, onOpenChange, onS
                           </AvatarFallback>
                         </Avatar>
                         <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-accent rounded-full flex items-center justify-center border-2 border-background">
-                          <Store className="w-2.5 h-2.5 text-accent-foreground" />
+                          <Briefcase className="w-2.5 h-2.5 text-accent-foreground" />
                         </div>
                       </div>
                       <div className="flex-1 text-left min-w-0">
                         <span className="font-semibold text-[15px] text-foreground block truncate">{b.business_name}</span>
-                        <span className="text-xs text-muted-foreground truncate block">{b.business_category || 'Entreprise'}</span>
+                        <span className="text-xs text-muted-foreground truncate block">
+                          {b.business_category || 'Entreprise'}
+                          {b.description ? ` · ${b.description.substring(0, 40)}...` : ''}
+                        </span>
                       </div>
                       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                         <MessageCirclePlus className="w-4 h-4 text-primary" />
@@ -165,7 +167,7 @@ export const NewConversationDialog: React.FC<Props> = ({ open, onOpenChange, onS
                   <div className="px-4 py-2">
                     <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5" />
-                      Contacts
+                      Contacts ({filteredUsers.length})
                     </p>
                   </div>
                   {filteredUsers.map((u: any) => (
