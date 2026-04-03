@@ -47,6 +47,7 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
   const { signUp } = useAuth();
   const [currentStep, setCurrentStep] = useState<SignupStep>('basic-info');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [signupData, setSignupData] = useState<Partial<SignupData>>({ accountType: 'consumer' });
 
   const steps = [
