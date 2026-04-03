@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, User, Building, Mail, Phone, Lock, Globe } from "lucide-react";
+import { ArrowLeft, ArrowRight, User, Building, Mail, Phone, Lock, Globe, Eye, EyeOff } from "lucide-react";
 import gabomaLogo from "@/assets/gaboma-logo.png";
 import { toast } from "sonner";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -47,6 +47,7 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
   const { signUp } = useAuth();
   const [currentStep, setCurrentStep] = useState<SignupStep>('basic-info');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [signupData, setSignupData] = useState<Partial<SignupData>>({ accountType: 'consumer' });
 
   const steps = [
@@ -317,13 +318,27 @@ export const GuidedSignupFlow = ({ onComplete, onBack }: GuidedSignupFlowProps) 
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={signupData.password || ''}
                       onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                      className="pl-10"
+                      className="pl-10 pr-10"
                       placeholder="••••••••"
                       required
                     />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
                   </div>
                 </div>
 
