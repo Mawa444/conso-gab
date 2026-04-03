@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthContextType, AuthState, UserSignUpData, SignUpResult, SignInResult, ResetPasswordResult } from './types';
@@ -17,50 +17,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initialized: false
   });
 
+  const mountedRef = useRef(true);
+
+  const fetchProfile = useCallback(async (userId: string) => {
+    try {
+      const profile = await AuthService.getProfile(userId);
+      if (mountedRef.current) {
+        setState(prev => ({ ...prev, profile: profile || prev.profile }));
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  }, []);
+
   const refreshProfile = useCallback(async () => {
     if (!state.user) return;
-    const profile = await AuthService.getProfile(state.user.id);
-    setState(prev => ({ ...prev, profile }));
-  }, [state.user]);
+    await fetchProfile(state.user.id);
+  }, [state.user, fetchProfile]);
 
-  // Initialize Auth
   useEffect(() => {
-    let mounted = true;
+    mountedRef.current = true;
 
-    const initAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        let profile = null;
-        if (session?.user) {
-          profile = await AuthService.getProfile(session.user.id);
-        }
-
-        if (mounted) {
-          setState({
-            user: session?.user ?? null,
-            session,
-            profile,
-            loading: false,
-            initialized: true
-          });
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        if (mounted) {
-          setState(prev => ({ ...prev, loading: false, initialized: true }));
-        }
-      }
-    };
-
-    initAuth();
-
+    // CRITICAL: Set up listener BEFORE getSession (per Supabase docs)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('🔐 Auth state change:', event, session?.user?.email);
+      console.log('🔐 Auth event:', event, session?.user?.email);
       
-      // Synchronous state update first
-      const user = session?.user ?? null;
-      
+      if (!mountedRef.current) return;
+
       if (event === 'SIGNED_OUT') {
         SessionService.clearSession();
         setState({
@@ -74,7 +57,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-        // Update state immediately with user info
+        const user = session?.user ?? null;
+        
         setState(prev => ({
           ...prev,
           user,
@@ -82,38 +66,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           loading: false,
           initialized: true
         }));
-        
-        // Initialize session tracking
+
         if (user && event === 'SIGNED_IN') {
           SessionService.initSession(user.id);
         }
 
-        // Defer profile fetch to avoid deadlock
+        // Defer profile fetch to avoid Supabase auth deadlock
         if (user) {
-          setTimeout(async () => {
-            try {
-              const profile = await AuthService.getProfile(user.id);
-              setState(prev => ({
-                ...prev,
-                profile: profile || prev.profile
-              }));
-            } catch (error) {
-              console.error('Error fetching profile:', error);
-            }
-          }, 0);
+          setTimeout(() => fetchProfile(user.id), 0);
         }
+      }
+
+      if (event === 'PASSWORD_RECOVERY') {
+        // Let the reset password page handle this
+        setState(prev => ({
+          ...prev,
+          user: session?.user ?? null,
+          session,
+          loading: false,
+          initialized: true
+        }));
+      }
+    });
+
+    // THEN get existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mountedRef.current) return;
+
+      setState(prev => ({
+        ...prev,
+        user: session?.user ?? null,
+        session,
+        loading: false,
+        initialized: true
+      }));
+
+      if (session?.user) {
+        fetchProfile(session.user.id);
       }
     });
 
     return () => {
-      mounted = false;
+      mountedRef.current = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile]);
 
   const signIn = async (email: string, password: string): Promise<SignInResult> => {
     try {
-      // Normalize email
       const normalizedEmail = email.trim().toLowerCase();
       
       const { data, error } = await supabase.auth.signInWithPassword({ 
@@ -124,39 +124,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         console.error('Sign in error:', error);
         
-        // Improved French error messages
         if (error.message.includes('Invalid login credentials')) {
-          return {
-            data,
-            error: { message: "Email ou mot de passe incorrect. Vérifiez vos identifiants." }
-          };
+          return { data, error: { message: "Email ou mot de passe incorrect." } };
         }
         if (error.message.includes('Email not confirmed')) {
-          return {
-            data,
-            error: { message: "Veuillez confirmer votre email avant de vous connecter." }
-          };
-        }
-        if (error.message.includes('Invalid email')) {
-          return {
-            data,
-            error: { message: "Format d'email invalide." }
-          };
+          return { data, error: { message: "Veuillez confirmer votre email avant de vous connecter." } };
         }
         return { data, error: { message: error.message } };
-      }
-
-      // Log successful login
-      if (data.user) {
-        await supabase.from('activity_log').insert({
-          user_id: data.user.id,
-          action_type: 'USER_LOGIN',
-          action_description: `Connexion réussie`,
-          metadata: {
-            email: normalizedEmail,
-            timestamp: new Date().toISOString()
-          }
-        });
       }
 
       return { data, error: null };
@@ -171,83 +145,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await AuthService.signUp(email, password, userData);
       
       if (result.error) {
-        // Handle existing user
         if (result.error.message === "EXISTING_USER") {
           return {
             data: result.data,
-            error: { 
-              message: "Un compte existe déjà avec cet email. Veuillez vous connecter.",
-              email: result.error.email
-            }
+            error: { message: "Un compte existe déjà avec cet email. Veuillez vous connecter." }
           };
         }
-        return { 
-          data: result.data, 
-          error: { message: result.error.message || "Erreur lors de l'inscription" } 
-        };
-      }
-
-      // Log successful signup
-      if (result.data?.user) {
-        await supabase.from('activity_log').insert({
-          user_id: result.data.user.id,
-          action_type: 'USER_SIGNUP',
-          action_description: `Inscription réussie`,
-          metadata: {
-            email: email.trim().toLowerCase(),
-            full_name: String(userData.full_name || ''),
-            timestamp: new Date().toISOString()
-          }
-        });
+        return { data: result.data, error: { message: result.error.message || "Erreur lors de l'inscription" } };
       }
 
       return { data: result.data, error: null };
     } catch (error: any) {
-      return { 
-        data: null, 
-        error: { message: error.message || "Erreur lors de l'inscription" } 
-      };
+      return { data: null, error: { message: error.message || "Erreur lors de l'inscription" } };
     }
   };
 
   const signOut = async () => {
     try {
-      const currentUser = state.user;
-      
-      // Log logout before signing out
-      if (currentUser) {
-        await supabase.from('activity_log').insert({
-          user_id: currentUser.id,
-          action_type: 'USER_LOGOUT',
-          action_description: `Déconnexion`,
-          metadata: {
-            timestamp: new Date().toISOString()
-          }
-        });
-      }
-
-      await supabase.auth.signOut();
       SessionService.clearSession();
+      await supabase.auth.signOut();
       toast.success('Déconnexion réussie');
-      
-      // Redirect to auth page
       window.location.href = '/auth';
     } catch (error) {
       console.error('Error signing out:', error);
-      toast.error('Erreur lors de la déconnexion');
+      // Force redirect even on error
+      window.location.href = '/auth';
     }
   };
 
   const resetPassword = async (email: string): Promise<ResetPasswordResult> => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       
       if (error) {
         return { error: { message: error.message } };
       }
-      
       return { error: null };
     } catch (error: any) {
       return { error: { message: error.message || "Erreur lors de la réinitialisation" } };
