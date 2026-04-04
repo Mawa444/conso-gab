@@ -81,24 +81,52 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
     }
     setIsLoading(true);
     try {
-      const { error } = await signUp(email.trim().toLowerCase(), password, {
+      console.log('📤 Signup attempt:', email);
+      const result = await signUp(email.trim().toLowerCase(), password, {
         pseudo,
         role: 'consumer',
         first_name: firstName,
         last_name: lastName,
       });
-      if (error) {
-        if (error.message?.includes('existe déjà') || error.message === 'EXISTING_USER') {
+      console.log('📥 Signup result:', { data: !!result.data, error: result.error });
+      
+      if (result.error) {
+        if (result.error.message?.includes('existe déjà') || result.error.message === 'EXISTING_USER' || result.error.message?.includes('already')) {
           toast.error('Un compte existe déjà avec cet email. Connectez-vous.');
           setView('login');
         } else {
-          toast.error(error.message || "Erreur lors de l'inscription");
+          toast.error(result.error.message || "Erreur lors de l'inscription");
         }
         return;
       }
-      toast.success('Compte créé avec succès ! 🎉');
-      // Auth context will handle redirect via onAuthStateChange
+
+      // Check if we got a session (auto-confirm enabled)
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session) {
+        console.log('✅ Session active after signup, redirecting...');
+        toast.success('Compte créé avec succès ! 🎉');
+        navigate('/consumer/home', { replace: true });
+        return;
+      }
+
+      // No session = email confirmation required, try auto sign-in
+      console.log('⚠️ No session after signup, attempting auto sign-in...');
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password
+      });
+
+      if (signInError) {
+        console.log('⚠️ Auto sign-in failed:', signInError.message);
+        toast.success('Compte créé ! Vérifiez votre email ou connectez-vous.');
+        setView('login');
+      } else {
+        console.log('✅ Auto sign-in successful');
+        toast.success('Compte créé avec succès ! 🎉');
+        navigate('/consumer/home', { replace: true });
+      }
     } catch (error: any) {
+      console.error('❌ Signup exception:', error);
       toast.error(error.message || "Erreur lors de l'inscription");
     } finally {
       setIsLoading(false);
