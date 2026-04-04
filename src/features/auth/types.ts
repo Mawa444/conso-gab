@@ -34,7 +34,7 @@ export interface UserProfile {
 export interface UserSignUpData {
   pseudo: string;
   role: UserRole;
-  phone: string;
+  phone?: string;
   country?: string;
   province?: string;
   department?: string;
