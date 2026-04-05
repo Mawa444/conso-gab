@@ -160,7 +160,22 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
                   </Button>
                 </div>
 
-                <p className="text-xs text-center text-muted-foreground mt-6">
+                <Separator />
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    try { localStorage.setItem('gb_prototype_access', 'true'); } catch {}
+                    navigate('/consumer/home', { replace: true });
+                    onComplete();
+                  }}
+                >
+                  Continuer sans compte →
+                </Button>
+
+                <p className="text-xs text-center text-muted-foreground mt-2">
                   En continuant, vous acceptez nos conditions d'utilisation
                 </p>
               </CardContent>
