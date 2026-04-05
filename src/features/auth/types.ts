@@ -85,6 +85,7 @@ export interface AuthState {
   profile: UserProfile | null;
   loading: boolean;
   initialized: boolean;
+  isPrototypeMode: boolean;
 }
 
 export interface AuthContextType extends AuthState {
@@ -93,5 +94,7 @@ export interface AuthContextType extends AuthState {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<ResetPasswordResult>;
   refreshProfile: () => Promise<void>;
+  enablePrototypeAccess: () => void;
+  disablePrototypeAccess: () => void;
 }
 

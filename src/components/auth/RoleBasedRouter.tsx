@@ -16,7 +16,7 @@ interface RoleBasedRouterProps {
 }
 
 export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isPrototypeMode } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [userProfile, setUserProfile] = useState<UserProfile>({ role: null, pseudo: null });
@@ -27,6 +27,12 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      if (isPrototypeMode) {
+        setUserProfile({ role: 'consumer', pseudo: 'Présentation' });
+        setProfileLoading(false);
+        return;
+      }
+
       if (!user) return;
       
       setProfileLoading(true);
@@ -60,14 +66,20 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
       }
     };
 
-    if (user && !authLoading) {
+    if (!user && !isPrototypeMode) {
+      setUserProfile({ role: null, pseudo: null });
+      setProfileLoading(false);
+      return;
+    }
+
+    if ((user || isPrototypeMode) && !authLoading) {
       fetchUserProfile();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, isPrototypeMode]);
 
   // Redirection vers auth si pas connecté
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !user && !isPrototypeMode) {
       const currentPath = location.pathname;
       
       if (!currentPath.startsWith('/auth')) {
@@ -76,12 +88,14 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
         return;
       }
     }
-  }, [authLoading, user, navigate, location.pathname]);
+  }, [authLoading, user, isPrototypeMode, navigate, location.pathname]);
 
   // Redirection intelligente après connexion
   const [hasRedirectedRef] = useState({ current: false });
   
   useEffect(() => {
+    if (isPrototypeMode) return;
+
     if (!globalLoading && user && userProfile.role) {
       const currentPath = location.pathname;
       
@@ -92,7 +106,7 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
         redirectToLastUsedProfile();
       }
     }
-  }, [globalLoading, user, userProfile.role, location.pathname]);
+  }, [globalLoading, user, userProfile.role, location.pathname, isPrototypeMode]);
 
   const redirectToLastUsedProfile = async () => {
     if (!user) return;
