@@ -19,7 +19,7 @@ interface AuthFlowPageProps {
 }
 
 export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
-  const { user, loading, signIn, signUp } = useAuth();
+  const { user, loading, signIn, signUp, enablePrototypeAccess } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState<AuthView>('welcome');
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +47,13 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
       onComplete();
     }
   }, [user, loading, navigate, onComplete]);
+
+  const handlePrototypeAccess = () => {
+    enablePrototypeAccess();
+    toast.success('Mode présentation activé');
+    navigate('/consumer/home', { replace: true });
+    onComplete();
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,6 +199,18 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
     </p>
   );
 
+  const PrototypeAccessButton = () => (
+    <Button
+      type="button"
+      variant="secondary"
+      className="w-full h-11"
+      onClick={handlePrototypeAccess}
+      disabled={isLoading}
+    >
+      Accéder à l'application sans compte
+    </Button>
+  );
+
   // Welcome
   if (view === 'welcome') {
     return (
@@ -216,6 +235,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
               </Button>
               <Separator />
               <GoogleButton />
+              <PrototypeAccessButton />
               <TermsFooter />
             </CardContent>
           </Card>
@@ -305,6 +325,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
 
               <Separator />
               <GoogleButton />
+              <PrototypeAccessButton />
 
               <div className="text-center space-y-2">
                 <button type="button" onClick={() => setView('login')} className="text-primary hover:underline text-sm">
@@ -362,6 +383,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
 
             <Separator />
             <GoogleButton />
+            <PrototypeAccessButton />
 
             <div className="text-center space-y-2">
               <button type="button" onClick={() => setView('signup')} className="text-primary hover:underline text-sm">

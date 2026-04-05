@@ -8,16 +8,114 @@ import { toast } from 'sonner';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const PROTOTYPE_AUTH_KEY = 'gb_prototype_access';
+const PROTOTYPE_USER_ID = 'prototype-user';
+
+const isPrototypeAccessEnabled = () => {
+  try {
+    return localStorage.getItem(PROTOTYPE_AUTH_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const persistPrototypeAccess = (enabled: boolean) => {
+  try {
+    if (enabled) {
+      localStorage.setItem(PROTOTYPE_AUTH_KEY, 'true');
+      return;
+    }
+
+    localStorage.removeItem(PROTOTYPE_AUTH_KEY);
+  } catch (error) {
+    console.warn('Failed to persist prototype access:', error);
+  }
+};
+
+const createPrototypeUser = (): User => ({
+  id: PROTOTYPE_USER_ID,
+  aud: 'authenticated',
+  app_metadata: {
+    provider: 'prototype',
+    providers: ['prototype']
+  },
+  user_metadata: {
+    pseudo: 'Présentation',
+    role: 'consumer',
+    isPrototype: true
+  },
+  email: 'presentation@consogab.local',
+  created_at: new Date(0).toISOString()
+} as User);
+
+const createPrototypeSession = (user: User): Session => ({
+  access_token: 'prototype-access-token',
+  refresh_token: 'prototype-refresh-token',
+  expires_in: 60 * 60 * 24 * 365,
+  expires_at: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365,
+  token_type: 'bearer',
+  user
+} as Session);
+
+const createPrototypeProfile = () => ({
+  id: 'prototype-profile',
+  user_id: PROTOTYPE_USER_ID,
+  role: 'consumer' as const,
+  pseudo: 'Présentation',
+  visibility: 'public' as const,
+  created_at: new Date(0).toISOString(),
+  updated_at: new Date(0).toISOString()
+});
+
+const getPrototypeState = (): AuthState => {
+  const user = createPrototypeUser();
+
+  return {
+    user,
+    session: createPrototypeSession(user),
+    profile: createPrototypeProfile(),
+    loading: false,
+    initialized: true,
+    isPrototypeMode: true
+  };
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
     profile: null,
     loading: true,
-    initialized: false
+    initialized: false,
+    isPrototypeMode: false
   });
 
   const mountedRef = useRef(true);
+
+  const enablePrototypeAccess = useCallback(() => {
+    persistPrototypeAccess(true);
+    SessionService.initSession(PROTOTYPE_USER_ID);
+
+    if (mountedRef.current) {
+      setState(getPrototypeState());
+    }
+  }, []);
+
+  const disablePrototypeAccess = useCallback(() => {
+    persistPrototypeAccess(false);
+    SessionService.clearSession();
+
+    if (mountedRef.current) {
+      setState({
+        user: null,
+        session: null,
+        profile: null,
+        loading: false,
+        initialized: true,
+        isPrototypeMode: false
+      });
+    }
+  }, []);
 
   const fetchProfile = useCallback(async (userId: string) => {
     try {
@@ -46,25 +144,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (event === 'SIGNED_OUT') {
         SessionService.clearSession();
+
+        if (isPrototypeAccessEnabled()) {
+          setState(getPrototypeState());
+          return;
+        }
+
         setState({
           user: null,
           session: null,
           profile: null,
           loading: false,
-          initialized: true
+          initialized: true,
+          isPrototypeMode: false
         });
         return;
       }
 
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         const user = session?.user ?? null;
+
+        persistPrototypeAccess(false);
         
         setState(prev => ({
           ...prev,
           user,
           session,
+          profile: prev.isPrototypeMode ? null : prev.profile,
           loading: false,
-          initialized: true
+          initialized: true,
+          isPrototypeMode: false
         }));
 
         if (user && event === 'SIGNED_IN') {
@@ -79,12 +188,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (event === 'PASSWORD_RECOVERY') {
         // Let the reset password page handle this
+        persistPrototypeAccess(false);
+
         setState(prev => ({
           ...prev,
           user: session?.user ?? null,
           session,
           loading: false,
-          initialized: true
+          initialized: true,
+          isPrototypeMode: false
         }));
       }
     });
@@ -93,15 +205,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mountedRef.current) return;
 
+      if (!session && isPrototypeAccessEnabled()) {
+        setState(getPrototypeState());
+        return;
+      }
+
       setState(prev => ({
         ...prev,
         user: session?.user ?? null,
         session,
         loading: false,
-        initialized: true
+        initialized: true,
+        isPrototypeMode: false
       }));
 
       if (session?.user) {
+        persistPrototypeAccess(false);
         fetchProfile(session.user.id);
       }
     });
@@ -161,8 +280,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    persistPrototypeAccess(false);
+    SessionService.clearSession();
+
+    if (state.isPrototypeMode) {
+      toast.success('Mode présentation fermé');
+      window.location.href = '/auth';
+      return;
+    }
+
     try {
-      SessionService.clearSession();
       await supabase.auth.signOut();
       toast.success('Déconnexion réussie');
       window.location.href = '/auth';
@@ -195,7 +322,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signUp,
       signOut,
       resetPassword,
-      refreshProfile
+      refreshProfile,
+      enablePrototypeAccess,
+      disablePrototypeAccess
     }}>
       {children}
     </AuthContext.Provider>
