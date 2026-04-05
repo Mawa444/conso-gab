@@ -23,7 +23,7 @@ interface UserCurrentMode {
 const profileLogger = createDomainLogger('profile-manager');
 
 export const useProfileMode = () => {
-  const { user, isPrototypeMode } = useAuth();
+  const { user } = useAuth();
   const [currentMode, setCurrentMode] = useState<ProfileMode>('consumer');
   const [currentBusinessId, setCurrentBusinessId] = useState<string | null>(null);
   const [businessProfiles, setBusinessProfiles] = useState<BusinessProfile[]>([]);
@@ -31,7 +31,7 @@ export const useProfileMode = () => {
   const [initialized, setInitialized] = useState(false);
 
   const loadBusinessProfiles = useCallback(async () => {
-    if (!user || isPrototypeMode) return;
+    if (!user) return;
 
     try {
       profileLogger.debug('Loading business profiles', { 
@@ -80,10 +80,10 @@ export const useProfileMode = () => {
       }, error);
       setBusinessProfiles([]);
     }
-  }, [user, isPrototypeMode]);
+  }, [user]);
 
   const loadCurrentMode = useCallback(async () => {
-    if (!user || isPrototypeMode) return;
+    if (!user) return;
 
     try {
       profileLogger.debug('Loading current mode', { 
@@ -141,19 +141,10 @@ export const useProfileMode = () => {
       setCurrentMode('consumer');
       setCurrentBusinessId(null);
     }
-  }, [user, isPrototypeMode]);
+  }, [user]);
 
   // Initialisation des données à la connexion - SEULEMENT UNE FOIS
   useEffect(() => {
-    if (isPrototypeMode) {
-      setCurrentMode('consumer');
-      setCurrentBusinessId(null);
-      setBusinessProfiles([]);
-      setLoading(false);
-      setInitialized(true);
-      return;
-    }
-
     if (!user) {
       setCurrentMode('consumer');
       setCurrentBusinessId(null);
@@ -228,18 +219,11 @@ export const useProfileMode = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, initialized, isPrototypeMode]); // Supprimer currentMode des deps pour éviter la boucle
+  }, [user, initialized]); // Supprimer currentMode des deps pour éviter la boucle
 
 
 
   const switchMode = async (mode: ProfileMode, businessId?: string, callback?: () => void) => {
-    if (isPrototypeMode) {
-      setCurrentMode(mode);
-      setCurrentBusinessId(businessId || null);
-      callback?.();
-      return;
-    }
-
     if (!user) {
       toast.error("Vous devez être connecté pour changer de mode");
       return;

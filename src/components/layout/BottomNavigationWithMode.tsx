@@ -24,7 +24,7 @@ export const BottomNavigationWithMode = ({
     if (tab === 'profile') {
       // Navigation contextuelle selon le mode
       if (currentMode === 'business' && currentBusinessId) {
-        navigate(`/business/${currentBusinessId}`);
+        navigate(`/business/${currentBusinessId}/dashboard`);
       } else {
         navigate('/consumer/profile');
       }

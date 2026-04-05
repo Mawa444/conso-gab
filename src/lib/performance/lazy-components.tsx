@@ -72,7 +72,7 @@ export const LazyMessagingPage = lazyLoad(
 );
 
 export const LazyConversationPage = lazyLoad(
-  () => import('@/pages/MessagingPage')
+  () => import('@/pages/ConversationPage')
 );
 
 // Pages Catalogues

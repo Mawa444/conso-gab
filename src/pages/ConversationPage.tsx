@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChatLayout } from '@/features/chat/components/ChatLayout';
 
-export const MessagingPage: React.FC = () => {
+export const ConversationPage: React.FC = () => {
   return (
     <div className="h-[calc(100vh-4rem)]">
       <ChatLayout />
@@ -9,4 +9,4 @@ export const MessagingPage: React.FC = () => {
   );
 };
 
-export default MessagingPage;
+export default ConversationPage;

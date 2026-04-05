@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthContextType, AuthState, UserSignUpData, SignUpResult, SignInResult, ResetPasswordResult } from './types';
@@ -8,231 +8,112 @@ import { toast } from 'sonner';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const PROTOTYPE_AUTH_KEY = 'gb_prototype_access';
-const PROTOTYPE_USER_ID = 'prototype-user';
-
-const isPrototypeAccessEnabled = () => {
-  try {
-    return localStorage.getItem(PROTOTYPE_AUTH_KEY) === 'true';
-  } catch {
-    return false;
-  }
-};
-
-const persistPrototypeAccess = (enabled: boolean) => {
-  try {
-    if (enabled) {
-      localStorage.setItem(PROTOTYPE_AUTH_KEY, 'true');
-      return;
-    }
-
-    localStorage.removeItem(PROTOTYPE_AUTH_KEY);
-  } catch (error) {
-    console.warn('Failed to persist prototype access:', error);
-  }
-};
-
-const createPrototypeUser = (): User => ({
-  id: PROTOTYPE_USER_ID,
-  aud: 'authenticated',
-  app_metadata: {
-    provider: 'prototype',
-    providers: ['prototype']
-  },
-  user_metadata: {
-    pseudo: 'Présentation',
-    role: 'consumer',
-    isPrototype: true
-  },
-  email: 'presentation@consogab.local',
-  created_at: new Date(0).toISOString()
-} as User);
-
-const createPrototypeSession = (user: User): Session => ({
-  access_token: 'prototype-access-token',
-  refresh_token: 'prototype-refresh-token',
-  expires_in: 60 * 60 * 24 * 365,
-  expires_at: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365,
-  token_type: 'bearer',
-  user
-} as Session);
-
-const createPrototypeProfile = () => ({
-  id: 'prototype-profile',
-  user_id: PROTOTYPE_USER_ID,
-  role: 'consumer' as const,
-  pseudo: 'Présentation',
-  visibility: 'public' as const,
-  created_at: new Date(0).toISOString(),
-  updated_at: new Date(0).toISOString()
-});
-
-const getPrototypeState = (): AuthState => {
-  const user = createPrototypeUser();
-
-  return {
-    user,
-    session: createPrototypeSession(user),
-    profile: createPrototypeProfile(),
-    loading: false,
-    initialized: true,
-    isPrototypeMode: true
-  };
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
     profile: null,
     loading: true,
-    initialized: false,
-    isPrototypeMode: false
+    initialized: false
   });
-
-  const mountedRef = useRef(true);
-
-  const enablePrototypeAccess = useCallback(() => {
-    persistPrototypeAccess(true);
-    SessionService.initSession(PROTOTYPE_USER_ID);
-
-    if (mountedRef.current) {
-      setState(getPrototypeState());
-    }
-  }, []);
-
-  const disablePrototypeAccess = useCallback(() => {
-    persistPrototypeAccess(false);
-    SessionService.clearSession();
-
-    if (mountedRef.current) {
-      setState({
-        user: null,
-        session: null,
-        profile: null,
-        loading: false,
-        initialized: true,
-        isPrototypeMode: false
-      });
-    }
-  }, []);
-
-  const fetchProfile = useCallback(async (userId: string) => {
-    try {
-      const profile = await AuthService.getProfile(userId);
-      if (mountedRef.current) {
-        setState(prev => ({ ...prev, profile: profile || prev.profile }));
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  }, []);
 
   const refreshProfile = useCallback(async () => {
     if (!state.user) return;
-    await fetchProfile(state.user.id);
-  }, [state.user, fetchProfile]);
+    const profile = await AuthService.getProfile(state.user.id);
+    setState(prev => ({ ...prev, profile }));
+  }, [state.user]);
 
+  // Initialize Auth
   useEffect(() => {
-    mountedRef.current = true;
+    let mounted = true;
 
-    // CRITICAL: Set up listener BEFORE getSession (per Supabase docs)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('🔐 Auth event:', event, session?.user?.email);
-      
-      if (!mountedRef.current) return;
-
-      if (event === 'SIGNED_OUT') {
-        SessionService.clearSession();
-
-        if (isPrototypeAccessEnabled()) {
-          setState(getPrototypeState());
-          return;
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        let profile = null;
+        if (session?.user) {
+          profile = await AuthService.getProfile(session.user.id);
         }
 
+        if (mounted) {
+          setState({
+            user: session?.user ?? null,
+            session,
+            profile,
+            loading: false,
+            initialized: true
+          });
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        if (mounted) {
+          setState(prev => ({ ...prev, loading: false, initialized: true }));
+        }
+      }
+    };
+
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔐 Auth state change:', event, session?.user?.email);
+      
+      // Synchronous state update first
+      const user = session?.user ?? null;
+      
+      if (event === 'SIGNED_OUT') {
+        SessionService.clearSession();
         setState({
           user: null,
           session: null,
           profile: null,
           loading: false,
-          initialized: true,
-          isPrototypeMode: false
+          initialized: true
         });
         return;
       }
 
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-        const user = session?.user ?? null;
-
-        persistPrototypeAccess(false);
-        
+        // Update state immediately with user info
         setState(prev => ({
           ...prev,
           user,
           session,
-          profile: prev.isPrototypeMode ? null : prev.profile,
           loading: false,
-          initialized: true,
-          isPrototypeMode: false
+          initialized: true
         }));
-
+        
+        // Initialize session tracking
         if (user && event === 'SIGNED_IN') {
           SessionService.initSession(user.id);
         }
 
-        // Defer profile fetch to avoid Supabase auth deadlock
+        // Defer profile fetch to avoid deadlock
         if (user) {
-          setTimeout(() => fetchProfile(user.id), 0);
+          setTimeout(async () => {
+            try {
+              const profile = await AuthService.getProfile(user.id);
+              setState(prev => ({
+                ...prev,
+                profile: profile || prev.profile
+              }));
+            } catch (error) {
+              console.error('Error fetching profile:', error);
+            }
+          }, 0);
         }
-      }
-
-      if (event === 'PASSWORD_RECOVERY') {
-        // Let the reset password page handle this
-        persistPrototypeAccess(false);
-
-        setState(prev => ({
-          ...prev,
-          user: session?.user ?? null,
-          session,
-          loading: false,
-          initialized: true,
-          isPrototypeMode: false
-        }));
-      }
-    });
-
-    // THEN get existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mountedRef.current) return;
-
-      if (!session && isPrototypeAccessEnabled()) {
-        setState(getPrototypeState());
-        return;
-      }
-
-      setState(prev => ({
-        ...prev,
-        user: session?.user ?? null,
-        session,
-        loading: false,
-        initialized: true,
-        isPrototypeMode: false
-      }));
-
-      if (session?.user) {
-        persistPrototypeAccess(false);
-        fetchProfile(session.user.id);
       }
     });
 
     return () => {
-      mountedRef.current = false;
+      mounted = false;
       subscription.unsubscribe();
     };
-  }, [fetchProfile]);
+  }, []);
 
   const signIn = async (email: string, password: string): Promise<SignInResult> => {
     try {
+      // Normalize email
       const normalizedEmail = email.trim().toLowerCase();
       
       const { data, error } = await supabase.auth.signInWithPassword({ 
@@ -243,13 +124,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         console.error('Sign in error:', error);
         
+        // Improved French error messages
         if (error.message.includes('Invalid login credentials')) {
-          return { data, error: { message: "Email ou mot de passe incorrect." } };
+          return {
+            data,
+            error: { message: "Email ou mot de passe incorrect. Vérifiez vos identifiants." }
+          };
         }
         if (error.message.includes('Email not confirmed')) {
-          return { data, error: { message: "Veuillez confirmer votre email avant de vous connecter." } };
+          return {
+            data,
+            error: { message: "Veuillez confirmer votre email avant de vous connecter." }
+          };
+        }
+        if (error.message.includes('Invalid email')) {
+          return {
+            data,
+            error: { message: "Format d'email invalide." }
+          };
         }
         return { data, error: { message: error.message } };
+      }
+
+      // Log successful login
+      if (data.user) {
+        await supabase.from('activity_log').insert({
+          user_id: data.user.id,
+          action_type: 'USER_LOGIN',
+          action_description: `Connexion réussie`,
+          metadata: {
+            email: normalizedEmail,
+            timestamp: new Date().toISOString()
+          }
+        });
       }
 
       return { data, error: null };
@@ -264,51 +171,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await AuthService.signUp(email, password, userData);
       
       if (result.error) {
+        // Handle existing user
         if (result.error.message === "EXISTING_USER") {
           return {
             data: result.data,
-            error: { message: "Un compte existe déjà avec cet email. Veuillez vous connecter." }
+            error: { 
+              message: "Un compte existe déjà avec cet email. Veuillez vous connecter.",
+              email: result.error.email
+            }
           };
         }
-        return { data: result.data, error: { message: result.error.message || "Erreur lors de l'inscription" } };
+        return { 
+          data: result.data, 
+          error: { message: result.error.message || "Erreur lors de l'inscription" } 
+        };
+      }
+
+      // Log successful signup
+      if (result.data?.user) {
+        await supabase.from('activity_log').insert({
+          user_id: result.data.user.id,
+          action_type: 'USER_SIGNUP',
+          action_description: `Inscription réussie`,
+          metadata: {
+            email: email.trim().toLowerCase(),
+            full_name: String(userData.full_name || ''),
+            timestamp: new Date().toISOString()
+          }
+        });
       }
 
       return { data: result.data, error: null };
     } catch (error: any) {
-      return { data: null, error: { message: error.message || "Erreur lors de l'inscription" } };
+      return { 
+        data: null, 
+        error: { message: error.message || "Erreur lors de l'inscription" } 
+      };
     }
   };
 
   const signOut = async () => {
-    persistPrototypeAccess(false);
-    SessionService.clearSession();
-
-    if (state.isPrototypeMode) {
-      toast.success('Mode présentation fermé');
-      window.location.href = '/auth';
-      return;
-    }
-
     try {
+      const currentUser = state.user;
+      
+      // Log logout before signing out
+      if (currentUser) {
+        await supabase.from('activity_log').insert({
+          user_id: currentUser.id,
+          action_type: 'USER_LOGOUT',
+          action_description: `Déconnexion`,
+          metadata: {
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+
       await supabase.auth.signOut();
+      SessionService.clearSession();
       toast.success('Déconnexion réussie');
+      
+      // Redirect to auth page
       window.location.href = '/auth';
     } catch (error) {
       console.error('Error signing out:', error);
-      // Force redirect even on error
-      window.location.href = '/auth';
+      toast.error('Erreur lors de la déconnexion');
     }
   };
 
   const resetPassword = async (email: string): Promise<ResetPasswordResult> => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/auth`,
       });
       
       if (error) {
         return { error: { message: error.message } };
       }
+      
       return { error: null };
     } catch (error: any) {
       return { error: { message: error.message || "Erreur lors de la réinitialisation" } };
@@ -322,9 +261,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signUp,
       signOut,
       resetPassword,
-      refreshProfile,
-      enablePrototypeAccess,
-      disablePrototypeAccess
+      refreshProfile
     }}>
       {children}
     </AuthContext.Provider>

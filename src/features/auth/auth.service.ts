@@ -32,20 +32,32 @@ export class AuthService {
   }
 
   static async signUp(email: string, password: string, userData: UserSignUpData) {
+    // Validate email format before sending to Supabase
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return { data: null, error: { message: "Format d'email invalide" } };
+      return { 
+        data: null, 
+        error: { message: "Format d'email invalide" } 
+      };
     }
 
+    // Validate password length
     if (password.length < 6) {
-      return { data: null, error: { message: "Le mot de passe doit contenir au moins 6 caractères" } };
+      return { 
+        data: null, 
+        error: { message: "Le mot de passe doit contenir au moins 6 caractères" } 
+      };
     }
 
+    // Get redirect URL for email confirmation
+    const redirectUrl = `${window.location.origin}/auth`;
+
+    // 1. Sign up with Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email: email.trim().toLowerCase(),
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: redirectUrl,
         data: {
           pseudo: userData.pseudo,
           role: userData.role,
@@ -58,26 +70,39 @@ export class AuthService {
     if (error) {
       console.error('Supabase signup error:', error);
       
+      // Handle specific error codes
       if (error.message.includes('already registered') || error.message.includes('already been registered')) {
-        return { data, error: { message: "EXISTING_USER", email } };
+        try { localStorage.setItem('prefillEmail', email); } catch { /* Ignore */ }
+        return { 
+          data, 
+          error: { message: "EXISTING_USER", email } 
+        };
       }
       
+      // Handle invalid email error from Supabase
       if (error.message.includes('invalid') || error.message.includes('Invalid')) {
-        return { data, error: { message: "L'adresse email n'est pas valide." } };
+        return { 
+          data, 
+          error: { message: "L'adresse email n'est pas valide. Utilisez une adresse email réelle." } 
+        };
       }
       
       return { data, error: { message: error.message } };
     }
 
-    // If auto-confirm is on and session exists, set up profiles
+    // 2. If auto-confirm is on (dev mode) or session exists, create profiles
     if (data.user && data.session) {
       try {
-        const profile = await this.waitForProfile(data.user.id);
+        const sessionUser = data.user;
+
+        // Wait for profile created by trigger, or create manually
+        const profile = await this.waitForProfile(sessionUser.id);
         
         if (!profile) {
-          console.warn('Trigger did not create profile, creating manually');
+          // Fallback: Create profile manually if trigger failed
+          console.warn('Trigger failed, creating profile manually');
           await supabase.from('user_profiles').insert({
-            user_id: data.user.id,
+            user_id: sessionUser.id,
             pseudo: userData.pseudo,
             role: userData.role,
             phone: userData.phone,
@@ -93,11 +118,13 @@ export class AuthService {
           });
         }
 
-        if (userData.role === 'merchant' && userData.businessName?.trim()) {
-          await this.createBusinessProfile(data.user.id, userData);
+        // 3. If merchant, create business profile
+        if (userData.role === 'merchant' && userData.businessName && userData.businessName.trim()) {
+          await this.createBusinessProfile(sessionUser.id, userData);
         }
+
       } catch (err) {
-        console.error('Error during post-signup profile creation:', err);
+        console.error('Error during post-signup:', err);
       }
     }
 
@@ -105,6 +132,7 @@ export class AuthService {
   }
 
   private static async createBusinessProfile(userId: string, userData: UserSignUpData) {
+    // Validate business category
     const category = userData.businessCategory?.toLowerCase() || 'services';
     const businessCategory: BusinessCategory = this.VALID_BUSINESS_CATEGORIES.includes(category as BusinessCategory)
       ? category as BusinessCategory
@@ -114,7 +142,7 @@ export class AuthService {
       .from('business_profiles')
       .insert([{
         user_id: userId,
-        owner_id: userId,
+        owner_id: userId, // Important: set owner_id for RLS policies
         business_name: userData.businessName,
         business_category: businessCategory,
         description: userData.businessDescription || '',
@@ -138,26 +166,37 @@ export class AuthService {
     }
 
     if (businessData) {
-      await supabase.from('business_collaborators').insert({
-        user_id: userId,
-        business_id: businessData.id,
-        role: 'owner',
-        status: 'accepted',
-        accepted_at: new Date().toISOString(),
-        permissions: {
-          manage_products: true,
-          manage_orders: true,
-          manage_staff: true,
-          view_analytics: true,
-          edit_settings: true
-        }
-      });
+      // CRITICAL: Create business collaborator entry for RoleBasedRouter to detect businesses
+      const { error: collabError } = await supabase
+        .from('business_collaborators')
+        .insert({
+          user_id: userId,
+          business_id: businessData.id,
+          role: 'owner',
+          status: 'accepted',
+          accepted_at: new Date().toISOString(),
+          permissions: {
+            manage_products: true,
+            manage_orders: true,
+            manage_staff: true,
+            view_analytics: true,
+            edit_settings: true
+          }
+        });
 
-      await supabase.from('user_current_mode').upsert({
-        user_id: userId,
-        current_mode: 'business',
-        current_business_id: businessData.id
-      });
+      if (collabError) {
+        console.error('Error creating business collaborator:', collabError);
+      }
+
+      // Initialize business mode for new merchants
+      await supabase
+        .from('user_current_mode')
+        .upsert({
+          user_id: userId,
+          current_mode: 'business',
+          current_business_id: businessData.id
+        });
     }
   }
 }
+
