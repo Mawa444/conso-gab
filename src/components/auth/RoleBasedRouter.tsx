@@ -65,9 +65,12 @@ export const RoleBasedRouter = ({ children }: RoleBasedRouterProps) => {
     }
   }, [user, authLoading]);
 
-  // Redirection vers auth si pas connecté
+  // Redirection vers auth si pas connecté (sauf mode prototype)
   useEffect(() => {
     if (!authLoading && !user) {
+      const isPrototype = localStorage.getItem('gb_prototype_access') === 'true';
+      if (isPrototype) return;
+
       const currentPath = location.pathname;
       
       if (!currentPath.startsWith('/auth')) {
