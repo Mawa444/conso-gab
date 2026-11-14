@@ -8,6 +8,14 @@ import { Separator } from "@/components/ui/separator";
 import { Mail, Lock, Globe, Eye, EyeOff } from "lucide-react";
 import gabomaLogo from "@/assets/gaboma-logo.png";
 import { toast } from "sonner";
+
+const friendlyAuthError = (error: any, fallback: string) => {
+  const msg = String(error?.message ?? '');
+  if (error?.name === 'AuthRetryableFetchError' || /Failed to fetch|NetworkError|Load failed|fetch/i.test(msg)) {
+    return "Service momentanément indisponible. Utilisez « Entrer sans compte » en attendant.";
+  }
+  return msg || fallback;
+};
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { GuidedSignupFlow } from "@/components/auth/GuidedSignupFlow";
@@ -67,7 +75,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
     try {
       const { data, error } = await signIn(email, password);
       if (error) {
-        toast.error(error.message || 'Erreur de connexion');
+        toast.error(friendlyAuthError(error, 'Erreur de connexion'));
         return;
       }
       
@@ -77,7 +85,7 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
       onComplete();
     } catch (error: any) {
       console.error('Erreur de connexion:', error);
-      toast.error(error.message || 'Erreur de connexion');
+      toast.error(friendlyAuthError(error, 'Erreur de connexion'));
     } finally {
       setIsLoading(false);
     }
@@ -137,6 +145,19 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
                   Créer un nouveau compte
                 </Button>
 
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full h-12 text-base"
+                  onClick={() => {
+                    try { localStorage.setItem('gb_prototype_access', 'true'); } catch {}
+                    navigate('/consumer/home', { replace: true });
+                    onComplete();
+                  }}
+                >
+                  Entrer sans compte
+                </Button>
+
                 <Separator />
 
                 <div className="space-y-2">
@@ -162,18 +183,6 @@ export const AuthFlowPage = ({ onComplete }: AuthFlowPageProps) => {
 
                 <Separator />
 
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full text-muted-foreground hover:text-foreground"
-                  onClick={() => {
-                    try { localStorage.setItem('gb_prototype_access', 'true'); } catch {}
-                    navigate('/consumer/home', { replace: true });
-                    onComplete();
-                  }}
-                >
-                  Continuer sans compte →
-                </Button>
 
                 <p className="text-xs text-center text-muted-foreground mt-2">
                   En continuant, vous acceptez nos conditions d'utilisation

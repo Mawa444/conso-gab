@@ -65,6 +65,17 @@ export interface BusinessData {
 /**
  * Service d'authentification sécurisé avec validation Zod
  */
+const NETWORK_ERROR_MESSAGE =
+  "Service momentanément indisponible. Vérifiez votre connexion ou entrez sans compte.";
+
+function normalizeAuthError(error: any) {
+  const msg = String(error?.message ?? error ?? '');
+  if (error?.name === 'AuthRetryableFetchError' || /Failed to fetch|NetworkError|Load failed/i.test(msg)) {
+    return { ...(typeof error === 'object' ? error : {}), message: NETWORK_ERROR_MESSAGE };
+  }
+  return error;
+}
+
 export class AuthService {
   /**
    * Inscription d'un nouvel utilisateur avec validation
@@ -89,7 +100,7 @@ export class AuthService {
       });
 
       if (signUpError) {
-        return { user: null, error: signUpError };
+        return { user: null, error: normalizeAuthError(signUpError) };
       }
 
       return { user: signUpData.user, error: null };
@@ -100,7 +111,7 @@ export class AuthService {
           error: { message: error.errors[0].message } 
         };
       }
-      return { user: null, error };
+      return { user: null, error: normalizeAuthError(error) };
     }
   }
 
@@ -117,7 +128,7 @@ export class AuthService {
         password: validatedData.password,
       });
 
-      return { user: data.user, error };
+      return { user: data?.user ?? null, error: error ? normalizeAuthError(error) : null };
     } catch (error) {
       if (error instanceof z.ZodError) {
         return { 
@@ -125,7 +136,7 @@ export class AuthService {
           error: { message: error.errors[0].message } 
         };
       }
-      return { user: null, error };
+      return { user: null, error: normalizeAuthError(error) };
     }
   }
 
